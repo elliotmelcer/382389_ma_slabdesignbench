@@ -1,3 +1,2 @@
 ﻿name;kind;enforced;weight;exponent;active_default
-deflection_violation;integer;HIDDEN;1;1;true
-stress_violation;integer;HIDDEN;1;1;true
+bending_capacity;integer;HIDDEN;1;1;true

@@ -1,39 +1,32 @@
-﻿name;domain;values;grid_start;grid_step;grid_count;default_lb;default_ub;default_fixed;role
-t_mm;catalog;100|150|200|250|300;;;;0;4;2;var
-s_mm;catalog;50|75|100|125|150;;;;0;4;1;var
-d_mm;catalog;10|12|14|16|20|24|28|32;;;;0;7;3;var
-cover_mm;grid;;20;5;5;0;4;2;fixed
-span_m;grid;;5;0.5;9;0;8;4;fixed
-;;;;;;;;;
-l_m;grid;;1;0.01;2301;0;2300;775;fixed
-b_m;grid;;0.1;0.01;191;0;190;142;fixed
-h_ges_m;grid;;0.1;0.01;91;0;90;55;fixed
-hx_hy_;catalog;1/3 | 0.25 | 0.2;;;;0;2;2;fixed
-t_m;grid;;0.02;0.005;17;0;16;16;var
-nt;grid;;1;1;30;0;29;4;var
-dy;grid;;0;0.01;39;0;38;3;var
-t_schuettung_m;grid;;0;0.01;11;0;10;0;fixed
-t_estrich_m;grid;;0.045;0.001;36;0;35;0;fixed
-t_daemmung_m;grid;;0.012;0.001;29;0;28;0;fixed
-q_kNm2;grid;;0;0.1;101;0;100;30;fixed
-N_kN;grid;;-200;0.1;4001;0;4000;2000;fixed
-conc_id;catalog;C 12/15 | C 16/20 | C 20/25 | C 25/30 | C 30/37 | C 35/45 | C 40/50 | C 45/55 | C 50/60 | C 55/67 | C 60/75 | C 70/85 | C 80/95 | C 90/105 | C 100/115; ;;;3;14;3;fixed
-rebar_id;catalog;???;;;;0;2;0;fixed
-kap_t_percent;grid;;0;1;81;0;80;60;var
-a_tex_cm2;grid;;0.005;0.005;400;0;399;19;var
-fill_id;catalog;Schuettung;;;;0;0;0;fixed
-insu_id;catalog;Mineralwolle-Dämmstoff im niedrigen Rohdichtebereich; ;;;0;0;0;fixed
-screed_id;catalog;Mineralische Werkmörtel: Estrichmörtel ­ Zementestrich; ;;;0;0;0;fixed
-mod_damp;grid;;0.01;0.01;1;0;0;0;fixed
-rw_req_db;catalog;53 | 54 | 55;;;;0;2;1;fixed
-lnw_max_db;catalog;46  | 53;;;;0;1;0;fixed
-sls_case;catalog;a | b;;;;0;1;1;fixed
-defl_max;catalog;250 | 500;;;;0;2;0;fixed
-defl_fail;catalog;100;;;;0;0;0;fixed
-f_beam_theory;grid;;1;1;10;0;9;4;fixed
-omega_1;grid;;0.1;0.1;100;0;99;98;fixed
-omega_2;grid;;0.1;0.1;100;0;99;9;fixed
-weighted_equation;catalog;sum | product;;;;0;1;1;fixed
-cost_rebar;catalog;length | weight;;;;0;1;1;fixed
-;;;;;;;;;
-;;;;;;;;;
+﻿name;domain;values;grid_start;grid_step;grid_count;default_lb;default_ub;default_fixed;role;
+geom_span_mm;grid;;5000;500;9;0;8;4;fixed;x
+geom_b_mm;grid;;100;10;191;0;190;142;fixed;x
+geom_h_ges_mm;grid;;100;10;91;0;90;55;fixed;x
+geom_hx_hy_;catalog;1/3 | 0.25 | 0.2;;;;0;2;2;fixed;x
+geom_t_mm;grid;;20;5;17;0;16;16;var;x
+geom_nt;grid;;1;1;30;0;29;4;var;x
+geom_dy_mm;grid;;0;10;39;0;38;3;var;x
+geom_t_schuettung_mm;grid;;0;10;11;0;10;0;fixed;x
+geom_t_estrich_mm;grid;;45;1;36;0;35;0;fixed;x
+geom_t_daemmung_mm;grid;;12;1;29;0;28;0;fixed;x
+loads_q_kNm2;grid;;0;0.1;101;0;100;30;fixed;x
+loads_N_kN;grid;;-200;0.1;4001;0;4000;2000;fixed;x
+mat_conc_fck;catalog;16 | 20 | 25 | 30 | 35 | 40 | 45 | 50 | 55 | 60 | 70 | 80 | 90 | 100; ;;;3;14;3;fixed;x
+mat_rebar_id;catalog;???;;;;0;2;0;fixed;x
+mat_fill_id;catalog;Schuettung;;;;0;0;0;fixed;x
+mat_insu_id;catalog;Mineralwolle-Dämmstoff im niedrigen Rohdichtebereich; ;;;0;0;0;fixed;x
+mat_screed_id;catalog;Mineralische Werkmörtel: Estrichmörtel ­ Zementestrich; ;;;0;0;0;fixed;x
+reinf_d_mm;catalog;10|12|14|16|20|24|28|32;;;;0;7;3;var;x
+reinf_kap_t_percent;grid;;0;1;81;0;80;60;var;x
+reinf_a_tex_cm2;grid;;0.005;0.005;400;0;399;19;var;x
+insu_mod_damp;grid;;0.01;0.01;1;0;0;0;fixed;
+insu_rw_req_db;catalog;53 | 54 | 55;;;;0;2;1;fixed;
+insu_lnw_max_db;catalog;46  | 53;;;;0;1;0;fixed;
+defl_sls_case;catalog;a | b;;;;0;1;1;fixed;
+defl_max_defl_limit;catalog;250 | 500;;;;0;2;0;fixed;
+defl_max_announce_failure;catalog;100;;;;0;0;0;fixed;
+f_beam_theory;grid;;1;1;10;0;9;4;fixed;
+weight_omega_1;grid;;0.1;0.1;100;0;99;98;fixed;
+weight_omega_2;grid;;0.1;0.1;100;0;99;9;fixed;
+weight_weighted_equation;catalog;sum | product;;;;0;1;1;fixed;
+cost_rebar;catalog;length | weight;;;;0;1;1;fixed;
