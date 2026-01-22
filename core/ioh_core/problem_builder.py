@@ -27,7 +27,7 @@ from .io_util import _enf
 # Fallback list in case dynamic discovery fails
 _VALID_FALLBACK: tuple[str, ...] = (
     "flat_slab",
-    "hp_shell",
+    "hp_slab",
     "ribbed_slab",
     "solid_slab_one_way",
     "solid_slab_two_way",
@@ -35,12 +35,12 @@ _VALID_FALLBACK: tuple[str, ...] = (
 
 def _discover_slab_types() -> List[str]:
     """
-    Discover slab types by scanning the package 'slab_benchmark.slabs'
+    Discover slab types by scanning the package 'slab_construction.slabs'
     for subfolders that contain an 'analysis.py'. If anything goes wrong,
     fall back to the known list above.
     """
     try:
-        root = files("slab_benchmark.slabs")
+        root = files("slab_construction.slabs")
         types: List[str] = []
         for entry in root.iterdir():
             if entry.is_dir() and (entry / "analysis.py").is_file():
@@ -221,11 +221,11 @@ def build_problems_for_slab_type(slab_type: str) -> dict[str, dict]:
         raise ValueError(f"Unknown slab_type '{slab_type}'. Valid options: {', '.join(valid)}")
 
     # Import slab_benchmark.slabs.<slab_type>.analysis (must expose analysis)
-    mod_path = f"slab_benchmark.slabs.{slab_type}.analysis"
+    mod_path = f"slab_construction.slabs.{slab_type}.analysis"
     slab_module = import_module(mod_path)
 
     # Locate packaged CSV folder for this slab type
-    slab_dir = files("slab_benchmark.slabs") / slab_type
+    slab_dir = files("slab_construction.slabs") / slab_type
 
     # Delegate to the original builder
     return build_problems_for_slab(slab_dir, slab_module)

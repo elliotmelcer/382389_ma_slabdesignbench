@@ -7,7 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 from pprint import pprint
 from typing import Dict, List, Any
-from .io_util import _read_rows, _to_bool, _to_float, _enf
+from io_util import _read_rows, _to_bool, _to_float, _enf
 
 
 #----------------------------------------------------------------------------------------------------------#
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     PKG_ROOT = HERE.parent                  # .../src/slab_benchmark
     SLABS_DIR = PKG_ROOT / "slabs"          # .../src/slab_benchmark/slabs
 
-    slab_type = "solid_slab_one_way"
+    slab_type = "hp_slab"
     slab_dir = SLABS_DIR / slab_type
 
     print("SLABS_DIR :", SLABS_DIR)
