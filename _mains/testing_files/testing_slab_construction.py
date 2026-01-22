@@ -1,0 +1,5 @@
+from _mains.testing_files.testing_floor import test_floor
+from _mains.testing_files.testing_hp_slabs import hp_slab_c1_4_uls
+from slab_construction.slab_construction import SlabConstruction
+
+test_slab_construction = SlabConstruction(hp_slab_c1_4_uls, test_floor)

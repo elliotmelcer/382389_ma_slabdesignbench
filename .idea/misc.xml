@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Black">
+    <option name="sdkName" value="Python 3.12 (382389_ma_benchmarking_suite_hp_shell)" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id>Code maturityLaTeX</id>
+          </State>
+          <State>
+            <id>LaTeX</id>
+          </State>
+          <State>
+            <id>Probable bugsLaTeX</id>
+          </State>
+          <State>
+            <id>Redundant code constructsLaTeX</id>
+          </State>
+          <State>
+            <id>Style issuesLaTeX</id>
+          </State>
+          <State>
+            <id>Typesetting issuesLaTeX</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>User defined</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (382389_ma_benchmarking_suite_hp_shell)" project-jdk-type="Python SDK" />
+</project>
