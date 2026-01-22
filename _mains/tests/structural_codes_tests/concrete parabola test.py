@@ -1,5 +1,5 @@
 from core.analysis_core.section_methods import get_concrete
-from _mains.tests.hp_shell_geometry_test import hp_section_sls
+from _mains.tests.structural_codes_tests.hp_shell_geometry_test import hp_section_sls
 from _mains.testing_files.testing_materials import concrete_c50_sls
 
 epsmin_section, _ = get_concrete(hp_section_sls).constitutive_law.get_ultimate_strain()
