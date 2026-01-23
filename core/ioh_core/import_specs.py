@@ -1,5 +1,7 @@
 """
 Author: Max Dombrowski
+Modified by: Elliot Melcer
+ - main modified to work with file structure
 """
 
 # src/slab_benchmark/core/import_specs.py
@@ -301,55 +303,60 @@ def load_problems_combined(
 # Example to test if import_specs.py is working correctly
 #----------------------------------------------------------------------------------------------------------#
 if __name__ == "__main__":
-    HERE = Path(__file__).resolve().parent  # .../src/slab_benchmark/core
-    PKG_ROOT = HERE.parent                  # .../src/slab_benchmark
-    SLABS_DIR = PKG_ROOT / "slabs"          # .../src/slab_benchmark/slabs
+    HERE = Path(__file__).resolve().parent  # .../core/ioh_core
+    CORE = HERE.parent  # .../core
+    PKG_ROOT = CORE.parent  # project root
+    SLABS_DIR = PKG_ROOT / "slab_construction" / "slabs"
 
     slab_type = "hp_slab"
     slab_dir = SLABS_DIR / slab_type
 
+    print("HERE      :", HERE)
+    print("CORE      :", CORE)
+    print("PKG_ROOT  :", PKG_ROOT)
     print("SLABS_DIR :", SLABS_DIR)
     print("slab_dir  :", slab_dir)
     print("exists?   :", slab_dir.exists())
+    print()
 
     params_csv = slab_dir / "parameter_defaults.csv"
     constr_csv = slab_dir / "constraint_defaults.csv"
     problem_list_csv = slab_dir / "problem_list.csv"
 
-    for p in (params_csv, constr_csv, problem_list_csv):
-        print(p, "exists?", p.exists())
+    print("== File Paths ==")
+    for label, p in [("params", params_csv), ("constr", constr_csv), ("problem_list", problem_list_csv)]:
+        exists = "✓" if p.exists() else "✗"
+        print(f"[{exists}] {label}: {p}")
+    print()
 
-    PDEF = load_param_defaults(params_csv)
-    CDEF = load_constraint_defaults(constr_csv)
-    PROBLEMS = load_problems_combined(PDEF, CDEF, problem_list_csv)
-    print("OK: loaded", len(PDEF), "params;", len(CDEF), "constraint;", len(PROBLEMS), "problems")
+    # Only proceed if files exist
+    if not all(p.exists() for p in [params_csv, constr_csv, problem_list_csv]):
+        print("ERROR: Not all required CSV files exist. Exiting.")
+        exit(1)
 
-    print("== Paths ==")
-    print(params_csv.resolve())
-    print(constr_csv.resolve())
-    print(problem_list_csv.resolve())
-
-    print("\n== Loading defaults ==")
+    print("== Loading defaults ==")
     PDEF = load_param_defaults(params_csv)
     CDEF = load_constraint_defaults(constr_csv)
     print(f"Parameters loaded: {len(PDEF)}  |  Constraints loaded: {len(CDEF)}")
 
-    some_params = list(PDEF.items())[:5]
-    print("\nSample parameter defaults (first 1–2):")
+    some_params = list(PDEF.items())[:2]
+    print("\nSample parameter defaults (first 2):")
     for name, spec in some_params:
+        vals_preview = spec['values'][:5] if len(spec['values']) > 5 else spec['values']
+        vals_suffix = '...' if len(spec['values']) > 5 else ''
         print(
             f"- {name}: role={spec['role']}, "
-            f"values={spec['values'][:5]}{'...' if len(spec['values'])>5 else ''}, "
+            f"values={vals_preview}{vals_suffix}, "
             f"lb={spec['lb']}, ub={spec['ub']}, fixed_idx={spec['fixed_idx']}, "
             f"value_type={spec.get('value_type')}"
         )
 
     some_constr = list(CDEF.items())[:2]
-    print("\nSample constraint defaults (first 1–2):")
+    print("\nSample constraint defaults (first 2):")
     for name, spec in some_constr:
         print(
             f"- {name}: kind={spec['kind']}, "
-            f"enforced={getattr(spec['enforced'],'name',spec['enforced'])}, "
+            f"enforced={getattr(spec['enforced'], 'name', spec['enforced'])}, "
             f"weight={spec['weight']}, exponent={spec['exponent']}, "
             f"active_default={spec['active_default']}"
         )
@@ -357,6 +364,10 @@ if __name__ == "__main__":
     print("\n== Loading problems & overlays ==")
     PROBLEMS = load_problems_combined(PDEF, CDEF, problem_list_csv)
     print(f"Problems found: {len(PROBLEMS)}  -> {sorted(PROBLEMS.keys())}")
+
+    if not PROBLEMS:
+        print("WARNING: No problems defined.")
+        exit(0)
 
     problem_ID = sorted(PROBLEMS.keys())[0]
     info = PROBLEMS[problem_ID]
@@ -370,8 +381,10 @@ if __name__ == "__main__":
     fixed = {n: m for n, m in info["model"].items() if m["role"] == "fixed"}
     if fixed:
         print("\nFixed params in this problem:")
-        for n, m in fixed.items():
+        for n, m in list(fixed.items())[:5]:  # Show first 5
             print(f"- {n}: fixed_idx={m['fixed_idx']} -> value={m['values'][m['fixed_idx']]}")
+        if len(fixed) > 5:
+            print(f"  ... and {len(fixed) - 5} more")
 
     if info["constraints"]:
         print("\nConstraints in this problem:")
@@ -393,11 +406,14 @@ if __name__ == "__main__":
         print("decoded params:")
         pprint(params)
     except ValueError as e:
-        print("Decode length error:", e)
+        print("Decode error:", e)
 
     print("\n== Negative length check ==")
     try:
         bad = [0] * (len(var_names) + 1)
         decode(bad)
+        print("ERROR: Should have raised ValueError!")
     except ValueError as e:
         print("OK (caught):", e)
+
+    print("\n== Test Complete ==")

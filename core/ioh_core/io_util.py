@@ -1,5 +1,7 @@
 """
 Author: Max Dombrowski
+Modified by: Elliot Melcer
+ - main modified to work with file structure
 """
 
 import csv
@@ -106,23 +108,40 @@ def _enf(s: str, default="HIDDEN"):
 # ----------------------------------------------------------------------------------------------------------#
 
 if __name__ == "__main__":
-    # Construct Paths relative to this working directory -> has to be moved to builder later
-    HERE = Path(__file__).resolve().parent           # .../src/slab-benchmark/core (if io_util.py is in core/)
-    PKG_ROOT = HERE.parent                            # .../src/slab-benchmark
-    SLABS_DIR = PKG_ROOT / "slabs"
-    SLAB_DIR = SLABS_DIR / "solid_slab_one_way"       # your slab folder
+    # Construct Paths relative to this working directory
+    HERE = Path(__file__).resolve().parent  # .../core/ioh_core
+    CORE = HERE.parent  # .../core
+    PKG_ROOT = CORE.parent  # project root
+    SLABS_DIR = PKG_ROOT / "slab_construction" / "slabs"
+    SLAB_DIR = SLABS_DIR / "hp_slab"  # your slab folder
 
-    PARAM_CSV  = SLAB_DIR / "parameter_defaults.csv"
+    PARAM_CSV = SLAB_DIR / "parameter_defaults.csv"
     CONSTR_CSV = SLAB_DIR / "constraint_defaults.csv"
-    RUNS_CSV   = SLAB_DIR / "runs.csv"
+    PROBLEM_LIST_CSV = SLAB_DIR / "problem_list.csv"
 
-    print("PARAM_CSV :", PARAM_CSV)
-    print("CONSTR_CSV:", CONSTR_CSV)
-    print("RUNS_CSV  :", RUNS_CSV)
+    print("HERE      :", HERE)
+    print("PKG_ROOT  :", PKG_ROOT)
+    print("SLABS_DIR :", SLABS_DIR)
+    print("SLAB_DIR  :", SLAB_DIR)
+    print()
+    print("PARAM_CSV  :", PARAM_CSV)
+    print("CONSTR_CSV :", CONSTR_CSV)
+    print("PROBLEM_LIST_CSV:", PROBLEM_LIST_CSV)
+    print()
+
+    # Check if files exist
+    for label, p in [("PARAM", PARAM_CSV), ("CONSTR", CONSTR_CSV), ("PROBLEM_LIST", PROBLEM_LIST_CSV)]:
+        exists = "✓" if p.exists() else "✗"
+        print(f"[{exists}] {label}: {p.exists()}")
+
+    print("\n" + "=" * 60)
 
     # Load and peek at a few rows from each file
-    for label, p in [("PARAM", PARAM_CSV), ("CONSTR", CONSTR_CSV), ("RUNS", RUNS_CSV)]:
-        rows = list(_read_rows(p))
-        print(f"\n[{label}] rows={len(rows)}")
-        for r in rows[:24]:  # show the first up to 24 dicts
-            print(r)
+    for label, p in [("PARAM", PARAM_CSV), ("CONSTR", CONSTR_CSV), ("PROBLEM_LIST", PROBLEM_LIST_CSV)]:
+        if p.exists():
+            rows = list(_read_rows(p))
+            print(f"\n[{label}] rows={len(rows)}")
+            for r in rows[:3]:  # show the first 3 rows
+                print(r)
+        else:
+            print(f"\n[{label}] FILE NOT FOUND: {p}")
