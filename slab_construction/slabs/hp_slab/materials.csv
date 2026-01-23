@@ -1,0 +1,7 @@
+name;type;weight;gwp;cost;f_yk;f_tk;E_tex;eps_y;eps_u;Edyn
+solidian GRID Q142/142-CCE-25;reinforcement;1800;26,9;49;2200;2200;220000;10;10;
+solidian GRID Q85-CCE-21;reinforcement;1340;23,3;49;2800;2800;230000;12,17391304;12,17391304;
+solidian GRID Q85-CCE-21;reinforcement;1340;12,8;49;2800;2800;230000;12,17391304;12,17391304;
+generic_infill;infill;1000;0;;;;;;;
+lightweight mineral wool;insulation;24;1,43;;;;;;;0,6
+generic_screed;screed;2000;0,162;;;;;;;

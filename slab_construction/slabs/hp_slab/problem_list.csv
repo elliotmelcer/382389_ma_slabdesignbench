@@ -15,7 +15,7 @@
 1;param;loads_q_kNm2;fixed;;;30;;;;;1
 1;param;loads_N_kN;fixed;;;2000;;;;;1
 1;param;mat_conc_fck;fixed;;;3;;;;;1
-1;param;mat_rebar_id;fixed;;;0;;;;;1
+1;param;mat_rebar_id;fixed;;;2;;;;;1
 1;param;mat_fill_id;fixed;;;0;;;;;1
 1;param;mat_insu_id;fixed;;;0;;;;;1
 1;param;mat_screed_id;fixed;;;0;;;;;1
