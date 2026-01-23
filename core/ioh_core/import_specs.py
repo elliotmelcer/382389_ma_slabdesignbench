@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from pprint import pprint
 from typing import Dict, List, Any
-from io_util import _read_rows, _to_bool, _to_float, _enf
+from .io_util import _read_rows, _to_bool, _to_float, _enf
 
 
 #----------------------------------------------------------------------------------------------------------#
@@ -297,6 +297,60 @@ def load_problems_combined(
             info["label"] = r["label"]
 
     return by_problem
+
+
+def load_materials_registry(path: str | Path) -> Dict[str, dict]:
+    """
+    Read materials.csv and return dictionary { name: {properties} }
+
+    Notes:
+      - 'name' is the unique identifier (matches catalog values in parameter_defaults.csv)
+      - 'type' indicates material category: reinforcement, infill, insulation, screed
+      - All numeric fields are converted to float (empty strings become None)
+      - Commas in numbers (European format) are converted to periods
+    """
+    path = Path(path)
+    if not path.exists():
+        # Return empty registry if file doesn't exist (allows optional materials.csv)
+        return {}
+
+    registry: Dict[str, dict] = {}
+    expected = ["name", "type", "weight", "gwp", "cost",
+                "f_yk", "f_tk", "E_tex", "eps_y", "eps_u", "Edyn"]
+
+    def parse_numeric(s: str) -> float | None:
+        """Parse numeric value, handling European comma format and empty strings."""
+        s = (s or "").strip()
+        if not s:
+            return None
+        # Replace comma with period for European number format
+        s = s.replace(",", ".")
+        try:
+            return float(s)
+        except ValueError:
+            return None
+
+    for r in _read_rows(path, expected):
+        name = r["name"]
+        if not name:
+            continue  # Skip rows without name
+
+        mat_type = (r["type"] or "").lower().strip()
+
+        registry[name] = {
+            "type": mat_type,
+            "weight": parse_numeric(r.get("weight")),  # density [kg/m³]
+            "gwp": parse_numeric(r.get("gwp")),  # CO2 eq. [kg/unit]
+            "cost": parse_numeric(r.get("cost")),  # cost [€/unit]
+            "f_yk": parse_numeric(r.get("f_yk")),  # characteristic yield strength [MPa]
+            "f_tk": parse_numeric(r.get("f_tk")),  # characteristic tensile strength [MPa]
+            "E_tex": parse_numeric(r.get("E_tex")),  # Young's modulus [MPa]
+            "eps_y": parse_numeric(r.get("eps_y")),  # yield strain [‰]
+            "eps_u": parse_numeric(r.get("eps_u")),  # ultimate strain [‰]
+            "Edyn": parse_numeric(r.get("Edyn")),  # dynamic modulus [MPa] (for insulation)
+        }
+
+    return registry
 
 
 #----------------------------------------------------------------------------------------------------------#

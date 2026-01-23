@@ -1,5 +1,6 @@
 """
 Author: Max Dombrowski
+Modified by Elliot Melcer ("Addition by: Elliot Melcer" used to mark code)
 """
 
 from pathlib import Path
@@ -15,7 +16,7 @@ from ioh.iohcpp import IntegerConstraint, RealConstraint, ConstraintEnforcement 
 
 from .import_specs import (
     load_param_defaults, load_constraint_defaults,
-    load_problems_combined, build_space, make_decode
+    load_problems_combined, build_space, make_decode, load_materials_registry
 )
 from .cache_eval import EvalContext
 from .io_util import _enf
@@ -83,9 +84,11 @@ def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
     params_csv = slab_dir / "parameter_defaults.csv"
     constr_csv = slab_dir / "constraint_defaults.csv"
     problem_list_csv   = slab_dir / "problem_list.csv"
+    materials_csv = slab_dir / "materials.csv"          # Addition by: Elliot Melcer
 
     PDEF = load_param_defaults(params_csv)              # Dict of all parameters with value lists, bounds, fixed values
     CDEF = load_constraint_defaults(constr_csv)         # Dict of constraint defaults
+    MATERIALS = load_materials_registry(materials_csv)  # Dict of materials, Addition by: Elliot Melcer
     PROBLEMS = load_problems_combined(PDEF, CDEF, problem_list_csv)     # Dict[problem_ID] with problem-specific problem definitions from problem_list.csv
 
     problems: dict[str, dict] = {}                      # container that saves problem definitions
@@ -128,7 +131,10 @@ def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
         # create decode, constraint list -> cache logger to store results from slab-specific analysis function
         decode = make_decode(info["model"], var_names)  # create a decide(x_idx) for this problem
         # bind constraints for this problem:
-        analysis_fn = partial(slab_module.analysis, constraints=constraints_log)
+        analysis_fn = partial(
+            slab_module.analysis,
+            constraints=constraints_log,
+            materials = MATERIALS)          # pass materials to analysis, Addition by: Elliot Melcer
         # slab-specific analysis(params) must return {"y","y_p","violations":{...}, ...}
         ctx = EvalContext(decode, analysis_fn)  # builds a cache for that specific problem - no cross-instance reuse!
 
