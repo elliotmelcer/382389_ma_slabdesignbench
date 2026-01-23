@@ -34,6 +34,8 @@ class HPSlab(OneWaySlab):
         """
         Author: Jamila Loutfi
         Calculates the minimum infill volume to flatten out the top of an hp-shell
+
+        Note: Volume in mm³
         """
         mid_surface_volume = abs(self.B * self.L * (-2 / 3 * self.hp_shell.hp_geometry.Hy - 1 / 3 * self.hp_shell.hp_geometry.Hx))
 

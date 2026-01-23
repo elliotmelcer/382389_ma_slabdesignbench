@@ -23,6 +23,15 @@ class FloorMaterial(Material):
     def __init__(self, density: float, name: str | None = "FloorMaterial") -> None:
         super().__init__(density=density, name=name)
 
+class InsulationMaterial(FloorMaterial):
+    """
+    Author: Elliot Melcer
+    Instantiable Simple Material for insulation layers.
+    """
+    def __init__(self, density: float, E_dyn: float, name: str | None = "InsulationMaterial") -> None:
+        super().__init__(density=density, name=name)
+        self.E_dyn = E_dyn
+
 class Floor:
     """
     Author: Elliot Melcer

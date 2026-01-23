@@ -1,3 +1,4 @@
+import math
 from typing import Optional
 
 import numpy as np
@@ -23,6 +24,8 @@ class HPShell:
         """
         Author: Elliot Melcer
         Represents a hyperbolic paraboloid (hp) shell.
+
+        Note: reinf_area in [mm²]
         """
         self.hp_geometry = hp_geometry
         self.concrete = concrete
@@ -73,3 +76,15 @@ class HPShell:
             hp_section = GenericSection(hp_geometry, name=name)
 
         return hp_section
+
+    def total_reinforcement_volume(self) -> float:
+        """
+        Author: Elliot Melcer
+        Returns the total reinforcement volume of a hp-shell in mm³
+        """
+        total_tendon_length = 0.0
+        for (xs, ys, zs), (xe, ye, ze) in self.hp_geometry.tendons():
+            total_tendon_length += math.dist((xs, ys, zs), (xe, ye, ze))  # Euclidean distance
+
+        volume = total_tendon_length * self.reinf_area
+        return volume
