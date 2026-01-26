@@ -78,16 +78,16 @@ density_Q95 = 1340
 # - Constitutive Law -
 
 # solidian GRID Q142/142-CCE-25 regular
-brittle_elastic_law_Q142 = Elastic(Es_Q142)
-brittle_elastic_law_Q142.set_ultimate_strain(epsuk_Q142)
+brittle_elastic_law_Q142 = Elastic(Es_Q142, eps_u=epsuk_Q142)
+# brittle_elastic_law_Q142.set_ultimate_strain(epsuk_Q142)
 
 # # solidian GRID Q85/85-CCE-25
 # brittle_elastic_law_Q85 = Elastic(Es_Q85)
 # brittle_elastic_law_Q85.set_ultimate_strain(epsuk_Q85)
 
 # solidian GRID Q95/95-CCE-38
-brittle_elastic_law_Q95 = Elastic(Es_Q95)
-brittle_elastic_law_Q95.set_ultimate_strain(epsuk_Q95)
+brittle_elastic_law_Q95 = Elastic(Es_Q95, eps_u=epsuk_Q95)
+# brittle_elastic_law_Q95.set_ultimate_strain(epsuk_Q95)
 
 
 # - Material Definitions -

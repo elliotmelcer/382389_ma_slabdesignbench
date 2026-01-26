@@ -16,7 +16,7 @@ def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int):
 
         ctx.ensure_constraints(constraint_names)
         ctx.ensure_params(var_names)
-        print("Logging root:", out_root.resolve())
+        print("Logging root:", out_root.resolve(),"\n")
 
         trigger_alw = [ltr.Each(1)]
         lg = ioh.logger.Analyzer(

@@ -27,7 +27,8 @@ UltimateMomentCheckEC2004DE.calculateUtilization(
     test_slab_construction_two_span,
     test_loads,
     "TWO_SPAN",
-    "MAX_NEG_MOMENT")
+    "MAX_NEG_MOMENT",
+    debug_print=True)
 
 # --- Plot Cross Section ---
 plt.show()

@@ -9,7 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 from pprint import pprint
 from typing import Dict, List, Any
-from .io_util import _read_rows, _to_bool, _to_float, _enf
+
+from core.ioh_core.io_util import _read_rows, _enf, _to_float, _to_bool
 
 
 #----------------------------------------------------------------------------------------------------------#
@@ -59,8 +60,7 @@ def load_param_defaults(path: str | Path) -> Dict[str, dict]:
                 )
 
             if value_type == "str":
-                # ganze Zelle als EIN Wert (z.B. "150,157,181,...")
-                vals = [vals_str]
+                vals = [v.strip() for v in vals_str.split("|")]
 
             elif value_type == "int":
                 try:

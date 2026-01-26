@@ -222,8 +222,8 @@ def get_reinforcement_from_registry(
         )
 
     # Create elastic constitutive law (CFRP is brittle - no yielding)
-    britte_elastic_const_law = Elastic(Es)
-    britte_elastic_const_law.set_ultimate_strain(epsuk)
+    britte_elastic_const_law = Elastic(Es, eps_u=epsuk)
+    # britte_elastic_const_law.set_ultimate_strain(epsuk)
 
     # Calculate initial strain from prestress percentage
     # prestress_percent = 0.0 means no prestress

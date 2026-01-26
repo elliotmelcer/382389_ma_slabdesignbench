@@ -12,9 +12,9 @@ geom_t_insulation_mm;grid;;12;1;29;0;28;0;fixed;float;x
 loads_q_kNm2;grid;;0;0.1;101;0;100;30;fixed;float;x
 loads_N_kN;grid;;-200;0.1;4001;0;4000;2000;fixed;float;x
 mat_conc_fck;catalog;16. | 20. | 25. | 30. | 35. | 40. | 45. | 50. | 55. | 60. | 70. | 80. | 90. | 100.; ;;;3;14;3;fixed;float;x
-mat_reinf_id;catalog;solidian GRID Q85/85-CCE-25 | solidian GRID Q95/95-CCE-38 | solidian GRID Q142/142-CCE-25;;;;0;2;2;fixed;str;x
+mat_reinf_id;catalog;solidian GRID Q85/85-CCE-21 | solidian GRID Q95/95-CCE-38 | solidian GRID Q142/142-CCE-25;;;;0;2;2;fixed;str;x
 mat_infill_id;catalog;generic_infill;;;;0;0;0;fixed;str;x
-mat_insu_id;catalog;lightweight mineral wool; ;;;0;0;0;fixed;str;x
+mat_insu_id;catalog;lightweight_mineral_wool; ;;;0;0;0;fixed;str;x
 mat_screed_id;catalog;generic_screed; ;;;0;0;0;fixed;str;x
 reinf_d_mm;catalog;10.|12.|14.|16.|20.|24.|28.|32.;;;;0;7;3;var;float;x
 reinf_kap_t_percent;grid;;0;1;81;0;80;60;var;float;x

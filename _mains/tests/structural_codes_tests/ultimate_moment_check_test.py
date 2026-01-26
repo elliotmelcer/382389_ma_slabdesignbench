@@ -8,4 +8,5 @@ UltimateMomentCheckEC2004DE.calculateUtilization(
     test_slab_construction, 
     test_loads, 
     "SIMPLE_BEAM",
-    "MAX_POS_MOMENT")
+    "MAX_POS_MOMENT",
+    debug_print=True)

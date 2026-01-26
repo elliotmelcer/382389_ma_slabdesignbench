@@ -220,9 +220,9 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
     # ======================================================================================================================
     # Collect constraint values
     constraint_values = {  # utilisation ratios
-        "bending_capacity_": m_u_util,
+        f"bending_capacity_": m_u_util,
     }
-    print("constraint values: ", constraint_values)
+    print(f"constraint values: {{'bending_capacity_': {m_u_util:.3f}}}")
     # penalty factors: 1 if satisfied, utilisation value if > 1
     penalties_ = {
         name: (1.0 if value <= 1.0 else float(value))
@@ -244,7 +244,7 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
 
     y_p = y * penalty_product_
     print("penalty product: ", penalty_product_)
-    print("penalized objective function: ", y_p)
+    print("penalized objective function: ", y_p, "\n")
 
 
     # ======================================================================================================================
