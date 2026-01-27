@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 from structuralcodes.core._section_results import MomentCurvatureResults
 from structuralcodes.geometry import  CompoundGeometry, SurfaceGeometry
@@ -32,10 +34,12 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
 
     sls_sec = sls_section(section, concrete_tension=True)
 
+    analysis_sls_sec = deepcopy(sls_sec)
+
     # --- Concrete Properties ---
     # Find concrete geometry (assume first surface geometry with concrete)
     conc = None
-    for geo in sls_sec.geometry.geometries:
+    for geo in analysis_sls_sec.geometry.geometries:
         if hasattr(geo, 'concrete') and geo.concrete:
             conc = geo.material
             break
@@ -49,10 +53,10 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
     eps_ctm = fctm / Ecm  # Cracking strain
 
     # Get section extents
-    _, _, zmin, zmax = sls_sec.geometry.calculate_extents()
+    _, _, zmin, zmax = analysis_sls_sec.geometry.calculate_extents()
 
     # --- Get Reinforcement Properties ---
-    point_geometries = sls_sec.geometry.point_geometries
+    point_geometries = analysis_sls_sec.geometry.point_geometries
     n_reinf = len(point_geometries)
 
     if n_reinf == 0:
@@ -98,7 +102,7 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
     # Use bisection to find curvature that gives equilibrium
     # while keeping bottom fiber at cracking strain
 
-    calculator = sls_sec.section_calculator
+    calculator = analysis_sls_sec.section_calculator
 
     # Get integration data if it exists, otherwise None
     integration_data = getattr(calculator, 'integration_data', None)
@@ -116,7 +120,7 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
         # Evaluate at bounds
         eps_0_a = eps_ctm - chi_min * zmin
         N_a, _, _, integration_data = calculator.integrator.integrate_strain_response_on_geometry(
-            sls_sec.geometry,
+            analysis_sls_sec.geometry,
             [eps_0_a, chi_min, 0.0],
             integration_data=integration_data,
             mesh_size=mesh_size
@@ -125,7 +129,7 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
 
         eps_0_b = eps_ctm - chi_max * zmin
         N_b, _, _, _ = calculator.integrator.integrate_strain_response_on_geometry(
-            sls_sec.geometry,
+            analysis_sls_sec.geometry,
             [eps_0_b, chi_max, 0.0],
             integration_data=integration_data,
             mesh_size=mesh_size
@@ -145,7 +149,7 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
 
             eps_0_a = eps_ctm - chi_min * zmin
             N_a, _, _, _ = calculator.integrator.integrate_strain_response_on_geometry(
-                sls_sec.geometry,
+                analysis_sls_sec.geometry,
                 [eps_0_a, chi_min, 0.0],
                 integration_data=integration_data,
                 mesh_size=mesh_size
@@ -159,7 +163,7 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
             eps_0_c = eps_ctm - chi_c * zmin
 
             N_c, _, _, _ = calculator.integrator.integrate_strain_response_on_geometry(
-                sls_sec.geometry,
+                analysis_sls_sec.geometry,
                 [eps_0_c, chi_c, 0.0],
                 integration_data=integration_data,
                 mesh_size=mesh_size
@@ -192,7 +196,7 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
             reinforcement_strains.append(eps_total)
 
         # --- Calculate Internal Forces ---
-        N_cr, My_cr, Mz_cr = sls_sec.section_calculator.integrate_strain_profile(
+        N_cr, My_cr, Mz_cr = analysis_sls_sec.section_calculator.integrate_strain_profile(
             strain=strain_profile,
             integrate='stress'
         )
@@ -219,7 +223,9 @@ def calculate_bending_strength_sls(section: GenericSection, n: float = 0.0) -> d
 
     sls_sec = sls_section(section, concrete_tension=False)
 
-    bending_strength_result = sls_sec.section_calculator.calculate_bending_strength(n = n)
+    analysis_sls_sec = deepcopy(sls_sec) # in reference to structuralcodes issue #303 https://github.com/fib-international/structuralcodes/issues/303
+
+    bending_strength_result = analysis_sls_sec.section_calculator.calculate_bending_strength(n = n)
 
     m_u = bending_strength_result.m_y
 
@@ -242,7 +248,9 @@ def calculate_bending_strength_uls(section: GenericSection, n: float = 0.0) -> d
         Associated Strain Profile
     """
 
-    bending_strength_result = section.section_calculator.calculate_bending_strength(n=n)
+    analysis_section = deepcopy(section) # in reference to structuralcodes issue #303 https://github.com/fib-international/structuralcodes/issues/303
+
+    bending_strength_result = analysis_section.section_calculator.calculate_bending_strength(n=n)
 
     m_u = bending_strength_result.m_y
 

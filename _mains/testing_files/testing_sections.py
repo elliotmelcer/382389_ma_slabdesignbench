@@ -33,7 +33,7 @@ d = 200
 d1 = 200
 cover = 50
 
-polygon = Polygon(
+t_section_polygon = Polygon(
     [
         (-b /2,  d/2),
         (-b /2, -d/2),
@@ -50,7 +50,7 @@ polygon = Polygon(
 
 # --- concrete section ---
 geometry = SurfaceGeometry(
-    poly=polygon, material=concrete_c40_uls
+    poly=t_section_polygon, material=concrete_c40_uls
 )
 
 # --- reinforcement ---

@@ -14,7 +14,7 @@ This file is used for verification of the cracking moment method.
 The sections used for verification are from chapter "C.1. Vergleich der Riss- und Bruchmomente" in Loutfi (2023)
 
 
-passed 29.12.2025
+passed 27.01.2026
 
 Output:
 
