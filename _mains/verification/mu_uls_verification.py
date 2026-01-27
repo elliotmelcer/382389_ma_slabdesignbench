@@ -42,7 +42,7 @@ print(f"Ultimate Moment (ULS) Verification\n"
       f"4           {Nmm_to_kNm(-results_c1_4.get('m_u'))       :>9.2f}\n")
 
 # --- cross-section ---
-plot_cross_section(results_c1_1.get("section"), x = 0)
+plot_cross_section(results_c1_1.get("section"), x = 0.5)
 #
 # #   - Constitutive Laws:
 #

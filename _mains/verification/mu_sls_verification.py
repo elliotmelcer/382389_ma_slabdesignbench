@@ -45,7 +45,7 @@ print(f"Ultimate Moment (sls) Verification\n"
 # Plots:
 
 # --- cross-section ---
-plot_cross_section(results_c1_1.get("section"), x = 0)
+plot_cross_section(results_c1_1.get("section"), x = 0.5)
 #
 # #   - Constitutive Laws:
 #
