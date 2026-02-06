@@ -43,7 +43,7 @@ class Loads:
         Ultimate Limit State (ULS) - fundamental combination
         EC0 6.10
         """
-        Gd = self.gamma_g * (slab_construction.non_structural_dead_load()
+        Gd = self.gamma_g * (slab_construction.structural_dead_load()
                              + slab_construction.non_structural_dead_load())
 
         Qd = self.gamma_q * float(np.sum(self.Qk * self.psi_0_values))
@@ -55,7 +55,7 @@ class Loads:
         Serviceability Limit State (SLS) – frequent combination
         EC0 6.15b
         """
-        return (slab_construction.non_structural_dead_load()
+        return (slab_construction.structural_dead_load()
                 + slab_construction.non_structural_dead_load()
                 + float(np.sum(self.Qk * self.psi_1_values)))
 
@@ -64,6 +64,6 @@ class Loads:
         Serviceability Limit State (SLS) – quasi-permanent combination
         EC0 6.16b
         """
-        return (slab_construction.non_structural_dead_load()
+        return (slab_construction.structural_dead_load()
                 + slab_construction.non_structural_dead_load()
                 + float(np.sum(self.Qk * self.psi_2_values)))
