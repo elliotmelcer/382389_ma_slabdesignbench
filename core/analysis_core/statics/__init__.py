@@ -1,5 +1,9 @@
+from collections.abc import Callable
 from typing import Dict
 from enum import Enum
+from core.analysis_core.loads import Loads
+from core.unit_core import mm_to_m
+from slab_construction.slab_construction import SlabConstruction
 
 
 class SystemType(str, Enum):
@@ -97,4 +101,73 @@ MOMENT_DATA: Dict[str, Dict[str, Dict[str, float]]] = {
             "x_position": 1.0,
         },
     },
+}
+
+def calculate_line_load(
+        slab_construction: SlabConstruction,
+        loads: Loads,
+        combination: str = "FUNDAMENTAL"
+) -> float:
+    """
+    Calculate line load from surface load.
+
+    Shared utility function for internal forces and deflection calculations.
+
+    :param slab_construction: Slab construction object
+    :param loads: Loads object
+    :param combination: Load combination type
+    :return: Line load in kN/m
+    """
+    width = mm_to_m(slab_construction.slab.B)
+    combination = combination.strip().upper()
+
+    if combination == "FUNDAMENTAL":
+        w = loads.fundamental_combination(slab_construction)
+    elif combination == "FREQUENT":
+        w = loads.frequent_combination(slab_construction)
+    elif combination in ("QUASI-PERMANENT", "QUASI_PERMANENT", "QUASI PERMANENT"):
+        w = loads.quasi_permanent_combination(slab_construction)
+    else:
+        raise ValueError(
+            "Invalid combination. Must be one of: 'FUNDAMENTAL', 'FREQUENT', 'QUASI-PERMANENT'."
+        )
+
+    return w * width
+
+def moment_simple_beam(x: float, w: float, L: float) -> float:
+    """
+    Calculate moment at position x for a simple beam.
+
+    :param x: Position along beam [m]
+    :param w: Uniformly distributed load [kN/m]
+    :param L: Span length [m]
+    :return: Moment at x [kNm]
+    """
+    return w * x * (L - x) / 2
+
+def moment_two_span(x, w, L):
+    if not (0 <= x <= 2*L):
+        return 0
+
+    xi = L - x if x <= L else x - L
+
+    return w * (xi**2 / 2 - 5 * L * xi / 8 + L**2 / 8)
+
+def virtual_moment_simple_beam(x_norm: float, span_m: float) -> float:
+    """
+    Calculate virtual moment for unit load at midspan of simple beam.
+
+    :param x_norm: Normalized position along beam (0 at first support, 0.5 at midspan)
+    :param span_m: Span length [m]
+    :return: Virtual moment [m] (moment arm for unit load)
+    """
+    return x_norm * span_m / 2
+
+# Moment functions M(x) for systems where full distribution is implemented
+# Signature: (x_m: float, w: float, L: float) -> float
+# where x_m is position in meters, w is line load in kN/m, L is span in meters
+MOMENT_FUNCTIONS: Dict[str, Callable[[float, float, float], float]] = {
+    "SIMPLE_BEAM": moment_simple_beam,
+    "CANTILEVER": lambda x_m, w, L: -w * x_m**2 / 2,
+    "TWO_SPAN": moment_two_span,
 }

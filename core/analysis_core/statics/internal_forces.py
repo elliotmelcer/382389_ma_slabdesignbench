@@ -1,7 +1,7 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from slab_construction.slab_construction import SlabConstruction
-from . import MOMENT_DATA, MAX_X_POSITIONS  # Relative import from the package
+from . import MOMENT_DATA, MAX_X_POSITIONS, calculate_line_load, MOMENT_FUNCTIONS
 from ..loads import Loads
 from ...unit_core import *
 
@@ -18,39 +18,6 @@ class InternalForces:
     - x = 1 at next support
     - x = 2 at next support, etc.
     """
-
-    @staticmethod
-    def _calculate_line_load(
-            slab_construction: SlabConstruction,
-            loads: Loads,
-            combination: str = "FUNDAMENTAL"
-    ) -> float:
-        """
-        Helper method to calculate line load from surface load
-
-        :param slab_construction: Slab construction object
-        :param loads: Loads object
-        :param combination: Load combination type
-        :return: Line load in kN/m
-        """
-        width = mm_to_m(slab_construction.slab.B)
-
-        # for easier user behavior: accepts "FUNDAMENTAL", "fundamental" or "  Fundamental  "
-        combination = combination.strip().upper()
-
-        if combination == "FUNDAMENTAL":
-            w = loads.fundamental_combination(slab_construction)  # kN/m2
-        elif combination == "FREQUENT":
-            w = loads.frequent_combination(slab_construction)  # kN/m2
-        elif combination in ("QUASI-PERMANENT", "QUASI_PERMANENT", "QUASI PERMANENT"):
-            w = loads.quasi_permanent_combination(slab_construction)  # kN/m2
-        else:
-            raise ValueError(
-                "Invalid combination. Must be one of: 'FUNDAMENTAL', 'FREQUENT', 'QUASI-PERMANENT'."
-            )
-
-        # Convert surface load [kN/m2] to line load [kN/m] using slab width
-        return w * width
 
     @staticmethod
     def validate_x_position(system: str, x_position: float) -> None:
@@ -107,34 +74,80 @@ class InternalForces:
             slab_construction: SlabConstruction,
             loads: Loads,
             system: str = "SIMPLE_BEAM",
-            moment_type: str = "MAX_POS_MOMENT",
-            combination: str = "FUNDAMENTAL"
+            combination: str = "FUNDAMENTAL",
+            x: Optional[float] = None,
+            moment_type: Optional[str] = None
     ) -> float:
         """
-        General method to calculate moment for any system and moment type
+        Calculate moment at a specific position OR maximum moment for a given type.
+
+        Must provide EITHER x OR moment_type (but not both, not neither).
 
         :param slab_construction: Slab construction object
         :param loads: Loads object
         :param system: Structural system type
-        :param moment_type: Type of moment (MAX_POS_MOMENT or MAX_NEG_MOMENT)
         :param combination: Load combination type
-        :return: Moment in kNm
-        """
-        # Get moment data from lookup table
-        moment_data = InternalForces.get_moment_data(system, moment_type)
-        coefficient = moment_data["coefficient"]
+        :param x: Position along beam (normalized: 0 at first support, 1 at second, etc.)
+                  Use this for M(x) calculation at arbitrary position.
+        :param moment_type: Type of moment (MAX_POS_MOMENT or MAX_NEG_MOMENT)
+                           Use this for maximum moment calculation.
+        :return: Moment [kNm]
 
-        if coefficient == 0.0:
+        Examples:
+            # Get moment at specific position (requires implemented function)
+            M = calculate_moment(slab, loads, system="SIMPLE_BEAM", x=0.3)
+
+            # Get maximum positive moment (works for all systems via coefficient)
+            M_max = calculate_moment(slab, loads, system="THREE_SPAN", moment_type="MAX_POS_MOMENT")
+        """
+        # Validate that exactly one of x or moment_type is provided
+        if (x is None) == (moment_type is None):
             raise ValueError(
-                f"{moment_type} does not exist for {system}. "
-                f"(moment coefficient is 0.0 in lookup table)"
+                "Must provide EITHER 'x' OR 'moment_type', but not both and not neither. "
+                "Use 'x' for M(x) at specific position, or 'moment_type' for maximum moment."
             )
 
-        # Calculate span and line load
-        span = mm_to_m(slab_construction.slab.L)
-        w_line = InternalForces._calculate_line_load(slab_construction, loads, combination)
+        system = system.strip().upper()
 
-        # Calculate moment: M = coefficient * w * L^2
-        moment = coefficient * w_line * span ** 2
+        # Calculate span and line load (needed for both methods)
+        span_m = mm_to_m(slab_construction.slab.L)
+        w_line = calculate_line_load(slab_construction, loads, combination)
 
-        return moment
+        # METHOD 1: Calculate M(x) at specific position using moment function
+        if x is not None:
+            # Check if moment function is implemented for this system
+            if system not in MOMENT_FUNCTIONS:
+                raise NotImplementedError(
+                    f"M(x) function not implemented for {system}. "
+                    f"Available systems: {list(MOMENT_FUNCTIONS.keys())}. "
+                    f"For this system, use moment_type='MAX_POS_MOMENT' or 'MAX_NEG_MOMENT' instead."
+                )
+
+            # Validate x position
+            InternalForces.validate_x_position(system, x)
+
+            # Calculate position in meters
+            x_m = x * span_m
+
+            # Get moment function and calculate
+            moment_func = MOMENT_FUNCTIONS[system]
+            moment = moment_func(x_m, w_line, span_m)
+
+            return moment
+
+        # METHOD 2: Calculate maximum moment using coefficient from lookup table
+        else:  # moment_type is not None
+            # Get moment data from lookup table
+            moment_data = InternalForces.get_moment_data(system, moment_type)
+            coefficient = moment_data["coefficient"]
+
+            if coefficient == 0.0:
+                raise ValueError(
+                    f"{moment_type} does not exist for {system}. "
+                    f"(moment coefficient is 0.0 in lookup table)"
+                )
+
+            # Calculate moment: M = coefficient * w * L^2
+            moment = coefficient * w_line * span_m ** 2
+
+            return moment
