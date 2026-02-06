@@ -264,16 +264,147 @@ def calculate_bending_strength_uls(section: GenericSection, n: float = 0.0) -> d
         'strain_profile': strain_profile,
     }
 
-def calculate_moment_curvature_sls(section: GenericSection, n: float = 0.0) -> MomentCurvatureResults:
+# def calculate_moment_curvature_sls(section: GenericSection, n: float = 0.0) -> MomentCurvatureResults:
+#     """
+#     Author: Elliot Melcer
+#     Returns the Results of a Moment-Curvature calculation for the given section
+#     """
+#     sls_sec = sls_section(section, concrete_tension=False)
+#
+#     results = sls_sec.section_calculator.calculate_moment_curvature(n = n, num_pre_yield=40, num_post_yield=0)
+#
+#     return results
+
+def calculate_moment_curvature_sls(section: GenericSection, n: float = 0.0,
+                                   include_prestress_branch: bool = True,
+                                   debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
-    Returns the Results of a Moment-Curvature calculation for the given section
+    Returns the Results of a Moment-Curvature calculation for the given section.
+
+    For prestressed sections, adds initial state point (κ₀, M=0).
+
+    :param debug:
+    :param section: GenericSection (ULS)
+    :param n: Axial force [N]
+    :param include_prestress_branch: If True, adds prestressed initial state
+    :return: MomentCurvatureResults with complete M-κ curve
     """
     sls_sec = sls_section(section, concrete_tension=False)
 
-    results = sls_sec.section_calculator.calculate_moment_curvature(n = n, num_pre_yield=40, num_post_yield=0)
+    # Get standard M-κ curve from library
+    results = sls_sec.section_calculator.calculate_moment_curvature(
+        n=n,
+        num_pre_yield=40,
+        num_post_yield=0
+    )
+
+    # ============================================================
+    # FIX SIGNS - Library may return negative values
+    # ============================================================
+    results.m_y = -np.abs(results.m_y)  # Make consistently negative
+    results.chi_y = -np.abs(results.chi_y)  # Make consistently negative
+
+    # Check if section is prestressed and we should add initial state
+    if not include_prestress_branch:
+        return results
+
+    # Check for prestressed reinforcement
+    has_prestress = False
+    for pg in sls_sec.geometry.point_geometries:
+        if hasattr(pg.material, 'initial_strain') and pg.material.initial_strain != 0:
+            has_prestress = True
+            break
+
+    if not has_prestress:
+        return results  # Not prestressed, return as-is
+
+    # ============================================================
+    # PRESTRESSED SECTION - ADD INITIAL STATE POINT (κ₀, M=0)
+    # ============================================================
+
+    # Calculate prestressing moment
+    M_p = calculate_prestress_moment(section)
+
+    # Get cracking properties (using same material model)
+    M_cr_result = calculate_cracking_moment_sls(section, n=n)
+    M_cr = abs(M_cr_result["m_cr"])  # N·mm
+    kappa_cr = abs(M_cr_result["strain_profile"][1])  # 1/mm
+
+    # Calculate initial curvature from prestressing
+    if abs(M_cr - M_p * 1e6) > 1e-3:  # M_cr in N·mm, M_p in kN·m
+        kappa_0 = (M_p * 1e6 * kappa_cr) / (M_cr - M_p * 1e6)  # 1/mm (negative for upward camber)
+    else:
+        kappa_0 = 0.0
+
+    # Add single initial state point at beginning
+    moments_combined = np.concatenate([[0.0], results.m_y])
+    curvatures_combined = np.concatenate([[kappa_0], results.chi_y])
+
+    # Update results object
+    results.m_y = moments_combined
+    results.chi_y = curvatures_combined
+
+    # Update other arrays to match length (if they exist)
+    if hasattr(results, 'eps_axial') and results.eps_axial is not None:
+        results.eps_axial = np.concatenate([[0.0], results.eps_axial])
+
+    if debug:
+        print(f"\n[DEBUG] Prestressed M-κ curve:")
+        print(f"  Added initial state: (κ={kappa_0:.9f} 1/mm, M=0)")
+        print(f"  Library starts at: (κ={results.chi_y[1]:.9f} 1/mm, M={results.m_y[1] / 1e6:.3f} kNm)")
+        print(f"  Total points: {len(moments_combined)}")
 
     return results
+
+
+def calculate_prestress_moment(section) -> float:
+    """
+    Calculate the moment from prestressing forces.
+
+    For each prestressed reinforcement:
+    - F_p = A_s × ε_ini × E_s (prestressing force)
+    - M_p = Σ(F_p × z_s) (moment from prestressing forces about centroid)
+
+    :param section: SLS section with prestressed reinforcement
+    :return: Prestressing moment [kNm]
+    """
+    # Get section centroid
+    cz = section.gross_properties.cz
+
+    # Initialize moment
+    M_p = 0.0
+
+    # Get prestressed reinforcement point geometries
+    if hasattr(section.geometry, 'point_geometries'):
+        for pg in section.geometry.point_geometries:
+            # Get reinforcement material
+            reinf = pg.material
+
+            # Check if reinforcement is prestressed
+            if hasattr(reinf, 'initial_strain') and reinf.initial_strain is not None:
+                eps_ini = reinf.initial_strain  # Initial strain from prestress
+
+                # Skip if no prestress
+                if abs(eps_ini) < 1e-10:
+                    continue
+
+                # Reinforcement properties
+                E_s = reinf.Es  # MPa
+                A_s = pg.area  # mm²
+                z_s = pg.point.y  # z-coordinate (mm)
+
+                # Prestressing force: F_p = A_s × eps_ini × E_s
+                F_p = A_s * eps_ini * E_s  # N
+
+                # Moment arm from centroid
+                d = z_s - cz  # mm
+
+                # Add contribution to total prestressing moment
+                # M_p = F_p × d (in Nmm, then convert to kNm)
+                M_p += F_p * d / 1e6  # kNm
+
+    return abs(M_p)
 
 def get_strain_at_point(strain_profile, y, z) -> float:
     """
