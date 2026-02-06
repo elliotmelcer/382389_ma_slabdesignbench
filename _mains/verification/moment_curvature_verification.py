@@ -10,7 +10,7 @@ This file is used for verification of the moment-curvature-diagrams.
 
 The section used for verification is from chapter "C.2.  Vergleich der M-κ-Diagramme" in Loutfi (2023)
 
-passed 29.12.2025
+passed 29.01.2026
 
 Output:
 
