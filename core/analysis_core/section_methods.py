@@ -4,7 +4,6 @@ import numpy as np
 from structuralcodes.core._section_results import MomentCurvatureResults
 from structuralcodes.geometry import  CompoundGeometry, SurfaceGeometry
 from structuralcodes.materials.concrete import Concrete, create_concrete
-from structuralcodes.materials.constitutive_laws import Sargin, UserDefined
 from structuralcodes.materials.reinforcement import Reinforcement
 from structuralcodes.sections import GenericSection
 
@@ -264,19 +263,10 @@ def calculate_bending_strength_uls(section: GenericSection, n: float = 0.0) -> d
         'strain_profile': strain_profile,
     }
 
-# def calculate_moment_curvature_sls(section: GenericSection, n: float = 0.0) -> MomentCurvatureResults:
-#     """
-#     Author: Elliot Melcer
-#     Returns the Results of a Moment-Curvature calculation for the given section
-#     """
-#     sls_sec = sls_section(section, concrete_tension=False)
-#
-#     results = sls_sec.section_calculator.calculate_moment_curvature(n = n, num_pre_yield=40, num_post_yield=0)
-#
-#     return results
-
-def calculate_moment_curvature_sls(section: GenericSection, n: float = 0.0,
+def calculate_moment_curvature_sls(section: GenericSection,
+                                   n: float = 0.0,
                                    include_prestress_branch: bool = True,
+                                   concrete_tension: bool = False,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
@@ -284,13 +274,14 @@ def calculate_moment_curvature_sls(section: GenericSection, n: float = 0.0,
 
     For prestressed sections, adds initial state point (κ₀, M=0).
 
-    :param debug:
     :param section: GenericSection (ULS)
     :param n: Axial force [N]
     :param include_prestress_branch: If True, adds prestressed initial state
+    :param concrete_tension: If False, fctm = 0
+    :param debug:
     :return: MomentCurvatureResults with complete M-κ curve
     """
-    sls_sec = sls_section(section, concrete_tension=False)
+    sls_sec = sls_section(section, concrete_tension=concrete_tension)
 
     # Get standard M-κ curve from library
     results = sls_sec.section_calculator.calculate_moment_curvature(
@@ -299,9 +290,7 @@ def calculate_moment_curvature_sls(section: GenericSection, n: float = 0.0,
         num_post_yield=0
     )
 
-    # ============================================================
     # FIX SIGNS - Library may return negative values
-    # ============================================================
     results.m_y = -np.abs(results.m_y)  # Make consistently negative
     results.chi_y = -np.abs(results.chi_y)  # Make consistently negative
 

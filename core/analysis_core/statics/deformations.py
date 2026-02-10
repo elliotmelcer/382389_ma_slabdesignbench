@@ -125,13 +125,6 @@ class DeflectionCalculator:
             M_virtual_x = virtual_moment_simple_beam(x_norm, span_m)
             integral_sum += kappa_x * M_virtual_x * weight_x
 
-            # if debug and i in [0, n_intervals//2, n_intervals]:
-            #     M_cr_interp = props_support["M_cr"] + (props_mid["M_cr"] - props_support["M_cr"]) * factor
-            #     M_p_interp = props_support["M_p"] + (props_mid["M_p"] - props_support["M_p"]) * factor
-            #     print(f"\n  x={x_norm:.3f} (factor={factor:.3f}):")
-            #     print(f"    M_cr={M_cr_interp:.2f}, M_p={M_p_interp:.2f} kNm")
-            #     print(f"    M_applied={M_applied:.2f} kNm")
-            #     print(f"    κ_(x)={kappa_x:.6f} 1/m")
 
         # Complete Simpson's rule integration
         delta_x_real = delta_x_norm * span_m
@@ -183,7 +176,10 @@ class DeflectionCalculator:
         return weights
 
     @staticmethod
-    def _get_section_properties(section_uls, n_N: float) -> Dict:
+    def _get_section_properties(
+            section_uls,
+            n_N: float
+    ) -> Dict:
         """
         Extract complete M-κ curve and key section properties.
 
@@ -193,7 +189,10 @@ class DeflectionCalculator:
         """
         # Get complete M-κ curve (includes prestress branch)
         mk_result = calculate_moment_curvature_sls(
-            section_uls, n=n_N, include_prestress_branch=True, debug = False
+            section_uls,
+            n=n_N,
+            include_prestress_branch=True,
+            concrete_tension=False
         )
 
         # Convert to positive values and proper units
@@ -218,6 +217,7 @@ class DeflectionCalculator:
             "M_array": M_array,
             "kappa_array": kappa_array,
             "M_cr": M_cr,
+            "kappa_cr": kappa_cr,
             "M_p": M_p,
             "kappa_0": kappa_0
         }
