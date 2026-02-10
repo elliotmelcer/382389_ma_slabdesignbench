@@ -125,6 +125,6 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
 
         w_limit = L / limit_factor
 
-        utilization = abs (w_max / w_limit)
+        utilization = w_max / w_limit
 
         return utilization

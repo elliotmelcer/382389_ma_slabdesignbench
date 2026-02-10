@@ -11,13 +11,14 @@ from core.analysis_core.material_methods import get_cube, get_reinforcement_from
     get_floor_material_from_registry, ConcreteCO2Registry, get_material_properties
 from core.ioh_core.io_util import _req_param
 from core.unit_core import mm3_to_m3
+from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slab_construction import FloorLayer, Floor, SlabConstruction
 from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
 from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
 
 
-def analysis(params: dict, constraints: dict, materials: dict) -> dict:
+def analysis(params: dict, constraints: dict, materials: dict, debug: bool = True) -> dict:
     """
         Return all results -> unpenalized-objective + penalized-objective + all constraints (weight = exponent = 1)so we compute it ONCE.
         """
@@ -46,7 +47,9 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
 
     # Reinforcement
     reinf_id = params.get("mat_reinf_id", "")
-    print("reinf_id = ", reinf_id)
+
+    if debug:
+        print("reinf_id = ", reinf_id)
 
     reinf_area_mm2 = _req_param(params, "reinf_a_tex_mm2")
     prestress_pct = _req_param(params, "reinf_kap_t_percent")
@@ -68,7 +71,8 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
     # Deformations
 
     defl_limit_factor_w_max = _req_param(params, "defl_max_defl_limit")
-    print("limit = ", defl_limit_factor_w_max)
+    if debug:
+        print("limit = ", defl_limit_factor_w_max)
     defl_limit_factor_announce_failure = _req_param(params, "defl_max_announce_failure")
 
     # ======================================================================================================================
@@ -185,6 +189,8 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
         system = "SIMPLE_BEAM",
         limit_factor=defl_limit_factor_w_max
     )
+    if debug:
+        plot_cross_section(slab_construction.slab.section_at(0.5), title = f"w_max_sls_util = {w_max_sls_util}")
 
     # ======================================================================================================================
     # COMPUTE CONSTRAINTS (C) - CONSTRUCTION
@@ -233,8 +239,8 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
     # ======================================================================================================================
     # Collect constraint values
     constraint_values = {  # utilisation ratios
-        f"bending_capacity_": m_u_util,
-        f"deflection_by_wmax_capacity_": w_max_sls_util,
+        f"bending_capacity": m_u_util,
+        f"deflection_by_wmax_capacity": w_max_sls_util,
     }
 
     print(
@@ -269,8 +275,8 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
         penalty_product_ *= (v ** 2.0)
 
     y_p = y * penalty_product_
-    print("penalty product: ", penalty_product_)
-    print("penalized objective function: ", y_p, "\n")
+    print(f"penalty product: {penalty_product_:.3f}")
+    print(f"penalized objective function: {y_p:.3f} \n")
 
 
     # ======================================================================================================================

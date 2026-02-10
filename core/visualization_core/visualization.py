@@ -188,7 +188,7 @@ def plot_constitutive_law_reinforcement(reinforcement: Reinforcement, n: int = 1
 
 # --- Cross Section ---
 
-def plot_cross_section(gs: GenericSection, ax=None, x=None, **kwargs):
+def plot_cross_section(gs: GenericSection, ax=None, x=None, title = "", **kwargs):
     """
     Author: Elliot Melcer
     Plot the section geometry, its centroid, and the local coordinate system.
@@ -202,6 +202,8 @@ def plot_cross_section(gs: GenericSection, ax=None, x=None, **kwargs):
          Extra args passed to geometry.plot().
      gs: GenericSection
          Generic section geometry.
+     title: str, optional
+         Additional title of the plot.
     """
 
     # Create axes if needed
@@ -236,7 +238,7 @@ def plot_cross_section(gs: GenericSection, ax=None, x=None, **kwargs):
     ax.text(0, L * 1.5, "z", va="bottom", ha="center", color="black", alpha = 0.4)
 
     # ---- 4. Final formatting ----
-    ax.set_title(f"{gs.name} at x = {x} * L" if x is not None else f"{gs.name}")
+    ax.set_title(f"{gs.name} at x = {x} * L" if x is not None else f"{gs.name} \n {title}")
     ax.set_aspect("equal")
 
     return ax

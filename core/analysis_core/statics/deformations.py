@@ -47,7 +47,8 @@ class DeflectionCalculator:
         :param n_intervals: Number of intervals for Simpson's rule (must be even)
         :param n_axial: Axial force [kN] (positive = tension)
         :param debug: Enable debug output
-        :return: Maximum deflection [mm]
+
+        :return: Maximum deflection [mm] Note: positive: sagging, negative: hogging
         """
         # Validate inputs
         if system.strip().upper() != "SIMPLE_BEAM":
