@@ -19,7 +19,8 @@ M_max = InternalForces.calculate_moment(
 
 # For THREE_SPAN - only coefficient method works:
 M_max_three_span = InternalForces.calculate_moment(
-    test_slab_construction, test_loads,
+    test_slab_construction,
+    test_loads,
     system="THREE_SPAN",
     moment_type="MAX_POS_MOMENT"  # ✓ Works!
 )
