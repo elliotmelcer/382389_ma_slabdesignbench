@@ -16,7 +16,7 @@ from core.analysis_core.section_methods import get_strain_at_point
 
 # --- Moment-Curvature-Diagram ---
 
-def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None):
+def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, title = ""):
     """
             Author: Elliot Melcer
             Plot moment–curvature (M–K) diagram with My and Mu annotations.
@@ -51,8 +51,8 @@ def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None):
 
     # Label
     label_u = (
-        f"(K_u = {m_c_res.chi_y[-1] * 1e6 :.3e},\n"
-        f" M_u = {m_c_res.m_y[-1] / 1e6:.3f} kNm)"
+        f"(K_u = {-m_c_res.chi_y[-1] * 1e6 :.3e},\n"
+        f" M_u = {-m_c_res.m_y[-1] / 1e6:.3f} kNm)"
     )
     ax.text(
         x_u, y_u, label_u,
@@ -68,7 +68,7 @@ def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None):
     ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
 
     # ---- Add title here ----
-    ax.set_title(f"M-K-Diagram at x = {x} * L")
+    ax.set_title(f"{title} \n M-K-Diagram at x = {x} * L")
 
     return ax
 
