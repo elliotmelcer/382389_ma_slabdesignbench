@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from structuralcodes.sections import GenericSection
 
+from core.analysis_core.statics.deformations import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.analysis_core.loads import Loads
 from core.analysis_core.section_methods import calculate_bending_strength_uls, flipped_section
@@ -80,7 +81,13 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
             )
 
         # Calculate design moment based on system and moment type
-        MEd = InternalForces.calculate_moment(slab_construction, loads, system, moment, "FUNDAMENTAL")
+        MEd = InternalForces.calculate_moment(
+            slab_construction,
+            loads,
+            system,
+            "FUNDAMENTAL",
+            moment_type=moment
+        )
 
         # Calculate utilization
         utilization = abs(MEd / MRd)
@@ -91,5 +98,33 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
             print(f"M_Rd = {MRd:.3f} kNm")
             print(f"M_Ed = {MEd:.3f} kNm")
             print(f"Utilization = {utilization:.3f} ({utilization * 100:.1f}%)\n")
+
+        return utilization
+
+class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
+
+    @staticmethod
+    def calculateUtilization(
+            slab_construction: SlabConstruction,
+            loads: Loads,
+            system: str = "SIMPLE_BEAM",
+            limit_factor: float = 250.0,
+            debug: bool = False,
+    ) -> float:
+
+        w_max = DeflectionCalculator.calculate_deflection(
+            slab_construction,
+            loads,
+            system,
+            combination = "QUASI-PERMANENT",
+            debug = debug,
+        )
+        print("w_max = ", w_max)
+        L = slab_construction.slab.L
+        print("L = ", L)
+
+        w_limit = L / limit_factor
+
+        utilization = abs (w_max / w_limit)
 
         return utilization

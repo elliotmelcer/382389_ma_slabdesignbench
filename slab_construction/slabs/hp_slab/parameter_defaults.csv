@@ -23,7 +23,7 @@ insu_mod_damp;grid;;0.01;0.01;1;0;0;0;fixed;float;
 insu_rw_req_db;catalog;53. | 54. | 55.;;;;0;2;1;fixed;float;
 insu_lnw_max_db;catalog;46.  | 53.;;;;0;1;0;fixed;float;
 defl_sls_case;catalog;a | b;;;;0;1;1;fixed;str;
-defl_max_defl_limit;catalog;250. | 500.;;;;0;2;0;fixed;float;
+defl_max_defl_limit;catalog;250. | 500.;;;;0;1;0;fixed;float;
 defl_max_announce_failure;catalog;100.;;;;0;0;0;fixed;float;
 f_beam_theory;grid;;1;1;10;0;9;4;fixed;float;
 weight_omega_1_gwp;grid;;0.1;0.1;100;0;99;98;fixed;float;

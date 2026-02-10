@@ -4,7 +4,8 @@ Perform all Checks here
 from structuralcodes import set_design_code
 from structuralcodes.materials.concrete import create_concrete
 
-from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE
+from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE, \
+    DeflectionLimitByDeflectionCheckEC2004DE
 from core.analysis_core.loads import Loads
 from core.analysis_core.material_methods import get_cube, get_reinforcement_from_registry, \
     get_floor_material_from_registry, ConcreteCO2Registry, get_material_properties
@@ -64,7 +65,11 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
     n = _req_param(params,"loads_N_kN")
     q = _req_param(params,"loads_q_kNm2")
 
+    # Deformations
 
+    defl_limit_factor_w_max = _req_param(params, "defl_max_defl_limit")
+    print("limit = ", defl_limit_factor_w_max)
+    defl_limit_factor_announce_failure = _req_param(params, "defl_max_announce_failure")
 
     # ======================================================================================================================
     # CREATE MATERIALS
@@ -172,6 +177,14 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
     # COMPUTE CONSTRAINTS (B) - SLS
     # ======================================================================================================================
 
+    # B.1a Limiting Deflection by Checking the Maximum Deflection against Limit Factor
+
+    w_max_sls_util = DeflectionLimitByDeflectionCheckEC2004DE.calculateUtilization(
+        slab_construction = slab_construction,
+        loads = live_loads,
+        system = "SIMPLE_BEAM",
+        limit_factor=defl_limit_factor_w_max
+    )
 
     # ======================================================================================================================
     # COMPUTE CONSTRAINTS (C) - CONSTRUCTION
@@ -221,14 +234,27 @@ def analysis(params: dict, constraints: dict, materials: dict) -> dict:
     # Collect constraint values
     constraint_values = {  # utilisation ratios
         f"bending_capacity_": m_u_util,
+        f"deflection_by_wmax_capacity_": w_max_sls_util,
     }
-    print(f"constraint values: {{'bending_capacity_': {m_u_util:.3f}}}")
+
+    print(
+        "constraint values: {"
+        + ", ".join(f"'{k}': {v:.3f}" for k, v in constraint_values.items())
+        + "}"
+    )
+
     # penalty factors: 1 if satisfied, utilisation value if > 1
     penalties_ = {
         name: (1.0 if value <= 1.0 else float(value))
         for name, value in constraint_values.items()
     }
-    print("penalties_: ", penalties_)
+
+    print(
+        "penalties_: {"
+        + ", ".join(f"'{k}': {v:.3f}" for k, v in penalties_.items())
+        + "}"
+    )
+
     # compile a list of constraints that are active for this problem to return them
     active_penalties_ = {
         name: penalties_[name]

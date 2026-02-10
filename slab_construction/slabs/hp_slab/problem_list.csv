@@ -30,4 +30,5 @@
 1;param;weight_omega_2_cost;fixed;;;9;;;;;1;
 1;param;weight_weighted_equation;fixed;;;1;;;;;1;
 1;param;cost_rebar;fixed;;;1;;;;;1;
-1;constraint;bending_capacity;;;;;true;HIDDEN;1;1;1;
+1;constraint;bending_capacity;;;;;True;HIDDEN;1;1;1;
+1;constraint;deflection_by_wmax_capacity;;;;;True;HIDDEN;1;1;1;
