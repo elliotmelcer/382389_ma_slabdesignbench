@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 from structuralcodes.core.base import Material
 from slab_construction.slabs.slab import Slab
@@ -86,3 +87,109 @@ class SlabConstruction:
             self.slab.infill_load()
             + self.floor.dead_load()
         )
+
+    def get_parameters(self) -> dict:
+        """
+        Author: [Your Name]
+        Returns a dictionary containing all slab construction parameters
+        organized by category: Geometry, Concrete, and Reinforcement.
+
+        Note: This method assumes the slab is an HPSlab with an HPShell.
+        """
+        from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
+
+        # Initialize result dictionary
+        params = {
+            "geometry": {},
+            "concrete": {},
+            "reinforcement": {}
+        }
+
+        # --- Geometry Parameters ---
+        if isinstance(self.slab, HPSlab):
+            hp_shell = self.slab.hp_shell
+            hp_geom = hp_shell.hp_geometry
+
+            # Slab geometry
+            H_ges = hp_geom.Hx + hp_geom.Hy
+
+            params["geometry"] = {
+                "span_L": hp_geom.L,  # mm
+                "width_B": hp_geom.B,  # mm
+                "height": H_ges,  # mm (Hx + Hy)
+                "Hx_Hges": hp_geom.Hx / H_ges if H_ges > 0 else 0.0,  # ratio [-]
+                "thickness": hp_geom.t,  # mm
+                "nt": hp_geom.nt,  # number of tendons per group
+                "dy": hp_geom.dy,  # mm
+            }
+
+            # --- Concrete Parameters ---
+            concrete = hp_shell.concrete
+            params["concrete"] = {
+                "fck": concrete.fck  # MPa
+            }
+
+            # --- Reinforcement Parameters ---
+            reinforcement = hp_shell.reinforcement
+
+            # Get initial strain (prestress percentage)
+            initial_strain = getattr(reinforcement, 'initial_strain', 0.0)
+            if initial_strain is None:
+                initial_strain = 0.0
+
+            # Convert to percentage (strain is typically in absolute form)
+            initial_strain_percentage = initial_strain * 100
+
+            params["reinforcement"] = {
+                "name": reinforcement.name if hasattr(reinforcement, 'name') else str(reinforcement),
+                "initial_strain_percentage": initial_strain_percentage,  # %
+                "cross_sectional_area": hp_shell.reinf_area  # mm²
+            }
+
+        # --- Floor Layer Thicknesses ---
+        # Extract thicknesses from floor layers by material type
+        thickness_infill = 0.0
+        thickness_screed = 0.0
+        thickness_insulation = 0.0
+
+        for layer in self.floor.layers:
+            material = layer.material
+            material_name = getattr(material, 'name', '').lower() if hasattr(material, 'name') else ''
+
+            # Check if it's an insulation material by type
+            if isinstance(material, InsulationMaterial):
+                thickness_insulation += layer.thickness
+            # Otherwise check by name
+            elif 'insulation' in material_name or 'insu' in material_name:
+                thickness_insulation += layer.thickness
+            elif 'screed' in material_name:
+                thickness_screed += layer.thickness
+            elif 'infill' in material_name:
+                thickness_infill += layer.thickness
+
+        params["geometry"]["thickness_infill"] = thickness_infill  # mm
+        params["geometry"]["thickness_screed"] = thickness_screed  # mm
+        params["geometry"]["thickness_insulation"] = thickness_insulation  # mm
+
+        return params
+
+    def print_parameters(self) -> None:
+        parameters = self.get_parameters()
+
+        # Print results
+        print("\nReturned parameters:")
+        print("-" * 40)
+
+        print("[GEOMETRY]")
+        for key, value in parameters["geometry"].items():
+            print(f"  {key}: {value}")
+
+        print("\n[CONCRETE]")
+        for key, value in parameters["concrete"].items():
+            print(f"  {key}: {value}")
+
+        print("\n[REINFORCEMENT]")
+        for key, value in parameters["reinforcement"].items():
+            print(f"  {key}: {value}")
+
+        print("")

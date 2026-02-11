@@ -19,6 +19,9 @@ set_design_code('ec2_2004')
 
 
 # - Definitions -
+concrete_c30_uls = create_concrete(fck=30, constitutive_law ='parabolarectangle', alpha_cc = 0.85, gamma_c = 1.5, name ="C30/37 ULS")
+
+
 concrete_c40_uls = create_concrete(fck=40, constitutive_law ='parabolarectangle', alpha_cc = 0.85, gamma_c = 1.5, name ="C40/50 ULS")
 # concrete_c40_sls = create_concrete(fck=40, constitutive_law ='sargin', name ="C40/50 SLS")
 
@@ -166,6 +169,6 @@ solidian_Q142_pre_60 = create_reinforcement(
 
 # -- Floor Materials --
 
-infill = FloorMaterial(density = 1000)
-sound_insulation = FloorMaterial(density = 24)
-screed = FloorMaterial(density = 2000)
+infill = FloorMaterial(density = 1000, name = "Infill")
+sound_insulation = FloorMaterial(density = 24, name = "Sound insulation")
+screed = FloorMaterial(density = 2000, name = "Screed")

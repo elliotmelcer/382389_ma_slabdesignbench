@@ -5,7 +5,8 @@ from structuralcodes.sections import GenericSection
 from core.analysis_core.statics.deformations import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.analysis_core.loads import Loads
-from core.analysis_core.section_methods import calculate_bending_strength_uls, flipped_section
+from core.analysis_core.section_methods import calculate_bending_strength_uls, flipped_section, \
+    calculate_cracking_moment_sls
 from core.unit_core import Nmm_to_kNm
 from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slab_construction import SlabConstruction
@@ -119,12 +120,54 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             combination = "QUASI-PERMANENT",
             debug = debug,
         )
-        print("w_max = ", w_max)
+
         L = slab_construction.slab.L
-        print("L = ", L)
 
         w_limit = L / limit_factor
 
         utilization = w_max / w_limit
+
+        if debug:
+            print("w_max = ", w_max)
+            print("L = ", L)
+
+        return utilization
+
+class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
+    @staticmethod
+    def calculateUtilization(
+        slab_construction: SlabConstruction,
+        loads: Loads,
+        system: str = "SIMPLE_BEAM",
+        moment: str = "MAX_POS_MOMENT",
+        n: float = 0.0,
+        debug: bool = True
+    ) -> float:
+
+        m_qp = InternalForces.calculate_moment(
+            slab_construction,
+            loads,
+            system,
+            combination = "QUASI-PERMANENT",
+            moment_type = moment,
+        )
+
+        if debug:
+            print("m_qp = ", m_qp)
+
+        section_midspan = slab_construction.slab.section_at(0.5)
+
+        m_cr = -Nmm_to_kNm(calculate_cracking_moment_sls(section_midspan, n)["m_cr"])
+
+        if debug:
+            print("m_cr = ", m_cr)
+
+        utilization = m_qp / m_cr
+
+        if utilization < 0.0:
+            plot_cross_section(slab_construction.slab.section_at(0.5))
+
+            slab_construction.print_parameters()
+
 
         return utilization

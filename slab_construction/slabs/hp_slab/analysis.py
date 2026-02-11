@@ -5,7 +5,7 @@ from structuralcodes import set_design_code
 from structuralcodes.materials.concrete import create_concrete
 
 from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE, \
-    DeflectionLimitByDeflectionCheckEC2004DE
+    DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE
 from core.analysis_core.loads import Loads
 from core.analysis_core.material_methods import get_cube, get_reinforcement_from_registry, \
     get_floor_material_from_registry, ConcreteCO2Registry, get_material_properties
@@ -48,9 +48,6 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Tru
     # Reinforcement
     reinf_id = params.get("mat_reinf_id", "")
 
-    if debug:
-        print("reinf_id = ", reinf_id)
-
     reinf_area_mm2 = _req_param(params, "reinf_a_tex_mm2")
     prestress_pct = _req_param(params, "reinf_kap_t_percent")
 
@@ -71,8 +68,6 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Tru
     # Deformations
 
     defl_limit_factor_w_max = _req_param(params, "defl_max_defl_limit")
-    if debug:
-        print("limit = ", defl_limit_factor_w_max)
     defl_limit_factor_announce_failure = _req_param(params, "defl_max_announce_failure")
 
     # ======================================================================================================================
@@ -189,8 +184,15 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Tru
         system = "SIMPLE_BEAM",
         limit_factor=defl_limit_factor_w_max
     )
-    if debug:
-        plot_cross_section(slab_construction.slab.section_at(0.5), title = f"w_max_sls_util = {w_max_sls_util}")
+
+    # B.1b Limiting Deflection by Checking the Quasi-Permanent Moment Against the Cracking Moment
+
+    w_max_uls_util = DeflectionLimitByMcrCheckEC2004DE.calculateUtilization(
+        slab_construction = slab_construction,
+        loads = live_loads,
+        system = "SIMPLE_BEAM",
+        moment = "MAX_POS_MOMENT",
+    )
 
     # ======================================================================================================================
     # COMPUTE CONSTRAINTS (C) - CONSTRUCTION
@@ -241,6 +243,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Tru
     constraint_values = {  # utilisation ratios
         f"bending_capacity": m_u_util,
         f"deflection_by_wmax_capacity": w_max_sls_util,
+        f"deflection_by_mcr_capacity": w_max_uls_util,
     }
 
     print(

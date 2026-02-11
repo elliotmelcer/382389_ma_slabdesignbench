@@ -1,3 +1,4 @@
 ﻿name;kind;enforced;weight;exponent;active_default
 bending_capacity;integer;HIDDEN;1;1;true
 deflection_by_wmax_capacity;integer;HIDDEN;1;1;true
+deflection_by_mcr_capacity;integer;HIDDEN;1;1;True
