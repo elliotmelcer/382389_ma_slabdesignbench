@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c1_4_uls
-from core.analysis_core.section_methods import calculate_moment_curvature_sls, calculate_cracking_moment_sls
+from core.analysis_core.section_methods import calculate_moment_curvature_sls, calculate_cracking_moment_sls_Nmm
 from core.visualization_core.visualization import plot_moment_curvature
 
 test_section = hp_section_c1_4_uls
@@ -20,7 +20,7 @@ uncracked_m_k_results = calculate_moment_curvature_sls(
     concrete_tension=True
 )
 
-mcr = calculate_cracking_moment_sls(
+mcr = calculate_cracking_moment_sls_Nmm(
     test_section,
 )
 

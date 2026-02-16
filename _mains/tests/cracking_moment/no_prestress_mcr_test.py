@@ -15,7 +15,7 @@ The sections used for verification are from chapter "C.1. Vergleich der Riss- un
 
 # Section 1:
 
-results_c1_3        = section_methods.calculate_cracking_moment_sls(hp_section_c1_3_sls, n=0)
+results_c1_3        = section_methods.calculate_cracking_moment_sls_Nmm(hp_section_c1_3_sls, n=0)
 
 
 print(f"Cracking Moment Verification\n"

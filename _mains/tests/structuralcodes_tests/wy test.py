@@ -10,7 +10,7 @@ wy_verification_section = t_section
 # moment_curvature = section.section_calculator.calculate_moment_curvature()
 
 print("Mcr (ULS) = ",section_methods.calculate_cracking_moment(wy_verification_section, n=0)/1000000, " kNm\n")
-print("Mcr (SLS) = ",section_methods.calculate_cracking_moment_sls(wy_verification_section, n=0)/1000000, " kNm\n")
+print("Mcr (SLS) = ", section_methods.calculate_cracking_moment_sls_Nmm(wy_verification_section, n=0) / 1000000, " kNm\n")
 
 #
 # # --- constitutive laws ---

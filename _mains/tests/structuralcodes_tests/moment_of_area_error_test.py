@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c1_1_uls
-from core.analysis_core.section_methods import calculate_cracking_moment_sls, sls_section
+from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, sls_section
 from core.visualization_core.visualization import plot_cross_section
 
 def test_1_plot_sls_section() -> None:
@@ -28,7 +28,7 @@ def test_2_get_section_from_results() -> None:
     """
     print("test_2")
 
-    results_c1_1 = calculate_cracking_moment_sls(hp_section_c1_1_uls, n=0)
+    results_c1_1 = calculate_cracking_moment_sls_Nmm(hp_section_c1_1_uls, n=0)
 
     plot_cross_section(results_c1_1.get("section"), x=0.5)
 
