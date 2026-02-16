@@ -3,7 +3,7 @@ Test file for deflection calculations
 Author: Elliot Melcer
 """
 
-from _mains.testing_files.testing_slab_construction import test_slab_construction
+from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
 from _mains.testing_files.testing_loads import test_loads
 from core.analysis_core.statics import calculate_line_load
 from core.analysis_core.statics.deformations import DeflectionCalculator
@@ -18,16 +18,16 @@ print("DEFLECTION CALCULATION TEST")
 print("=" * 70)
 
 # Slab properties
-span_m = test_slab_construction.slab.L / 1000  # Convert mm to m
+span_m = test_slab_construction_c1_4.slab.L / 1000  # Convert mm to m
 print(f"\nSlab Properties:")
 print(f"  Span: {span_m:.2f} m")
-print(f"  Width: {test_slab_construction.slab.B:.0f} mm")
+print(f"  Width: {test_slab_construction_c1_4.slab.B:.0f} mm")
 
 # Load information
 print(f"\nLoads:")
 print(f"  Live load: {test_loads.Qk[0]:.1f} kN/m²")
-print(f"  Self-weight: {test_slab_construction.structural_dead_load():.2f} kN/m²")
-print(f"  Non-structural: {test_slab_construction.non_structural_dead_load():.2f} kN/m²")
+print(f"  Self-weight: {test_slab_construction_c1_4.structural_dead_load():.2f} kN/m²")
+print(f"  Non-structural: {test_slab_construction_c1_4.non_structural_dead_load():.2f} kN/m²")
 
 # Calculate deflections
 print(f"\n" + "=" * 70)
@@ -38,12 +38,12 @@ print("=" * 70)
 print("\n1. FUNDAMENTAL COMBINATION (ULS)")
 
 q_fund = calculate_line_load(
-    slab_construction=test_slab_construction,
+    slab_construction=test_slab_construction_c1_4,
     loads=test_loads,
     combination="FUNDAMENTAL")
 
 deflection_fund = DeflectionCalculator.calculate_deflection(
-    slab_construction=test_slab_construction,
+    slab_construction=test_slab_construction_c1_4,
     loads=test_loads,
     system="SIMPLE_BEAM",
     combination="FUNDAMENTAL",
@@ -60,12 +60,12 @@ print(f"   Deflection/Span: L/{span_m * 1000 / deflection_fund:.0f}")
 print("\n2. QUASI-PERMANENT COMBINATION (SLS)")
 
 q_qp = calculate_line_load(
-    slab_construction=test_slab_construction,
+    slab_construction=test_slab_construction_c1_4,
     loads=test_loads,
     combination="QUASI-PERMANENT")
 
 deflection_qp = DeflectionCalculator.calculate_deflection(
-    slab_construction=test_slab_construction,
+    slab_construction=test_slab_construction_c1_4,
     loads=test_loads,
     system="SIMPLE_BEAM",
     combination="QUASI-PERMANENT",
@@ -82,12 +82,12 @@ print(f"   Deflection/Span: L/{span_m * 1000 / deflection_qp:.0f}")
 print("\n3. FREQUENT COMBINATION (SLS)")
 
 q_freq = calculate_line_load(
-    slab_construction=test_slab_construction,
+    slab_construction=test_slab_construction_c1_4,
     loads=test_loads,
     combination="FREQUENT")
 
 deflection_freq = DeflectionCalculator.calculate_deflection(
-    slab_construction=test_slab_construction,
+    slab_construction=test_slab_construction_c1_4,
     loads=test_loads,
     system="SIMPLE_BEAM",
     combination="FREQUENT",

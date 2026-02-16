@@ -41,7 +41,7 @@ class DeflectionCalculator:
         :param slab_construction: Slab construction object
         :param loads: Loads object
         :param system: Structural system type
-        :param combination: Load combination for SLS
+        :param combination: Load combination
         :param n_intervals: Number of intervals for Simpson's rule (must be even)
         :param n_axial: Axial force [kN] (positive = tension)
         :param debug: Enable debug output

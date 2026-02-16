@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_shell_c1_4_uls
 from _mains.testing_files.testing_loads import test_loads
-from _mains.testing_files.testing_slab_construction import test_slab_construction
+from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
 from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, calculate_prestress_moment_Nmm, \
     calculate_bending_strength_sls_Nmm, calculate_moment_curvature_sls
 from core.visualization_core.visualization import plot_moment_curvature
@@ -21,12 +21,12 @@ GZT/GZG |   -6.427123 mm     |   -6.52 mm
 """
 
 # Sections
-hp_section_c1_4_uls_mid     = test_slab_construction.slab.section_at(0.5)
-hp_section_c1_4_uls_supp     = test_slab_construction.slab.section_at(0.0)
+hp_section_c1_4_uls_mid     = test_slab_construction_c1_4.slab.section_at(0.5)
+hp_section_c1_4_uls_supp     = test_slab_construction_c1_4.slab.section_at(0.0)
 
 # Loads
-q_fund_kN_m2 = test_loads.fundamental_combination(test_slab_construction)
-q_qp_kN_m2 = test_loads.quasi_permanent_combination(test_slab_construction)
+q_fund_kN_m2 = test_loads.fundamental_combination(test_slab_construction_c1_4)
+q_qp_kN_m2 = test_loads.quasi_permanent_combination(test_slab_construction_c1_4)
 
 # Cracking Moment
 m_cr_res_mid = calculate_cracking_moment_sls_Nmm(hp_section_c1_4_uls_mid)

@@ -19,7 +19,7 @@ bundles = build_problems_for_slab_type(slab_type)
 max_evaluations_ = 5
 n_runs_ = 1
 
-"DIRECT"
+"NloptDirectSearch"
 algo = NloptDirectSearch(max_evaluations=max_evaluations_)
 run_experiment(bundles, algo, n_runs=n_runs_)
 

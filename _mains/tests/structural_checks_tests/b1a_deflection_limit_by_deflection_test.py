@@ -1,5 +1,5 @@
 from _mains.testing_files.testing_loads import test_loads
-from _mains.testing_files.testing_slab_construction import test_slab_construction
+from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
 from core.analysis_core.checks.structural_checks import DeflectionLimitByDeflectionCheckEC2004DE
 
 """
@@ -11,7 +11,7 @@ Passed: 10.02.2026
 
 # --- Check ---
 util = DeflectionLimitByDeflectionCheckEC2004DE.calculateUtilization(
-    test_slab_construction,
+    test_slab_construction_c1_4,
     test_loads,
     system = "SIMPLE_BEAM",
     limit_factor=250.,

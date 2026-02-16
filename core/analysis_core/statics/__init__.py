@@ -132,7 +132,9 @@ def calculate_line_load(
             "Invalid combination. Must be one of: 'FUNDAMENTAL', 'FREQUENT', 'QUASI-PERMANENT'."
         )
 
-    return w * width
+    line_load = w * width
+
+    return line_load
 
 def moment_simple_beam(x: float, w: float, L: float) -> float:
     """

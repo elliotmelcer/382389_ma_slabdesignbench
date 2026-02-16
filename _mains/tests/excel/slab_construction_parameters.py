@@ -6,10 +6,10 @@ Tests the extraction of all slab construction parameters from the nested
 HPSlab -> HPShell -> HPGeometry structure.
 """
 
-from _mains.testing_files.testing_slab_construction import test_slab_construction
+from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
 
 """
-Expected values based on test_slab_construction:
+Expected values based on test_slab_construction_c1_4:
 
 hp_c1_4 = HPGeometry(B = 1200, L = 6750, Hx = 100, Hy = 400, t = 100, dy = 80, nt = 10)
 hp_shell_c1_4_uls = HPShell(hp_c1_4, concrete_c55_uls, solidian_Q142_pre_50, reinf_area = 80)
@@ -31,7 +31,7 @@ def test_get_parameters():
     print("=" * 70)
 
     # Get parameters
-    params_ = test_slab_construction.get_parameters()
+    params_ = test_slab_construction_c1_4.get_parameters()
 
     # Print results
     print("\nReturned parameters:")
@@ -127,7 +127,7 @@ def test_parameter_types():
     print("TEST: Parameter Types")
     print("=" * 70)
 
-    params = test_slab_construction.get_parameters()
+    params = test_slab_construction_c1_4.get_parameters()
 
     # Check structure
     assert isinstance(params, dict), "params should be a dict"
