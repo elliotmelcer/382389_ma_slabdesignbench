@@ -136,14 +136,24 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
 class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
     @staticmethod
     def calculateUtilization(
-        slab_construction: SlabConstruction,
-        loads: Loads,
-        system: str = "SIMPLE_BEAM",
-        moment: str = "MAX_POS_MOMENT",
-        n: float = 0.0,
-        debug: bool = True
+            slab_construction: SlabConstruction,
+            loads: Loads,
+            system: str = "SIMPLE_BEAM",
+            moment: str = "MAX_POS_MOMENT",
+            n: float = 0.0,
+            debug: bool = False
     ) -> float:
+        """
+        Calculate the utilization ratio m_qp / m_cr.
 
+        Returns:
+            float: Utilization ratio.
+                   - < 1.0: Section remains uncracked under quasi-permanent loads
+                   - > 1.0: Section will crack
+                   - float('inf'): Section crushes before cracking (over-prestressed)
+        """
+
+        # Calculate quasi-permanent moment
         m_qp = InternalForces.calculate_moment(
             slab_construction,
             loads,
@@ -152,22 +162,35 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
             moment_type = moment,
         )
 
-        if debug:
-            print("m_qp = ", m_qp)
-
+        # Get section at midspan
         section_midspan = slab_construction.slab.section_at(0.5)
 
-        m_cr = -Nmm_to_kNm(calculate_cracking_moment_sls(section_midspan, n)["m_cr"])
+        # Calculate cracking moment with physical checks
+        m_cr_result = calculate_cracking_moment_sls_Nmm(section_midspan, n)
+
+        # Handle invalid cases (section crushes before cracking)
+        if not m_cr_result['valid']:
+            return float('inf')
+
+        # Get cracking moment magnitude
+        m_cr = abs(Nmm_to_kNm(m_cr_result["m_cr"]))
+
+        # Avoid division by zero (shouldn't happen with valid result, but safety check)
+        if m_cr < 1e-6:
+            return float('inf')
+
+        # Calculate utilization (compare magnitudes)
+        utilization = abs(m_qp) / m_cr
 
         if debug:
-            print("m_cr = ", m_cr)
+            print(f"m_qp = {m_qp:.3f} kNm")
 
-        utilization = m_qp / m_cr
+            print(f"m_cr valid: {m_cr_result['valid']}")
+            if not m_cr_result['valid']:
+                print(f"  Reason: {m_cr_result['reason']}")
 
-        if utilization < 0.0:
-            plot_cross_section(slab_construction.slab.section_at(0.5))
+            print(f"m_cr = {m_cr:.3f} kNm")
 
-            slab_construction.print_parameters()
-
+            print(f"utilization = |{m_qp:.3f}| / {m_cr:.3f} = {utilization:.3f}")
 
         return utilization

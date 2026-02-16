@@ -9,9 +9,7 @@ from typing import Dict, Tuple
 from slab_construction.slab_construction import SlabConstruction
 from core.analysis_core.loads import Loads
 from core.analysis_core.section_methods import (
-    calculate_cracking_moment_sls,
     calculate_moment_curvature_sls,
-    calculate_prestress_moment
 )
 from core.analysis_core.statics import virtual_moment_simple_beam
 from core.analysis_core.statics.internal_forces import InternalForces
@@ -74,12 +72,6 @@ class DeflectionCalculator:
         delta_x_norm = 0.5 / n_intervals # normalized
         x_positions = np.linspace(0, 0.5, n_intervals + 1)
         weights = DeflectionCalculator._simpson_weights(n_intervals)
-
-        if debug:
-            print(f"\n[DEBUG] Deflection calculation:")
-            print(f"  Span: {span_m:.3f} m")
-            print(f"  Support: M_cr={props_support['M_cr']:.2f} kNm, M_p={props_support['M_p']:.2f} kNm")
-            print(f"  Midspan: M_cr={props_mid['M_cr']:.2f} kNm, M_p={props_mid['M_p']:.2f} kNm")
 
         # Calculate curvatures and integrate
         integral_sum = 0.0
@@ -200,25 +192,25 @@ class DeflectionCalculator:
         M_array = -mk_result.m_y / 1e6  # Nmm → kNm, flip to positive
         kappa_array = -mk_result.chi_y * 1000  # 1/mm → 1/m, flip to positive
 
-        # Get cracking moment
-        M_cr_result = calculate_cracking_moment_sls(section_uls, n=n_N)
-        M_cr = abs(M_cr_result["m_cr"]) / 1e6  # kNm
-        kappa_cr = abs(M_cr_result["strain_profile"][1]) * 1000  # 1/m
-
-        # Get prestressing moment
-        M_p = calculate_prestress_moment(section_uls)
-
-        # Calculate initial curvature (negative = upward camber)
-        if abs(M_cr - M_p) > 1e-6:
-            kappa_0 = -(M_p * kappa_cr) / (M_cr - M_p)
-        else:
-            kappa_0 = 0.0
+        # # Get cracking moment
+        # M_cr_result = calculate_cracking_moment_sls(section_uls, n=n_N)
+        # M_cr = abs(M_cr_result["m_cr"]) / 1e6  # kNm
+        # kappa_cr = abs(M_cr_result["strain_profile"][1]) * 1000  # 1/m
+        #
+        # # Get prestressing moment
+        # M_p = calculate_prestress_moment(section_uls)
+        #
+        # # Calculate initial curvature (negative = upward camber)
+        # if abs(M_cr - M_p) > 1e-6:
+        #     kappa_0 = -(M_p * kappa_cr) / (M_cr - M_p)
+        # else:
+        #     kappa_0 = 0.0
 
         return {
             "M_array": M_array,
             "kappa_array": kappa_array,
-            "M_cr": M_cr,
-            "kappa_cr": kappa_cr,
-            "M_p": M_p,
-            "kappa_0": kappa_0
+            # "M_cr": M_cr,
+            # "kappa_cr": kappa_cr,
+            # "M_p": M_p,
+            # "kappa_0": kappa_0
         }

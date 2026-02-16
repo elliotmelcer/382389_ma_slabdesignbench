@@ -18,7 +18,7 @@ from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
 from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
 
 
-def analysis(params: dict, constraints: dict, materials: dict, debug: bool = True) -> dict:
+def analysis(params: dict, constraints: dict, materials: dict, debug: bool = False) -> dict:
     """
         Return all results -> unpenalized-objective + penalized-objective + all constraints (weight = exponent = 1)so we compute it ONCE.
         """
@@ -281,7 +281,17 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Tru
     print(f"penalty product: {penalty_product_:.3f}")
     print(f"penalized objective function: {y_p:.3f} \n")
 
+    if debug:
+        # After calculating constraints
+        print(f"\nDEBUG constraint_values:")
+        for k, v in constraint_values.items():
+            print(f"  {k}: {v} (type: {type(v).__name__}, is_inf: {v == float('inf')})")
 
+        print(f"\nDEBUG penalties_:")
+        for k, v in penalties_.items():
+            print(f"  {k}: {v} (type: {type(v).__name__})")
+
+        print(f"\nDEBUG penalty_product_: {penalty_product_} (type: {type(penalty_product_).__name__})")
     # ======================================================================================================================
     # PLOT CROSS-SECTION
     # ======================================================================================================================
