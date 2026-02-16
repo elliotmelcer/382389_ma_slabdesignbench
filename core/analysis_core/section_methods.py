@@ -10,7 +10,7 @@ from structuralcodes.sections import GenericSection
 from core.analysis_core.material_methods import sargin_elastic_law, get_cube
 
 
-def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> dict:
+def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
     """
     Author: Elliot Melcer
     Calculate cracking moment of a prestressed GenericSection.
@@ -211,12 +211,12 @@ def calculate_cracking_moment_sls(section: GenericSection, n: float = 0.0) -> di
         print(f"Error in equilibrium calculation: {e}")
         raise
 
-def calculate_bending_strength_sls(section: GenericSection, n: float = 0.0) -> dict:
+def calculate_bending_strength_sls_Nmm(section: GenericSection, n: float = 0.0) -> dict:
     """
     Author: Elliot Melcer
     Returns a triplet of:
         SLS Section
-        SLS Bending Strength
+        SLS Bending Strength in Nmm
         Associated Strain Profile
     """
 
@@ -238,12 +238,12 @@ def calculate_bending_strength_sls(section: GenericSection, n: float = 0.0) -> d
         'strain_profile': strain_profile,
     }
 
-def calculate_bending_strength_uls(section: GenericSection, n: float = 0.0) -> dict:
+def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) -> dict:
     """
     Author: Elliot Melcer
     Returns a triplet of:
         ULS Section
-        ULS Bending Strength
+        ULS Bending Strength in Nmm
         Associated Strain Profile
     """
 

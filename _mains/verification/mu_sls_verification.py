@@ -4,7 +4,7 @@ from core.analysis_core import section_methods
 
 from _mains.testing_files.testing_hp_sections import hp_section_c1_1_uls, hp_section_c1_2_c50_uls, \
     hp_section_c1_2_c80_uls, hp_section_c1_3_uls, hp_section_c1_4_uls
-from core.analysis_core.section_methods import calculate_bending_strength_sls, get_concrete
+from core.analysis_core.section_methods import calculate_bending_strength_sls_Nmm, get_concrete
 from core.visualization_core.visualization import plot_constitutive_law_concrete, plot_strain_profile, \
     plot_cross_section
 
@@ -27,11 +27,11 @@ Section     Mu [kNm]
 
 """
 
-results_c1_1        = calculate_bending_strength_sls(hp_section_c1_1_uls, n= 0)
-results_c1_2_c50    = calculate_bending_strength_sls(hp_section_c1_2_c50_uls, n= 0)
-results_c1_2_c80    = calculate_bending_strength_sls(hp_section_c1_2_c80_uls, n= 0)
-results_c1_3        = calculate_bending_strength_sls(hp_section_c1_3_uls, n= 0)
-results_c1_4        = calculate_bending_strength_sls(hp_section_c1_4_uls, n= 0)
+results_c1_1        = calculate_bending_strength_sls_Nmm(hp_section_c1_1_uls, n= 0)
+results_c1_2_c50    = calculate_bending_strength_sls_Nmm(hp_section_c1_2_c50_uls, n= 0)
+results_c1_2_c80    = calculate_bending_strength_sls_Nmm(hp_section_c1_2_c80_uls, n= 0)
+results_c1_3        = calculate_bending_strength_sls_Nmm(hp_section_c1_3_uls, n= 0)
+results_c1_4        = calculate_bending_strength_sls_Nmm(hp_section_c1_4_uls, n= 0)
 
 print(f"Ultimate Moment (sls) Verification\n"
       f"\n"
