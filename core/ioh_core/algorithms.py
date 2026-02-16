@@ -49,6 +49,6 @@ class NloptDirectSearch:
         x_best_int = [int(round(xi)) for xi in x_best]
 
         # Keep IOH state consistent
-        problem(x_best_int)
+        # problem(x_best_int)
 
         return f_best, x_best_int
