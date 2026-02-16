@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_shell_c1_4_uls
 from _mains.testing_files.testing_loads import test_loads
-from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
+from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4, test_slab_construction_c1_1
 from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, calculate_prestress_moment_Nmm, \
     calculate_bending_strength_sls_Nmm, calculate_moment_curvature_sls
 from core.visualization_core.visualization import plot_moment_curvature
@@ -12,7 +12,7 @@ Use the values from the print statement as input for the Grasshopper Function "M
 in Jamila's Grasshopper code to verify the deflection calculation
 
 Result: 
-        |    Grasshopper     |    Python*   
+c1_4    |    Grasshopper     |    Python*   
 --------+--------------------+--------------
 GZG/GZG |   -8.392507 mm     |   -8.40 mm   
 GZT/GZG |   -6.427123 mm     |   -6.52 mm   
@@ -20,13 +20,15 @@ GZT/GZG |   -6.427123 mm     |   -6.52 mm
 *deflection_test.py
 """
 
+slab_construction = test_slab_construction_c1_4
+
 # Sections
-hp_section_c1_4_uls_mid     = test_slab_construction_c1_4.slab.section_at(0.5)
-hp_section_c1_4_uls_supp     = test_slab_construction_c1_4.slab.section_at(0.0)
+hp_section_c1_4_uls_mid     = slab_construction.slab.section_at(0.5)
+hp_section_c1_4_uls_supp     = slab_construction.slab.section_at(0.0)
 
 # Loads
-q_fund_kN_m2 = test_loads.fundamental_combination(test_slab_construction_c1_4)
-q_qp_kN_m2 = test_loads.quasi_permanent_combination(test_slab_construction_c1_4)
+q_fund_kN_m2 = test_loads.fundamental_combination(slab_construction)
+q_qp_kN_m2 = test_loads.quasi_permanent_combination(slab_construction)
 
 # Cracking Moment
 m_cr_res_mid = calculate_cracking_moment_sls_Nmm(hp_section_c1_4_uls_mid)
@@ -46,7 +48,7 @@ _, kappa_cr, _ = m_cr_res_mid.get("strain_profile", (None, None, None))
 
 # Ultimate Curvature at Midspan
 mk_res = calculate_moment_curvature_sls(hp_section_c1_4_uls_mid)
-plot_moment_curvature(mk_res)
+plot_moment_curvature(mk_res, x = 0.5)
 
 kappa_u = float(mk_res.chi_y[-1])
 
