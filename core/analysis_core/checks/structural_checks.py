@@ -5,8 +5,8 @@ from structuralcodes.sections import GenericSection
 from core.analysis_core.statics.deformations import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.analysis_core.loads import Loads
-from core.analysis_core.section_methods import calculate_bending_strength_uls, flipped_section, \
-    calculate_cracking_moment_sls
+from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm, flipped_section, \
+    calculate_cracking_moment_sls_Nmm
 from core.unit_core import Nmm_to_kNm
 from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slab_construction import SlabConstruction
@@ -72,13 +72,13 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
         # x_position is normalized (0 at first support, 1 at second support, etc.)
         if moment == "MAX_POS_MOMENT":
             MRd = -Nmm_to_kNm(
-                calculate_bending_strength_uls(slab.section_at(x_position), n).get("m_u")
+                calculate_bending_strength_uls_Nmm(slab.section_at(x_position), n).get("m_u")
             )
         else:
             rotated_section = flipped_section(slab.section_at(x_position))
             # plot_cross_section(rotated_section)
             MRd = Nmm_to_kNm(
-                calculate_bending_strength_uls(rotated_section, n).get("m_u")
+                calculate_bending_strength_uls_Nmm(rotated_section, n).get("m_u")
             )
 
         # Calculate design moment based on system and moment type
