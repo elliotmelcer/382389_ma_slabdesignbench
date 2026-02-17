@@ -6,7 +6,7 @@ from structuralcodes.materials.concrete import create_concrete
 
 from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE, \
     DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE, \
-    FailureAnnouncementByDeflectionCheckEC2004DE
+    FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
 from core.analysis_core.loads import Loads
 from core.analysis_core.material_methods import get_cube, get_reinforcement_from_registry, \
     get_floor_material_from_registry, ConcreteCO2Registry, get_material_properties
@@ -197,11 +197,20 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.2a Check Minimum Deflection under Fundamental Combination
 
-    w_min_b2a_util = FailureAnnouncementByDeflectionCheckEC2004DE.calculateUtilization(
+    fa_b2a_util = FailureAnnouncementByDeflectionCheckEC2004DE.calculateUtilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
         min_factor = defl_min_factor_announce_failure
+    )
+
+    # B.2b Limiting Deflection by Checking the Quasi-Permanent Moment Against the Cracking Moment
+
+    fa_b2b_util = FailureAnnouncementByMcrCheckEC2004DE.calculateUtilization(
+        slab_construction=slab_construction,
+        loads=live_loads,
+        system="SIMPLE_BEAM",
+        moment="MAX_POS_MOMENT",
     )
 
     # ======================================================================================================================
@@ -254,7 +263,8 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
         f"bending_capacity": m_u_util,
         f"deflection_by_wmax_capacity": w_max_b1a_util,
         f"deflection_by_mcr_capacity": w_max_b1b_util,
-        f"failure_announcement_by_wmin_capacity": w_min_b2a_util,
+        f"failure_announcement_by_wmin_capacity": fa_b2a_util,
+        f"failure_announcement_by_mcr_capacity": fa_b2b_util,
     }
 
     print(

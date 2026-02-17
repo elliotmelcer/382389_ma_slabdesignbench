@@ -233,3 +233,65 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
 
         return utilization
 
+"""B.2b Failure Announcement"""
+class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
+    @staticmethod
+    def calculateUtilization(
+            slab_construction: SlabConstruction,
+            loads: Loads,
+            system: str = "SIMPLE_BEAM",
+            moment: str = "MAX_POS_MOMENT",
+            n: float = 0.0,
+            debug: bool = False
+    ) -> float:
+        """
+        Calculate the utilization ratio m_qp / m_cr.
+
+        Returns:
+            float: Utilization ratio.
+                   - < 1.0: Section remains uncracked under quasi-permanent loads
+                   - > 1.0: Section will crack
+                   - float('inf'): Section crushes before cracking (over-prestressed)
+        """
+
+        # Calculate fundamental combination moment
+        m_fund = InternalForces.calculate_moment(
+            slab_construction,
+            loads,
+            system,
+            combination = "FUNDAMENTAL",
+            moment_type = moment,
+        )
+
+        # Get section at midspan
+        section_midspan = slab_construction.slab.section_at(0.5)
+
+        # Calculate cracking moment with physical checks
+        m_cr_result = calculate_cracking_moment_sls_Nmm(section_midspan, n)
+
+        # Handle invalid cases (section crushes before cracking)
+        if not m_cr_result['valid']:
+            return 99.
+
+        # Get cracking moment magnitude
+        m_cr = abs(Nmm_to_kNm(m_cr_result["m_cr"]))
+
+        # Avoid division by zero (shouldn't happen with valid result, but safety check)
+        if m_cr < 1e-6:
+            return 99.
+
+        # Calculate utilization (compare magnitudes)
+        utilization = m_cr / m_fund
+
+        if debug:
+            print(f"m_fund = {m_fund:.3f} kNm")
+
+            print(f"m_cr valid: {m_cr_result['valid']}")
+            if not m_cr_result['valid']:
+                print(f"  Reason: {m_cr_result['reason']}")
+
+            print(f"m_cr = {m_cr:.3f} kNm")
+
+            print(f"utilization = {m_cr:.3f}/ {m_fund:.3f} = {utilization:.3f}")
+
+        return utilization

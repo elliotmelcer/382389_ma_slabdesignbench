@@ -34,3 +34,4 @@
 1;constraint;deflection_by_wmax_capacity;;;;;True;HIDDEN;1;1;1;
 1;constraint;deflection_by_mcr_capacity;;;;;True;HIDDEN;1;1;1;
 1;constraint;failure_announcement_by_wmin_capacity;;;;;True;HIDDEN;1;1;1;
+1;constraint;failure_announcement_by_mcr_capacity;;;;;True;HIDDEN;1;1;1;

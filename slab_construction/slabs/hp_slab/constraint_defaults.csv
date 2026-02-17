@@ -3,3 +3,4 @@ bending_capacity;integer;HIDDEN;1;1;True
 deflection_by_wmax_capacity;integer;HIDDEN;1;1;True
 deflection_by_mcr_capacity;integer;HIDDEN;1;1;True
 failure_announcement_by_wmin_capacity;integer;HIDDEN;1;1;True
+failure_announcement_by_mcr_capacity;integer;HIDDEN;1;1;True
