@@ -24,7 +24,7 @@ class StructuralCheck(ABC):
         """Returns the utilization ratio"""
         raise NotImplementedError
 
-
+"""A.1 Ultimate Moment Check"""
 class UltimateMomentCheckEC2004DE(StructuralCheck):
 
     @staticmethod
@@ -102,6 +102,7 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
 
         return utilization
 
+"""B.1a Deflection Limit Check"""
 class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
 
     @staticmethod
@@ -113,7 +114,7 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             debug: bool = False,
     ) -> float:
 
-        w_max = DeflectionCalculator.calculate_deflection(
+        w_max_sls = DeflectionCalculator.calculate_deflection(
             slab_construction,
             loads,
             system,
@@ -125,14 +126,15 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
 
         w_limit = L / limit_factor
 
-        utilization = w_max / w_limit
+        utilization = w_max_sls / w_limit
 
         if debug:
-            print("w_max = ", w_max)
+            print("w_max = ", w_max_sls)
             print("L = ", L)
 
         return utilization
 
+"""B.1b Deflection Limit Check"""
 class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
     @staticmethod
     def calculateUtilization(
@@ -170,14 +172,14 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
 
         # Handle invalid cases (section crushes before cracking)
         if not m_cr_result['valid']:
-            return float('inf')
+            return 99.
 
         # Get cracking moment magnitude
         m_cr = abs(Nmm_to_kNm(m_cr_result["m_cr"]))
 
         # Avoid division by zero (shouldn't happen with valid result, but safety check)
         if m_cr < 1e-6:
-            return float('inf')
+            return 99.
 
         # Calculate utilization (compare magnitudes)
         utilization = abs(m_qp) / m_cr
@@ -194,3 +196,40 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
             print(f"utilization = |{m_qp:.3f}| / {m_cr:.3f} = {utilization:.3f}")
 
         return utilization
+
+"""B.2a Failure Announcement"""
+class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
+    @staticmethod
+    def calculateUtilization(
+            slab_construction: SlabConstruction,
+            loads: Loads,
+            system: str = "SIMPLE_BEAM",
+            min_factor: float = 250.0,
+            debug: bool = False,
+    ) -> float:
+
+        w_max_uls = DeflectionCalculator.calculate_deflection(
+            slab_construction,
+            loads,
+            system,
+            combination="FUNDAMENTAL",
+            debug=debug,
+        )
+
+        L = slab_construction.slab.L
+
+        w_min = L / min_factor
+
+        if w_max_uls < 0.0:
+            utilization = 99.
+        else:
+            utilization = w_min / w_max_uls
+
+        if debug:
+            print(f"w_max = {w_max_uls:.2f}")
+            print(f"w_min = {w_min:.2f}")
+            print(f"utilization = {w_min:.2f} / {w_max_uls:.2f} = {utilization:.2f}")
+            print(f"L = {L}")
+
+        return utilization
+
