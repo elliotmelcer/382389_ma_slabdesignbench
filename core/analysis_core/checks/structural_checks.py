@@ -24,6 +24,8 @@ class StructuralCheck(ABC):
         """Returns the utilization ratio"""
         raise NotImplementedError
 
+"""ULTIMATE LIMIT STATE"""
+
 """A.1 Ultimate Moment Check"""
 class UltimateMomentCheckEC2004DE(StructuralCheck):
 
@@ -101,6 +103,9 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
             print(f"Utilization = {utilization:.3f} ({utilization * 100:.1f}%)\n")
 
         return utilization
+
+
+"""SERVICEABILITY LIMIT STATE"""
 
 """B.1a Deflection Limit Check"""
 class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
