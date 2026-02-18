@@ -27,12 +27,12 @@ class MidlineConcreteCoverCheck(ConstructionCheck):
 
         # required clear concrete cover
         d_p_mm = hp_shell.d_p()
-        c_nom_req = 3 * d_p_mm
+        c_nom_c1_req = 3 * d_p_mm
 
         # available clear concrete cover
-        c_nom = hp_shell.c_1_clear_concrete_cover()
+        c_nom_c1 = hp_shell.c_1_clear_concrete_cover()
 
-        utilization = c_nom_req / c_nom
+        utilization = c_nom_c1_req / c_nom_c1
 
         return utilization
 
@@ -52,5 +52,30 @@ class ReinforcementSpacingCheck(ConstructionCheck):
         s_min = hp_shell.s_min_clear_reinf_spacing()
 
         utilization = s_req / s_min
+
+        return utilization
+
+"""C.3. Check for Minimum Shell Thickness """
+
+class MinimumHPShellThicknessCheck(ConstructionCheck):
+    @staticmethod
+    def calculateUtilization(slab_construction: SlabConstruction) -> float:
+        # get geometry
+        hp_shell = slab_construction.slab.hp_shell
+
+        # required clear concrete cover
+        d_p_mm = hp_shell.d_p()
+
+        # C.1 an C.2 requirements
+        c_nom_c1_req = 3 * d_p_mm
+        s_c2_req = 5.75 * d_p_mm
+
+        # shell thickness
+        t_req = 2 * d_p_mm + 2 * c_nom_c1_req + s_c2_req
+
+        # available clear concrete cover
+        t = hp_shell.hp_geometry.t
+
+        utilization = t_req / t
 
         return utilization
