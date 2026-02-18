@@ -88,3 +88,49 @@ class HPShell:
 
         volume = total_tendon_length * self.reinf_area
         return volume
+
+    def d_p(self) -> float:
+        """
+        Author: Elliot Melcer
+        Returns the diameter of the reinforcement section in mm.
+        """
+        d_reinf = np.sqrt(4 * self.reinf_area / np.pi)
+
+        return d_reinf
+
+    def c_1_clear_concrete_cover(self) -> float:
+        """
+        Author: Jamila Loutfi
+        Returns available clear concrete cover along the midline from the
+        outermost reinforcement to the edge at the HP-Shell Support
+        """
+        B = self.hp_geometry.B
+        d_p = self.d_p()
+        y_starts, _ = self.hp_geometry.gt_y()
+
+        # include boundary y=-B/2 as starting point
+        s_start = self.arc_length(-B / 2)
+
+        s_first = self.arc_length(y_starts[0])
+
+        c_1 = abs(s_start - s_first)
+
+        if c_1 - d_p /2 < 0:
+            c_1_clear = 0
+        else:
+            c_1_clear = c_1 - d_p/2
+
+        return c_1_clear
+
+    def arc_length(self, y:float) -> float:
+        """
+        Author: Jamila Loutfi
+        Returns the arclength from the neutral z-axis to the given y-coordinate.
+        Note: s_y is negative for y < 0 and positive for y > 0
+        """
+
+        b = self.hp_geometry.param_b()
+
+        s_y = 1 / 4 * (2 * y * math.sqrt(((4 * y ** 2) / b ** 4) + 1) + b ** 2 * math.asinh((2 * y) / b ** 2))
+
+        return s_y

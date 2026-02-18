@@ -43,7 +43,7 @@ class HPGeometry:
         self.dy = float(dy)
         self.nt = nt
 
-    def _a(self):
+    def param_a(self):
         """
         Author: Jamila Loutfi
         returns geometry parameter a
@@ -51,7 +51,7 @@ class HPGeometry:
         a = self.L / (2 * sqrt(self.Hx))
         return a
 
-    def _b(self) -> float:
+    def param_b(self) -> float:
         """
         Author: Jamila Loutfi
         returns geometry parameter b
@@ -64,7 +64,7 @@ class HPGeometry:
         Author: Jamila Loutfi
         returns z coordinate at given y coordinate of midline of shell
         """
-        z = y**2 / self._b()**2 - x**2 / self._a()**2
+        z = y ** 2 / self.param_b() ** 2 - x ** 2 / self.param_a() ** 2
         return z
 
     def x_p(self):
@@ -268,9 +268,6 @@ class HPGeometry:
         LineString
             Shapely LineString of (y, z) coordinates
         """
-        a = self._a()
-        b = self._b()
-        hy = self.Hy
 
         # Half-span in y at this x
         y_max = self.B / 2
@@ -292,8 +289,7 @@ class HPGeometry:
         to the mid-surface. nt points are generated on the bottom and top edges.
         """
         # Compute local half-span in y for this x
-        a = self._a()
-        b = self._b()
+        b = self.param_b()
 
         # y max from shell boundary
         y_max = self.B / 2
@@ -356,5 +352,5 @@ class HPGeometry:
         l = l1 - l2
 
         volume = l * b * self.t
-        # volumen = 1
+
         return volume
