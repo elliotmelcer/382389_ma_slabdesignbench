@@ -21,9 +21,7 @@ class ConstructionCheck(ABC):
 
 class MidlineConcreteCoverCheck(ConstructionCheck):
     @staticmethod
-    def calculateUtilization(
-            slab_construction: SlabConstruction
-    ) -> float:
+    def calculateUtilization(slab_construction: SlabConstruction) -> float:
         # get geometry
         hp_shell = slab_construction.slab.hp_shell
 
@@ -35,5 +33,24 @@ class MidlineConcreteCoverCheck(ConstructionCheck):
         c_nom = hp_shell.c_1_clear_concrete_cover()
 
         utilization = c_nom_req / c_nom
+
+        return utilization
+
+"""C.2. Check for Sufficient Clear Spacing between Reinforcement along the HP-Shell Midline """
+
+class ReinforcementSpacingCheck(ConstructionCheck):
+    @staticmethod
+    def calculateUtilization(slab_construction: SlabConstruction) -> float:
+        # get geometry
+        hp_shell = slab_construction.slab.hp_shell
+
+        # required reinforcement spacing
+        d_p_mm = hp_shell.d_p()
+        s_req = 5.75 * d_p_mm
+
+        # minimum available clear spacing
+        s_min = hp_shell.s_min_clear_reinf_spacing()
+
+        utilization = s_req / s_min
 
         return utilization

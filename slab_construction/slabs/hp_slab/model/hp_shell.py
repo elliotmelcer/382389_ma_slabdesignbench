@@ -1,4 +1,5 @@
 import math
+from itertools import pairwise
 from typing import Optional
 
 import numpy as np
@@ -115,12 +116,35 @@ class HPShell:
 
         c_1 = abs(s_start - s_first)
 
-        if c_1 - d_p /2 < 0:
+        if c_1 - d_p/2 < 0:
             c_1_clear = 0
         else:
             c_1_clear = c_1 - d_p/2
 
         return c_1_clear
+
+    def s_min_clear_reinf_spacing(self) -> float:
+        """
+        Author: Jamila Loutfi
+        Returns the minimum available clear spacing between reinforcements along the hp_shell midline
+        """
+        d_p = self.d_p()
+        y_starts, _ = self.hp_geometry.gt_y()
+
+        # arc-lengths relative to y=0
+        s_vals = [self.arc_length(yi) for yi in y_starts]
+
+        # pairwise distances: y[0]->y[1], ... , y[n-1]->y[n]
+        s = [abs(b - a) for a, b in pairwise(s_vals)]
+
+        s_min = min(s)
+
+        if s_min - d_p < 0:
+            s_min_clear = 0
+        else:
+            s_min_clear = s_min - d_p
+
+        return s_min_clear
 
     def arc_length(self, y:float) -> float:
         """

@@ -18,4 +18,4 @@ util = MidlineConcreteCoverCheck.calculateUtilization(
     test_slab_construction_c1_4
     )
 
-print(f"c_1_util = {util}")
+print(f"c1_util = {util}")
