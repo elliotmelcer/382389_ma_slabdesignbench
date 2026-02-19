@@ -55,3 +55,21 @@ class BeamTheoryHgesLRatioCheck(ModelingCheck):
         utilization = (Hx + Hy) / (L / f_b)
 
         return utilization
+
+"""Z.3. Beam Theory H_ges / L - Ratio """
+
+class BeamTheoryBLRatioCheck(ModelingCheck):
+    @staticmethod
+    def calculateUtilization(
+            slab_construction: SlabConstruction,
+            f_b: float = 5.0
+    ) -> float:
+        # get geometry
+        hp_geometry = slab_construction.slab.hp_shell.hp_geometry
+
+        L = hp_geometry.L
+        B = hp_geometry.B
+
+        utilization = B / (L / f_b)
+
+        return utilization
