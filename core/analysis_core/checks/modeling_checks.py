@@ -8,7 +8,8 @@ class ModelingCheck(ABC):
     @staticmethod
     @abstractmethod
     def calculateUtilization(
-            slab_construction: SlabConstruction) -> float:
+            slab_construction: SlabConstruction
+    ) -> float:
         """Returns the utilization ratio"""
         raise NotImplementedError
 
@@ -32,5 +33,25 @@ class NtDyCombinationCheck(ModelingCheck):
                 utilization = 1.0
         else:
             utilization = 1.0
+
+        return utilization
+
+
+"""Z.2. Beam Theory H_ges / L - Ratio """
+
+class BeamTheoryHgesLRatioCheck(ModelingCheck):
+    @staticmethod
+    def calculateUtilization(
+            slab_construction: SlabConstruction,
+            f_b: float = 5.0
+    ) -> float:
+        # get geometry
+        hp_geometry = slab_construction.slab.hp_shell.hp_geometry
+
+        Hx = hp_geometry.Hx
+        Hy = hp_geometry.Hy
+        L = hp_geometry.L
+
+        utilization = (Hx + Hy) / (L / f_b)
 
         return utilization
