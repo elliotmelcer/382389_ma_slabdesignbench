@@ -100,12 +100,10 @@ class HPGeometry:
         alpha_nt_1 = 0.5
 
         if self.nt == 1:
-           dy_real = self.B / 2 + ((-self.L / 2) / self.x_p() + 2 * alpha_nt_1 - 1) * self.y_p()
-           self.dy = dy_real
-           print("dy_real=", dy_real)
-           return dy_real
+            dy_real = self.B / 2 + ((-self.L / 2) / self.x_p() + 2 * alpha_nt_1 - 1) * self.y_p()
+            return dy_real
         else:
-           return self.dy
+            return self.dy
 
     def alpha_edge(self):
         """
