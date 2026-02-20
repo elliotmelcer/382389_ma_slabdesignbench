@@ -13,6 +13,14 @@ class FloorLayer:
     material: Material
     thickness: float
 
+    def area_density_kg_m2(self):
+        """
+        Author: Elliot Melcer
+        Returns area density for a FloorLayer of uniform thickness
+        """
+        density_kg_m3 = self.material.density
+        return density_kg_m3 * self.thickness / 1000
+
 class FloorMaterial(Material):
     """
     Author: Elliot Melcer
