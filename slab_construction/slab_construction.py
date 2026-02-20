@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from typing import Dict
 
 from structuralcodes.core.base import Material
+
+from core.unit_core import mm2_to_m2
+from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
+from slab_construction.slabs.one_way_slab import OneWaySlab
 from slab_construction.slabs.slab import Slab
 
 
@@ -114,6 +118,7 @@ class SlabConstruction:
     def __init__(self, slab: Slab, floor: Floor):
         self.slab = slab
         self.floor = floor
+        self.assert_infill_compatibility()
 
     def structural_dead_load(self) -> float:
         """
@@ -132,9 +137,43 @@ class SlabConstruction:
             + self.floor.dead_load()
         )
 
+    def assert_infill_compatibility(self) -> None:
+        """
+        Asserts that the slab's infill material is the same object as the floor's
+        infill layer material, if an infill layer is present in the floor.
+
+        Note: This is only relevant if slab construction is instantiated manually.
+        One must make sure to use the same infill object for both the slab and the floor layer
+
+        Raises:
+            ValueError: If an infill layer exists in the floor but its material
+                        is not the same object as the slab's infill material.
+        """
+        floor_infill_layers = [
+            layer for layer in self.floor.layers
+            if isinstance(layer.material, InfillMaterial)
+        ]
+        if not floor_infill_layers:
+            return
+
+        floor_infill = floor_infill_layers[0].material
+        slab_infill = self.slab.infill_material
+
+        if floor_infill is not slab_infill:
+            raise ValueError(
+                f"Infill material mismatch: the floor's infill layer and the slab "
+                f"must reference the same object.\n"
+                f"  Slab infill:  '{slab_infill.name}'  (id={id(slab_infill)})\n"
+                f"  Floor infill: '{floor_infill.name}'  (id={id(floor_infill)})"
+            )
+
+
+
+
+
     def get_parameters(self) -> dict:
         """
-        Author: [Your Name]
+        Author: Elliot Melcer
         Returns a dictionary containing all slab construction parameters
         organized by category: Geometry, Concrete, and Reinforcement.
 
