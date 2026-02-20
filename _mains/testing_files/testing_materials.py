@@ -9,7 +9,7 @@ from structuralcodes.materials.concrete import create_concrete
 from structuralcodes.materials.constitutive_laws import Elastic
 from structuralcodes.materials.reinforcement import create_reinforcement
 
-from slab_construction.slab_construction import InsulationMaterial, ScreedMaterial, InfillMaterial
+from slab_construction.floor import InsulationMaterial, ScreedMaterial, InfillMaterial
 
 set_design_code('ec2_2004')
 

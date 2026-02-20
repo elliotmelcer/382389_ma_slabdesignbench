@@ -1,5 +1,5 @@
 from _mains.testing_files.testing_materials import infill, sound_insulation, screed
-from slab_construction.slab_construction import FloorLayer, Floor
+from slab_construction.floor import FloorLayer, Floor
 
 infill_layer = FloorLayer(infill, 0.0)
 sound_insulation_layer = FloorLayer(sound_insulation, 12.0)

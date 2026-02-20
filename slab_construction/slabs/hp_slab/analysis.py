@@ -13,7 +13,8 @@ from core.analysis_core.material_methods import get_cube, get_reinforcement_from
 from core.ioh_core.io_util import _req_param
 from core.unit_core import mm3_to_m3
 from core.visualization_core.visualization import plot_cross_section
-from slab_construction.slab_construction import FloorLayer, Floor, SlabConstruction
+from slab_construction.slab_construction import SlabConstruction
+from slab_construction.floor import FloorLayer, Floor
 from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
 from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab

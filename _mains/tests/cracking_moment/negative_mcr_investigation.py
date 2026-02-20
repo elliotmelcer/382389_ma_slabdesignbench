@@ -12,7 +12,7 @@ from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm
 from core.analysis_core.statics.deformations import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.visualization_core.visualization import plot_cross_section, plot_moment_curvature, plot_strain_profile
-from slab_construction.slab_construction import FloorLayer, Floor, SlabConstruction
+from slab_construction.slab_construction import SlabConstruction
 from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
 from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab

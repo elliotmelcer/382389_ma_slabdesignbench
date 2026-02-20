@@ -7,7 +7,7 @@ from structuralcodes.materials.concrete import Concrete
 from structuralcodes.materials.constitutive_laws import Sargin, UserDefined, Elastic
 from structuralcodes.materials.reinforcement import create_reinforcement
 
-from slab_construction.slab_construction import InsulationMaterial, InfillMaterial, ScreedMaterial
+from slab_construction.floor import InsulationMaterial, InfillMaterial, ScreedMaterial
 
 # ---------------------------------------------------------------------------
 # Internal data table (source: Beton.xlsx, internalised)

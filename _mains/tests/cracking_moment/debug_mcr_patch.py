@@ -25,10 +25,8 @@ from core.analysis_core.section_methods import (
     get_concrete,
 )
 from core.visualization_core.visualization import plot_cross_section
-from slab_construction.slab_construction import FloorLayer, Floor, SlabConstruction
 from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
-from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
 
 set_design_code('ec2_2004')
 
