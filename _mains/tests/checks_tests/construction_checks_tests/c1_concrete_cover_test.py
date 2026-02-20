@@ -1,5 +1,5 @@
 """
-Testing of C.1. Sufficient Concrete Cover
+Testing of C.1. Sufficient Concrete Cover from the outermost Reinforcement to the Edge along the HP-Shell Midline
 
 Results:
 

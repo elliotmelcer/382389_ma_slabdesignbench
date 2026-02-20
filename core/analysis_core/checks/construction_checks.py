@@ -17,7 +17,7 @@ class ConstructionCheck(ABC):
         raise NotImplementedError
 
 
-"""C.1. Check for Sufficient Concrete Cover from the outer most Reinforcement to the Edge along the HP-Shell Midline """
+"""C.1. Check for Sufficient Concrete Cover from the outermost Reinforcement to the Edge along the HP-Shell Midline """
 
 class MidlineConcreteCoverCheck(ConstructionCheck):
     @staticmethod
