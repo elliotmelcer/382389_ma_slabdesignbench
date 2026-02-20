@@ -3,9 +3,8 @@ from typing import Dict
 
 from structuralcodes.core.base import Material
 
-from core.unit_core import mm2_to_m2
+from core.unit_core import mm2_to_m2, mm3_to_m3
 from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
-from slab_construction.slabs.one_way_slab import OneWaySlab
 from slab_construction.slabs.slab import Slab
 
 
@@ -167,9 +166,39 @@ class SlabConstruction:
                 f"  Floor infill: '{floor_infill.name}'  (id={id(floor_infill)})"
             )
 
+    def infill_area_density_kg_m2(self):
+        """
+        Returns the area density of the infill in [kg/m²]
+        Handles HPShell special case with minimum infill to achieve flat top
+        """
+        infill_layer = self.floor.get_layer_by_type(InfillMaterial)
 
+        # Reference Area
+        if isinstance(self.slab, HPSlab):
+            area_m2 = mm2_to_m2(self.slab.L * self.slab.B)
+        else:
+            area_m2 = 1.0
 
+        # Infill Volume
+        base_infill_volume_m3 = 0.0
+            # base_infill_volume if hp_slab
+        if isinstance(self.slab, HPSlab):
+            base_infill_volume_m3 = mm3_to_m3(self.slab.minimum_infill_volume())
 
+            # floor layer infill volume
+        infill_layer_t_m = infill_layer.thickness / 1000
+        floor_infill_volume_m3 = infill_layer_t_m * area_m2
+
+        total_volume_m3 = base_infill_volume_m3 + floor_infill_volume_m3
+
+        # Infill Material
+        infill_mat = infill_layer.material
+        infill_density_kg_m3 = infill_mat.density
+
+        # infill area density
+        infill_area_density_kg_m2 = total_volume_m3 * infill_density_kg_m3 / area_m2
+
+        return infill_area_density_kg_m2
 
     def get_parameters(self) -> dict:
         """
