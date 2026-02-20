@@ -14,8 +14,8 @@ def calculate_sound_reduction_index(
     Calculate sound reduction index for a slab construction.
     Note: Only considers DIRECT sound reduction index
     """
-
-    hp_geometry = slab_construction.slab.hp_shell.hp_geometry
+    hp_shell = slab_construction.slab.hp_shell
+    hp_geometry = hp_shell.hp_geometry
     floor = slab_construction.floor
 
     _B = hp_geometry.B / 1000 # [m]
@@ -28,9 +28,7 @@ def calculate_sound_reduction_index(
     insulation_layer = floor.get_layer_by_type(InsulationMaterial)
     _E_dyn = insulation_layer.material.E_dyn / insulation_layer.thickness * 1000 # MN/m³
 
-    "unclear how m_concrete_slab should be calculated"
-    m_concrete_slab = slab_construction.slab.self_load() * 1000 / 10  # kg/m²
-    # m_concrete_slab = 2400 * _t  # kg/m²
+    m_concrete_slab = hp_shell.concrete.density * _t  # kg/m²
 
     m_infill = slab_construction.infill_area_density_kg_m2()                   #kg/m²
     m_screed = floor.get_layer_by_type(ScreedMaterial).area_density_kg_m2()    #kg/m²
