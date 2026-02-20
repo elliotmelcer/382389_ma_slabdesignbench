@@ -33,7 +33,7 @@ class HPSlab(OneWaySlab):
     def minimum_infill_volume(self):
         """
         Author: Jamila Loutfi
-        Calculates the minimum infill volume to flatten out the top of an hp-shell
+        Calculates the minimum infill volume to flatten out the top of a hp-shell
 
         Note: Volume in mm³
         """
@@ -50,7 +50,7 @@ class HPSlab(OneWaySlab):
         """
         Author: Elliot Melcer
         Returns the self-weight load of the concrete shell in [kN/m²]
-        Note: self-weight of CRFP-reinforcement is negligible
+        Note: self-weight of CFRP-reinforcement is negligible
         """
         concrete_volume_m3 = mm3_to_m3(self.hp_shell.hp_geometry.volume())  # [m³]
         gamma_c = self.hp_shell.concrete.density * 10 / 1000                # [kN/m³]
