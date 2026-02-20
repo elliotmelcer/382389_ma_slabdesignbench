@@ -9,7 +9,7 @@ from structuralcodes.materials.concrete import create_concrete
 from structuralcodes.materials.constitutive_laws import Elastic
 from structuralcodes.materials.reinforcement import create_reinforcement
 
-from slab_construction.slab_construction import FloorMaterial
+from slab_construction.slab_construction import InsulationMaterial, ScreedMaterial, InfillMaterial
 
 set_design_code('ec2_2004')
 
@@ -169,6 +169,6 @@ solidian_Q142_pre_60 = create_reinforcement(
 
 # -- Floor Materials --
 
-infill = FloorMaterial(density = 1000, name = "Infill")
-sound_insulation = FloorMaterial(density = 24, name = "Sound insulation")
-screed = FloorMaterial(density = 2000, name = "Screed")
+infill = InfillMaterial(density = 1000, name = "Infill")
+sound_insulation = InsulationMaterial(density = 24, E_dyn = 0.6, name = "Sound insulation")
+screed = ScreedMaterial(density = 2000, name = "Screed")

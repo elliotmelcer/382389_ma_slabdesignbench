@@ -5,7 +5,6 @@ from structuralcodes.core.base import Material
 from slab_construction.slabs.slab import Slab
 
 
-
 @dataclass(slots=True)
 class FloorLayer:
     """
@@ -19,12 +18,28 @@ class FloorLayer:
 class FloorMaterial(Material):
     """
     Author: Elliot Melcer
-    Instantiable Simple Material for floor layers.
+    Instantiable Simple Material for generic floor layers.
     """
     def __init__(self, density: float, name: str | None = "FloorMaterial") -> None:
         super().__init__(density=density, name=name)
 
-class InsulationMaterial(FloorMaterial):
+class ScreedMaterial(Material):
+    """
+        Author: Elliot Melcer
+        Instantiable Material for screed layers.
+        """
+    def __init__(self, density: float, name: str | None = "ScreedMaterial") -> None:
+        super().__init__(density=density, name=name)
+
+class InfillMaterial(Material):
+    """
+    Author: Elliot Melcer
+    Instantiable Material for infill layers.
+    """
+    def __init__(self, density: float, name: str | None = "InfillMaterial") -> None:
+        super().__init__(density=density, name=name)
+
+class InsulationMaterial(Material):
     """
     Author: Elliot Melcer
     Instantiable Simple Material for insulation layers.

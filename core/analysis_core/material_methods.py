@@ -7,7 +7,7 @@ from structuralcodes.materials.concrete import Concrete
 from structuralcodes.materials.constitutive_laws import Sargin, UserDefined, Elastic
 from structuralcodes.materials.reinforcement import create_reinforcement
 
-from slab_construction.slab_construction import FloorMaterial, InsulationMaterial
+from slab_construction.slab_construction import InsulationMaterial, InfillMaterial, ScreedMaterial
 
 # ---------------------------------------------------------------------------
 # Internal data table (source: Beton.xlsx, internalised)
@@ -286,8 +286,10 @@ def get_floor_material_from_registry(mat_id: str, materials: dict):
             f"Material '{mat_id}' missing density (weight property)"
         )
 
-    if mat["type"] == "infill" or mat["type"] == "screed":
-        return FloorMaterial(density=density, name=mat_id)
+    if mat["type"] == "infill":
+        return InfillMaterial(density=density, name=mat_id)
+    elif mat["type"] == "screed":
+        return ScreedMaterial(density=density, name=mat_id)
     else:
         E_dyn = float(mat["Edyn"])
         if E_dyn is None:
