@@ -318,38 +318,31 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # Author: Max Dombrowski
     # ======================================================================================================================
     # Collect constraint values
+
+    # A
+    constraint_values = {"A_bending_capacity": m_u_A_util}
+
+    # B Constraints According to SLS Case a or b
     if defl_sls_case == "a":
-        constraint_values = {  # utilisation ratios
-            f"A_bending_capacity": m_u_A_util,
-            f"B1a_deflection_by_wmax_capacity": w_max_B1a_util,
-            # f"B1b_deflection_by_mcr_capacity": w_max_B1b_util,
-            f"B2a_failure_announcement_by_wmin_capacity": fa_B2a_util,
-            # f"B2b_failure_announcement_by_mcr_capacity": fa_B2b_util,
-            f"C1_concrete_cover_capacity": cc_C1_util,
-            f"C2_clear_spacing_capacity": s_C2_util,
-            f"C3_shell_thickness_capacity": tmin_C3_util,
-            f"D1_airborne_sound_insulation_capacity": asi_D1_util,
-            f"D2_impact_sound_insulation_capacity": isi_D2_util,
-            f"Z1_nt_dt_combination_capacity": ntdy_Z1_util,
-            f"Z2_beam_theory_H_L_capacity": beam_hL_Z2_util,
-            f"Z3_beam_theory_B_L_capacity": beam_BL_Z3_util
-        }
+        constraint_values["B1a_deflection_by_wmax_capacity"] = w_max_B1a_util
+        constraint_values["B2a_failure_announcement_by_wmin_capacity"] = fa_B2a_util
     else:
-        constraint_values = {  # utilisation ratios
-            f"A_bending_capacity": m_u_A_util,
-            # f"B1a_deflection_by_wmax_capacity": w_max_B1a_util,
-            f"B1b_deflection_by_mcr_capacity": w_max_B1b_util,
-            # f"B2a_failure_announcement_by_wmin_capacity": fa_B2a_util,
-            f"B2b_failure_announcement_by_mcr_capacity": fa_B2b_util,
-            f"C1_concrete_cover_capacity": cc_C1_util,
-            f"C2_clear_spacing_capacity": s_C2_util,
-            f"C3_shell_thickness_capacity": tmin_C3_util,
-            f"D1_airborne_sound_insulation_capacity": asi_D1_util,
-            f"D2_impact_sound_insulation_capacity": isi_D2_util,
-            f"Z1_nt_dt_combination_capacity": ntdy_Z1_util,
-            f"Z2_beam_theory_H_L_capacity": beam_hL_Z2_util,
-            f"Z3_beam_theory_B_L_capacity": beam_BL_Z3_util
-        }
+        constraint_values["B1b_deflection_by_mcr_capacity"] = w_max_B1b_util
+        constraint_values["B2b_failure_announcement_by_mcr_capacity"] = fa_B2b_util
+
+    # C
+    constraint_values["C1_concrete_cover_capacity"] = cc_C1_util
+    constraint_values["C2_clear_spacing_capacity"] = s_C2_util
+    constraint_values["C3_shell_thickness_capacity"] = tmin_C3_util
+
+    # D
+    constraint_values["D1_airborne_sound_insulation_capacity"] = asi_D1_util
+    constraint_values["D2_impact_sound_insulation_capacity"] = isi_D2_util
+
+    # Z
+    constraint_values["Z1_nt_dt_combination_capacity"] = ntdy_Z1_util
+    constraint_values["Z2_beam_theory_H_L_capacity"] = beam_hL_Z2_util
+    constraint_values["Z3_beam_theory_B_L_capacity"] = beam_BL_Z3_util
 
     print(
         "constraint values: {"
