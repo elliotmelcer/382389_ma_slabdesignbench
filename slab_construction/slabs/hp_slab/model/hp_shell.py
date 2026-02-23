@@ -130,9 +130,11 @@ class HPShell:
         """
         d_p = self.d_p()
         y_starts, _ = self.hp_geometry.gt_y()
+        y_starts_mirrored = [-y for y in y_starts[::-1]]
+        y_starts_complete = y_starts + y_starts_mirrored
 
         # arc-lengths relative to y=0
-        s_vals = [self.arc_length(yi) for yi in y_starts]
+        s_vals = [self.arc_length(yi) for yi in y_starts_complete]
 
         # pairwise distances: y[0]->y[1], ... , y[n-1]->y[n]
         s = [abs(b - a) for a, b in pairwise(s_vals)]
