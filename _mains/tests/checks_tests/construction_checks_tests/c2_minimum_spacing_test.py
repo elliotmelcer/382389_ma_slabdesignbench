@@ -15,7 +15,8 @@ from core.analysis_core.checks.construction_checks import ReinforcementSpacingCh
 
 print("Testing of C.2. Sufficient Reinforcement Spacing")
 util = ReinforcementSpacingCheck.calculateUtilization(
-    test_slab_construction_c1_4
+    test_slab_construction_c1_4,
+    debug_print=True
     )
 
 print(f"c2_util = {util}")
