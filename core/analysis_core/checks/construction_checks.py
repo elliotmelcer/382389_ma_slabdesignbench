@@ -40,7 +40,7 @@ class MidlineConcreteCoverCheck(ConstructionCheck):
 
 class ReinforcementSpacingCheck(ConstructionCheck):
     @staticmethod
-    def calculateUtilization(slab_construction: SlabConstruction) -> float:
+    def calculateUtilization(slab_construction: SlabConstruction, debug_print: bool = False) -> float:
         # get geometry
         hp_shell = slab_construction.slab.hp_shell
 
@@ -51,7 +51,13 @@ class ReinforcementSpacingCheck(ConstructionCheck):
         # minimum available clear spacing
         s_min = hp_shell.s_min_clear_reinf_spacing()
 
-        utilization = s_req / s_min
+        if debug_print:
+            print(f"s_min = {s_min}")
+
+        if s_min == 0:
+            return 99.
+        else:
+            utilization = s_req / s_min
 
         return utilization
 
