@@ -56,7 +56,7 @@ class BeamTheoryHgesLRatioCheck(ModelingCheck):
 
         return utilization
 
-"""Z.3. Beam Theory H_ges / L - Ratio """
+"""Z.3. Beam Theory B / L - Ratio """
 
 class BeamTheoryBLRatioCheck(ModelingCheck):
     @staticmethod

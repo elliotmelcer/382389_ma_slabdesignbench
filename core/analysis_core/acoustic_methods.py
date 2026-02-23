@@ -10,7 +10,7 @@ def calculate_sound_reduction_index(
         debug: bool = False
 ) -> float:
     """
-    Author: Jamila Loutfi
+    Author: Jamila Loutfi + ???
     Calculate sound reduction index for a slab construction.
     Note: Only considers DIRECT sound reduction index
     """
@@ -63,6 +63,11 @@ def calculate_standard_impact_sound_pressure_level(
         mod_att: float,
         debug: bool = False
 ) -> float:
+    """
+    Author: Jamila Loutfi + ???
+    Calculate sound reduction index for a slab construction.
+    Note: Only considers DIRECT sound reduction index
+    """
     hp_shell = slab_construction.slab.hp_shell
     hp_geometry = hp_shell.hp_geometry
     floor = slab_construction.floor

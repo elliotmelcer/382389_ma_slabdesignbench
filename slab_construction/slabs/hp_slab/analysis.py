@@ -4,6 +4,11 @@ Perform all Checks here
 from structuralcodes import set_design_code
 from structuralcodes.materials.concrete import create_concrete
 
+from core.analysis_core.checks.acoustic_checks import AirborneSoundInsulationCheck
+from core.analysis_core.checks.construction_checks import MidlineConcreteCoverCheck, ReinforcementSpacingCheck, \
+    MinimumHPShellThicknessCheck
+from core.analysis_core.checks.modeling_checks import NtDyCombinationCheck, BeamTheoryHgesLRatioCheck, \
+    BeamTheoryBLRatioCheck
 from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE, \
     DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE, \
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
@@ -22,8 +27,8 @@ from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
 
 def analysis(params: dict, constraints: dict, materials: dict, debug: bool = False) -> dict:
     """
-        Return all results -> unpenalized-objective + penalized-objective + all constraints (weight = exponent = 1)so we compute it ONCE.
-        """
+    Return all results -> unpenalized-objective + penalized-objective + all constraints (weight = exponent = 1)so we compute it ONCE.
+    """
     #  analysis(params)(slab - specific) computes everything:
     # - unpenalized objective y,
     # - penalized objective y_p (apply weights / exponents / logic internally)
@@ -63,14 +68,18 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     screed_t_mm = _req_param(params, "geom_t_screed_mm")
 
     # Loads
-
     n = _req_param(params,"loads_N_kN")
     q = _req_param(params,"loads_q_kNm2")
 
     # Deformations
-
     defl_limit_factor_w_max = _req_param(params, "defl_max_defl_limit")
     defl_min_factor_announce_failure = _req_param(params, "defl_max_announce_failure")
+    defl_sls_case = params.get("defl_sls_case", "")
+
+    # Acoustic Parameters
+    modular_attenuation = _req_param(params, "insu_mod_damp")
+    R_w_req_db = _req_param(params, "insu_rw_req_db")
+    L_nw_max_db = _req_param(params, "insu_lnw_max_db")
 
     # ======================================================================================================================
     # CREATE MATERIALS
@@ -167,7 +176,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # COMPUTE CONSTRAINTS (A) - ULS
     # ======================================================================================================================
 
-    m_u_util = UltimateMomentCheckEC2004DE.calculateUtilization(
+    m_u_A_util = UltimateMomentCheckEC2004DE.calculateUtilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
@@ -180,7 +189,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.1a Limiting Deflection by Checking the Maximum Deflection against Limit Factor
 
-    w_max_b1a_util = DeflectionLimitByDeflectionCheckEC2004DE.calculateUtilization(
+    w_max_B1a_util = DeflectionLimitByDeflectionCheckEC2004DE.calculateUtilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
@@ -189,7 +198,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.1b Limiting Deflection by Checking the Quasi-Permanent Moment Against the Cracking Moment
 
-    w_max_b1b_util = DeflectionLimitByMcrCheckEC2004DE.calculateUtilization(
+    w_max_B1b_util = DeflectionLimitByMcrCheckEC2004DE.calculateUtilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
@@ -198,7 +207,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.2a Check Minimum Deflection under Fundamental Combination
 
-    fa_b2a_util = FailureAnnouncementByDeflectionCheckEC2004DE.calculateUtilization(
+    fa_B2a_util = FailureAnnouncementByDeflectionCheckEC2004DE.calculateUtilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
@@ -207,7 +216,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.2b Limiting Deflection by Checking the Quasi-Permanent Moment Against the Cracking Moment
 
-    fa_b2b_util = FailureAnnouncementByMcrCheckEC2004DE.calculateUtilization(
+    fa_B2b_util = FailureAnnouncementByMcrCheckEC2004DE.calculateUtilization(
         slab_construction=slab_construction,
         loads=live_loads,
         system="SIMPLE_BEAM",
@@ -218,16 +227,65 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # COMPUTE CONSTRAINTS (C) - CONSTRUCTION
     # ======================================================================================================================
 
+    # C.1. Sufficient Concrete Cover from the outermost Reinforcement to the Edge along the HP-Shell Midline
+
+    cc_C1_util = MidlineConcreteCoverCheck.calculateUtilization(
+        slab_construction=slab_construction,
+    )
+
+    # C.2. Check for Sufficient Clear Spacing between Reinforcement along the HP-Shell Midline
+
+    s_C2_util = ReinforcementSpacingCheck.calculateUtilization(
+        slab_construction = slab_construction,
+    )
+
+    # C.3 Check for Minimum Shell Thickness
+
+    tmin_C3_util = MinimumHPShellThicknessCheck.calculateUtilization(
+        slab_construction = slab_construction,
+    )
 
     # ======================================================================================================================
     # COMPUTE CONSTRAINTS (D) - INSULATION
     # ======================================================================================================================
 
+    # D.1 Airborne Sound Insulation Check
+
+    asi_D1_util = AirborneSoundInsulationCheck.calculateUtilization(
+        slab_construction = slab_construction,
+        limit_dB = R_w_req_db,
+        mod_att = modular_attenuation,
+        buffer_dB = 2.0
+    )
+
+    isi_D2_util = AirborneSoundInsulationCheck.calculateUtilization(
+        slab_construction = slab_construction,
+        limit_dB = L_nw_max_db,
+        mod_att = modular_attenuation,
+        buffer_dB = 3.0
+    )
 
     # ======================================================================================================================
     # COMPUTE CONSTRAINTS (Z) - MODELING
     # ======================================================================================================================
 
+    # Z.1. Combination of nt and dy
+
+    ntdy_Z1_util = NtDyCombinationCheck.calculateUtilization(
+        slab_construction = slab_construction
+    )
+
+    # Z.2. Beam Theory H_ges / L - Ratio
+
+    beam_hL_Z2_util = BeamTheoryHgesLRatioCheck.calculateUtilization(
+        slab_construction = slab_construction,
+    )
+
+    # Z.3. Beam Theory B / L - Ratio
+
+    beam_BL_Z3_util = BeamTheoryBLRatioCheck.calculateUtilization(
+        slab_construction = slab_construction,
+    )
 
     # ======================================================================================================================
     # COMPUTE OBJECTIVE FUNCTION
@@ -260,13 +318,38 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # Author: Max Dombrowski
     # ======================================================================================================================
     # Collect constraint values
-    constraint_values = {  # utilisation ratios
-        f"bending_capacity": m_u_util,
-        f"deflection_by_wmax_capacity": w_max_b1a_util,
-        f"deflection_by_mcr_capacity": w_max_b1b_util,
-        f"failure_announcement_by_wmin_capacity": fa_b2a_util,
-        f"failure_announcement_by_mcr_capacity": fa_b2b_util,
-    }
+    if defl_sls_case == "a":
+        constraint_values = {  # utilisation ratios
+            f"A_bending_capacity": m_u_A_util,
+            f"B1a_deflection_by_wmax_capacity": w_max_B1a_util,
+            # f"B1b_deflection_by_mcr_capacity": w_max_B1b_util,
+            f"B2a_failure_announcement_by_wmin_capacity": fa_B2a_util,
+            # f"B2b_failure_announcement_by_mcr_capacity": fa_B2b_util,
+            f"C1_concrete_cover_capacity": cc_C1_util,
+            f"C2_clear_spacing_capacity": s_C2_util,
+            f"C3_shell_thickness_capacity": tmin_C3_util,
+            f"D1_airborne_sound_insulation_capacity": asi_D1_util,
+            f"D2_impact_sound_insulation_capacity": isi_D2_util,
+            f"Z1_nt_dt_combination_capacity": ntdy_Z1_util,
+            f"Z2_beam_theory_H_L_capacity": beam_hL_Z2_util,
+            f"Z3_beam_theory_B_L_capacity": beam_BL_Z3_util
+        }
+    else:
+        constraint_values = {  # utilisation ratios
+            f"A_bending_capacity": m_u_A_util,
+            # f"B1a_deflection_by_wmax_capacity": w_max_B1a_util,
+            f"B1b_deflection_by_mcr_capacity": w_max_B1b_util,
+            # f"B2a_failure_announcement_by_wmin_capacity": fa_B2a_util,
+            f"B2b_failure_announcement_by_mcr_capacity": fa_B2b_util,
+            f"C1_concrete_cover_capacity": cc_C1_util,
+            f"C2_clear_spacing_capacity": s_C2_util,
+            f"C3_shell_thickness_capacity": tmin_C3_util,
+            f"D1_airborne_sound_insulation_capacity": asi_D1_util,
+            f"D2_impact_sound_insulation_capacity": isi_D2_util,
+            f"Z1_nt_dt_combination_capacity": ntdy_Z1_util,
+            f"Z2_beam_theory_H_L_capacity": beam_hL_Z2_util,
+            f"Z3_beam_theory_B_L_capacity": beam_BL_Z3_util
+        }
 
     print(
         "constraint values: {"
