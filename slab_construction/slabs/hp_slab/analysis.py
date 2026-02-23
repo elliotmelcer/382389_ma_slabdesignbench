@@ -4,7 +4,7 @@ Perform all Checks here
 from structuralcodes import set_design_code
 from structuralcodes.materials.concrete import create_concrete
 
-from core.analysis_core.checks.acoustic_checks import AirborneSoundInsulationCheck
+from core.analysis_core.checks.acoustic_checks import AirborneSoundInsulationCheck, ImpactSoundInsulationCheck
 from core.analysis_core.checks.construction_checks import MidlineConcreteCoverCheck, ReinforcementSpacingCheck, \
     MinimumHPShellThicknessCheck
 from core.analysis_core.checks.modeling_checks import NtDyCombinationCheck, BeamTheoryHgesLRatioCheck, \
@@ -258,7 +258,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
         buffer_dB = 2.0
     )
 
-    isi_D2_util = AirborneSoundInsulationCheck.calculateUtilization(
+    isi_D2_util = ImpactSoundInsulationCheck.calculateUtilization(
         slab_construction = slab_construction,
         limit_dB = L_nw_max_db,
         mod_att = modular_attenuation,
