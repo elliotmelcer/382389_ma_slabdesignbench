@@ -65,11 +65,11 @@ epsuk_Q142= 10/1000 # = 10 promille
 density_Q142 = 1800
 
 # # solidian GRID Q85/85-CCE-25
-# fyk_Q85 = 2800
-# ftk_Q85 = 2800
-# Es_Q85 = 230_000
-# epsuk_Q85= 12.173913/1000 # = 12.17 promille
-# density_Q85 = 1340
+fyk_Q85 = 2800
+ftk_Q85 = 2800
+Es_Q85 = 230_000
+epsuk_Q85= 12.173913/1000 # = 12.17 promille
+density_Q85 = 1300
 
 # solidian GRID Q95/95-CCE-38
 fyk_Q95 = 2800
@@ -82,18 +82,30 @@ density_Q95 = 1340
 
 # solidian GRID Q142/142-CCE-25 regular
 brittle_elastic_law_Q142 = Elastic(Es_Q142, eps_u=epsuk_Q142)
-# brittle_elastic_law_Q142.set_ultimate_strain(epsuk_Q142)
 
 # # solidian GRID Q85/85-CCE-25
-# brittle_elastic_law_Q85 = Elastic(Es_Q85)
-# brittle_elastic_law_Q85.set_ultimate_strain(epsuk_Q85)
+brittle_elastic_law_Q85 = Elastic(Es_Q85, eps_u=epsuk_Q85)
 
 # solidian GRID Q95/95-CCE-38
 brittle_elastic_law_Q95 = Elastic(Es_Q95, eps_u=epsuk_Q95)
-# brittle_elastic_law_Q95.set_ultimate_strain(epsuk_Q95)
 
 
 # - Material Definitions -
+
+# solidian GRID Q85/85-CCE-21 prestressed 37 %
+
+solidian_Q85_pre_37 = create_reinforcement(
+    fyk=fyk_Q85,
+    Es=Es_Q85,
+    ftk=ftk_Q85,
+    epsuk=epsuk_Q85,
+    density=density_Q85,
+    constitutive_law=brittle_elastic_law_Q85,
+    initial_strain= 0.37 * epsuk_Q85,
+    gamma_s=1.3,
+    name="solidian GRID Q85/85-CCE-21 prestressed 37 %"
+)
+
 
 # solidian GRID Q95/95-CCE-38 prestressed 20 %
 
@@ -122,8 +134,6 @@ solidian_Q95_pre_50 = create_reinforcement(
     gamma_s=1.3,
     name="solidian GRID Q95/95-CCE-38 prestressed 50%"
 )
-
-
 
 # solidian GRID Q142/142-CCE-25 regular
 

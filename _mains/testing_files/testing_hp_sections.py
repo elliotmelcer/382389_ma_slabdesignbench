@@ -3,7 +3,8 @@ from matplotlib import pyplot as plt
 
 from core.visualization_core.visualization import plot_cross_section
 from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q142_pre_50, \
-    concrete_c80_uls, solidian_Q142, solidian_Q95_pre_50, solidian_Q95_pre_20, solidian_Q142_pre_60, concrete_c55_uls
+    concrete_c80_uls, solidian_Q142, solidian_Q95_pre_50, solidian_Q95_pre_20, solidian_Q142_pre_60, concrete_c55_uls, \
+    solidian_Q85_pre_37
 from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
 
@@ -65,12 +66,14 @@ hp_c1_1 = HPGeometry(B = 1200, L = 6750, Hx = 40, Hy = 160, t = 40, dy = 100, nt
 hp_c1_2 = HPGeometry(B = 1200, L = 6750, Hx = 75, Hy = 300, t = 70, dy = 50, nt = 8)
 hp_c1_3 = HPGeometry(B = 1500, L = 6750, Hx = 125, Hy = 500, t = 50, dy = 50, nt = 1)
 hp_c1_4 = HPGeometry(B = 1200, L = 6750, Hx = 100, Hy = 400, t = 100, dy = 80, nt = 10)
+hp_ref  = HPGeometry(B = 1200, L = 8000, Hx = 80,  Hy = 320, t = 45, dy = 220, nt = 11)
 
-hp_shell_c1_1_uls     = HPShell(hp_c1_1, concrete_c50_uls, solidian_Q95_pre_20 , reinf_area = 50, name = "C.1. Section 1")
+hp_shell_c1_1_uls     = HPShell(hp_c1_1, concrete_c50_uls, solidian_Q95_pre_20 , reinf_area = 50,  name = "C.1. Section 1")
 hp_shell_c1_2_c50_uls = HPShell(hp_c1_2, concrete_c50_uls, solidian_Q95_pre_50 , reinf_area = 50,  name = "C.1. Section 2.1")
 hp_shell_c1_2_c80_uls = HPShell(hp_c1_2, concrete_c80_uls, solidian_Q95_pre_50 , reinf_area = 50,  name = "C.1. Section 2.2")
 hp_shell_c1_3_uls     = HPShell(hp_c1_3, concrete_c50_uls, solidian_Q142       , reinf_area = 300, name = "C.1. Section 3")
 hp_shell_c1_4_uls     = HPShell(hp_c1_4, concrete_c55_uls, solidian_Q142_pre_50, reinf_area = 80,  name = "C.1. Section 4")
+hp_shell_ref          = HPShell(hp_ref , concrete_c50_uls, solidian_Q85_pre_37 , reinf_area = 85,  name = "Reference HP-Shell")
 
 
 # ULS Sections
