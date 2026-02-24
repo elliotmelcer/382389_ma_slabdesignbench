@@ -10,7 +10,7 @@ def calculate_sound_reduction_index(
         debug: bool = False
 ) -> float:
     """
-    Author: Jamila Loutfi + ???
+    Author: Jamila Loutfi + Ahmad Eiz Eddin
     Calculate sound reduction index for a slab construction.
     Note: Only considers DIRECT sound reduction index
     """

@@ -45,7 +45,7 @@ class HPGeometry:
 
     def param_a(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         returns geometry parameter a
         """
         a = self.L / (2 * sqrt(self.Hx))
@@ -53,7 +53,7 @@ class HPGeometry:
 
     def param_b(self) -> float:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         returns geometry parameter b
         """
         b = self.B / (2 * sqrt(self.Hy))
@@ -61,7 +61,7 @@ class HPGeometry:
 
     def _z(self, x: float, y: float) -> float:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         returns z coordinate at given y coordinate of midline of shell
         """
         z = y ** 2 / self.param_b() ** 2 - x ** 2 / self.param_a() ** 2
@@ -69,7 +69,7 @@ class HPGeometry:
 
     def x_p(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns the x-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid
         """
         x_p = self.L/2 * (1 + sqrt(self.Hy)/sqrt(self.Hx))
@@ -77,7 +77,7 @@ class HPGeometry:
 
     def y_p(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns the y-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid
         """
         y_p = self.B/2 * (1 + sqrt(self.Hx)/sqrt(self.Hy))
@@ -85,7 +85,7 @@ class HPGeometry:
 
     def z_p(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns the y-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid
         """
         z_p = (sqrt(self.Hx)+sqrt(self.Hy))**2
@@ -93,7 +93,7 @@ class HPGeometry:
 
     def dy_real(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         If nt = 1, calculate dy with alpha = 0.5
         else use the given dy
         """
@@ -107,7 +107,7 @@ class HPGeometry:
 
     def alpha_edge(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns the alpha coordinate value of the outermost tendon near the edge of the shell
         """
         alpha_edge = 1/2 * ( (-self.B/2 + self.dy)/self.y_p() + (self.L/2)/self.x_p() + 1)
@@ -115,7 +115,7 @@ class HPGeometry:
 
     def alpha_edge_bar(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns the complementary alpha coordinate value of the outermost tendon near the edge of the shell
         """
         alpha_edge_bar = 1-self.alpha_edge()
@@ -126,7 +126,7 @@ class HPGeometry:
 
     def delta_alpha(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns the distance between the tendons as alpha value
         """
         delta_alpha = (self.alpha_edge_bar() - self.alpha_edge()) / (self.nt - 1)
@@ -134,7 +134,7 @@ class HPGeometry:
 
     def alpha_list(self) -> list[float]:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns a list of alpha coordinates for all tendons in a tendon group
         """
         _alpha = self.alpha_edge() # local alpha variable that is subject to change if nt = 1
@@ -156,7 +156,7 @@ class HPGeometry:
 
     def gt_x(self) -> tuple[list[float], list[float]]:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns a tuple of start and end x coordinates for a tendon group
         """
         gt_x_start = [-self.L/2] * self.nt
@@ -165,7 +165,7 @@ class HPGeometry:
 
     def gt_y(self) -> tuple[list[float], list[float]]:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns a tuple of start and end y coordinates for a tendon group
         """
         gt_x_start, gt_x_end = self.gt_x()
@@ -185,7 +185,7 @@ class HPGeometry:
 
     def gt_z(self) -> tuple[list[float], list[float]]:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns a tuple of start and end z coordinates for a tendon group
         """
         gt_x_start, gt_x_end = self.gt_x()
@@ -325,7 +325,7 @@ class HPGeometry:
 
     def volume(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Calculates the concrete volume of an hp shell
         Übernommen von Pauls Skript "volumen.gh"
         """
