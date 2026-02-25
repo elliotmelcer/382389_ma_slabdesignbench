@@ -1,4 +1,5 @@
 import numpy as np
+from unicodedata import category
 
 from slab_construction.slab_construction import SlabConstruction
 
@@ -7,7 +8,7 @@ class Loads:
 
     """
     Author: Elliot Melcer
-    Class for instantiating a load model according to Eurocode 0
+    Class for instantiating a load object based on Eurocode 0 and 1
 
     Note: only uniformly distributed loads over ALL spans
     """
@@ -29,6 +30,43 @@ class Loads:
         self.gamma_q = gamma_q
         self._check_dimensions()
 
+    PSI_TABLE = {
+        "A": {"psi": (0.7, 0.5, 0.3), "Qk": {1: 1.0, 2: 1.5, 3: 2.0}},
+        "B": {"psi": (0.7, 0.5, 0.3), "Qk": {1: 2.0, 2: 3.0, 3: 5.0}},
+        "C": {"psi": (0.7, 0.7, 0.6), "Qk": {1: 3.0, 2: 4.0, 3: 5.0, 4: 5.0, 5: 5.0, 6: 7.5}},
+        "D": {"psi": (0.7, 0.7, 0.6), "Qk": {1: 2.0, 2: 5.0, 3: 5.0}},
+        "E": {"psi": (1.0, 0.9, 0.8), "Qk": {1: 5.0, 2: 6.0, 3: 7.5}},
+    }
+
+    @classmethod
+    def _parse_category(cls, category: str):
+        key = category.upper().strip()
+        letter, number = key[0], int(key[1:])
+        if letter not in cls.PSI_TABLE:
+            raise ValueError(f"Unknown category '{letter}'")
+        if number not in cls.PSI_TABLE[letter]["Qk"]:
+            raise ValueError(f"Unknown subcategory '{number}' for category '{letter}'")
+        psi = cls.PSI_TABLE[letter]["psi"]
+        Qk = cls.PSI_TABLE[letter]["Qk"][number]
+        return Qk, psi[0], psi[1], psi[2]
+
+    @classmethod
+    def from_categories(cls, categories: str | list[str], gamma_g=1.35, gamma_q=1.5):
+        # Normalize Input
+        if isinstance(categories, str):
+            categories = [categories]
+
+        Qk_values, psi_0s, psi_1s, psi_2s = [], [], [], []
+
+        for cat in categories:
+            Qk, psi_0, psi_1, psi_2 = cls._parse_category(cat)
+            Qk_values.append(Qk)
+            psi_0s.append(psi_0)
+            psi_1s.append(psi_1)
+            psi_2s.append(psi_2)
+
+        return cls(Qk_values, psi_0s, psi_1s, psi_2s, gamma_g, gamma_q)
+
     def _check_dimensions(self) -> None:
         """
         Checks the dimension compatibility of the input.
@@ -41,20 +79,29 @@ class Loads:
     def fundamental_combination(self, slab_construction: SlabConstruction):
         """
         Ultimate Limit State (ULS) - fundamental combination
-        EC0 6.10
+        EC0 6.10: Σ(j≥1) γ_G,j*G_k,j "+" γ_p*P "+" γ_Q,1*Q_k,1 "+" Σ(i>1) γ_Q,i*ψ_0,i*Q_k,i
         """
         Gd = self.gamma_g * (slab_construction.structural_dead_load()
                              + slab_construction.non_structural_dead_load())
 
-        Qd = self.gamma_q * float(np.sum(self.Qk * self.psi_0_values))
+        # Only the accompanying actions are multiplied by psi_0
+        psi_0_mask = self.psi_0_values.copy()
+        psi_0_mask[0] = 1.0
+
+        Qd = self.gamma_q * float(np.sum(self.Qk * psi_0_mask))
 
         return Gd + Qd
 
     def frequent_combination(self, slab_construction: SlabConstruction):
         """
         Serviceability Limit State (SLS) – frequent combination
-        EC0 6.15b
+        EC0 6.15b: Σ(j≥1) G_k,j "+" P "+" ψ_1,1*Q_k,1 "+" Σ(i>1) ψ_2,i*Q_k,i
         """
+
+        # set up psi values for frequent combination
+        psi_mask = self.psi_2_values.copy()
+        psi_mask[0] = self.psi_1_values[0]
+
         return (slab_construction.structural_dead_load()
                 + slab_construction.non_structural_dead_load()
                 + float(np.sum(self.Qk * self.psi_1_values)))
@@ -62,7 +109,7 @@ class Loads:
     def quasi_permanent_combination(self, slab_construction: SlabConstruction):
         """
         Serviceability Limit State (SLS) – quasi-permanent combination
-        EC0 6.16b
+        EC0 6.16b: Σ(j≥1) G_k,j "+" P "+" Σ(i≥1) ψ_2,i*Q_k,i
         """
         return (slab_construction.structural_dead_load()
                 + slab_construction.non_structural_dead_load()

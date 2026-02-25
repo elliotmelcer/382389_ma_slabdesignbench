@@ -69,7 +69,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # Loads
     n = _req_param(params,"loads_N_kN")
-    q = _req_param(params,"loads_q_kNm2")
+    load_category = params.get("loads_category", "")
 
     # Deformations
     defl_limit_factor_w_max = _req_param(params, "defl_max_defl_limit")
@@ -170,7 +170,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # LIVE LOADS
     # ======================================================================================================================
 
-    live_loads = Loads([q], [1.0], [1.0], [0.3])
+    live_loads = Loads.from_categories(load_category)
 
     # ======================================================================================================================
     # COMPUTE CONSTRAINTS (A) - ULS

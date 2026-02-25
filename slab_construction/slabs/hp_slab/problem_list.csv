@@ -12,7 +12,7 @@
 1;param;geom_t_infill_mm;fixed;;;0;;;;;1;
 1;param;geom_t_screed_mm;fixed;;;0;;;;;1;
 1;param;geom_t_insulation_mm;fixed;;;0;;;;;1;
-1;param;loads_q_kNm2;fixed;;;30;;;;;1;
+1;param;loads_category;fixed;;;4;;;;;1;
 1;param;loads_N_kN;fixed;;;2000;;;;;1;2000 = 0 kN
 1;param;mat_conc_fck;fixed;;;3;;;;;1;
 1;param;mat_reinf_id;fixed;;;2;;;;;1;

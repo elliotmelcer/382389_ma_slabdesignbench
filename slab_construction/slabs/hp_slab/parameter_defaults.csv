@@ -9,7 +9,7 @@ geom_dy_mm;grid;;0;10;39;0;38;3;var;float;x
 geom_t_infill_mm;grid;;0;10;11;0;10;0;fixed;float;x
 geom_t_screed_mm;grid;;45;1;36;0;35;0;fixed;float;x
 geom_t_insulation_mm;grid;;12;1;29;0;28;0;fixed;float;x
-loads_q_kNm2;grid;;0;0.1;101;0;100;30;fixed;float;x
+loads_category;catalog;A1 | A2 | A3 | B1 | B2 | B3 | C1 | C2 | C3 | C4 | C5 | C6 | D1 | D2 | D3 | E1 | E2 | E3;;;;0;17;4;fixed;str;x
 loads_N_kN;grid;;-200;0.1;4001;0;4000;2000;fixed;float;x
 mat_conc_fck;catalog;16. | 20. | 25. | 30. | 35. | 40. | 45. | 50. | 55. | 60. | 70. | 80. | 90. | 100.; ;;;3;14;3;fixed;float;x
 mat_reinf_id;catalog;solidian GRID Q85/85-CCE-21 | solidian GRID Q95/95-CCE-38 | solidian GRID Q142/142-CCE-25;;;;0;2;2;fixed;str;x
