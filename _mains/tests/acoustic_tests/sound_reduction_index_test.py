@@ -1,5 +1,5 @@
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_1, test_slab_construction_c1_3, \
-    test_slab_construction_c1_4, test_slab_construction_c1_2_c50
+    test_slab_construction_c1_4, test_slab_construction_c1_2_c50, test_slab_construction_ref
 from core.analysis_core.acoustic_methods import calculate_sound_reduction_index
 
 """
@@ -13,8 +13,9 @@ c1_1     |    56.29    |    56.29
 c1_2     |    56.75    |    56.75
 c1_3     |    57.24    |    57.24
 c1_4     |    56.78    |    56.78       
+ref      |    60.30    |    60.30      
 
-passed: 20.02.2026
+passed: 25.02.2026
 """
 
 print("Testing Calculation of Sound Reduction Index R_w")
@@ -23,8 +24,10 @@ R_w_c1_1 = calculate_sound_reduction_index(test_slab_construction_c1_1,     0.01
 R_w_c1_2 = calculate_sound_reduction_index(test_slab_construction_c1_2_c50, 0.01)
 R_w_c1_3 = calculate_sound_reduction_index(test_slab_construction_c1_3,     0.01)
 R_w_c1_4 = calculate_sound_reduction_index(test_slab_construction_c1_4,     0.01)
+R_w_ref  = calculate_sound_reduction_index(test_slab_construction_ref,      0.01)
 
-print(f"R_1_c1_1: {R_w_c1_1:.2f}")
-print(f"R_1_c1_2: {R_w_c1_2:.2f}")
-print(f"R_1_c1_3: {R_w_c1_3:.2f}")
-print(f"R_1_c1_4: {R_w_c1_4:.2f}")
+# print(f"R_1_c1_1: {R_w_c1_1:.2f}")
+# print(f"R_1_c1_2: {R_w_c1_2:.2f}")
+# print(f"R_1_c1_3: {R_w_c1_3:.2f}")
+# print(f"R_1_c1_4: {R_w_c1_4:.2f}")
+print(f"R_1_c1_4: {R_w_ref:.2f}")

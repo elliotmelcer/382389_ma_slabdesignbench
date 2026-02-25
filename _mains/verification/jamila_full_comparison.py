@@ -248,32 +248,11 @@ def analysis(
 if __name__ == "__main__":
     import time
 
-    conc = test_slab_construction_ref.slab.hp_shell.concrete
-    reinf = test_slab_construction_ref.slab.hp_shell.reinforcement
-
-    plot_constitutive_law_concrete(conc)
-    plot_constitutive_law_reinforcement(reinf)
-
-    section_ref = test_slab_construction_ref.slab.section_at(0.5)
-
-    mu_ref = calculate_bending_strength_uls_Nmm(section_ref)
-    m_cr_ref = calculate_cracking_moment_sls_Nmm(section_ref)
-    mk_res = calculate_moment_curvature_sls(test_slab_construction_ref.slab.section_at(0.5))
-
-    print(f"Mu_ref: {mu_ref["m_u"]:.3f} \n")
-    print(f"M_Cr_ref: {m_cr_ref["m_cr"]:.3f} \n")
-
-    plot_moment_curvature(mk_res)
-    plot_cross_section(section_ref)
-    plot_strain_profile(mu_ref)
-    plt.show()
-
-    # start_ref = time.perf_counter()
-    # print("Reference Design")
-    # analysis(test_slab_construction_ref, test_loads)
-    # print("")
-    # end_ref = time.perf_counter()
-
+    start_ref = time.perf_counter()
+    print("Reference Design")
+    analysis(test_slab_construction_ref, test_loads)
+    print("")
+    end_ref = time.perf_counter()
 
 
     # print(f"Analysis time for reference design: {abs (start_ref - end_ref):.6f} seconds")
