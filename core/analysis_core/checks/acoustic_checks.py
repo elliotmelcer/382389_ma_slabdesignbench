@@ -4,6 +4,10 @@ from core.analysis_core.acoustic_methods import calculate_sound_reduction_index,
     calculate_standard_impact_sound_pressure_level
 from slab_construction.slab_construction import SlabConstruction
 
+"""
+ACOUSTIC CHECKS
+Adapted from Jamila Loutfi and Ahmad Eiz Eddin
+"""
 
 class AcousticCheck(ABC):
 
@@ -29,7 +33,6 @@ class AirborneSoundInsulationCheck(AcousticCheck):
         buffer_dB: float = 0.0,
         debug_print: bool = False
     ) -> float:
-
         R_w_min = limit_dB # dB
 
         R_w = calculate_sound_reduction_index(slab_construction, mod_att = mod_att)

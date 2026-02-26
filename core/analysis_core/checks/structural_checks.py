@@ -11,6 +11,10 @@ from core.unit_core import Nmm_to_kNm
 from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slab_construction import SlabConstruction
 
+"""
+STRUCTURAL CHECKS
+Adapted from Jamila Loutfi
+"""
 
 class StructuralCheck(ABC):
 
