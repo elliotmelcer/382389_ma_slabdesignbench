@@ -102,7 +102,6 @@ class SlabConstruction:
 
     def get_parameters(self) -> dict:
         """
-        Author: Elliot Melcer
         Returns a dictionary containing all slab construction parameters
         organized by category: Geometry, Concrete, and Reinforcement.
 

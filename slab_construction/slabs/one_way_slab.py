@@ -6,7 +6,11 @@ from slab_construction.slabs.slab import Slab
 
 
 class OneWaySlab(Slab, ABC):
-
+    """
+    Author: Elliot Melcer
+    Abstract Base Class that represents a one way slab
+    Child Classes must implement L(), B() and section_at(x)
+    """
     @property
     @abstractmethod
     def L(self) -> float:
