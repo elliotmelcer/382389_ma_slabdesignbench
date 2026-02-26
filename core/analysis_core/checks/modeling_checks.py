@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 
 from slab_construction.slab_construction import SlabConstruction
 
+"""
+MODELING CHECKS
+Adapted from Jamila Loutfi
+"""
 
 class ModelingCheck(ABC):
 

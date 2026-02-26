@@ -1,11 +1,14 @@
-"""CONSTRUCTION REQUIREMENTS"""
+
 from abc import ABC, abstractmethod
 
 import numpy as np
 
 from slab_construction.slab_construction import SlabConstruction
 
-
+"""
+CONSTRUCTION CHECKS
+Adapted from Jamila Loutfi
+"""
 
 class ConstructionCheck(ABC):
 

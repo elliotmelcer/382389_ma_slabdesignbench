@@ -101,7 +101,7 @@ class HPShell:
 
     def c_1_clear_concrete_cover(self) -> float:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns available clear concrete cover along the midline from the
         outermost reinforcement to the edge at the HP-Shell Support
         """
@@ -125,7 +125,7 @@ class HPShell:
 
     def s_min_clear_reinf_spacing(self) -> float:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns the minimum available clear spacing between reinforcements along the hp_shell midline
         """
         d_p = self.d_p()
@@ -150,7 +150,7 @@ class HPShell:
 
     def arc_length(self, y:float) -> float:
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Returns the arclength from the neutral z-axis to the given y-coordinate.
         Note: s_y is negative for y < 0 and positive for y > 0
         """

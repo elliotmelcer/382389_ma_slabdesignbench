@@ -32,7 +32,7 @@ class HPSlab(OneWaySlab):
 
     def minimum_infill_volume(self):
         """
-        Author: Jamila Loutfi
+        Adapted from: Jamila Loutfi
         Calculates the minimum infill volume to flatten out the top of a hp-shell
 
         Note: Volume in mm³
