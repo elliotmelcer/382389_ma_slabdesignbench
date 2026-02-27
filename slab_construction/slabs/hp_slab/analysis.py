@@ -14,7 +14,7 @@ from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC200
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
 from core.analysis_core.loads import Loads
 from core.analysis_core.material_methods import get_cube, get_reinforcement_from_registry, \
-    get_floor_material_from_registry, ConcreteCO2Registry, get_material_properties
+    get_floor_material_from_registry
 from core.ioh_core.io_util import _req_param
 from core.unit_core import mm3_to_m3
 from core.visualization_core.visualization import plot_cross_section
@@ -291,18 +291,25 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # COMPUTE OBJECTIVE FUNCTION
     # ======================================================================================================================
 
+    # Reference Values for cost and gwp (C30/37)
+    cost_conc_c30_ref = _req_param(params, "mat_conc_cost_c30_ref_eur_m3")
+    gwp_conc_c30_ref = _req_param(params, "mat_conc_gwp_c30_ref_kgco2e_m3")
+
+    # Cost and GWP Factors for reinforcement based on reference concrete C30/37
+    cost_reinf_factor = _req_param(params, "mat_reinf_cost_crfp/conc")
+    gwp_reinf_factor = _req_param(params, "mat_reinf_gwp_crfp/conc")
+
     # Compute Material Quantities
     concrete_m3 = mm3_to_m3(hp_shell.hp_geometry.volume())
     reinforcement_m3 = mm3_to_m3(hp_shell.total_reinforcement_volume())
-    # infill_m3 = mm3_to_m3(hp_slab.minimum_infill_volume())
 
     # Prices in €/m3
-    cost_concrete_eur_m3 = ConcreteCO2Registry.cost(concrete_uls)
-    cost_reinforcement_eur_m3 = get_material_properties(reinf_id, materials)["cost"]
+    cost_concrete_eur_m3 = _req_param(params, "mat_conc_cost_eur_m3")
+    cost_reinforcement_eur_m3 = cost_conc_c30_ref * cost_reinf_factor
 
     # GWP in CO2eq./m3
-    gwp_concrete_CO2eq_m3 = ConcreteCO2Registry.gwp(concrete_uls)
-    gwp_reinforcement_CO2eq_m3 = get_material_properties(reinf_id, materials)["gwp"]
+    gwp_concrete_CO2eq_m3 = _req_param(params, "mat_conc_gwp_kgco2e_m3")
+    gwp_reinforcement_CO2eq_m3 = gwp_conc_c30_ref * gwp_reinf_factor
 
     # Unpenalized objective function
     y_cost = cost_concrete_eur_m3 * concrete_m3 + cost_reinforcement_eur_m3 * reinforcement_m3

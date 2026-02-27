@@ -2,6 +2,7 @@
 Author: Max Dombrowski
 Modified by: Elliot Melcer
  - main modified to work with file structure
+ - load_param_defaults: added lookup role
 """
 
 # src/slab_benchmark/core/import_specs.py
@@ -20,16 +21,23 @@ def load_param_defaults(path: str | Path) -> Dict[str, dict]:
     """
     Read parameter_defaults.csv and return:
       { name: {domain, values, lb, ub, fixed_idx, role, value_type} }
+      or, for role='lookup':
+      { name: {domain, values, role, value_type, lookup_key} }
 
     Required columns:
       name;domain;values;grid_start;grid_step;grid_count;
-      default_lb;default_ub;default_fixed;role;value_type
+      default_lb;default_ub;default_fixed;role;value_type;lookup_key
 
-    - domain: 'catalog' uses 'values' as a |-separated list (for numeric types).
+    - domain: 'catalog' uses 'values' as a |-separated list.
               'grid' uses start/step/count to generate values.
-    - role: 'var' or 'fixed' (per default; problem_list.csv can override per problem)
+    - role: 'var'    — optimization variable (lb/ub active)
+            'fixed'  — constant per problem (fixed_idx active)
+            'lookup' — derived from another parameter via lookup_key;
+                       never appears in problem_list.csv, resolved in decode()
     - lb/ub/fixed_idx are 0-based indices into 'values'.
-    - value_type: 'float', 'int' oder 'str' (default: 'float', falls leer).
+    - value_type: 'float', 'int', or 'str' (default: 'float' if empty).
+    - lookup_key: only required for role='lookup'; must name another parameter
+                  whose catalog/grid is positionally aligned with this one.
     """
     path = Path(path)
     spec: Dict[str, dict] = {}
@@ -38,30 +46,35 @@ def load_param_defaults(path: str | Path) -> Dict[str, dict]:
         "name", "domain", "values",
         "grid_start", "grid_step", "grid_count",
         "default_lb", "default_ub", "default_fixed",
-        "role", "value_type",
+        "role", "value_type", "lookup_key"
+        # lookup_key is optional at the header level — _read_rows allows extra cols,
+        # and we access it with r.get() below.
     ]
 
     for r in _read_rows(path, expected):
         name = r["name"]
         dom = (r["domain"] or "").lower()
         role = (r["role"] or "var").lower()
-        if role not in ("var", "fixed"):
+
+        if role not in ("var", "fixed", "lookup"):
             raise ValueError(
-                f"{path}: parameter '{name}' has invalid role '{role}' (use 'var' or 'fixed')."
+                f"{path}: parameter '{name}' has invalid role '{role}' "
+                f"(use 'var', 'fixed', or 'lookup')."
             )
 
         value_type = (r.get("value_type") or "float").strip().lower()
 
+        # ------------------------------------------------------------------
+        # Parse the value list (same logic for all roles)
+        # ------------------------------------------------------------------
         if dom == "catalog":
             vals_str = (r["values"] or "").strip('"').strip()
             if not vals_str:
                 raise ValueError(
                     f"{path}: parameter '{name}' uses domain 'catalog' but has empty 'values'."
                 )
-
             if value_type == "str":
                 vals = [v.strip() for v in vals_str.split("|")]
-
             elif value_type == "int":
                 try:
                     vals = [int(v) for v in vals_str.split("|")]
@@ -69,8 +82,7 @@ def load_param_defaults(path: str | Path) -> Dict[str, dict]:
                     raise ValueError(
                         f"{path}: parameter '{name}' has non-integer catalog value."
                     ) from e
-
-            elif value_type == "float":
+            else:  # float (default)
                 try:
                     vals = [float(v) for v in vals_str.split("|")]
                 except ValueError as e:
@@ -78,20 +90,19 @@ def load_param_defaults(path: str | Path) -> Dict[str, dict]:
                         f"{path}: parameter '{name}' has non-numeric catalog value."
                     ) from e
 
-            else:
-                raise ValueError(
-                    f"{path}: parameter '{name}' has unknown value_type "
-                    f"'{value_type}' (use 'float', 'int' or 'str')."
-                )
-
         elif dom == "grid":
+            if role == "lookup":
+                raise ValueError(
+                    f"{path}: parameter '{name}' has role 'lookup' but domain 'grid'. "
+                    f"Lookup parameters must use domain 'catalog' so values are positionally aligned."
+                )
             try:
                 start = float(r["grid_start"])
-                step = float(r["grid_step"])
-                count = int(r["grid_count"])
-            except ValueError as e:
+                step  = float(r["grid_step"])
+                count = int(float(r["grid_count"]))
+            except (ValueError, TypeError) as e:
                 raise ValueError(
-                    f"{path}: parameter '{name}' has invalid grid_start/step/count."
+                    f"{path}: parameter '{name}' has invalid grid spec."
                 ) from e
             if count <= 0:
                 raise ValueError(
@@ -111,6 +122,31 @@ def load_param_defaults(path: str | Path) -> Dict[str, dict]:
                 f"{path}: parameter '{name}' produced an empty value list."
             )
 
+        # ------------------------------------------------------------------
+        # Role: lookup — store values + lookup_key, skip lb/ub/fixed
+        # ------------------------------------------------------------------
+        if role == "lookup":
+            lookup_key = (r.get("lookup_key") or "").strip()
+            if not lookup_key:
+                raise ValueError(
+                    f"{path}: parameter '{name}' has role 'lookup' but no lookup_key specified."
+                )
+            spec[name] = {
+                "domain":     dom,
+                "values":     vals,
+                "role":       "lookup",
+                "value_type": value_type,
+                "lookup_key": lookup_key,
+                # Harmless sentinels so any code iterating the model doesn't KeyError:
+                "lb":         0,
+                "ub":         L - 1,
+                "fixed_idx":  0,
+            }
+            continue  # skip lb/ub/fixed_idx parsing below
+
+        # ------------------------------------------------------------------
+        # Role: var / fixed — parse lb/ub/fixed_idx as before
+        # ------------------------------------------------------------------
         def clamp_idx(s: str, dflt: int) -> int:
             # empty cell -> default; otherwise clamp to [0, L-1]
             return dflt if s == "" else max(0, min(int(float(s)), L - 1))
@@ -119,18 +155,39 @@ def load_param_defaults(path: str | Path) -> Dict[str, dict]:
         ub = clamp_idx(r["default_ub"], L - 1)
         if lb > ub:
             lb, ub = ub, lb
-
         fixed = clamp_idx(r["default_fixed"], lb)
 
         spec[name] = {
-            "domain": dom,
-            "values": vals,
-            "lb": lb,
-            "ub": ub,
-            "fixed_idx": fixed,
-            "role": role,
+            "domain":     dom,
+            "values":     vals,
+            "lb":         lb,
+            "ub":         ub,
+            "fixed_idx":  fixed,
+            "role":       role,
             "value_type": value_type,
         }
+
+    # ----------------------------------------------------------------------
+    # Post-load validation: every lookup_key must reference a known parameter
+    # ----------------------------------------------------------------------
+    for name, m in spec.items():
+        if m["role"] == "lookup":
+            key = m["lookup_key"]
+            if key not in spec:
+                raise ValueError(
+                    f"{path}: lookup parameter '{name}' references unknown lookup_key '{key}'."
+                )
+            if spec[key]["role"] == "lookup":
+                raise ValueError(
+                    f"{path}: lookup parameter '{name}' references another lookup '{key}'. "
+                    f"Chained lookups are not supported."
+                )
+            key_len = len(spec[key]["values"])
+            if len(m["values"]) != key_len:
+                raise ValueError(
+                    f"{path}: lookup parameter '{name}' has {len(m['values'])} values "
+                    f"but its key '{key}' has {key_len}. Lists must be the same length."
+                )
 
     return spec
 
@@ -178,6 +235,34 @@ def make_decode(model: Dict[str, dict], var_names: List[str]):
             m = model[name]
             kk = max(m["lb"], min(int(k), m["ub"]))
             full[name] = m["values"][kk]
+
+        # 3) lookup params — resolved from same index as their key
+        for name, m in model.items():
+            if m["role"] == "lookup":
+                key = m["lookup_key"]
+                if key not in full:
+                    raise KeyError(f"Lookup param '{name}' references unknown key '{key}'.")
+                key_vals = model[key]["values"]
+                # Find the index of the resolved key value
+                resolved_key_val = full[key]
+                try:
+                    idx = key_vals.index(resolved_key_val)
+                except ValueError:
+                    idx = 0
+                idx = max(0, min(idx, len(m["values"]) - 1))
+                full[name] = m["values"][idx]
+
+        # 4) inject C30 reference values for reinforcement ratio calculations
+        fck_vals = model["mat_conc_fck"]["values"]
+        try:
+            c30_idx = fck_vals.index(30.0)
+            full["mat_conc_cost_c30_ref_eur_m3"] = model["mat_conc_cost_eur_m3"]["values"][c30_idx]
+            full["mat_conc_gwp_c30_ref_kgco2e_m3"] = model["mat_conc_gwp_kgco2e_m3"]["values"][c30_idx]
+        except ValueError:
+            raise ValueError(
+                "mat_conc_fck catalog does not contain 30.0 — "
+                "C30 reference values for reinforcement ratios cannot be resolved."
+            )
 
         return full
 
@@ -260,6 +345,15 @@ def load_problems_combined(
                     f"{problem_list_csv}: problem {problem_ID} refers to unknown parameter '{name}'."
                 )
             m = info["model"][name]
+
+            # lookup params are resolved automatically; users must not add them to problem_list.csv
+            if m["role"] == "lookup":
+                raise ValueError(
+                    f"{problem_list_csv}: problem {problem_ID} refers to '{name}' which has "
+                    f"role 'lookup'. Lookup parameters are resolved automatically from "
+                    f"'{m['lookup_key']}' and cannot be set in problem_list.csv."
+                )
+
             role = (r["role"] or m["role"]).lower()
             if role not in ("var", "fixed"):
                 raise ValueError(

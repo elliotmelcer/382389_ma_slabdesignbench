@@ -16,8 +16,8 @@
 1;param;loads_N_kN;fixed;;;20;;;;;1;20 = 0 kN;
 1;param;mat_conc_fck;fixed;;;3;;;;;1;;
 1;param;mat_reinf_id;fixed;;;2;;;;;1;;
-1;param;mat_reinf_cost_steel/conc_;fixed;;;0;;;;;1;;
-1;param;mat_reinf_gwp_steel/conc_;fixed;;;0;;;;;1;;
+1;param;mat_reinf_cost_crfp/conc;fixed;;;0;;;;;1;;
+1;param;mat_reinf_gwp_crfp/conc;fixed;;;0;;;;;1;;
 1;param;mat_infill_id;fixed;;;0;;;;;1;;
 1;param;mat_insu_id;fixed;;;0;;;;;1;;
 1;param;mat_screed_id;fixed;;;0;;;;;1;;
