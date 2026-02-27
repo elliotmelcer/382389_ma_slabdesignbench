@@ -299,9 +299,6 @@ def get_floor_material_from_registry(mat_id: str, materials: dict):
 
         return InsulationMaterial(density=density, E_dyn = E_dyn, name=mat_id)
 
-
-
-
 def get_material_properties(mat_id: str, materials: dict) -> dict:
     """
     Get raw material properties dictionary from registry.
