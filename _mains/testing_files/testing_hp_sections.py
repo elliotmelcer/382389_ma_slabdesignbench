@@ -19,42 +19,6 @@ HP-Shells for Testing. Naming convention after:
                             
 """
 
-"""UNUSED"""
-# def make_section(hp: HPSlab, conc: Concrete, reinforcement: Reinforcement, reinf_area: float, x: float, name: Optional[str] = None) -> GenericSection:
-#     """
-#     Author: Elliot Melcer
-#     Returns a section from a hp-shell, material properties, reinforcement area and location in shell
-#
-#     Note:
-#         Reinforcement Area in mm²
-#         x in mm
-#     """
-#     # Concrete Geometry
-#     hp_geometry = SurfaceGeometry(
-#         poly=hp.polygon_section_at(x=x, n=100), material=conc
-#     )
-#
-#     # Reinforcement Geometry
-#     reinforcement_points = hp.tendon_coords_at_x(x=x)
-#     d = np.sqrt(4 * reinf_area / np.pi)
-#
-#     # Add Reinforcement to Concrete Geometry
-#     for pt in reinforcement_points:
-#         hp_geometry = add_reinforcement(
-#             hp_geometry,
-#             pt,  # reinforcement points
-#             d,  # diameter [mm]
-#             reinforcement  # reinforcement material
-#         )
-#
-#     if name is None:
-#         hp_section = GenericSection(hp_geometry)
-#     else:
-#         hp_section = GenericSection(hp_geometry, name = name)
-#
-#     return hp_section
-
-
 # --- HP Shells for Verification of Cracking and Ultimate Moments---
 
 x = 0.5 # Location of Section in Girder
