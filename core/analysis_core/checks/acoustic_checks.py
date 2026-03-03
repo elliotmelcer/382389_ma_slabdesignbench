@@ -36,7 +36,6 @@ class AirborneSoundInsulationCheck(AcousticCheck):
         R_w_min = limit_dB # dB
 
         R_w = calculate_sound_reduction_index(slab_construction, mod_att = mod_att)
-        print("R_w = ", R_w)
         utilization = R_w_min / (R_w - buffer_dB)
 
         return utilization
@@ -55,7 +54,6 @@ class ImpactSoundInsulationCheck(AcousticCheck):
         L_nw_max = limit_dB  # dB
 
         L_nw = calculate_standard_impact_sound_pressure_level(slab_construction, mod_att=mod_att)
-        print("L_nw = ", L_nw)
 
         utilization = (L_nw + buffer_dB) / L_nw_max
 
