@@ -137,11 +137,18 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
 
         utilization = w_max_sls / w_limit
 
+        if utilization < 0:
+            # Negative deformation is undesirable
+            screened_utilization = 1 + abs(utilization)
+        else:
+            screened_utilization = utilization
+
         if debug:
+            print("raw util = ", utilization)
             print("w_max = ", w_max_sls)
             print("L = ", L)
 
-        return utilization
+        return screened_utilization
 
 """B.1b Deflection Limit Check"""
 class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
@@ -229,18 +236,22 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
 
         w_min = L / min_factor
 
-        if w_max_uls < 0.0:
-            utilization = 99.
+
+        utilization = w_min / w_max_uls
+
+        if utilization < 0:
+            # Negative deformation is undesirable
+            screened_utilization = 1 + abs(utilization)
         else:
-            utilization = w_min / w_max_uls
+            screened_utilization = utilization
 
         if debug:
             print(f"w_max = {w_max_uls:.2f}")
             print(f"w_min = {w_min:.2f}")
-            print(f"utilization = {w_min:.2f} / {w_max_uls:.2f} = {utilization:.2f}")
-            print(f"L = {L}")
+            print(f"util raw = {w_min:.2f} / {w_max_uls:.2f} = {utilization:.2f}")
+            print(f"util = {screened_utilization:.2f}")
 
-        return utilization
+        return screened_utilization
 
 """B.2b Failure Announcement"""
 class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
@@ -258,9 +269,9 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
 
         Returns:
             float: Utilization ratio.
-                   - < 1.0: Section remains uncracked under quasi-permanent loads
-                   - > 1.0: Section will crack
-                   - float('inf'): Section crushes before cracking (over-prestressed)
+                   - < 1.0 : Section remains uncracked under quasi-permanent loads
+                   - > 1.0 : Section will crack
+                   - 99.0  : Section crushes before cracking (over-prestressed)
         """
 
         # Calculate fundamental combination moment
