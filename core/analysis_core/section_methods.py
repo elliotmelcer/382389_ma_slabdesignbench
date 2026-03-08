@@ -480,11 +480,30 @@ def calculate_moment_curvature_sls(section: GenericSection,
     """
     sls_sec = sls_section(section, concrete_tension=concrete_tension)
 
+    # --- Check which material governs failure ---
+    # Get concrete ε_c1
+    conc = None
+    for geo in sls_sec.geometry.geometries:
+        if hasattr(geo, 'concrete') and geo.concrete:
+            conc = geo.material
+            break
+    eps_c1 = abs(conc.eps_c1)  # ~2.0–2.5‰ for typical concretes
+
+    # Get bending strength strain profile
+    m_u_res = calculate_bending_strength_sls_Nmm(section, n=n)
+    eps_0, chi_y, _ = m_u_res["strain_profile"]
+    _, _, zmin, zmax = sls_sec.geometry.calculate_extents()
+    eps_top = eps_0 + chi_y * zmax  # concrete top fiber strain at failure
+
+    # If concrete top exceeds ε_c1 at failure → concrete is in post-yield zone
+    concrete_governs = abs(eps_top) > eps_c1
+    num_post_yield = 1 if concrete_governs else 0
+
     # Get standard M-κ curve from library
     results = sls_sec.section_calculator.calculate_moment_curvature(
         n=n,
         num_pre_yield=40,
-        num_post_yield=0
+        num_post_yield=num_post_yield    # in case concrete is governing, at least 1 post yield point is necessary
     )
 
     # FIX SIGNS - Library may return negative values
