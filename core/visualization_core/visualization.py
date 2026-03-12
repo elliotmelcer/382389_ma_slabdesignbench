@@ -72,6 +72,124 @@ def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, ti
 
     return ax
 
+def plot_moment_curvature_with_reference(
+    m_c_res: MomentCurvatureResults,
+    ref_curvatures,
+    ref_moments,
+    x=None,
+    ax=None,
+    title="",
+    ref_label="M–K curve (INCA2)",
+):
+    """
+    Author: Elliot Melcer
+    Plot moment–curvature (M–K) diagram from m_c_res and superimpose
+    a second M–K dataset given as curvature and moment lists.
+
+    Parameters
+    ----------
+    m_c_res : MomentCurvatureResults
+        Object containing chi_y and m_y arrays.
+    ref_curvatures : list or array
+        Reference curvature values.
+    ref_moments : list or array
+        Reference moment values.
+    x : float, optional
+        Position factor for title.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to plot on.
+    title : str, optional
+        Plot title prefix.
+    ref_label : str, optional
+        Label for reference dataset.
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        The axes with the plot.
+    """
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    # Convert reference data to arrays
+    ref_curvatures = np.asarray(ref_curvatures, dtype=float)
+    ref_moments = np.asarray(ref_moments, dtype=float)
+
+    if len(ref_curvatures) != len(ref_moments):
+        raise ValueError("ref_curvatures and ref_moments must have the same length.")
+
+    # Create figure/axes if not provided
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # ============================================================
+    #                  Plot main M–K curve
+    # ============================================================
+    ax.plot(
+        -m_c_res.chi_y * 1e6,
+        -m_c_res.m_y / 1e6,
+        color="black",
+        linewidth=1.0,
+        label="M–K curve (Python)",
+    )
+
+    ax.scatter(
+        -m_c_res.chi_y * 1e6,
+        -m_c_res.m_y / 1e6,
+        s=6,
+        color="black",
+    )
+
+    # ============================================================
+    #                  Plot reference M–K dataset
+    # ============================================================
+    ax.plot(
+        ref_curvatures * 1e3,
+        ref_moments,
+        linewidth=1.0,
+        marker="o",
+        markersize=0,
+        label=ref_label,
+    )
+
+    # ============================================================
+    #                    ULTIMATE POINT (Mu)
+    # ============================================================
+    x_u = -m_c_res.chi_y[-1] * 1e6
+    y_u = -m_c_res.m_y[-1] / 1e6
+
+    ax.plot(x_u, y_u, "ro", markersize=5)
+
+    label_u = (
+        f"(K_u = {-m_c_res.chi_y[-1] * 1e6:.3e},\n"
+        f" M_u = {-m_c_res.m_y[-1] / 1e6:.3f} kNm)"
+    )
+    ax.text(
+        x_u,
+        y_u,
+        label_u,
+        fontsize=10,
+        color="red",
+        ha="right",
+        va="bottom",
+    )
+
+    # --- Axis labels ---
+    ax.set_xlabel("K [1/1000m]")
+    ax.set_ylabel("My [kNm]")
+
+    # --- Grid ---
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+
+    # --- Legend ---
+    ax.legend()
+
+    # --- Title ---
+    ax.set_title(f"{title}\nM-K-Diagram at x = {x} * L")
+
+    return ax
+
 def table_moment_curvature(m_c_res: MomentCurvatureResults):
         """
         Author: Elliot Melcer
