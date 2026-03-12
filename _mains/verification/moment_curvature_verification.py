@@ -2,13 +2,16 @@ from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c2_uls_x_0_00, hp_section_c2_uls_x_0_10, \
     hp_section_c2_uls_x_0_20, hp_section_c2_uls_x_0_30, hp_section_c2_uls_x_0_40, hp_section_c2_uls_x_0_50
-from core.analysis_core.section_methods import calculate_moment_curvature_sls
-from core.visualization_core.visualization import plot_moment_curvature
+from core.analysis_core.section_methods import calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm
+from core.visualization_core.visualization import plot_moment_curvature, plot_moment_curvature_with_reference
 
 """
 This file is used for verification of the moment-curvature-diagrams. 
 
 The section used for verification is from chapter "C.2.  Vergleich der M-κ-Diagramme" in Loutfi (2023)
+
+Output verifies, that M_u and Kappa_u derived from calculate_bending_strength_sls_Nmm() are identical with the last 
+point in the M-k_Diagram of calculate_moment_curvature_sls(), given the same section
 
 passed 29.01.2026
 
@@ -16,24 +19,105 @@ Output:
 
 See plots
 
+M_u_sls:
+x = 0.00 m: -32176052.40 kNm
+x = 0.10 m: -37287641.45 kNm
+x = 0.20 m: -41687814.24 kNm
+x = 0.30 m: -44866092.27 kNm
+x = 0.40 m: -47151329.54 kNm
+x = 0.50 m: -47597485.65 kNm
+
+kappa_u_sls:
+x = 0.00 m: -18.84 1/m
+x = 0.10 m: -19.00 1/m
+x = 0.20 m: -19.19 1/m
+x = 0.30 m: -19.16 1/m
+x = 0.40 m: -19.44 1/m
+x = 0.50 m: -19.22 1/m
+
 """
-
-moment_curvature_c2_x_0_00 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_00)
-moment_curvature_c2_x_0_10 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_10)
-moment_curvature_c2_x_0_20 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_20)
-moment_curvature_c2_x_0_30 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_30)
-moment_curvature_c2_x_0_40 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_40)
-moment_curvature_c2_x_0_50 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_50)
-
 # --- M-K-results_c2 ---
 
-# print
-plot_moment_curvature(moment_curvature_c2_x_0_00, x = 0.00)
-plot_moment_curvature(moment_curvature_c2_x_0_10, x = 0.10)
-plot_moment_curvature(moment_curvature_c2_x_0_20, x = 0.20)
-plot_moment_curvature(moment_curvature_c2_x_0_30, x = 0.30)
-plot_moment_curvature(moment_curvature_c2_x_0_40, x = 0.40)
-plot_moment_curvature(moment_curvature_c2_x_0_50, x = 0.50)
+# moment_curvature_c2_x_0_00 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_00)
+# moment_curvature_c2_x_0_10 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_10)
+# moment_curvature_c2_x_0_20 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_20)
+# moment_curvature_c2_x_0_30 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_30)
+# moment_curvature_c2_x_0_40 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_40)
+moment_curvature_c2_x_0_50 = calculate_moment_curvature_sls(hp_section_c2_uls_x_0_50)
+
+# INCA 2 Results
+inca_curvatures_0_00 = [-0.0417051, -0.0312788, -0.0302362, -0.0208525, -0.0177246, -0.0166820, -0.0114689, -0.0083410, -0.0062558, -0.0052131, -0.0041705, -0.0031279, -0.0020853, -0.0010426, 0.0, 0.0010848, 0.0021697, 0.0032545, 0.0043394, 0.0054242, 0.0065091, 0.0086788, 0.0119333, 0.0173576, 0.0184424, 0.0195273, 0.0206121, 0.0260364, 0.0282061, 0.0390546, 0.0433940]
+inca_moments_0_00    = [-21.7549, -21.2568, -21.1659, -19.7602, -19.2544, -18.8698, -16.5881, -15.1416, -14.1017, -13.5360, -12.9136, -12.1856, -11.2191, -9.4274, 0.4146, 13.7840, 17.2293, 19.0679, 20.4295, 21.5771, 22.6092, 24.4872, 27.0746, 31.1239, 31.9116, 32.5252, 33.0403, 34.4098, 34.6992, 35.6600, 35.9798]
+
+inca_curvatures_0_10 = [-0.0520183, -0.0410944, -0.0283500, -0.0221078, -0.0215876, -0.0148252, -0.0106637, -0.0080628, -0.0062422, -0.0049417, -0.0041615, -0.0033812, -0.0028610, -0.0026009, -0.0023408, -0.0020807, -0.0018206, -0.0015605, -0.0013005, -0.0010404, -0.0007803, -0.0005202, -0.0002601, 0.0, 0.0004366, 0.0006550, 0.0008733, 0.0010916, 0.0013099, 0.0015282, 0.0017466, 0.0019649, 0.0021832, 0.0026198, 0.0030565, 0.0037114, 0.0045847, 0.0058946, 0.0078595, 0.0111343, 0.0165923, 0.0189938, 0.0198670, 0.0233602, 0.0331845, 0.0353677, 0.0436638]
+inca_moments_0_10    = [-16.6484, -16.3487, -15.2729, -14.6805, -14.5685, -12.6990, -11.4714, -10.6375, -9.9895, -9.4635, -9.1021, -8.6813, -8.3470, -8.1552, -7.9406, -7.6958, -7.4092, -7.0626, -6.6253, -6.0373, -5.1687, -3.6659, -0.3716, 3.7124, 10.5464, 13.7411, 15.7846, 17.1161, 18.1088, 18.8999, 19.5590, 20.1264, 20.6274, 21.4892, 22.2244, 23.1790, 24.2835, 25.7398, 27.6947, 30.6771, 35.3364, 37.3184, 37.7762, 38.9763, 40.4657, 40.6950, 41.0413]
+
+inca_curvatures_0_20 = [-0.0666065, -0.0579477, -0.0412960, -0.0303060, -0.0283078, -0.0209811, -0.0156525, -0.0119892, -0.0093249, -0.0076597, -0.0063276, -0.0053285, -0.0046625, -0.0039964, -0.0036634, -0.0033303, -0.0029973, -0.0026643, -0.0023312, -0.0019982, -0.0016652, -0.0013321, -0.0009991, -0.0006661, -0.0003330, 0.0, 0.0004404, 0.0006607, 0.0008809, 0.0011011, 0.0013213, 0.0015415, 0.0017617, 0.0019820, 0.0022022, 0.0026426, 0.0033033, 0.0041841, 0.0055054, 0.0074874, 0.0107907, 0.0162961, 0.0191589, 0.0198196, 0.0215813, 0.0284081, 0.0398594, 0.0440435]
+inca_moments_0_20    = [-12.6539, -12.5198, -11.7814, -11.2196, -11.1059, -9.8949, -8.9498, -8.2465, -7.6835, -7.2914, -6.9393, -6.6388, -6.4117, -6.1523, -6.0058, -5.8442, -5.6631, -5.4561, -5.2139, -4.9207, -4.5497, -4.0505, -3.3135, -2.0399, 1.0513, 6.2773, 13.1645, 16.3700, 18.4097, 19.7471, 20.7491, 21.5533, 22.2272, 22.8105, 23.3277, 24.2238, 25.3485, 26.6171, 28.2660, 30.4641, 33.8147, 39.0575, 41.6977, 42.0962, 42.8398, 44.3886, 45.3194, 45.5825]
+
+inca_curvatures_0_30 = [-0.0882571, -0.0683993, -0.0507478, -0.0383919, -0.0375093, -0.0282423, -0.0220643, -0.0176514, -0.0141211, -0.0114734, -0.0097083, -0.0083844, -0.0070606, -0.0061780, -0.0052954, -0.0048541, -0.0044129, -0.0039716, -0.0035303, -0.0030890, -0.0026477, -0.0022064, -0.0017651, -0.0013239, -0.0008826, -0.0004413, 0.0, 0.0004389, 0.0006584, 0.0008779, 0.0010974, 0.0013168, 0.0015363, 0.0017558, 0.0019753, 0.0024142, 0.0028531, 0.0035116, 0.0043894, 0.0057063, 0.0079010, 0.0116320, 0.0179967, 0.0193136, 0.0204109, 0.0221667, 0.0245809, 0.0348961, 0.0384077, 0.0438945]
+inca_moments_0_30    = [-9.8055, -9.3728, -8.9275, -8.5591, -8.5164, -7.6308, -6.9955, -6.5003, -6.0644, -5.7016, -5.4326, -5.2090, -4.9572, -4.7663, -4.5480, -4.4246, -4.2888, -4.1366, -3.9625, -3.7586, -3.5120, -3.2006, -2.7826, -2.1674, -1.1085, 1.4684, 8.1094, 14.9727, 18.1768, 20.2308, 21.5808, 22.5965, 23.4134, 24.1002, 24.6967, 25.7093, 26.5660, 27.6753, 28.9621, 30.6715, 33.2380, 37.2632, 43.7511, 45.0197, 45.7857, 46.4178, 47.1434, 48.5063, 48.8376, 49.0017]
+
+inca_curvatures_0_40 = [-0.1225400, -0.0980320, -0.0747494, -0.0569811, -0.0526922, -0.0398255, -0.0312477, -0.0251207, -0.0208318, -0.0171556, -0.0140921, -0.0116413, -0.0098032, -0.0085778, -0.0073524, -0.0067397, -0.0061270, -0.0055143, -0.0049016, -0.0042889, -0.0036762, -0.0030635, -0.0024508, -0.0018381, -0.0012254, -0.0006127, 0.0, 0.0004437, 0.0006655, 0.0008873, 0.0011092, 0.0013310, 0.0015528, 0.0017746, 0.0019965, 0.0024401, 0.0028838, 0.0035493, 0.0046584, 0.0062113, 0.0088732, 0.0135317, 0.0195211, 0.0221830, 0.0244014, 0.0301689, 0.0421478, 0.0443661]
+inca_moments_0_40    = [-8.2785, -7.9264, -7.5331, -7.1819, -7.0867, -6.3690, -5.8525, -5.4492, -5.1374, -4.8379, -4.5561, -4.2999, -4.0804, -3.9146, -3.7262, -3.6200, -3.5033, -3.3729, -3.2247, -3.0521, -2.8447, -2.5848, -2.2387, -1.7346, -0.8730, 1.2049, 9.2086, 16.1467, 19.3651, 21.4073, 22.7579, 23.7770, 24.6002, 25.2954, 25.9013, 26.9341, 27.8122, 28.9556, 30.6021, 32.6350, 35.7975, 40.9508, 47.2572, 48.7791, 49.2840, 50.2935, 50.8044, 50.8606]
+
+inca_curvatures_0_50 = [-0.1367981, -0.1114905, -0.0875508, -0.0786589, -0.0595072, -0.0451434, -0.0355675, -0.0287276, -0.0232557, -0.0191517, -0.0164158, -0.0136798, -0.0116278, -0.0102599, -0.0088919, -0.0082079, -0.0075239, -0.0068399, -0.0061559, -0.0054719, -0.0047879, -0.0041039, -0.0034200, -0.0027360, -0.0020520, -0.0013680, -0.0006840, 0.0, 0.0004386, 0.0006580, 0.0008773, 0.0010966, 0.0013159, 0.0015352, 0.0017545, 0.0019739, 0.0024125, 0.0028511, 0.0035091, 0.0046057, 0.0061409, 0.0087727, 0.0133783, 0.0192999, 0.0203965, 0.0252214, 0.0335555, 0.0438634]
+inca_moments_0_50 = [-7.6373, -7.5100, -7.3330, -7.2506, -6.4761, -5.8517, -5.4002, -5.0466, -4.7312, -4.4623, -4.2588, -4.0295, -3.8336, -3.6867, -3.5214, -3.4296, -3.3298, -3.2201, -3.0976, -2.9585, -2.7967, -2.6024, -2.3594, -2.0365, -1.5663, -0.7650, 1.1613, 9.5576, 16.4278, 19.6379, 21.7024, 23.0632, 24.0899, 24.9187, 25.6181, 26.2276, 27.2665, 28.1496, 29.2996, 30.9555, 32.9999, 36.1804, 41.3636, 47.7067, 48.6128, 50.5292, 51.0954, 51.4647]
+
+# Plot
+# plot_moment_curvature(moment_curvature_c2_x_0_00, x = 0.00)
+# plot_moment_curvature_with_reference(moment_curvature_c2_x_0_00, inca_curvatures_0_00, inca_moments_0_00, x = 0.00)
+#
+# # plot_moment_curvature(moment_curvature_c2_x_0_10, x = 0.10)
+# plot_moment_curvature_with_reference(moment_curvature_c2_x_0_10, inca_curvatures_0_10, inca_moments_0_10, x = 0.10)
+#
+# # plot_moment_curvature(moment_curvature_c2_x_0_20, x = 0.20)
+# plot_moment_curvature_with_reference(moment_curvature_c2_x_0_20, inca_curvatures_0_20, inca_moments_0_20, x = 0.10)
+#
+# # plot_moment_curvature(moment_curvature_c2_x_0_30, x = 0.30)
+# plot_moment_curvature_with_reference(moment_curvature_c2_x_0_30, inca_curvatures_0_30, inca_moments_0_30, x = 0.10)
+#
+# # plot_moment_curvature(moment_curvature_c2_x_0_40, x = 0.40)
+# plot_moment_curvature_with_reference(moment_curvature_c2_x_0_40, inca_curvatures_0_40, inca_moments_0_40, x = 0.10)
+
+# plot_moment_curvature(moment_curvature_c2_x_0_50, x = 0.50)
+plot_moment_curvature_with_reference(moment_curvature_c2_x_0_50, inca_curvatures_0_50, inca_moments_0_50, x = 0.10)
+
+
+# M_u_sls
+# m_u_sls_0_00 = calculate_bending_strength_sls_Nmm(hp_section_c2_uls_x_0_00)
+# m_u_sls_0_10 = calculate_bending_strength_sls_Nmm(hp_section_c2_uls_x_0_10)
+# m_u_sls_0_20 = calculate_bending_strength_sls_Nmm(hp_section_c2_uls_x_0_20)
+# m_u_sls_0_30 = calculate_bending_strength_sls_Nmm(hp_section_c2_uls_x_0_30)
+# m_u_sls_0_40 = calculate_bending_strength_sls_Nmm(hp_section_c2_uls_x_0_40)
+# m_u_sls_0_50 = calculate_bending_strength_sls_Nmm(hp_section_c2_uls_x_0_50)
+
+print("M_u_sls:")
+# print(f"x = 0.00 m: {m_u_sls_0_00["m_u"]:.2f} kNm")
+# print(f"x = 0.10 m: {m_u_sls_0_10["m_u"]:.2f} kNm")
+# print(f"x = 0.20 m: {m_u_sls_0_20["m_u"]:.2f} kNm")
+# print(f"x = 0.30 m: {m_u_sls_0_30["m_u"]:.2f} kNm")
+# print(f"x = 0.40 m: {m_u_sls_0_40["m_u"]:.2f} kNm")
+# print(f"x = 0.50 m: {m_u_sls_0_50["m_u"]:.2f} kNm\n")
+
+# Kappa_u_sls
+
+# _,kappa_u_sls_0_00,_ = m_u_sls_0_00.get("strain_profile", (None, None, None))
+# _,kappa_u_sls_0_10,_ = m_u_sls_0_10.get("strain_profile", (None, None, None))
+# _,kappa_u_sls_0_20,_ = m_u_sls_0_20.get("strain_profile", (None, None, None))
+# _,kappa_u_sls_0_30,_ = m_u_sls_0_30.get("strain_profile", (None, None, None))
+# _,kappa_u_sls_0_40,_ = m_u_sls_0_40.get("strain_profile", (None, None, None))
+# _,kappa_u_sls_0_50,_ = m_u_sls_0_50.get("strain_profile", (None, None, None))
+
+# print("kappa_u_sls:")
+# print(f"x = 0.00 m: {kappa_u_sls_0_00*1000000:.2f} 1/m")
+# print(f"x = 0.10 m: {kappa_u_sls_0_10*1000000:.2f} 1/m")
+# print(f"x = 0.20 m: {kappa_u_sls_0_20*1000000:.2f} 1/m")
+# print(f"x = 0.30 m: {kappa_u_sls_0_30*1000000:.2f} 1/m")
+# print(f"x = 0.40 m: {kappa_u_sls_0_40*1000000:.2f} 1/m")
+# print(f"x = 0.50 m: {kappa_u_sls_0_50*1000000:.2f} 1/m")
+
+
 
 # table
 # print(table_moment_curvature(moment_curvature_c2))
