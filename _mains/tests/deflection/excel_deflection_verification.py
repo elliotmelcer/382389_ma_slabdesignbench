@@ -17,6 +17,14 @@ c1_3     | GZG/GZG |    4.590455 mm     |   13.66 mm   | 197.6 %
          | GZT/GZG |    17.613091mm     |   25.22 mm   |  43.2 %
 
 The console output of this file is used for verification purposed in Verfizierung_Verformung_c1_3.xlsx
+
+Conclusions from Verfizierung_Verformung_c1_3.xlsx:
+ - the assumption that fctm = 0 in the entire cross-section is very conservative 
+ - for the non-prestressed section this results in a much larger discrepancy from Jamilas 
+ 
+Conclusions from https://concrete.ethz.ch/apps/sbe-ii/biegetragverhalten-vorspannung/:
+ - the more prestress on a section, the smaller the difference between the bilinear Mk and the real Mk
+ - the point of decoupling between bilinear and real MK diagram is the point of decompression
 """
 
 # ---------------------------------------------------------------------------
