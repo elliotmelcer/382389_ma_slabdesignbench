@@ -15,7 +15,7 @@ from structuralcodes.materials.constitutive_laws import Elastic
 
 from core.analysis_core.section_methods import (
     calculate_cracking_moment_sls_Nmm,
-    calculate_prestress_moment_Nmm,
+    calculate_prestress_forces_Nmm,
     sls_section,
 )
 from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
@@ -74,7 +74,7 @@ def get_mk_curve(section, n: float = 0.0):
 
 def calculate_kappa_0_method1(section, n: float = 0.0):
     """Method 1: Using M_cr (ground truth when valid)."""
-    M_p = calculate_prestress_moment_Nmm(section)  # Nmm
+    M_p,_ = calculate_prestress_forces_Nmm(section)  # Nmm
 
     M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
     if not M_cr_result.get('valid', True):
@@ -260,15 +260,16 @@ def investigate_intercept_vs_mp():
     for f in prestress_factors:
         section = create_section_with_prestress(f)
 
-        M_p = calculate_prestress_moment_Nmm(section) / 1e6  # kNm
+        M_p_Nmm,_ = calculate_prestress_forces_Nmm(section)  # kNm
+        M_p_kNm = M_p_Nmm / 1e6
 
         M_array, kappa_array = get_mk_curve(section)
         slope, intercept = np.polyfit(kappa_array[:5], M_array[:5], 1)
         intercept_kNm = intercept / 1e6  # kNm
 
-        ratio = intercept_kNm / M_p if abs(M_p) > 1e-6 else 0
+        ratio = intercept_kNm / M_p_kNm if abs(M_p_kNm) > 1e-6 else 0
 
-        print(f"{f * 100:<10.0f} {M_p:<15.2f} {intercept_kNm:<18.2f} {ratio:<15.3f}")
+        print(f"{f * 100:<10.0f} {M_p_kNm:<15.2f} {intercept_kNm:<18.2f} {ratio:<15.3f}")
 
     print()
     print("[NOTE] The ratio shows how the M-κ intercept relates to the prestress moment.")

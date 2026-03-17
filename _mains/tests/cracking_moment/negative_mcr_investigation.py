@@ -8,7 +8,7 @@ from _mains.testing_files.testing_materials import infill, concrete_c30_uls, fyk
 from core.analysis_core.checks.structural_checks import DeflectionLimitByDeflectionCheckEC2004DE, \
     DeflectionLimitByMcrCheckEC2004DE
 from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, calculate_bending_strength_uls_Nmm, \
-    calculate_prestress_moment_Nmm, calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm
+    calculate_prestress_forces_Nmm, calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm
 from core.analysis_core.statics.deformations import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.visualization_core.visualization import plot_cross_section, plot_moment_curvature, plot_strain_profile
@@ -43,11 +43,12 @@ section_support = slab_construction.slab.section_at(0.0)
 
 mcr_results = calculate_cracking_moment_sls_Nmm(section_midspan)
 
-m0 = -calculate_prestress_moment_Nmm(section_midspan) * 10 ** (-6)
-m_cr = -mcr_results["m_cr"] * 10**(-6)
-m_uk = -calculate_bending_strength_sls_Nmm(section_midspan)["m_u"] * 10 ** (-6)
-m_ud = -calculate_bending_strength_uls_Nmm(section_midspan)["m_u"] * 10 ** (-6)
-m_qp = InternalForces.calculate_moment(
+m0_Nmm,_ = calculate_prestress_forces_Nmm(section_midspan)
+m0_kNm = -m0_Nmm* 10 ** (-6)
+m_cr_kNm = -mcr_results["m_cr"] * 10**(-6)
+m_uk_kNm = -calculate_bending_strength_sls_Nmm(section_midspan)["m_u"] * 10 ** (-6)
+m_ud_kNm = -calculate_bending_strength_uls_Nmm(section_midspan)["m_u"] * 10 ** (-6)
+m_qp_kNm = InternalForces.calculate_moment(
     slab_construction,
     test_loads,
     system = "SIMPLE_BEAM",
@@ -61,11 +62,11 @@ mk_results = calculate_moment_curvature_sls(section_midspan)
 
 plot_moment_curvature(mk_results)
 
-print("m0 = ", m0)
-print("m_uk = ", m_uk)
-print("m_ud = ", m_ud)
-print("m_cr = ", m_cr)
-print("m_qp = ", m_qp)
+print("m0 = ", m0_kNm)
+print("m_uk = ", m_uk_kNm)
+print("m_ud = ", m_ud_kNm)
+print("m_cr = ", m_cr_kNm)
+print("m_qp = ", m_qp_kNm)
 
 print("-" * 40)
 
