@@ -36,8 +36,8 @@ strain_profile_cr = calculate_cracking_moment_sls_Nmm(section_mid)["strain_profi
 _, kappa_cr, _ = strain_profile_cr
 kappa_cr_mod = kappa_cr * (-1e3)
 #
-plot_moment_curvature_with_reference(mk_tension_nocracking_mid, [kappa_cr_mod], [m_cr_mod], x = 0.5, title = "mk_tension_nocracking")
-plot_moment_curvature_with_reference(mk_tension_cracking_mid,   [kappa_cr_mod], [m_cr_mod], x = 0.5, title = "mk_tension_cracking")
-plot_moment_curvature_with_reference(mk_notension_mid,          [kappa_cr_mod], [m_cr_mod], x = 0.5, title = "mk_notension")
+plot_moment_curvature_with_reference(mk_tension_nocracking_mid, [kappa_cr_mod], [m_cr_mod], x = 0.5, title = "mk_tension_nocracking", ref_label="M_cr")
+plot_moment_curvature_with_reference(mk_tension_cracking_mid,   [kappa_cr_mod], [m_cr_mod], x = 0.5, title = "mk_tension_cracking", ref_label="M_cr")
+plot_moment_curvature_with_reference(mk_notension_mid,          [kappa_cr_mod], [m_cr_mod], x = 0.5, title = "mk_notension", ref_label="M_cr")
 
 plt.show()
