@@ -533,7 +533,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
     # ============================================================
 
     # Calculate prestressing moment
-    M_p = calculate_prestress_moment_Nmm(section)
+    M_p, _ = calculate_prestress_forces_Nmm(section)
 
     # Get cracking properties (using same material model)
     M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
@@ -578,22 +578,26 @@ def calculate_moment_curvature_sls(section: GenericSection,
     return results
 
 
-def calculate_prestress_moment_Nmm(section) -> float:
+
+
+def calculate_prestress_forces_Nmm(section: GenericSection) -> tuple[float, float]:
     """
-    Calculate the moment from prestressing forces.
+    Author: Elliot Melcer
+    Calculate the prestressing forces.
 
     For each prestressed reinforcement:
     - F_p = A_s × ε_ini × E_s (prestressing force)
     - M_p = Σ(F_p × z_s) (moment from prestressing forces about centroid)
 
     :param section: SLS section with prestressed reinforcement
-    :return: Prestressing moment [Nmm]
+    :return: Prestressing moment [Nmm] (always positive) and total prestress force [N]
     """
     # Get section centroid
     cz = section.gross_properties.cz
 
-    # Initialize moment
+    # Initialize Forces
     M_p = 0.0
+    N_p = 0.0
 
     # Get prestressed reinforcement point geometries
     if hasattr(section.geometry, 'point_geometries'):
@@ -623,7 +627,10 @@ def calculate_prestress_moment_Nmm(section) -> float:
                 # Add contribution to total prestressing moment
                 M_p += F_p * d
 
-    return abs(M_p)
+                # Add contribution to total prestress normal force
+                N_p += F_p
+
+    return abs(M_p), N_p
 
 def get_strain_at_point(strain_profile, y, z) -> float:
     """

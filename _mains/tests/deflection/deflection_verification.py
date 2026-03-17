@@ -4,7 +4,7 @@ from _mains.testing_files.testing_hp_sections import hp_shell_c1_4_uls
 from _mains.testing_files.testing_loads import test_loads
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4, test_slab_construction_c1_1, \
     test_slab_construction_c1_2_c50, test_slab_construction_c1_2_c80, test_slab_construction_c1_3
-from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, calculate_prestress_moment_Nmm, \
+from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, calculate_prestress_forces_Nmm, \
     calculate_bending_strength_sls_Nmm, calculate_moment_curvature_sls
 from core.visualization_core.visualization import plot_moment_curvature
 from slab_construction.slab_construction import SlabConstruction
@@ -57,8 +57,8 @@ m_cr_res_mid = calculate_cracking_moment_sls_Nmm(hp_section_uls_mid)
 m_cr_res_supp = calculate_cracking_moment_sls_Nmm(hp_section_uls_supp)
 
 # Prestress Moment
-m_p_mid = calculate_prestress_moment_Nmm(hp_section_uls_mid)
-m_p_supp = calculate_prestress_moment_Nmm(hp_section_uls_supp)
+m_p_mid,_ = calculate_prestress_forces_Nmm(hp_section_uls_mid)
+m_p_supp,_ = calculate_prestress_forces_Nmm(hp_section_uls_supp)
 
 # Ultimate Moment
 m_u_mid = calculate_bending_strength_sls_Nmm(hp_section_uls_mid)

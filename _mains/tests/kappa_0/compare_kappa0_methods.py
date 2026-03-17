@@ -21,7 +21,7 @@ from structuralcodes.materials.constitutive_laws import Elastic
 
 from core.analysis_core.section_methods import (
     calculate_cracking_moment_sls_Nmm,
-    calculate_prestress_moment_Nmm,
+    calculate_prestress_forces_Nmm,
     sls_section,
 )
 from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
@@ -90,8 +90,8 @@ def calculate_kappa_0_method1(section, n: float = 0.0):
 
     Formula: kappa_0 = (M_p * kappa_cr) / (M_cr - M_p)
     """
-    M_p = calculate_prestress_moment_Nmm(section)  # kNm
-    M_p_Nmm = M_p * 1e6  # Convert to Nmm
+    M_p_Nmm,_ = calculate_prestress_forces_Nmm(section)  # kNm
+    M_p_kNm,_ = M_p_Nmm / 1e6  # Convert to Nmm
 
     M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
 
@@ -99,7 +99,7 @@ def calculate_kappa_0_method1(section, n: float = 0.0):
         return {
             'valid': False,
             'reason': M_cr_result.get('reason', 'M_cr calculation failed'),
-            'M_p_kNm': M_p,
+            'M_p_kNm': M_p_kNm,
             'kappa_0': None,
         }
 
@@ -114,7 +114,7 @@ def calculate_kappa_0_method1(section, n: float = 0.0):
     return {
         'valid': True,
         'kappa_0': kappa_0,  # 1/mm (should be negative for upward camber)
-        'M_p_kNm': M_p / 1e6,
+        'M_p_kNm': M_p_kNm,
         'M_cr_kNm': M_cr / 1e6,
         'kappa_cr': kappa_cr,
     }
@@ -131,8 +131,8 @@ def calculate_kappa_0_method2(section, n: float = 0.0, num_points: int = 5):
     Since prestress creates upward camber (negative curvature for sagging convention),
     and M_p is positive, we need: kappa_0 = -M_p / EI (negative result)
     """
-    M_p = calculate_prestress_moment_Nmm(section)
-    M_p_Nmm = M_p
+    M_p_Nmm,_ = calculate_prestress_forces_Nmm(section)
+    M_p_kNm = M_p_Nmm / 1e6
 
     # Get raw M-κ curve
     M_array, kappa_array = get_mk_curve_from_library(section, n)
@@ -141,7 +141,7 @@ def calculate_kappa_0_method2(section, n: float = 0.0, num_points: int = 5):
         return {
             'valid': False,
             'reason': 'Not enough points in M-κ curve',
-            'M_p_kNm': M_p,
+            'M_p_kNm': M_p_kNm,
             'kappa_0': None,
         }
 
@@ -167,7 +167,7 @@ def calculate_kappa_0_method2(section, n: float = 0.0, num_points: int = 5):
     return {
         'valid': True,
         'kappa_0': kappa_0,  # 1/mm (should be negative)
-        'M_p_kNm': M_p / 10**6,
+        'M_p_kNm': M_p_kNm,
         'EI': EI,
         'slope_raw': slope,
         'intercept': intercept,
