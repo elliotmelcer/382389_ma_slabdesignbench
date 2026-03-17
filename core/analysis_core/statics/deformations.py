@@ -32,7 +32,8 @@ class DeflectionCalculator:
             combination: str = "QUASI-PERMANENT",
             n_intervals: int = 40,
             n_axial: float = 0.0,
-            debug: bool = False
+            debug: bool = False,
+            extended_debug: bool = False
     ) -> float:
         """
         Calculate maximum deflection using Simpson's rule and virtual work method.
@@ -45,6 +46,7 @@ class DeflectionCalculator:
         :param n_intervals: Number of intervals for Simpson's rule (must be even)
         :param n_axial: Axial force [kN] (positive = tension)
         :param debug: Enable debug output
+        :param extended_debug:
 
         :return: Maximum deflection [mm] Note: positive: sagging, negative: hogging
         """
@@ -75,6 +77,9 @@ class DeflectionCalculator:
 
         # Calculate curvatures and integrate
         integral_sum = 0.0
+
+        # ── Debug storage # only used if extended_debug = True
+        extended_debug_rows = []
 
         # Iterate over all integration points
         for i, (x_norm, weight_x) in enumerate(zip(x_positions, weights)):
@@ -116,8 +121,37 @@ class DeflectionCalculator:
 
             # Virtual work integration
             M_virtual_x = virtual_moment_simple_beam(x_norm, span_m)
-            integral_sum += kappa_x * M_virtual_x * weight_x
+            increment = kappa_x * M_virtual_x * weight_x
+            integral_sum += increment
 
+            # ── Debug row ──────────────────────────────────────────────────────
+            if extended_debug:
+                extended_debug_rows.append({
+                    "i": i,
+                    "x_norm": x_norm,
+                    "weight": weight_x,
+                    "M_real": M_applied,  # kNm — no unit conversion
+                    "M_virt": M_virtual_x,
+                    "kappa": kappa_x,
+                    "incr": increment,
+                    "cum_sum": integral_sum,
+                })
+
+        # ── Print extended debug table ──────────────────────────────────────────────────
+        if extended_debug:
+            header = (
+                f"{'i':>4} {'x_norm':>8} {'weight':>8} {'M_real[kNm]':>12} "
+                f"{'M_virt':>12} {'kappa[1/m]':>14} {'increment':>14} {'cum_sum':>14}"
+            )
+            print("\n[DEBUG] Simpson integration points (0 → 0.5):")
+            print(header)
+            print("-" * len(header))
+            for r in extended_debug_rows:
+                print(
+                    f"{r['i']:>4} {r['x_norm']:>8.4f} {r['weight']:>8.1f} "
+                    f"{r['M_real']:>12.4f} {r['M_virt']:>12.6f} "
+                    f"{r['kappa']:>14.6e} {r['incr']:>14.6e} {r['cum_sum']:>14.6e}"
+                )
 
         # Complete Simpson's rule integration
         delta_x_real = delta_x_norm * span_m

@@ -20,11 +20,11 @@ The console output of this file is used for verification purposed in Verfizierun
 
 Conclusions from Verfizierung_Verformung_c1_3.xlsx:
  - the assumption that fctm = 0 in the entire cross-section is very conservative 
- - for the non-prestressed section this results in a much larger discrepancy from Jamilas 
+ - for the non-prestressed section this results in a much larger discrepancy from Jamilas deflection
  
 Conclusions from https://concrete.ethz.ch/apps/sbe-ii/biegetragverhalten-vorspannung/:
  - the more prestress on a section, the smaller the difference between the bilinear Mk and the real Mk
- - the point of decoupling between bilinear and real MK diagram is the point of decompression
+ - when fctm = 0, the point of decoupling between bilinear and real MK diagram is the point of decompression 
 """
 
 # ---------------------------------------------------------------------------
@@ -86,12 +86,13 @@ print(f"\n" + "=" * 70)
 print("DEFLECTION RESULT")
 print("=" * 70)
 
-deflection = DeflectionCalculator.calculate_deflection_excel_verification(
+deflection = DeflectionCalculator.calculate_deflection(
     test_slab_construction_c1_3,
     test_loads,
     system="SIMPLE_BEAM",
     combination="QUASI-PERMANENT",
-    debug=True
+    debug=True,
+    extended_debug=True
 )
 
 print(f"\n  Deflection:        {deflection:.2f} mm")
