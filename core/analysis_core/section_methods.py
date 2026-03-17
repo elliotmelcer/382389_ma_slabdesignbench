@@ -1,4 +1,5 @@
 from copy import deepcopy
+from dataclasses import asdict
 
 import numpy as np
 from structuralcodes.core._section_results import MomentCurvatureResults
@@ -7,7 +8,8 @@ from structuralcodes.materials.concrete import Concrete, create_concrete
 from structuralcodes.materials.reinforcement import Reinforcement
 from structuralcodes.sections import GenericSection, GenericSectionCalculator
 
-from core.analysis_core.material_methods import sargin_elastic_law, get_cube
+from core.analysis_core.material_methods import sargin_elastic_law, get_cube, sargin_elastic_cracking_law
+
 
 #
 # def calculate_cracking_moment_sls_Nmm(section: GenericSection, n: float = 0.0) -> dict:
@@ -464,6 +466,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
                                    n: float = 0.0,
                                    include_prestress_branch: bool = True,
                                    concrete_tension: bool = False,
+                                   cracking: bool = True,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
@@ -471,6 +474,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     For prestressed sections, adds initial state point (κ₀, M=0).
 
+    :param cracking:
     :param section: GenericSection (ULS)
     :param n: Axial force [N]
     :param include_prestress_branch: If True, adds prestressed initial state
@@ -478,7 +482,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
     :param debug:
     :return: MomentCurvatureResults with complete M-κ curve
     """
-    sls_sec = sls_section(section, concrete_tension=concrete_tension)
+    sls_sec = sls_section(section, concrete_tension=concrete_tension, cracking = cracking)
 
     # --- Check which material governs failure ---
     # Get concrete ε_c1
@@ -497,7 +501,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     # If concrete top exceeds ε_c1 at failure → concrete is in post-yield zone
     concrete_governs = abs(eps_top) > eps_c1
-    num_post_yield = 1 if concrete_governs else 0
+    num_post_yield = 10 if concrete_governs else 0
 
     # Get standard M-κ curve from library
     results = sls_sec.section_calculator.calculate_moment_curvature(
@@ -637,7 +641,7 @@ def get_strain_at_point(strain_profile, y, z) -> float:
     eps_0, chi_y, chi_z = strain_profile
     return eps_0 + chi_y * z + chi_z * y
 
-def sls_section(section_uls: GenericSection, concrete_tension: bool) -> GenericSection:
+def sls_section(section_uls: GenericSection, concrete_tension: bool, cracking: bool = False) -> GenericSection:
     """
     Author: Elliot Melcer
     Returns the section with sls constitutive law for concrete
@@ -652,7 +656,10 @@ def sls_section(section_uls: GenericSection, concrete_tension: bool) -> GenericS
 
     # If Concrete should be able to take tension forces, use custom constitutive law (linear in tension and non-linear in compression)
     if concrete_tension:
-        concrete_sls = create_concrete(fck=f_ck, constitutive_law=sargin_elastic_law(conc), name = f"C{f_ck}/{f_cube} SLS")
+        if cracking:
+            concrete_sls = create_concrete(fck=f_ck, constitutive_law=sargin_elastic_cracking_law(conc), name = f"C{f_ck}/{f_cube} SLS")
+        else:
+            concrete_sls = create_concrete(fck=f_ck, constitutive_law=sargin_elastic_law(conc), name = f"C{f_ck}/{f_cube} SLS")
     # If Concrete should not be able to take tension forces, use sargin (nonlinear) constitutive law
     else:
         concrete_sls = create_concrete(fck=f_ck, constitutive_law='sargin', name=f"C{f_ck}/{f_cube} SLS")
