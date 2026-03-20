@@ -95,12 +95,6 @@ class CrackingConcreteLaw(UserDefined):
         curvature.  chi_ultimate is therefore always governed by the
         reinforcement-concrete pair (reinf fracture vs. concrete crushing),
         which is physically correct.
-
-    Without this override the UserDefined base class reads the tensile
-    limit directly from the x-array endpoint.  With a tail to 0.10 that
-    gives chi_ultimate ≈ 0.10 / section_depth — enormous — causing the
-    M-κ loop to run far past physical failure and produce the flat/falling
-    line that was observed.
     """
 
     def __init__(
@@ -301,23 +295,23 @@ def sargin_elastic_cracking_law(concrete: Concrete, n_c: int = 80, n_t: int = 20
         flag=0,
     )
 
-def get_cube(cylinder_strength) -> float:
+def get_cube(cylinder_strength) -> int:
     """
     Author: Elliot Melcer
     Return cube strength (MPa) from EN 206 concrete class table.
     """
     table = {
-        12.: 15.,
-        16.: 20.,
-        20.: 25.,
-        25.: 30.,
-        30.: 37.,
-        35.: 45.,
-        40.: 50.,
-        45.: 55.,
-        50.: 60.,
-        55.: 67.,
-        60.: 75.,
+        12.: 15,
+        16.: 20,
+        20.: 25,
+        25.: 30,
+        30.: 37,
+        35.: 45,
+        40.: 50,
+        45.: 55,
+        50.: 60,
+        55.: 67,
+        60.: 75,
         70: 85,
         80: 95,
         90: 105,
