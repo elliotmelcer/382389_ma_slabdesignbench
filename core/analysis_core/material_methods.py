@@ -99,8 +99,8 @@ class CrackingConcreteLaw(UserDefined):
 
     def __init__(
             self,
-            x: np.ndarray,
-            y: np.ndarray,
+            strains: np.ndarray,
+            stresses: np.ndarray,
             eps_ctm: float,
             eps_cu1: float,
             eps_c1: float,
@@ -108,17 +108,18 @@ class CrackingConcreteLaw(UserDefined):
     ) -> None:
         """
         Args:
-            x:        Strain array passed to UserDefined (compression + tension up to eps_ctm).
-            y:        Stress array passed to UserDefined.
+            strains:  Strain array passed to UserDefined
+            stresses: Stress array passed to UserDefined
             eps_ctm:  Cracking strain (positive).  Stress is zeroed above this.
             eps_cu1:  Ultimate compressive strain (negative).
             eps_c1:   Compressive strain at peak stress (negative), used when yielding=True.
             **kwargs: Passed through to UserDefined (e.g. name, flag).
         """
-        super().__init__(x, y, **kwargs)
+        super().__init__(strains, stresses, **kwargs)
         self._eps_ctm = eps_ctm
         self._eps_cu1 = eps_cu1  # negative, e.g. -0.0035
         self._eps_c1 = eps_c1  # negative, e.g. -0.0020
+        self.eps_F_t = strains[-1]
 
     # ------------------------------------------------------------------
     def get_stress(self, eps):
@@ -212,13 +213,14 @@ def sargin_elastic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> User
         flag=0,
     )
 
-def sargin_elastic_cracking_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> CrackingConcreteLaw:
+def sargin_tension_stiffening_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> CrackingConcreteLaw:
     """
     Author: Elliot Melcer
-    Creates a Non-Linear Constitutive Law with Linear Branch in Tension + Tension Stiffening according to NAya(2006)
-    and a Sargin Branch Under Compression.
+    Creates a Non-Linear Constitutive Law
+        Compression: Sargin Branch
+        Tension:  Linear Branch until fctm + Tension Stiffening according to Naya(2006)
 
-    Returns a CrackingConcreteLaw Object, which returns very high tensile strain to avoid spurious failure under concrete cracking.
+    Returns a CrackingConcreteLaw Object
     """
 
     # -------------------------------
@@ -274,7 +276,7 @@ def sargin_elastic_cracking_law(concrete: Concrete, n_c: int = 80, n_t: int = 20
 
 
     # -------------------------------
-    # Merge safely
+    # Merge strains and stresses
     # -------------------------------
     eps = np.concatenate((eps_c, eps_t, [eps_P_t], [eps_S_t], [eps_F_t]))
     sig = np.concatenate((sig_c, sig_t, [sig_P_t], [sig_R_t], [0.0]))
@@ -286,12 +288,12 @@ def sargin_elastic_cracking_law(concrete: Concrete, n_c: int = 80, n_t: int = 20
     sig = sig[unique_idx]
 
     return CrackingConcreteLaw(
-        x=eps,
-        y=sig,
+        strains=eps,
+        stresses=sig,
         eps_ctm=eps_ctm,
         eps_cu1=eps_cu1,
         eps_c1=eps_c1,
-        name="SarginCracking",
+        name="SarginTensionStiffening",
         flag=0,
     )
 
