@@ -28,9 +28,9 @@ def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, ti
     if ax is None:
         fig, ax = plt.subplots()
 
-        # ============================================================
-        #              Plot continuous M–K curve
-        # ============================================================
+    # ============================================================
+    #              Plot continuous M–K curve
+    # ============================================================
     ax.plot(-m_c_res.chi_y * 1e6, -m_c_res.m_y / 1e6,
             color="black", linewidth=1.5, label="M–K curve")
 
@@ -79,7 +79,7 @@ def plot_moment_curvature_with_reference(
     x=None,
     ax=None,
     title="",
-    ref_label="M–K curve (INCA2)",
+    ref_label="",
 ):
     """
     Author: Elliot Melcer
@@ -137,19 +137,25 @@ def plot_moment_curvature_with_reference(
     ax.scatter(
         -m_c_res.chi_y * 1e6,
         -m_c_res.m_y / 1e6,
-        s=6,
+        s=2,
         color="black",
     )
 
     # ============================================================
     #                  Plot reference M–K dataset
     # ============================================================
+
+    if len(ref_curvatures) == 1:
+        ref_marker_size = 6.0
+    else:
+        ref_marker_size = 0.0
+
     ax.plot(
         ref_curvatures * 1e3,
         ref_moments,
         linewidth=1.0,
-        marker="o",
-        markersize=0,
+        marker="x",
+        markersize=ref_marker_size,
         label=ref_label,
     )
 
