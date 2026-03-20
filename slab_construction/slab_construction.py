@@ -19,7 +19,7 @@ class SlabConstruction:
         self.floor = floor
         self.assert_infill_compatibility()
 
-    def structural_dead_load(self) -> float:
+    def structural_dead_load_kN_m2(self) -> float:
         """
         Total structural dead load of the slab construction [kN/m²].
         """
@@ -27,7 +27,7 @@ class SlabConstruction:
             self.slab.self_load()
         )
 
-    def non_structural_dead_load(self) -> float:
+    def non_structural_dead_load_kN_m2(self) -> float:
         """
         Total non-structural dead load of the slab construction [kN/m²].
         """

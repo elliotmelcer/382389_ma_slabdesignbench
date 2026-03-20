@@ -83,13 +83,13 @@ class Loads:
             if len(arr) != n:
                 raise ValueError("All live load (Qk) and psi arrays must have the same length")
 
-    def fundamental_combination(self, slab_construction: SlabConstruction):
+    def fundamental_combination_kN_m2(self, slab_construction: SlabConstruction):
         """
         Ultimate Limit State (ULS) - fundamental combination
         EC0 6.10: Σ(j≥1) γ_G,j*G_k,j "+" γ_p*P "+" γ_Q,1*Q_k,1 "+" Σ(i>1) γ_Q,i*ψ_0,i*Q_k,i
         """
-        Gd = self.gamma_g * (slab_construction.structural_dead_load()
-                             + slab_construction.non_structural_dead_load())
+        Gd = self.gamma_g * (slab_construction.structural_dead_load_kN_m2()
+                             + slab_construction.non_structural_dead_load_kN_m2())
 
         # Only the accompanying actions are multiplied by psi_0
         psi_0_mask = self.psi_0_values.copy()
@@ -99,7 +99,7 @@ class Loads:
 
         return Gd + Qd
 
-    def frequent_combination(self, slab_construction: SlabConstruction):
+    def frequent_combination_kN_m2(self, slab_construction: SlabConstruction):
         """
         Serviceability Limit State (SLS) – frequent combination
         EC0 6.15b: Σ(j≥1) G_k,j "+" P "+" ψ_1,1*Q_k,1 "+" Σ(i>1) ψ_2,i*Q_k,i
@@ -109,15 +109,15 @@ class Loads:
         psi_mask = self.psi_2_values.copy()
         psi_mask[0] = self.psi_1_values[0]
 
-        return (slab_construction.structural_dead_load()
-                + slab_construction.non_structural_dead_load()
+        return (slab_construction.structural_dead_load_kN_m2()
+                + slab_construction.non_structural_dead_load_kN_m2()
                 + float(np.sum(self.Qk * self.psi_1_values)))
 
-    def quasi_permanent_combination(self, slab_construction: SlabConstruction):
+    def quasi_permanent_combination_kN_m2(self, slab_construction: SlabConstruction):
         """
         Serviceability Limit State (SLS) – quasi-permanent combination
         EC0 6.16b: Σ(j≥1) G_k,j "+" P "+" Σ(i≥1) ψ_2,i*Q_k,i
         """
-        return (slab_construction.structural_dead_load()
-                + slab_construction.non_structural_dead_load()
+        return (slab_construction.structural_dead_load_kN_m2()
+                + slab_construction.non_structural_dead_load_kN_m2()
                 + float(np.sum(self.Qk * self.psi_2_values)))

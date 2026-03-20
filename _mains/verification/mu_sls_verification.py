@@ -9,7 +9,7 @@ from core.visualization_core.visualization import plot_constitutive_law_concrete
     plot_cross_section
 
 """
-This file is used for verification of the cracking moment method. 
+This file is used for verification of the ultimate moment method. 
 
 The sections used for verification are from chapter "C.1. Vergleich der Riss- und Bruchmomente" in Loutfi (2023)
 

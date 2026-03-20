@@ -77,18 +77,18 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
         # Calculate resistance at the specific x-position where max moment occurs
         # x_position is normalized (0 at first support, 1 at second support, etc.)
         if moment == "MAX_POS_MOMENT":
-            MRd = -Nmm_to_kNm(
+            MRd_kNm = -Nmm_to_kNm(
                 calculate_bending_strength_uls_Nmm(slab.section_at(x_position), n).get("m_u")
             )
         else:
             rotated_section = flipped_section(slab.section_at(x_position))
             # plot_cross_section(rotated_section)
-            MRd = Nmm_to_kNm(
+            MRd_kNm = Nmm_to_kNm(
                 calculate_bending_strength_uls_Nmm(rotated_section, n).get("m_u")
             )
 
         # Calculate design moment based on system and moment type
-        MEd = InternalForces.calculate_moment(
+        MEd_kNm = InternalForces.calculate_moment_kNm(
             slab_construction,
             loads,
             system,
@@ -97,13 +97,13 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
         )
 
         # Calculate utilization
-        utilization = abs(MEd / MRd)
+        utilization = abs(MEd_kNm / MRd_kNm)
 
         if debug_print:
             print(f"System: {system}, Moment Type: {moment}")
             print(f"x-position: {x_position:.3f}")
-            print(f"M_Rd = {MRd:.3f} kNm")
-            print(f"M_Ed = {MEd:.3f} kNm")
+            print(f"M_Rd = {MRd_kNm:.3f} kNm")
+            print(f"M_Ed = {MEd_kNm:.3f} kNm")
             print(f"Utilization = {utilization:.3f} ({utilization * 100:.1f}%)\n")
 
         return utilization
@@ -172,7 +172,7 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
         """
 
         # Calculate quasi-permanent moment
-        m_qp = InternalForces.calculate_moment(
+        m_qp_kNm = InternalForces.calculate_moment_kNm(
             slab_construction,
             loads,
             system,
@@ -198,10 +198,10 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
             return 99.
 
         # Calculate utilization (compare magnitudes)
-        utilization = abs(m_qp) / m_cr
+        utilization = abs(m_qp_kNm) / m_cr
 
         if debug:
-            print(f"m_qp = {m_qp:.3f} kNm")
+            print(f"m_qp = {m_qp_kNm:.3f} kNm")
 
             print(f"m_cr valid: {m_cr_result['valid']}")
             if not m_cr_result['valid']:
@@ -209,7 +209,7 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
 
             print(f"m_cr = {m_cr:.3f} kNm")
 
-            print(f"utilization = |{m_qp:.3f}| / {m_cr:.3f} = {utilization:.3f}")
+            print(f"utilization = |{m_qp_kNm:.3f}| / {m_cr:.3f} = {utilization:.3f}")
 
         return utilization
 
@@ -275,7 +275,7 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
         """
 
         # Calculate fundamental combination moment
-        m_fund = InternalForces.calculate_moment(
+        m_fund_kNm = InternalForces.calculate_moment_kNm(
             slab_construction,
             loads,
             system,
@@ -301,10 +301,10 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
             return 99.
 
         # Calculate utilization (compare magnitudes)
-        utilization = m_cr / m_fund
+        utilization = m_cr / m_fund_kNm
 
         if debug:
-            print(f"m_fund = {m_fund:.3f} kNm")
+            print(f"m_fund = {m_fund_kNm:.3f} kNm")
 
             print(f"m_cr valid: {m_cr_result['valid']}")
             if not m_cr_result['valid']:
@@ -312,6 +312,6 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
 
             print(f"m_cr = {m_cr:.3f} kNm")
 
-            print(f"utilization = {m_cr:.3f}/ {m_fund:.3f} = {utilization:.3f}")
+            print(f"utilization = {m_cr:.3f}/ {m_fund_kNm:.3f} = {utilization:.3f}")
 
         return utilization

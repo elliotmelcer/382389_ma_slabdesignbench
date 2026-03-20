@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 
 from slab_construction.slab_construction import SlabConstruction
-from . import MOMENT_DATA, MAX_X_POSITIONS, calculate_line_load, MOMENT_FUNCTIONS
+from . import MOMENT_DATA, MAX_X_POSITIONS, calculate_line_load_kN_m, MOMENT_FUNCTIONS
 from ..loads import Loads
 from ...unit_core import *
 
@@ -70,7 +70,7 @@ class InternalForces:
         return MOMENT_DATA[system][moment_type]
 
     @staticmethod
-    def calculate_moment(
+    def calculate_moment_kNm(
             slab_construction: SlabConstruction,
             loads: Loads,
             system: str = "SIMPLE_BEAM",
@@ -79,7 +79,7 @@ class InternalForces:
             moment_type: Optional[str] = None
     ) -> float:
         """
-        Calculate moment at a specific position OR maximum moment for a given type.
+        Calculate moment at a specific position OR maximum moment for a given type in kNm
 
         Must provide EITHER x OR moment_type (but not both, not neither).
 
@@ -111,7 +111,7 @@ class InternalForces:
 
         # Calculate span and line load (needed for both methods)
         span_m = mm_to_m(slab_construction.slab.L)
-        w_line = calculate_line_load(slab_construction, loads, combination)
+        w_line_kN_m = calculate_line_load_kN_m(slab_construction, loads, combination)
 
         # METHOD 1: Calculate M(x) at specific position using moment function
         if x is not None:
@@ -131,9 +131,9 @@ class InternalForces:
 
             # Get moment function and calculate
             moment_func = MOMENT_FUNCTIONS[system]
-            moment = moment_func(x_m, w_line, span_m)
+            moment_kNm = moment_func(x_m, w_line_kN_m, span_m)
 
-            return moment
+            return moment_kNm
 
         # METHOD 2: Calculate maximum moment using coefficient from lookup table
         else:  # moment_type is not None
@@ -148,6 +148,6 @@ class InternalForces:
                 )
 
             # Calculate moment: M = coefficient * w * L^2
-            moment = coefficient * w_line * span_m ** 2
+            moment = coefficient * w_line_kN_m * span_m ** 2
 
             return moment

@@ -26,9 +26,9 @@ def loads_from_category_test():
     print(f"  psi_1: {loads_single.psi_1_values}")
     print(f"  psi_2: {loads_single.psi_2_values}")
 
-    print(f"\n  Fundamental (ULS):      {loads_single.fundamental_combination(test_slab_construction_c1_4):.2f} kN/m²")
-    print(f"  Frequent (SLS):         {loads_single.frequent_combination(test_slab_construction_c1_4):.2f} kN/m²")
-    print(f"  Quasi-permanent (SLS):  {loads_single.quasi_permanent_combination(test_slab_construction_c1_4):.2f} kN/m²")
+    print(f"\n  Fundamental (ULS):      {loads_single.fundamental_combination_kN_m2(test_slab_construction_c1_4):.2f} kN/m²")
+    print(f"  Frequent (SLS):         {loads_single.frequent_combination_kN_m2(test_slab_construction_c1_4):.2f} kN/m²")
+    print(f"  Quasi-permanent (SLS):  {loads_single.quasi_permanent_combination_kN_m2(test_slab_construction_c1_4):.2f} kN/m²")
 
     # --- Multiple loads (A1 leading, B2 accompanying) ---
     loads_multi = Loads.from_categories(["A1", "B2"])
@@ -38,9 +38,9 @@ def loads_from_category_test():
     print(f"  psi_1: {loads_multi.psi_1_values}")
     print(f"  psi_2: {loads_multi.psi_2_values}")
 
-    print(f"\n  Fundamental (ULS):      {loads_multi.fundamental_combination(test_slab_construction_c1_4):.2f} kN/m²")
-    print(f"  Frequent (SLS):         {loads_multi.frequent_combination(test_slab_construction_c1_4):.2f} kN/m²")
-    print(f"  Quasi-permanent (SLS):  {loads_multi.quasi_permanent_combination(test_slab_construction_c1_4):.2f} kN/m²")
+    print(f"\n  Fundamental (ULS):      {loads_multi.fundamental_combination_kN_m2(test_slab_construction_c1_4):.2f} kN/m²")
+    print(f"  Frequent (SLS):         {loads_multi.frequent_combination_kN_m2(test_slab_construction_c1_4):.2f} kN/m²")
+    print(f"  Quasi-permanent (SLS):  {loads_multi.quasi_permanent_combination_kN_m2(test_slab_construction_c1_4):.2f} kN/m²")
 
 if __name__ == "__main__":
     loads_from_category_test()

@@ -30,12 +30,12 @@ Loads:
 
 # Load information
 print(f"\nLoads:")
-print(f"  Self-weight: {test_slab_construction_c1_4.structural_dead_load():.2f} kN/m²")
-print(f"  Non-structural: {test_slab_construction_c1_4.non_structural_dead_load():.2f} kN/m²")
+print(f"  Self-weight: {test_slab_construction_c1_4.structural_dead_load_kN_m2():.2f} kN/m²")
+print(f"  Non-structural: {test_slab_construction_c1_4.non_structural_dead_load_kN_m2():.2f} kN/m²")
 print(f"  Live load: {test_loads.Qk[0]:.1f} kN/m²")
 
 print("\n1. FUNDAMENTAL COMBINATION (ULS)")
-q_fund_kN_m2 = test_loads.fundamental_combination(test_slab_construction_c1_4)
+q_fund_kN_m2 = test_loads.fundamental_combination_kN_m2(test_slab_construction_c1_4)
 
 print(f"   q_fund: {q_fund_kN_m2:.2f} kN/m²")
 
@@ -43,14 +43,14 @@ print(f"   q_fund: {q_fund_kN_m2:.2f} kN/m²")
 # Quasi-permanent combination (SLS - typical for long-term deflection checks)
 print("\n2. QUASI-PERMANENT COMBINATION (SLS)")
 
-q_qp_kN_m2 = test_loads.quasi_permanent_combination(test_slab_construction_c1_4)
+q_qp_kN_m2 = test_loads.quasi_permanent_combination_kN_m2(test_slab_construction_c1_4)
 
 print(f"   q_qp: {q_qp_kN_m2:.2f} kN/m²")
 
 # Frequent combination (SLS - typical for short-term deflection checks)
 print("\n3. FREQUENT COMBINATION (SLS)")
 
-q_freq_kN_m2 = test_loads.frequent_combination(test_slab_construction_c1_4)
+q_freq_kN_m2 = test_loads.frequent_combination_kN_m2(test_slab_construction_c1_4)
 
 
 

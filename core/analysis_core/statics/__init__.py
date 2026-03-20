@@ -103,7 +103,7 @@ MOMENT_DATA: Dict[str, Dict[str, Dict[str, float]]] = {
     },
 }
 
-def calculate_line_load(
+def calculate_line_load_kN_m(
         slab_construction: SlabConstruction,
         loads: Loads,
         combination: str = "FUNDAMENTAL"
@@ -118,23 +118,23 @@ def calculate_line_load(
     :param combination: Load combination type
     :return: Line load in kN/m
     """
-    width = mm_to_m(slab_construction.slab.B)
+    width_m = mm_to_m(slab_construction.slab.B)
     combination = combination.strip().upper()
 
     if combination == "FUNDAMENTAL":
-        w = loads.fundamental_combination(slab_construction)
+        area_load_kN_m2 = loads.fundamental_combination_kN_m2(slab_construction)
     elif combination == "FREQUENT":
-        w = loads.frequent_combination(slab_construction)
+        area_load_kN_m2 = loads.frequent_combination_kN_m2(slab_construction)
     elif combination in ("QUASI-PERMANENT", "QUASI_PERMANENT", "QUASI PERMANENT"):
-        w = loads.quasi_permanent_combination(slab_construction)
+        area_load_kN_m2 = loads.quasi_permanent_combination_kN_m2(slab_construction)
     else:
         raise ValueError(
             "Invalid combination. Must be one of: 'FUNDAMENTAL', 'FREQUENT', 'QUASI-PERMANENT'."
         )
 
-    line_load = w * width
+    line_load_kN_m = area_load_kN_m2 * width_m
 
-    return line_load
+    return line_load_kN_m
 
 def moment_simple_beam(x: float, w: float, L: float) -> float:
     """

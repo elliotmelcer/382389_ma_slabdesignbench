@@ -112,7 +112,7 @@ class DeflectionCalculator:
             )
 
             # Get applied moment at this position
-            M_applied = InternalForces.calculate_moment(
+            M_applied = InternalForces.calculate_moment_kNm(
                 slab_construction, loads, system, combination, x_norm
             )
 

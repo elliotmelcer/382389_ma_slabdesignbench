@@ -48,7 +48,7 @@ m0_kNm = -m0_Nmm* 10 ** (-6)
 m_cr_kNm = -mcr_results["m_cr"] * 10**(-6)
 m_uk_kNm = -calculate_bending_strength_sls_Nmm(section_midspan)["m_u"] * 10 ** (-6)
 m_ud_kNm = -calculate_bending_strength_uls_Nmm(section_midspan)["m_u"] * 10 ** (-6)
-m_qp_kNm = InternalForces.calculate_moment(
+m_qp_kNm = InternalForces.calculate_moment_kNm(
     slab_construction,
     test_loads,
     system = "SIMPLE_BEAM",
