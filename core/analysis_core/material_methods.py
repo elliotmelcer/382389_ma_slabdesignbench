@@ -122,22 +122,6 @@ class CrackingConcreteLaw(UserDefined):
         self.eps_F_t = strains[-1]
 
     # ------------------------------------------------------------------
-    def get_stress(self, eps):
-        """
-        Return stress from the parent UserDefined table, but clamp to 0
-        wherever the tensile strain exceeds the cracking strain.
-        """
-        stress = super().get_stress(eps)
-
-        if np.isscalar(eps):
-            return 0.0 if eps > self._eps_ctm else stress
-
-        eps = np.asarray(eps, dtype=float)
-        stress = np.asarray(stress, dtype=float)
-        # stress[eps > self._eps_ctm] = 0.0
-        return stress
-
-    # ------------------------------------------------------------------
     def get_ultimate_strain(self, yielding: bool = False):
         """
         Return (compressive_limit, 1e6).
