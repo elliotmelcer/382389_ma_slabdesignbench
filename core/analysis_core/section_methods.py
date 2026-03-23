@@ -287,18 +287,19 @@ def calculate_moment_curvature_sls(section: GenericSection,
         results = _simplified_moment_curvature_method(
             section = sls_sec,
             n = n,
-            debug = debug
+            debug = debug,
         )
     else:
         results = _full_moment_curvature_method(
             section = sls_sec,
             n = n,
-            debug = debug
+            debug = debug,
         )
+
     return results
 
 def _full_moment_curvature_method(section: GenericSection,
-                                   n: float,
+                                   n: float = 0.0,
                                    debug: bool = False) -> MomentCurvatureResults:
     # ------------------------------------
     # Check which material governs failure
@@ -395,7 +396,7 @@ def _full_moment_curvature_method(section: GenericSection,
     return results
 
 def _simplified_moment_curvature_method(section: GenericSection,
-                                   n: float,
+                                   n: float = 0.0,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Calculates a simplified trilinear version of calculate_moment_curvature_sls().
@@ -469,9 +470,6 @@ def _simplified_moment_curvature_method(section: GenericSection,
     return mk_results
 
 
-
-#
-
 def calculate_section_state_from_bottom_strain_sls(
         section_uls,
         eps_bot: float,
@@ -496,7 +494,7 @@ def calculate_section_state_from_bottom_strain_sls(
         eps_bot = eps_0 + chi_y * zmin  →  eps_0 = eps_bot - chi_y * zmin
 
     Args:
-        section:            GenericSection (ULS section as input, SLS created internally)
+        section_uls:            GenericSection (ULS section as input, SLS created internally)
         eps_bot:            Prescribed bottom fiber strain [-] (+ve = tension)
         n:                  Applied axial force [N] (+ve = tension, -ve = compression)
         concrete_tension:   If True, include concrete cracking (default True)
