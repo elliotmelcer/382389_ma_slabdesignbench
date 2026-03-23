@@ -11,208 +11,6 @@ from structuralcodes.sections import GenericSection, GenericSectionCalculator
 from core.analysis_core.material_methods import sargin_elastic_law, get_cube, sargin_elastic_cracking_law
 
 
-#
-# def calculate_cracking_moment_sls_Nmm(section: GenericSection, n: float = 0.0) -> dict:
-#     """
-#     Author: Elliot Melcer
-#     Calculate cracking moment of a prestressed GenericSection.
-#
-#     The function finds the strain profile where the bottom fiber reaches
-#     the cracking strain eps_ctm = fctm / Ecm, while maintaining equilibrium
-#     with the applied axial force n.
-#
-#     Args:
-#         section: GenericSection object (should be ULS section)
-#         n: Applied axial force (positive = tension, negative = compression)
-#
-#     Returns:
-#         dict: Dictionary containing:
-#             - m_cr: Cracking moment (Nmm)
-#             - strain_profile: [eps_0, chi_y, chi_z] at cracking
-#             - reinforcement_strains: List of strains in each reinforcement
-#             - stress_resultants: [N, My, Mz] at cracking
-#     """
-#
-#     sls_sec = sls_section(section, concrete_tension=True)
-#
-#     analysis_sls_sec = deepcopy(sls_sec)
-#
-#     # --- Concrete Properties ---
-#     # Find concrete geometry (assume first surface geometry with concrete)
-#     conc = None
-#     for geo in analysis_sls_sec.geometry.geometries:
-#         if hasattr(geo, 'concrete') and geo.concrete:
-#             conc = geo.material
-#             break
-#
-#     if conc is None:
-#         raise ValueError("No concrete geometry found in section")
-#
-#     # Get concrete properties
-#     Ecm = conc.Ecm
-#     fctm = conc.fctm
-#     eps_ctm = fctm / Ecm  # Cracking strain
-#
-#     # Get section extents
-#     _, _, zmin, zmax = analysis_sls_sec.geometry.calculate_extents()
-#
-#     # --- Get Reinforcement Properties ---
-#     point_geometries = analysis_sls_sec.geometry.point_geometries
-#     n_reinf = len(point_geometries)
-#
-#     if n_reinf == 0:
-#         print("Warning: No reinforcement found in section")
-#
-#     # Extract reinforcement data
-#     z_reinforcements = []
-#     eps_ini_list = []
-#     E_s_list = []
-#     a_s_list = []
-#
-#     for pg in point_geometries:
-#         z_reinforcements.append(pg.point.y)  # z-coordinate
-#
-#         # Initial strain (prestress)
-#         eps_ini = pg.material.initial_strain if hasattr(pg.material, 'initial_strain') else 0.0
-#         if eps_ini is None:
-#             eps_ini = 0.0
-#         eps_ini_list.append(eps_ini)
-#
-#         # Material properties
-#         E_s = pg.material.Es if hasattr(pg.material, 'Es') else pg.material.constitutive_law.get_tangent(0)
-#         E_s_list.append(E_s)
-#
-#         # Area
-#         a_s_list.append(pg.area)
-#
-#     # --- Find Strain Profile at Cracking ---
-#     # At cracking, the bottom fiber has strain eps_ctm
-#     # Strain profile: eps(z) = eps_0 + chi_y * z + chi_z * y
-#     # For uniaxial bending (about y-axis): chi_z = 0
-#     # So: eps(z) = eps_0 + chi_y * z
-#
-#     # Bottom fiber: eps(zmin) = eps_ctm
-#     # This gives: eps_ctm = eps_0 + chi_y * zmin
-#
-#     # We need to find eps_0 and chi_y such that:
-#     # 1. eps(zmin) = eps_ctm (bottom fiber at cracking)
-#     # 2. Internal axial force equals external force n
-#
-#     # From condition 1: eps_0 = eps_ctm - chi_y * zmin
-#
-#     # Use bisection to find curvature that gives equilibrium
-#     # while keeping bottom fiber at cracking strain
-#
-#     calculator = analysis_sls_sec.section_calculator
-#
-#     # Get integration data if it exists, otherwise None
-#     integration_data = getattr(calculator, 'integration_data', None)
-#     mesh_size = getattr(calculator, 'mesh_size', 0.01)
-#
-#     # Define a reasonable range for curvature
-#     # Start with very small curvature
-#     chi_min = -1e-3
-#     chi_max = 1e-3
-#
-#     ITMAX = 100
-#     tolerance = 1e-2  # Force tolerance in N
-#
-#     try:
-#         # Evaluate at bounds
-#         eps_0_a = eps_ctm - chi_min * zmin
-#         N_a, _, _, integration_data = calculator.integrator.integrate_strain_response_on_geometry(
-#             analysis_sls_sec.geometry,
-#             [eps_0_a, chi_min, 0.0],
-#             integration_data=integration_data,
-#             mesh_size=mesh_size
-#         )
-#         dn_a = N_a - n
-#
-#         eps_0_b = eps_ctm - chi_max * zmin
-#         N_b, _, _, _ = calculator.integrator.integrate_strain_response_on_geometry(
-#             analysis_sls_sec.geometry,
-#             [eps_0_b, chi_max, 0.0],
-#             integration_data=integration_data,
-#             mesh_size=mesh_size
-#         )
-#         dn_b = N_b - n
-#
-#         # Check if solution is within range of chi_min and chi_max
-#         if dn_a * dn_b > 0:
-#             # Expand the search range
-#             print("Warning: Initial range doesn't bracket solution, expanding search...")
-#             if abs(dn_a) < abs(dn_b):
-#                 chi_max = chi_min
-#                 chi_min = chi_min - 0.01
-#             else:
-#                 chi_min = chi_max
-#                 chi_max = chi_max + 0.01
-#
-#             eps_0_a = eps_ctm - chi_min * zmin
-#             N_a, _, _, _ = calculator.integrator.integrate_strain_response_on_geometry(
-#                 analysis_sls_sec.geometry,
-#                 [eps_0_a, chi_min, 0.0],
-#                 integration_data=integration_data,
-#                 mesh_size=mesh_size
-#             )
-#             dn_a = N_a - n
-#
-#         # Bisection algorithm
-#         it = 0
-#         while abs(dn_a - dn_b) > tolerance and it < ITMAX:
-#             chi_c = (chi_min + chi_max) / 2.0
-#             eps_0_c = eps_ctm - chi_c * zmin
-#
-#             N_c, _, _, _ = calculator.integrator.integrate_strain_response_on_geometry(
-#                 analysis_sls_sec.geometry,
-#                 [eps_0_c, chi_c, 0.0],
-#                 integration_data=integration_data,
-#                 mesh_size=mesh_size
-#             )
-#             dn_c = N_c - n
-#
-#             if dn_c * dn_a < 0:
-#                 chi_max = chi_c
-#                 dn_b = dn_c
-#             else:
-#                 chi_min = chi_c
-#                 dn_a = dn_c
-#
-#             it += 1
-#
-#         if it >= ITMAX:
-#             print(f"Warning: Maximum iterations reached. Force imbalance: {dn_c:.2f} N")
-#
-#         # Use final values
-#         chi_y_eq = chi_c
-#         eps_0_eq = eps_0_c
-#         strain_profile = [eps_0_eq, chi_y_eq, 0.0]
-#
-#         # --- Calculate Reinforcement Strains ---
-#         reinforcement_strains = []
-#         for i, z_s in enumerate(z_reinforcements):
-#             # Total strain = initial strain + bending strain
-#             eps_bending = eps_0_eq + chi_y_eq * z_s
-#             eps_total = eps_ini_list[i] + eps_bending
-#             reinforcement_strains.append(eps_total)
-#
-#         # --- Calculate Internal Forces ---
-#         N_cr, My_cr, Mz_cr = analysis_sls_sec.section_calculator.integrate_strain_profile(
-#             strain=strain_profile,
-#             integrate='stress'
-#         )
-#
-#         # Return results_c1_1
-#         return {
-#             'section': sls_sec,
-#             'm_cr': My_cr,
-#             'strain_profile': strain_profile,
-#         }
-#
-#     except Exception as e:
-#         print(f"Error in equilibrium calculation: {e}")
-#         raise
-
 def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
     """
     Calculate the cracking moment for a section at SLS.
@@ -466,7 +264,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
                                    n: float = 0.0,
                                    include_prestress_branch: bool = True,
                                    concrete_tension: bool = False,
-                                   cracking: bool = True,
+                                   tension_stiffening: bool = True,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
@@ -474,7 +272,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     For prestressed sections, adds initial state point (κ₀, M=0).
 
-    :param cracking:
+    :param tension_stiffening:
     :param section: GenericSection (ULS)
     :param n: Axial force [N]
     :param include_prestress_branch: If True, adds prestressed initial state
@@ -482,9 +280,11 @@ def calculate_moment_curvature_sls(section: GenericSection,
     :param debug:
     :return: MomentCurvatureResults with complete M-κ curve
     """
-    sls_sec = sls_section(section, concrete_tension=concrete_tension, cracking = cracking)
+    sls_sec = sls_section(section, concrete_tension=concrete_tension, tension_stiffening= tension_stiffening)
 
-    # --- Check which material governs failure ---
+    # ------------------------------------
+    # Check which material governs failure
+    # ------------------------------------
     # Get concrete ε_c1
     conc = None
     for geo in sls_sec.geometry.geometries:
@@ -503,7 +303,10 @@ def calculate_moment_curvature_sls(section: GenericSection,
     concrete_governs = abs(eps_top) > eps_c1
     num_post_yield = 10 if concrete_governs else 0
 
+
+    # -----------------------------------
     # Get standard M-κ curve from library
+    #------------------------------------
     results = sls_sec.section_calculator.calculate_moment_curvature(
         n=n,
         num_pre_yield=40,
@@ -514,7 +317,9 @@ def calculate_moment_curvature_sls(section: GenericSection,
     results.m_y = -np.abs(results.m_y)  # Make consistently negative
     results.chi_y = -np.abs(results.chi_y)  # Make consistently negative
 
-    # Check if section is prestressed and we should add initial state
+    # ---------------------------------------------------------------
+    # Check if section is prestressed, and we should add initial state
+    # ---------------------------------------------------------------
     if not include_prestress_branch:
         return results
 
@@ -528,9 +333,9 @@ def calculate_moment_curvature_sls(section: GenericSection,
     if not has_prestress:
         return results  # Not prestressed, return as-is
 
-    # ============================================================
-    # PRESTRESSED SECTION - ADD INITIAL STATE POINT (κ₀, M=0)
-    # ============================================================
+    # -------------------------------------------------------
+    # Calculate initial state point (κ₀, M=0)
+    # -------------------------------------------------------
 
     # Calculate prestressing moment
     M_p, _ = calculate_prestress_forces_Nmm(section)
