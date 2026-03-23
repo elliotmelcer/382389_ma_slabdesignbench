@@ -70,14 +70,12 @@ class DeflectionCalculator:
         M_k_result_support = calculate_moment_curvature_sls(
             section_support,
             n=n_N,
-            include_prestress_branch=True,
             concrete_tension=False
         )
 
         M_k_result_mid = calculate_moment_curvature_sls(
             section_mid,
             n=n_N,
-            include_prestress_branch=True,
             concrete_tension=False
         )
 
