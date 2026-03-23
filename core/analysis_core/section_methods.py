@@ -8,7 +8,7 @@ from structuralcodes.materials.concrete import Concrete, create_concrete
 from structuralcodes.materials.reinforcement import Reinforcement
 from structuralcodes.sections import GenericSection, GenericSectionCalculator
 
-from core.analysis_core.material_methods import sargin_elastic_law, get_cube, sargin_elastic_cracking_law
+from core.analysis_core.material_methods import sargin_elastic_law, get_cube, sargin_tension_stiffening_law
 
 
 def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
@@ -589,7 +589,7 @@ def get_strain_at_point(strain_profile, y, z) -> float:
     eps_0, chi_y, chi_z = strain_profile
     return eps_0 + chi_y * z + chi_z * y
 
-def sls_section(section_uls: GenericSection, concrete_tension: bool, cracking: bool = False) -> GenericSection:
+def sls_section(section_uls: GenericSection, concrete_tension: bool, tension_stiffening: bool = False) -> GenericSection:
     """
     Author: Elliot Melcer
     Returns the section with sls constitutive law for concrete
@@ -604,8 +604,8 @@ def sls_section(section_uls: GenericSection, concrete_tension: bool, cracking: b
 
     # If Concrete should be able to take tension forces, use custom constitutive law (linear in tension and non-linear in compression)
     if concrete_tension:
-        if cracking:
-            concrete_sls = create_concrete(fck=f_ck, constitutive_law=sargin_elastic_cracking_law(conc), name = f"C{f_ck}/{f_cube} SLS")
+        if tension_stiffening:
+            concrete_sls = create_concrete(fck=f_ck, constitutive_law=sargin_tension_stiffening_law(conc), name =f"C{f_ck}/{f_cube} SLS")
         else:
             concrete_sls = create_concrete(fck=f_ck, constitutive_law=sargin_elastic_law(conc), name = f"C{f_ck}/{f_cube} SLS")
     # If Concrete should not be able to take tension forces, use sargin (nonlinear) constitutive law
