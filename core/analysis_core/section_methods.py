@@ -260,6 +260,7 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
         'strain_profile': strain_profile,
     }
 
+
 def calculate_moment_curvature_sls(section: GenericSection,
                                    n: float = 0.0,
                                    concrete_tension: bool = True,
