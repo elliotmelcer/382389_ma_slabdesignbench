@@ -262,8 +262,9 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
 
 def calculate_moment_curvature_sls(section: GenericSection,
                                    n: float = 0.0,
-                                   concrete_tension: bool = False,
+                                   concrete_tension: bool = True,
                                    tension_stiffening: bool = True,
+                                   simplified: bool = False,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
@@ -271,6 +272,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     For prestressed sections, adds initial state point (κ₀, M=0).
 
+    :param simplified:
     :param tension_stiffening:
     :param section: GenericSection (ULS)
     :param n: Axial force [N]
@@ -280,12 +282,29 @@ def calculate_moment_curvature_sls(section: GenericSection,
     """
     sls_sec = sls_section(section, concrete_tension=concrete_tension, tension_stiffening= tension_stiffening)
 
+    if simplified:
+        results = _simplified_moment_curvature_method(
+            section = sls_sec,
+            n = n,
+            debug = debug
+        )
+    else:
+        results = _full_moment_curvature_method(
+            section = sls_sec,
+            n = n,
+            debug = debug
+        )
+    return results
+
+def _full_moment_curvature_method(section: GenericSection,
+                                   n: float,
+                                   debug: bool = False) -> MomentCurvatureResults:
     # ------------------------------------
     # Check which material governs failure
     # ------------------------------------
     # Get concrete ε_c1
     conc = None
-    for geo in sls_sec.geometry.geometries:
+    for geo in section.geometry.geometries:
         if hasattr(geo, 'concrete') and geo.concrete:
             conc = geo.material
             break
@@ -294,7 +313,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
     # Get bending strength strain profile
     m_u_res = calculate_bending_strength_sls_Nmm(section, n=n)
     eps_0, chi_y, _ = m_u_res["strain_profile"]
-    _, _, zmin, zmax = sls_sec.geometry.calculate_extents()
+    _, _, zmin, zmax = section.geometry.calculate_extents()
     eps_top = eps_0 + chi_y * zmax  # concrete top fiber strain at failure
 
     # If concrete top exceeds ε_c1 at failure → concrete is in post-yield zone
@@ -305,7 +324,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
     # -----------------------------------
     # Get standard M-κ curve from library
     #------------------------------------
-    results = sls_sec.section_calculator.calculate_moment_curvature(
+    results = section.section_calculator.calculate_moment_curvature(
         n=n,
         num_pre_yield=40,
         num_post_yield=num_post_yield    # in case concrete is governing, at least 1 post yield point is necessary
@@ -317,7 +336,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     # Check for prestressed reinforcement
     has_prestress = False
-    for pg in sls_sec.geometry.point_geometries:
+    for pg in section.geometry.point_geometries:
         if hasattr(pg.material, 'initial_strain') and pg.material.initial_strain != 0:
             has_prestress = True
             break
@@ -374,10 +393,8 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     return results
 
-def calculate_simplified_moment_curvature_sls(section: GenericSection,
-                                   n: float = 0.0,
-                                   concrete_tension: bool = False,
-                                   tension_stiffening: bool = True,
+def _simplified_moment_curvature_method(section: GenericSection,
+                                   n: float,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Calculates a simplified trilinear version of calculate_moment_curvature_sls().
@@ -389,12 +406,9 @@ def calculate_simplified_moment_curvature_sls(section: GenericSection,
 
     :param section:
     :param n:
-    :param concrete_tension:
-    :param tension_stiffening:
     :param debug:
     :return:
     """
-    sls_sec = sls_section(section, concrete_tension=concrete_tension, tension_stiffening= tension_stiffening)
 
     # Cracking Point
     M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
@@ -404,21 +418,21 @@ def calculate_simplified_moment_curvature_sls(section: GenericSection,
 
 
     # Intersect Point
-    Mk_res_0 = sls_sec.section_calculator.calculate_moment_curvature(n = n, chi=[0.0])
+    Mk_res_0 = section.section_calculator.calculate_moment_curvature(n = n, chi=[0.0])
     M_int_Nmm = Mk_res_0.m_y[0]  # intersect moment
 
     # Prestress Point
     kappa_0 = - M_int_Nmm * kappa_cr / (M_cr_Nmm - M_int_Nmm)
 
     # End of Cracking Point
-    concrete_sls = get_concrete(sls_sec)
+    concrete_sls = get_concrete(section)
     law = concrete_sls.constitutive_law
     eps_F_t = law.eps_F_t
 
     eoc_results = calculate_section_state_from_bottom_strain_sls(section, n = n, eps_bot=eps_F_t, tension_stiffening=True)
     _, kappa_eoc, _ = eoc_results["strain_profile"]
 
-    Mk_res_eoc = sls_sec.section_calculator.calculate_moment_curvature(n = n, chi=[kappa_eoc])
+    Mk_res_eoc = section.section_calculator.calculate_moment_curvature(n = n, chi=[kappa_eoc])
     M_eoc_Nmm = Mk_res_eoc.m_y[0]
 
     # Ultimate Point
@@ -429,7 +443,7 @@ def calculate_simplified_moment_curvature_sls(section: GenericSection,
     moments    = np.array([0.0,     M_cr_Nmm, M_eoc_Nmm, M_u_Nmm])
     curvatures = np.array([kappa_0, kappa_cr, kappa_eoc, kappa_u])
 
-    mk_results = sls_sec.section_calculator.calculate_moment_curvature(n = n, chi=[])
+    mk_results = section.section_calculator.calculate_moment_curvature(n = n, chi=[])
     mk_results.m_y=moments
     mk_results.chi_y=curvatures
 
