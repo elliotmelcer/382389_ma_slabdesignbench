@@ -378,6 +378,149 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
 
 
+#
+
+def calculate_section_state_from_bottom_strain_sls(
+        section_uls,
+        eps_bot: float,
+        n: float = 0.0,
+        concrete_tension: bool = True,
+        tension_stiffening: bool = True,
+        chi_scan_range: float = 1e-3,
+        num_scan_points: int = 100,
+        tolerance: float = 1e-2,
+        ITMAX: int = 100,
+        debug: bool = False,
+) -> dict:
+    """
+    Calculate the section state (forces and strain profile) given a prescribed
+    bottom fiber strain and axial force, maintaining force equilibrium.
+
+    Fixes the bottom fiber strain to eps_bot and finds chi_y via bisection
+    such that the integrated axial force equals n. My and Mz are outputs.
+
+    Strain profile convention (consistent with rest of codebase):
+        eps(z) = eps_0 + chi_y * z
+        eps_bot = eps_0 + chi_y * zmin  →  eps_0 = eps_bot - chi_y * zmin
+
+    Args:
+        section:            GenericSection (ULS section as input, SLS created internally)
+        eps_bot:            Prescribed bottom fiber strain [-] (+ve = tension)
+        n:                  Applied axial force [N] (+ve = tension, -ve = compression)
+        concrete_tension:   If True, include concrete cracking (default True)
+        tension_stiffening: If True, concrete has tension stiffening beyond cracking point
+        chi_scan_range:     Half-range for initial curvature scan [1/mm] (default 1e-3)
+        num_scan_points:    Number of scan points for bracketing (default 100)
+        tolerance:          Force imbalance tolerance [N] for bisection (default 1e-2)
+        ITMAX:              Maximum bisection iterations (default 100)
+        debug:              If True, print intermediate values
+
+    Returns:
+        dict:
+            - 'valid':          bool   — True if equilibrium was found
+            - 'reason':         str    — failure reason if not valid
+            - 'chi_y':          float  — curvature [1/mm] (-ve = sagging)
+            - 'eps_0':          float  — axial strain at z=0 [-]
+            - 'eps_bot':        float  — bottom fiber strain (== input) [-]
+            - 'eps_top':        float  — top fiber strain [-]
+            - 'n':              float  — integrated axial force [N]
+            - 'm_y':            float  — integrated bending moment My [Nmm]
+            - 'm_z':            float  — integrated bending moment Mz [Nmm]
+            - 'strain_profile': list   — [eps_0, chi_y, 0.0]
+            - 'section':        GenericSection — the SLS section used
+    """
+
+    # --- Build SLS section ---
+    analysis_sec = deepcopy(sls_section(section_uls, concrete_tension=concrete_tension, tension_stiffening= tension_stiffening))
+
+    _, _, zmin, zmax = analysis_sec.geometry.calculate_extents()
+
+    calculator = analysis_sec.section_calculator
+    integration_data = getattr(calculator, 'integration_data', None)
+    mesh_size = getattr(calculator, 'mesh_size', 0.01)
+
+    if debug:
+        print(f"[calculate_curvature_from_bottom_strain]")
+        print(f"  eps_bot = {eps_bot * 1000:.4f}‰  |  n = {n:.1f} N")
+        print(f"  zmin = {zmin:.2f} mm  |  zmax = {zmax:.2f} mm")
+
+    # --- Helper: build strain profile from chi_y ---
+    def get_strain_profile(chi_y: float) -> list:
+        eps_0 = eps_bot - chi_y * zmin
+        return [eps_0, chi_y, 0.0]
+
+    # --- Helper: integrate and return (N, My, Mz) ---
+    def get_forces(chi_y: float):
+        sp = get_strain_profile(chi_y)
+        N, My, Mz, _ = calculator.integrator.integrate_strain_response_on_geometry(
+            analysis_sec.geometry,
+            sp,
+            integration_data=integration_data,
+            mesh_size=mesh_size,
+        )
+        return N, My, Mz
+
+    # --- Phase 1: Scan to bracket the zero of (N_int - n) ---
+    chi_scan = np.linspace(-chi_scan_range, chi_scan_range, num_scan_points)
+    dn_scan = np.array([get_forces(chi)[0] - n for chi in chi_scan])
+
+    crossings = [i for i in range(len(dn_scan) - 1) if dn_scan[i] * dn_scan[i + 1] < 0]
+
+    if debug:
+        print(f"  Scan found {len(crossings)} zero crossing(s) of (N_int - n)")
+
+    if not crossings:
+        return {
+            'valid': False,
+            'reason': (
+                f"No equilibrium found in scan range "
+                f"[{-chi_scan_range:.2e}, {chi_scan_range:.2e}] 1/mm. "
+                f"Try increasing chi_scan_range."
+            ),
+        }
+
+    # --- Phase 2: Bisect on each crossing, keep result with largest |My| ---
+    best_result = None
+    best_abs_my = -1.0
+
+    for idx in crossings:
+        chi_a, chi_b = chi_scan[idx], chi_scan[idx + 1]
+        dn_a, dn_b = dn_scan[idx], dn_scan[idx + 1]
+
+        for _ in range(ITMAX):
+            if abs(dn_a - dn_b) < tolerance:
+                break
+            chi_c = (chi_a + chi_b) / 2.0
+            N_c, _, _ = get_forces(chi_c)
+            dn_c = N_c - n
+            if dn_c * dn_a < 0:
+                chi_b, dn_b = chi_c, dn_c
+            else:
+                chi_a, dn_a = chi_c, dn_c
+
+        chi_final = (chi_a + chi_b) / 2.0
+        N_final_N, My_final_Nmm, Mz_final_Nmm = get_forces(chi_final)
+        sp = get_strain_profile(chi_final)
+
+        if abs(My_final_Nmm) > best_abs_my:
+            best_abs_my = abs(My_final_Nmm)
+            best_result = {
+                'valid': True,
+                'n': N_final_N,
+                'm_y': My_final_Nmm,
+                'm_z': Mz_final_Nmm,
+                'strain_profile': sp,
+                'section': analysis_sec,
+            }
+
+    if debug and best_result:
+        print(f"  → chi_y = {best_result['chi_y']:.6e} 1/mm")
+        print(f"  → eps_top = {best_result['eps_top'] * 1000:.4f}‰")
+        print(f"  → My = {best_result['m_y'] / 1e6:.3f} kNm")
+        print(f"  → N residual = {best_result['n'] - n:.4f} N")
+
+    return best_result
+
 def calculate_prestress_forces_Nmm(section: GenericSection) -> tuple[float, float]:
     """
     Author: Elliot Melcer
