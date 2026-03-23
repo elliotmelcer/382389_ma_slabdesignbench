@@ -25,7 +25,7 @@ class DeflectionCalculator:
     """
 
     @staticmethod
-    def calculate_deflection(
+    def calculate_deflection_mm(
             slab_construction: SlabConstruction,
             loads: Loads,
             system: str = "SIMPLE_BEAM",
@@ -67,8 +67,19 @@ class DeflectionCalculator:
         section_support = slab.section_at(0.0)
         section_mid = slab.section_at(0.5)
 
-        props_support = DeflectionCalculator._get_section_properties(section_support, n_N)
-        props_mid = DeflectionCalculator._get_section_properties(section_mid, n_N)
+        M_k_result_support = calculate_moment_curvature_sls(
+            section_support,
+            n=n_N,
+            include_prestress_branch=True,
+            concrete_tension=False
+        )
+
+        M_k_result_mid = calculate_moment_curvature_sls(
+            section_mid,
+            n=n_N,
+            include_prestress_branch=True,
+            concrete_tension=False
+        )
 
         # Setup integration points (half span due to symmetry)
         delta_x_norm = 0.5 / n_intervals # normalized
@@ -102,12 +113,15 @@ class DeflectionCalculator:
 
             # Parabolic interpolation factor (0 at support, 1 at midspan)
 
+            M_array = -M_k_result_support.m_y / 1e6  # Nmm → kNm, flip to positive
+            kappa_array = -M_k_result_support.chi_y * 1000  # 1/mm → 1/m, flip to positive
+
             # Interpolate M-κ curve between support and midspan
             M_array_interp, kappa_array_interp = DeflectionCalculator._interpolate_mk_curve(
-                props_support["M_array"],
-                props_support["kappa_array"],
-                props_mid["M_array"],
-                props_mid["kappa_array"],
+                - M_k_result_support.m_y / 1e6,      # Nmm → kNm,  flip to positive
+                - M_k_result_support.chi_y * 1000,   # 1/mm → 1/m, flip to positive
+                - M_k_result_mid.m_y / 1e6,          # Nmm → kNm,  flip to positive
+                - M_k_result_mid.chi_y * 1000,       # 1/mm → 1/m, flip to positive
                 x_norm
             )
 
@@ -202,49 +216,31 @@ class DeflectionCalculator:
         weights[2:-1:2] = 2  # Even indices (except first and last)
         return weights
 
-    @staticmethod
-    def _get_section_properties(
-            section_uls,
-            n_N: float
-    ) -> Dict:
-        """
-        Extract complete M-κ curve and key section properties.
-
-        :param section_uls: ULS section
-        :param n_N: Axial force [N]
-        :return: Dictionary with M-κ arrays and initial curvature
-        """
-        # Get complete M-κ curve (includes prestress branch)
-        mk_result = calculate_moment_curvature_sls(
-            section_uls,
-            n=n_N,
-            include_prestress_branch=True,
-            concrete_tension=False
-        )
-
-        # Convert to positive values and proper units
-        M_array = -mk_result.m_y / 1e6  # Nmm → kNm, flip to positive
-        kappa_array = -mk_result.chi_y * 1000  # 1/mm → 1/m, flip to positive
-
-        # # Get cracking moment
-        # M_cr_result = calculate_cracking_moment_sls(section_uls, n=n_N)
-        # M_cr = abs(M_cr_result["m_cr"]) / 1e6  # kNm
-        # kappa_cr = abs(M_cr_result["strain_profile"][1]) * 1000  # 1/m
-        #
-        # # Get prestressing moment
-        # M_p = calculate_prestress_moment(section_uls)
-        #
-        # # Calculate initial curvature (negative = upward camber)
-        # if abs(M_cr - M_p) > 1e-6:
-        #     kappa_0 = -(M_p * kappa_cr) / (M_cr - M_p)
-        # else:
-        #     kappa_0 = 0.0
-
-        return {
-            "M_array": M_array,
-            "kappa_array": kappa_array,
-            # "M_cr": M_cr,
-            # "kappa_cr": kappa_cr,
-            # "M_p": M_p,
-            # "kappa_0": kappa_0
-        }
+    # @staticmethod
+    # def _get_section_properties(
+    #         section_uls,
+    #         n_N: float
+    # ) -> Dict:
+    #     """
+    #     Extract complete M-κ curve
+    #
+    #     :param section_uls: ULS section
+    #     :param n_N: Axial force [N]
+    #     :return: Dictionary with M-κ arrays and initial curvature
+    #     """
+    #     # Get complete M-κ curve (includes prestress branch)
+    #     mk_result = calculate_moment_curvature_sls(
+    #         section_uls,
+    #         n=n_N,
+    #         include_prestress_branch=True,
+    #         concrete_tension=False
+    #     )
+    #
+    #     # Convert to positive values and proper units
+    #     M_array = -mk_result.m_y / 1e6  # Nmm → kNm, flip to positive
+    #     kappa_array = -mk_result.chi_y * 1000  # 1/mm → 1/m, flip to positive
+    #
+    #     return {
+    #         "M_array": M_array,
+    #         "kappa_array": kappa_array,
+    #     }
