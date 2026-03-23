@@ -274,7 +274,6 @@ def calculate_moment_curvature_sls(section: GenericSection,
     :param tension_stiffening:
     :param section: GenericSection (ULS)
     :param n: Axial force [N]
-    :param include_prestress_branch: If True, adds prestressed initial state
     :param concrete_tension: If False, fctm = 0
     :param debug:
     :return: MomentCurvatureResults with complete M-κ curve
@@ -375,6 +374,84 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     return results
 
+def calculate_simplified_moment_curvature_sls(section: GenericSection,
+                                   n: float = 0.0,
+                                   concrete_tension: bool = False,
+                                   tension_stiffening: bool = True,
+                                   debug: bool = False) -> MomentCurvatureResults:
+    """
+    Calculates a simplified trilinear version of calculate_moment_curvature_sls().
+    Points:
+        Prestress Point:        kappa_0 = - M_int * K_cr / (M_cr - M_int)
+        Cracking Point
+        End of Cracking Point:  based on tension stiffening of concrete
+        Ultiamte Point
+
+    :param section:
+    :param n:
+    :param concrete_tension:
+    :param tension_stiffening:
+    :param debug:
+    :return:
+    """
+    sls_sec = sls_section(section, concrete_tension=concrete_tension, tension_stiffening= tension_stiffening)
+
+    # Cracking Point
+    M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
+    M_cr_Nmm = M_cr_result["m_cr"]  # Nmm
+
+    kappa_cr = M_cr_result["strain_profile"][1]  # 1/mm
+
+
+    # Intersect Point
+    Mk_res_0 = sls_sec.section_calculator.calculate_moment_curvature(n = n, chi=[0.0])
+    M_int_Nmm = Mk_res_0.m_y[0]  # intersect moment
+
+    # Prestress Point
+    kappa_0 = - M_int_Nmm * kappa_cr / (M_cr_Nmm - M_int_Nmm)
+
+    # End of Cracking Point
+    concrete_sls = get_concrete(sls_sec)
+    law = concrete_sls.constitutive_law
+    eps_F_t = law.eps_F_t
+
+    eoc_results = calculate_section_state_from_bottom_strain_sls(section, n = n, eps_bot=eps_F_t, tension_stiffening=True)
+    _, kappa_eoc, _ = eoc_results["strain_profile"]
+
+    Mk_res_eoc = sls_sec.section_calculator.calculate_moment_curvature(n = n, chi=[kappa_eoc])
+    M_eoc_Nmm = Mk_res_eoc.m_y[0]
+
+    # Ultimate Point
+    ultimate_result = calculate_bending_strength_sls_Nmm(section)
+    M_u_Nmm = ultimate_result["m_u"]
+    _, kappa_u, _ = ultimate_result["strain_profile"]
+
+    moments    = np.array([0.0,     M_cr_Nmm, M_eoc_Nmm, M_u_Nmm])
+    curvatures = np.array([kappa_0, kappa_cr, kappa_eoc, kappa_u])
+
+    mk_results = sls_sec.section_calculator.calculate_moment_curvature(n = n, chi=[])
+    mk_results.m_y=moments
+    mk_results.chi_y=curvatures
+
+    if debug:
+        header = f"{'Point':<25} {'Moment [kNm]':>15} {'Curvature [1/m]':>18}"
+        separator = "-" * len(header)
+
+        rows = [
+            ("Prestress",       moments[0], curvatures[0]*1000),
+            ("Cracking",        moments[1], curvatures[1]*1000),
+            ("End of Cracking", moments[2], curvatures[2]*1000),
+            ("Ultimate",        moments[3], curvatures[3]*1000),
+        ]
+
+        print(separator)
+        print(header)
+        print(separator)
+        for name, M, kappa in rows:
+            print(f"{name:<25} {M / 1e6:>15.2f} {kappa:>18.6f}")
+        print(separator)
+
+    return mk_results
 
 
 
@@ -404,7 +481,7 @@ def calculate_section_state_from_bottom_strain_sls(
         eps_bot = eps_0 + chi_y * zmin  →  eps_0 = eps_bot - chi_y * zmin
 
     Args:
-        section:            GenericSection (ULS section as input, SLS created internally)
+        section_uls:            GenericSection (ULS section as input, SLS created internally)
         eps_bot:            Prescribed bottom fiber strain [-] (+ve = tension)
         n:                  Applied axial force [N] (+ve = tension, -ve = compression)
         concrete_tension:   If True, include concrete cracking (default True)
