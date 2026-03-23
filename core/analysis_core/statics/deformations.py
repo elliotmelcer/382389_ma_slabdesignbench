@@ -31,7 +31,9 @@ class DeflectionCalculator:
             system: str = "SIMPLE_BEAM",
             combination: str = "QUASI-PERMANENT",
             n_intervals: int = 40,
-            n_axial: float = 0.0,
+            N_axial: float = 0.0,
+            concrete_tension: bool = True,
+            concrete_tension_stiffening: bool = True,
             debug: bool = False,
             extended_debug: bool = False
     ) -> float:
@@ -44,7 +46,7 @@ class DeflectionCalculator:
         :param system: Structural system type
         :param combination: Load combination
         :param n_intervals: Number of intervals for Simpson's rule (must be even)
-        :param n_axial: Axial force [kN] (positive = tension)
+        :param N_axial: Axial force [kN] (positive = tension)
         :param debug: Enable debug output
         :param extended_debug:
 
@@ -61,7 +63,7 @@ class DeflectionCalculator:
         # Setup
         slab = slab_construction.slab
         span_m = mm_to_m(slab.L)
-        n_N = n_axial * 1000
+        n_N = N_axial * 1000
 
         # Get M-κ curves at support (x=0) and midspan (x=0.5)
         section_support = slab.section_at(0.0)
@@ -70,13 +72,15 @@ class DeflectionCalculator:
         M_k_result_support = calculate_moment_curvature_sls(
             section_support,
             n=n_N,
-            concrete_tension=False
+            concrete_tension =      concrete_tension,
+            tension_stiffening =    concrete_tension_stiffening,
         )
 
         M_k_result_mid = calculate_moment_curvature_sls(
             section_mid,
             n=n_N,
-            concrete_tension=False
+            concrete_tension =      concrete_tension,
+            tension_stiffening =    concrete_tension_stiffening,
         )
 
         # Setup integration points (half span due to symmetry)
@@ -108,11 +112,6 @@ class DeflectionCalculator:
             #
             #   1.3 Compute kappa(x) = kappa_0(x) + kappa_load(x)
             # ------------------------------------------------------
-
-            # Parabolic interpolation factor (0 at support, 1 at midspan)
-
-            M_array = -M_k_result_support.m_y / 1e6  # Nmm → kNm, flip to positive
-            kappa_array = -M_k_result_support.chi_y * 1000  # 1/mm → 1/m, flip to positive
 
             # Interpolate M-κ curve between support and midspan
             M_array_interp, kappa_array_interp = DeflectionCalculator._interpolate_mk_curve(
