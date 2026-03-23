@@ -262,7 +262,6 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
 
 def calculate_moment_curvature_sls(section: GenericSection,
                                    n: float = 0.0,
-                                   include_prestress_branch: bool = True,
                                    concrete_tension: bool = False,
                                    tension_stiffening: bool = True,
                                    debug: bool = False) -> MomentCurvatureResults:
@@ -316,12 +315,6 @@ def calculate_moment_curvature_sls(section: GenericSection,
     # FIX SIGNS - Library may return negative values
     results.m_y = -np.abs(results.m_y)  # Make consistently negative
     results.chi_y = -np.abs(results.chi_y)  # Make consistently negative
-
-    # ---------------------------------------------------------------
-    # Check if section is prestressed, and we should add initial state
-    # ---------------------------------------------------------------
-    if not include_prestress_branch:
-        return results
 
     # Check for prestressed reinforcement
     has_prestress = False
