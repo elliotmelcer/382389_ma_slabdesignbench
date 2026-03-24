@@ -91,6 +91,7 @@ class Loads:
         Gd = self.gamma_g * (slab_construction.structural_dead_load_kN_m2()
                              + slab_construction.non_structural_dead_load_kN_m2())
 
+        # Set up psi values for frequent combination
         # Only the accompanying actions are multiplied by psi_0
         psi_0_mask = self.psi_0_values.copy()
         psi_0_mask[0] = 1.0
@@ -99,19 +100,35 @@ class Loads:
 
         return Gd + Qd
 
+    def rare_combination_kN_m2(self, slab_construction: SlabConstruction):
+        """
+        Serviceability Limit State (SLS) – rare combination
+        EC0 6.14b: Σ(j≥1) G_k,j "+" P "+" Q_k_1 + Σ(i>1) ψ_0,i*Q_k,i
+        """
+
+        # Set up psi values for frequent combination
+        # Only the accompanying actions are multiplied by psi_0
+        psi_mask = self.psi_0_values.copy()
+        psi_mask[0] = 1.0
+
+        return (slab_construction.structural_dead_load_kN_m2()
+                + slab_construction.non_structural_dead_load_kN_m2()
+                + float(np.sum(self.Qk * psi_mask)))
+
     def frequent_combination_kN_m2(self, slab_construction: SlabConstruction):
         """
         Serviceability Limit State (SLS) – frequent combination
         EC0 6.15b: Σ(j≥1) G_k,j "+" P "+" ψ_1,1*Q_k,1 "+" Σ(i>1) ψ_2,i*Q_k,i
         """
 
-        # set up psi values for frequent combination
+        # Set up psi values for frequent combination
+        # Leading variable action multiplied by psi_1, all accompanying actions multiplied by psi_2
         psi_mask = self.psi_2_values.copy()
         psi_mask[0] = self.psi_1_values[0]
 
         return (slab_construction.structural_dead_load_kN_m2()
                 + slab_construction.non_structural_dead_load_kN_m2()
-                + float(np.sum(self.Qk * self.psi_1_values)))
+                + float(np.sum(self.Qk * psi_mask)))
 
     def quasi_permanent_combination_kN_m2(self, slab_construction: SlabConstruction):
         """
