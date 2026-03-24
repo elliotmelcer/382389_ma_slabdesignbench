@@ -75,7 +75,7 @@ class InternalForces:
             loads: Loads,
             system: str = "SIMPLE_BEAM",
             combination: str = "FUNDAMENTAL",
-            x: Optional[float] = None,
+            x_norm: Optional[float] = None,
             moment_type: Optional[str] = None
     ) -> float:
         """
@@ -87,7 +87,7 @@ class InternalForces:
         :param loads: Loads object
         :param system: Structural system type
         :param combination: Load combination type
-        :param x: Position along beam (normalized: 0 at first support, 1 at second, etc.)
+        :param x_norm: Position along beam (normalized: 0 at first support, 1 at second, etc.)
                   Use this for M(x) calculation at arbitrary position.
         :param moment_type: Type of moment (MAX_POS_MOMENT or MAX_NEG_MOMENT)
                            Use this for maximum moment calculation.
@@ -101,7 +101,7 @@ class InternalForces:
             M_max = calculate_moment(slab, loads, system="THREE_SPAN", moment_type="MAX_POS_MOMENT")
         """
         # Validate that exactly one of x or moment_type is provided
-        if (x is None) == (moment_type is None):
+        if (x_norm is None) == (moment_type is None):
             raise ValueError(
                 "Must provide EITHER 'x' OR 'moment_type', but not both and not neither. "
                 "Use 'x' for M(x) at specific position, or 'moment_type' for maximum moment."
@@ -114,7 +114,7 @@ class InternalForces:
         w_line_kN_m = calculate_line_load_kN_m(slab_construction, loads, combination)
 
         # METHOD 1: Calculate M(x) at specific position using moment function
-        if x is not None:
+        if x_norm is not None:
             # Check if moment function is implemented for this system
             if system not in MOMENT_FUNCTIONS:
                 raise NotImplementedError(
@@ -127,7 +127,7 @@ class InternalForces:
             InternalForces.validate_x_position(system, x)
 
             # Calculate position in meters
-            x_m = x * span_m
+            x_m = x_norm * span_m
 
             # Get moment function and calculate
             moment_func = MOMENT_FUNCTIONS[system]
