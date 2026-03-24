@@ -8,7 +8,7 @@ x=0.25
 M_at_quarter = InternalForces.calculate_moment_kNm(
     test_slab_construction_c1_4, test_loads,
     system="SIMPLE_BEAM",
-    x=x  # At quarter span
+    x_norm=x  # At quarter span
 )
 
 M_max = InternalForces.calculate_moment_kNm(
