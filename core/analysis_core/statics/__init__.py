@@ -127,9 +127,11 @@ def calculate_line_load_kN_m(
         area_load_kN_m2 = loads.frequent_combination_kN_m2(slab_construction)
     elif combination in ("QUASI-PERMANENT", "QUASI_PERMANENT", "QUASI PERMANENT"):
         area_load_kN_m2 = loads.quasi_permanent_combination_kN_m2(slab_construction)
+    elif combination == "RARE":
+        area_load_kN_m2 = loads.rare_combination_kN_m2(slab_construction)
     else:
         raise ValueError(
-            "Invalid combination. Must be one of: 'FUNDAMENTAL', 'FREQUENT', 'QUASI-PERMANENT'."
+            "Invalid combination. Must be one of: 'FUNDAMENTAL', 'RARE', 'FREQUENT' or 'QUASI-PERMANENT'."
         )
 
     line_load_kN_m = area_load_kN_m2 * width_m
