@@ -3,7 +3,7 @@ Author: Elliot Melcer
 Internal CO2 and cost registry for materials.
 """
 import numpy as np
-from structuralcodes.materials.concrete import Concrete
+from structuralcodes.materials.concrete import Concrete, create_concrete
 from structuralcodes.materials.constitutive_laws import Sargin, UserDefined, Elastic
 from structuralcodes.materials.reinforcement import create_reinforcement
 
@@ -78,15 +78,7 @@ class CrackingConcreteLaw(UserDefined):
     A concrete constitutive law that handles tensile cracking correctly
     in moment-curvature analysis.
 
-    The class overrides two methods of UserDefined with different
-    responsibilities:
-
-    get_stress(eps)
-        Called by the integrator at every curvature step for every fibre.
-        Returns 0 for any tensile strain beyond eps_ctm, so cracked concrete
-        contributes nothing to the force resultants.  The equilibrium
-        bisection then naturally shifts the neutral axis upward until the
-        reinforcement closes the tension gap.
+    The class overrides get_ultimate_strain of UserDefined to allow for cracking:
 
     get_ultimate_strain(yielding)
         Called by get_balanced_failure_strain() to determine chi_ultimate.

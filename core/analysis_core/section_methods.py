@@ -402,8 +402,7 @@ def _simplified_moment_curvature_method(section: GenericSection,
     Points:
         Prestress Point:        kappa_0 = - M_int * K_cr / (M_cr - M_int)
         Cracking Point
-        End of Cracking Point:  based on tension stiffening of concrete
-        Ultiamte Point
+        End of Cracking Point:  based on tension stiffening of concrete Ultimate Point
 
     :param section:
     :param n:
