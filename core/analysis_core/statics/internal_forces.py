@@ -124,7 +124,7 @@ class InternalForces:
                 )
 
             # Validate x position
-            InternalForces.validate_x_position(system, x)
+            InternalForces.validate_x_position(system, x_norm)
 
             # Calculate position in meters
             x_m = x_norm * span_m
