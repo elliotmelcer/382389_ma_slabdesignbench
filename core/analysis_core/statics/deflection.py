@@ -41,6 +41,13 @@ class DeflectionCalculator:
         Calculate maximum deflection using Simpson's rule and virtual work method.
         Uses position-dependent M-κ curves.
 
+        :param constitutive_law:
+        :param load_history_method:
+                    "NONE"      no load history considered
+                    "FACTOR"    load history considered according to Eurocode 2, Chapter 7.4.3, Equation (7.18)
+                    "SECANT"    load history considered according to Kreller (1989)*, Chapter 4.2.4
+
+                    *Zum nichtlinearen Trag- und Verformungsverhalten von Stahlbetonstabtragwerken unter Last- und Zwangeinwirkung
         :param slab_construction: Slab construction object
         :param loads: Loads object
         :param system: Structural system type
@@ -80,6 +87,16 @@ class DeflectionCalculator:
             n=n_N,
             constitutive_law = constitutive_law
         )
+
+        # -------------------------------
+        # Interpolated Simpson Integration
+        #
+        # Inputs:   n_intervals
+        #           span_m
+        #           M_k_result_support
+        #           M_k_result_mid
+        #           slab_construction, loads, system, combination
+        # -------------------------------
 
         # Setup integration points (half span due to symmetry)
         delta_x_norm = 0.5 / n_intervals # normalized
