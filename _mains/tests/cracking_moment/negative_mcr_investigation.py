@@ -58,7 +58,7 @@ m_qp_kNm = InternalForces.calculate_moment_kNm(
 
 plot_strain_profile(mcr_results)
 
-mk_results = calculate_moment_curvature_sls(section_midspan)
+mk_results = calculate_moment_curvature_sls(section_midspan, constitutive_law="FCTM_PARABOLIC")
 
 plot_moment_curvature(mk_results)
 

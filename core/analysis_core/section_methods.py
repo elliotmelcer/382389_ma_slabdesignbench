@@ -8,7 +8,8 @@ from structuralcodes.materials.concrete import Concrete, create_concrete
 from structuralcodes.materials.reinforcement import Reinforcement
 from structuralcodes.sections import GenericSection, GenericSectionCalculator
 
-from core.analysis_core.material_methods import sargin_elastic_law, get_cube, sargin_tension_stiffening_law
+from core.analysis_core.material_methods import sargin_elastic_law, get_cube, sargin_tension_stiffening_law, \
+    sls_concrete
 
 
 def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
@@ -679,33 +680,28 @@ def get_strain_at_point(strain_profile, y, z) -> float:
     eps_0, chi_y, chi_z = strain_profile
     return eps_0 + chi_y * z + chi_z * y
 
-def sls_section(section_uls: GenericSection, concrete_tension: bool, tension_stiffening: bool = False) -> GenericSection:
+def sls_section(
+        section_uls: GenericSection,
+        constitutive_law: str,
+) -> GenericSection:
     """
     Author: Elliot Melcer
     Returns the section with sls constitutive law for concrete
     """
-    # get the geometry of the section
+    # Get the geometry of the section
     geo = section_uls.geometry
 
-    #create sls concrete from concrete used in section
+    # Create SLS Concrete from Concrete Used in Section
     conc = get_concrete(section_uls)
     f_ck = conc.fck
     f_cube = get_cube(f_ck)
+    sls_conc = sls_concrete(conc, constitutive_law)
 
-    # If Concrete should be able to take tension forces, use custom constitutive law (linear in tension and non-linear in compression)
-    if concrete_tension:
-        if tension_stiffening:
-            concrete_sls = create_concrete(fck=f_ck, constitutive_law=sargin_tension_stiffening_law(conc), name =f"C{f_ck}/{f_cube} SLS")
-        else:
-            concrete_sls = create_concrete(fck=f_ck, constitutive_law=sargin_elastic_law(conc), name = f"C{f_ck}/{f_cube} SLS")
-    # If Concrete should not be able to take tension forces, use sargin (nonlinear) constitutive law
-    else:
-        concrete_sls = create_concrete(fck=f_ck, constitutive_law='sargin', name=f"C{f_ck}/{f_cube} SLS")
-
+    # Change Concrete Material
     processed_geoms = []
     for g in geo.geometries:
         processed_geoms.append(
-            SurfaceGeometry.from_geometry(geo=g, new_material=concrete_sls) # change concrete material
+            SurfaceGeometry.from_geometry(geo=g, new_material=sls_conc) # change concrete material
         )
     for pg in geo.point_geometries:
         processed_geoms.append(pg) # keep same reinforcement material

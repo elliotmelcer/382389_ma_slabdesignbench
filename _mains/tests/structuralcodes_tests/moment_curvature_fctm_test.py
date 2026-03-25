@@ -9,15 +9,13 @@ test_section = hp_section_c1_4_uls
 # M-K Results for a concrete with fctm = 0
 cracked_m_k_results = calculate_moment_curvature_sls(
     test_section,
-    include_prestress_branch=True,
-    concrete_tension=False
+    constitutive_law="NONE_PARABOLIC"
 )
 
 # M-K Results for a concrete with fctm != 0
 uncracked_m_k_results = calculate_moment_curvature_sls(
     test_section,
-    include_prestress_branch=True,
-    concrete_tension=True
+    constitutive_law="FCTM_PARABOLIC"
 )
 
 mcr = calculate_cracking_moment_sls_Nmm(

@@ -18,15 +18,15 @@ When you specify fctm =/= 0, structural codes only stops when reinforcement fail
 conc_governed_sec = hp_section_c1_3_uls # C50/60
 
 # SLS Sections
-conc_governed_sec_sls_tension = sls_section(conc_governed_sec, True)
-conc_governed_sec_sls         = sls_section(conc_governed_sec, False)
+conc_governed_sec_sls_tension = sls_section(conc_governed_sec, "FCTM_PARABOLIC")
+conc_governed_sec_sls         = sls_section(conc_governed_sec, "NONE_PARABOLIC")
 
 # Plot Constitutive Law
 plot_constitutive_law_concrete(get_concrete(conc_governed_sec_sls_tension))
 plot_constitutive_law_concrete(get_concrete(conc_governed_sec_sls))
 
-mk_conc_gov_tension = calculate_moment_curvature_sls(conc_governed_sec_sls_tension, concrete_tension=True)
-mk_conc_gov         = calculate_moment_curvature_sls(conc_governed_sec_sls,         concrete_tension=False)
+mk_conc_gov_tension = calculate_moment_curvature_sls(conc_governed_sec_sls_tension, constitutive_law="FCTM_PARABOLIC")
+mk_conc_gov         = calculate_moment_curvature_sls(conc_governed_sec_sls,         constitutive_law="NONE_PARABOLIC")
 
 # --- M-K-results_c2 ---
 

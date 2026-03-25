@@ -51,8 +51,7 @@ def print_mk_points(label: str, x_norm: float) -> None:
     mk_result = calculate_moment_curvature_sls(
         section,
         n=0,
-        include_prestress_branch=True,
-        concrete_tension=False
+        constitutive_law="NONE_PARABOLIC"
     )
     M_list     = list(-mk_result.m_y / 1e6)       # Nmm → kNm, positive sagging
     kappa_list = list(-mk_result.chi_y * 1000)     # 1/mm → 1/m, positive sagging
@@ -70,7 +69,7 @@ print_mk_points("Support", 0.0)
 print(f"\n--- Midspan (x = 0.5) ---")
 print_mk_points("Midspan", 0.5)
 
-mk_results = calculate_moment_curvature_sls(testing_slab_const.slab.section_at(0.5))
+mk_results = calculate_moment_curvature_sls(testing_slab_const.slab.section_at(0.5), constitutive_law="NONE_PARABOLIC")
 
 #----------------------------------------------------------------------------
 # Results from INCA
@@ -86,7 +85,7 @@ print(f"\n" + "=" * 70)
 print("DEFLECTION RESULT")
 print("=" * 70)
 
-deflection = DeflectionCalculator.calculate_deflection(
+deflection = DeflectionCalculator.calculate_deflection_mm(
     test_slab_construction_c1_3,
     test_loads,
     system="SIMPLE_BEAM",

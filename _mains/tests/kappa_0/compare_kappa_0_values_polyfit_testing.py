@@ -65,7 +65,7 @@ def create_section_with_prestress(prestress_factor: float):
 
 def get_mk_curve(section, n: float = 0.0):
     """Get the raw M-κ curve from the library."""
-    sls_sec = sls_section(section, concrete_tension=False)
+    sls_sec = sls_section(section, constitutive_law="NONE_PARABOLIC")
     results = sls_sec.section_calculator.calculate_moment_curvature(
         n=n, num_pre_yield=40, num_post_yield=0
     )

@@ -22,11 +22,11 @@ reinf_governed_sec = hp_section_c2_uls_x_0_50 # C50/60
 conc_governed_sec = hp_section_c1_3_uls # C50/60
 
 # SLS Sections
-reinf_governed_sec_sls = sls_section(reinf_governed_sec, False)
-conc_governed_sec_sls = sls_section(conc_governed_sec, False)
+reinf_governed_sec_sls = sls_section(reinf_governed_sec, "NONE_PARABOLIC")
+conc_governed_sec_sls = sls_section(conc_governed_sec, "NONE_PARABOLIC")
 
-mk_reinf_gov = calculate_moment_curvature_sls(reinf_governed_sec)
-mk_conc_gov = calculate_moment_curvature_sls(conc_governed_sec)
+mk_reinf_gov = calculate_moment_curvature_sls(reinf_governed_sec, 0.0, "NONE_PARABOLIC")
+mk_conc_gov = calculate_moment_curvature_sls(conc_governed_sec, 0.0, "NONE_PARABOLIC")
 
 # --- M-K-results_c2 ---
 

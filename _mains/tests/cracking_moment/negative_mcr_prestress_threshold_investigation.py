@@ -102,7 +102,7 @@ def analyze_prestress_effect(prestress_factor: float, verbose: bool = True):
     prestress_force_kN = prestress_force / 1000
 
     # Get concrete properties
-    sls_sec = sls_section(section, concrete_tension=True)
+    sls_sec = sls_section(section, constitutive_law="FCTM_PARABOLIC")
     conc = None
     for geo in sls_sec.geometry.geometries:
         if hasattr(geo, 'concrete') and geo.concrete:
@@ -334,7 +334,7 @@ def plot_comparison(factor_ok: float = 0.392, factor_bad: float = 0.40):
 
         # Mark cracking strain
         conc = None
-        sls_sec = sls_section(section, concrete_tension=True)
+        sls_sec = sls_section(section, constitutive_law="FCTM_PARABOLIC")
         for geo in sls_sec.geometry.geometries:
             if hasattr(geo, 'concrete') and geo.concrete:
                 conc = geo.material
@@ -358,7 +358,7 @@ def plot_comparison(factor_ok: float = 0.392, factor_bad: float = 0.40):
         ax3 = axes[idx, 2]
         try:
             mk_result = calculate_moment_curvature_sls(
-                section, n=0, include_prestress_branch=True, concrete_tension=False
+                section, n=0, constitutive_law="NONE_PARABOLIC"
             )
             M_array = -mk_result.m_y / 1e6  # kNm
             kappa_array = -mk_result.chi_y * 1000  # 1/m

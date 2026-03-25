@@ -6,7 +6,6 @@ from _mains.testing_files.testing_hp_sections import (
     hp_section_c1_1_uls,
 )
 from core.analysis_core.section_methods import (
-    calculate_simplified_moment_curvature_sls,
     calculate_cracking_moment_sls_Nmm,
     sls_section,
     get_concrete,
@@ -53,7 +52,7 @@ sections = {
 
 results = {}
 for name, section in sections.items():
-    current_sls_section = sls_section(section, concrete_tension=True, tension_stiffening=True)
+    current_sls_section = sls_section(section, constitutive_law="TENSTIFF_PARABOLIC")
 
     m_cr_result_original = calculate_cracking_moment_sls_Nmm(section)
     m_cr_original = m_cr_result_original["m_cr"]
@@ -61,7 +60,7 @@ for name, section in sections.items():
 
     concrete_sls = get_concrete(current_sls_section)
     eps_cr = concrete_sls.fctm / concrete_sls.Ecm
-    m_cr_result_from_strain = calculate_section_state_from_bottom_strain_sls(current_sls_section, eps_cr)
+    m_cr_result_from_strain = calculate_section_state_from_bottom_strain_sls(current_sls_section, eps_cr, constitutive_law="TENSTIFF_PARABOLIC")
     m_cr_from_strain = m_cr_result_from_strain["m_y"]
     _,kappa_cr_from_strain,_ = m_cr_result_from_strain["strain_profile"]
 

@@ -136,6 +136,40 @@ class CrackingConcreteLaw(UserDefined):
         return self._eps_cu1, 1e6
 
 
+def sls_concrete(conc: Concrete, constitutive_law: str,) -> Concrete:
+    f_ck = conc.fck
+    f_cube = get_cube(f_ck)
+
+    # Normalize Input
+    constitutive_law_normalized = constitutive_law.strip().upper().replace("-", "_").replace(" ", "_")
+
+    # If Concrete should be able to take tension forces, use custom constitutive law (linear in tension and non-linear in compression)
+    if constitutive_law_normalized == "NONE_PARABOLIC":
+        sls_conc = create_concrete(fck=f_ck,
+                                       constitutive_law='sargin',
+                                       name=f"C{f_ck}/{f_cube} SLS")
+    elif constitutive_law_normalized == "FCTM_PARABOLIC":
+        sls_conc = create_concrete(fck=f_ck,
+                                       constitutive_law=sargin_elastic_law(conc),
+                                       name=f"C{f_ck}/{f_cube} SLS")
+    elif constitutive_law_normalized == "TENSTIFF_PARABOLIC":
+        sls_conc = create_concrete(fck=f_ck,
+                                       constitutive_law=sargin_tension_stiffening_law(conc),
+                                       name=f"C{f_ck}/{f_cube} SLS")
+    elif constitutive_law_normalized == "ELASTIC_ELASTIC":
+        sls_conc = create_concrete(fck=f_ck,
+                                       constitutive_law='elastic',
+                                       name=f"C{f_ck}/{f_cube} SLS")
+    else:
+        raise ValueError(
+            f"{constitutive_law_normalized} is not a valid constitutive law. Available types (Tension / Compression):\n"
+            f"     NONE_PARABOLIC:     Can't take tension, compression parabolic acc. to Sargin\n"
+            f"     FCTM_PARABOLIC:     Linear elastic until fctm in tension, compression parabolic acc. to Sargin\n"
+            f"     TENSTIFF_PARABOLIC: Linear elastic until fctm, then tension stiffening*, compression parabolic acc. to Sargin\n"
+            f"     ELASTIC_ELASTIC:    Elastic in tension and compression without cracking or breaking")
+
+    return sls_conc
+
 def sargin_elastic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> UserDefined:
     """
     Author: Elliot Melcer

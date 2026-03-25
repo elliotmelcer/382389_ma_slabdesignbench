@@ -32,8 +32,8 @@ class DeflectionCalculator:
             combination: str = "QUASI-PERMANENT",
             n_intervals: int = 40,
             N_axial: float = 0.0,
-            concrete_tension: bool = True,
-            concrete_tension_stiffening: bool = True,
+            constitutive_law: str = "TENSTIFF_PARABOLIC",
+            load_history_method: str = "NONE",
             debug: bool = False,
             extended_debug: bool = False
     ) -> float:
@@ -72,15 +72,13 @@ class DeflectionCalculator:
         M_k_result_support = calculate_moment_curvature_sls(
             section_support,
             n=n_N,
-            concrete_tension =      concrete_tension,
-            tension_stiffening =    concrete_tension_stiffening,
+            constitutive_law = constitutive_law
         )
 
         M_k_result_mid = calculate_moment_curvature_sls(
             section_mid,
             n=n_N,
-            concrete_tension =      concrete_tension,
-            tension_stiffening =    concrete_tension_stiffening,
+            constitutive_law = constitutive_law
         )
 
         # Setup integration points (half span due to symmetry)

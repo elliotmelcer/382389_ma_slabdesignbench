@@ -41,7 +41,7 @@ for pt in reinforcement_points:
     )
 
 hp_section = GenericSection(hp_geometry)
-hp_section_sls = sls_section(hp_section)
+hp_section_sls = sls_section(hp_section, "NONE_PARABOLIC")
 
 moment_curvature = hp_section.section_calculator.calculate_moment_curvature()
 

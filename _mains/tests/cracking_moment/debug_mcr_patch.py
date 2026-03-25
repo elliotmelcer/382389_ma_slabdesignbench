@@ -40,7 +40,7 @@ def debug_cracking_moment(section, n: float = 0.0):
     print("=" * 60)
 
     # Step 1: Create SLS section
-    sls_sec = sls_section(section, concrete_tension=True)
+    sls_sec = sls_section(section, constitutive_law="FCTM_PARABOLIC")
     analysis_sls_sec = deepcopy(sls_sec)
 
     # Step 2: Get concrete properties

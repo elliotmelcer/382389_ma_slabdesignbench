@@ -9,14 +9,14 @@ from core.visualization_core.visualization import plot_constitutive_law_concrete
 section_mid = hp_shell_c1_3_uls.section_at(0.5)
 section_sup = hp_shell_c1_3_uls.section_at(0)
 
-sls_section_tension_nocracking_mid = sls_section(section_mid, concrete_tension=True, cracking = False)
-sls_section_tension_cracking_mid   = sls_section(section_mid, concrete_tension=True, cracking = True)
-sls_section_notension_mid          = sls_section(section_mid, concrete_tension=False)
+sls_section_tension_nocracking_mid = sls_section(section_mid, "FCTM_PARABOLIC") # Note: used to be Userdefined, now CrackingConcreteLaw
+sls_section_tension_cracking_mid   = sls_section(section_mid, "TENSTIFF_PARABOLIC")
+sls_section_notension_mid          = sls_section(section_mid, "NONE_PARABOLIC")
 
-mk_tension_nocracking_mid = calculate_moment_curvature_sls(section_mid, concrete_tension=True, cracking = False)
-mk_tension_cracking_mid   = calculate_moment_curvature_sls(section_mid, concrete_tension=True, cracking = True)
-mk_tension_cracking_sup   = calculate_moment_curvature_sls(section_sup, concrete_tension=True, cracking = True)
-mk_notension_mid          = calculate_moment_curvature_sls(section_mid, concrete_tension=False)
+mk_tension_nocracking_mid = calculate_moment_curvature_sls(section_mid, 0.0,"FCTM_PARABOLIC")
+mk_tension_cracking_mid   = calculate_moment_curvature_sls(section_mid, 0.0,"TENSTIFF_PARABOLIC")
+mk_tension_cracking_sup   = calculate_moment_curvature_sls(section_sup, 0.0,"TENSTIFF_PARABOLIC")
+mk_notension_mid          = calculate_moment_curvature_sls(section_mid, 0.0,"NONE_PARABOLIC")
 
 # print("Mid")
 print(mk_tension_cracking_mid.m_y)
