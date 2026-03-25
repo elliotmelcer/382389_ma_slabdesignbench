@@ -35,7 +35,7 @@ def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
             - reason: Explanation if invalid
     """
 
-    sls_sec = sls_section(section, concrete_tension=True)
+    sls_sec = sls_section(section, "FCTM_PARABOLIC")
     analysis_sls_sec = deepcopy(sls_sec)
 
     # --- Concrete Properties ---
@@ -218,7 +218,7 @@ def calculate_bending_strength_sls_Nmm(section: GenericSection, n: float = 0.0) 
         Associated Strain Profile
     """
 
-    sls_sec = sls_section(section, concrete_tension=False)
+    sls_sec = sls_section(section, "NONE_PARABOLIC")
 
     analysis_sls_sec = deepcopy(sls_sec) # in reference to structuralcodes issue #303 https://github.com/fib-international/structuralcodes/issues/303
 
@@ -264,9 +264,8 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
 
 def calculate_moment_curvature_sls(section: GenericSection,
                                    n: float = 0.0,
-                                   concrete_tension: bool = True,
-                                   tension_stiffening: bool = True,
-                                   simplified: bool = False,
+                                   constitutive_law: str = "TENSTIFF_PARABOLIC",
+                                   simplified_mk: bool = False,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
@@ -274,23 +273,22 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     For prestressed sections, adds initial state point (κ₀, M=0).
 
-    :param simplified:
-    :param tension_stiffening:
+    :param simplified_mk:
     :param section: GenericSection (ULS)
     :param n: Axial force [N]
-    :param concrete_tension: If False, fctm = 0
+    :param constitutive_law
     :param debug:
     :return: MomentCurvatureResults with complete M-κ curve
     """
-    sls_sec = sls_section(section, concrete_tension=concrete_tension, tension_stiffening= tension_stiffening)
+    sls_sec = sls_section(section, constitutive_law)
 
-    if simplified:
+    if simplified_mk:
         results = _simplified_moment_curvature_method(
             section = sls_sec,
             n = n,
             debug = debug,
         )
-    else:
+    else: # full mk
         results = _full_moment_curvature_method(
             section = sls_sec,
             n = n,
@@ -432,7 +430,12 @@ def _simplified_moment_curvature_method(section: GenericSection,
     law = concrete_sls.constitutive_law
     eps_F_t = law.eps_F_t
 
-    eoc_results = calculate_section_state_from_bottom_strain_sls(section, n = n, eps_bot=eps_F_t, tension_stiffening=True)
+    eoc_results = calculate_section_state_from_bottom_strain_sls(
+        section_uls = section,
+        n = n,
+        eps_bot=eps_F_t,
+        constitutive_law="TENSTIFF_PARABOLIC"
+    )
     _, kappa_eoc, _ = eoc_results["strain_profile"]
 
     Mk_res_eoc = section.section_calculator.calculate_moment_curvature(n = n, chi=[kappa_eoc])
@@ -475,8 +478,7 @@ def calculate_section_state_from_bottom_strain_sls(
         section_uls,
         eps_bot: float,
         n: float = 0.0,
-        concrete_tension: bool = True,
-        tension_stiffening: bool = True,
+        constitutive_law: str = "TENSTIFF_PARABOLIC",
         chi_scan_range: float = 1e-3,
         num_scan_points: int = 100,
         tolerance: float = 1e-2,
@@ -498,8 +500,7 @@ def calculate_section_state_from_bottom_strain_sls(
         section_uls:            GenericSection (ULS section as input, SLS created internally)
         eps_bot:            Prescribed bottom fiber strain [-] (+ve = tension)
         n:                  Applied axial force [N] (+ve = tension, -ve = compression)
-        concrete_tension:   If True, include concrete cracking (default True)
-        tension_stiffening: If True, concrete has tension stiffening beyond cracking point
+        constitutive_law:   Constitutive Law (for available const. laws see material_methods.py)
         chi_scan_range:     Half-range for initial curvature scan [1/mm] (default 1e-3)
         num_scan_points:    Number of scan points for bracketing (default 100)
         tolerance:          Force imbalance tolerance [N] for bisection (default 1e-2)
@@ -522,7 +523,7 @@ def calculate_section_state_from_bottom_strain_sls(
     """
 
     # --- Build SLS section ---
-    analysis_sec = deepcopy(sls_section(section_uls, concrete_tension=concrete_tension, tension_stiffening= tension_stiffening))
+    analysis_sec = deepcopy(sls_section(section_uls, constitutive_law))
 
     _, _, zmin, zmax = analysis_sec.geometry.calculate_extents()
 
