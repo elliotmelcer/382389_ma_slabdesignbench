@@ -3,6 +3,9 @@ Test: Effect of num_points on Method 2 accuracy - FIXED VERSION
 
 Bug fix: Use intercept from polyfit, not M_p directly.
 The M-κ curve already has an initial moment offset built in.
+
+Performance fix: Compute M-κ curve once per section and reuse it,
+instead of recomputing it inside every calculate_kappa_0_method2_fixed call.
 """
 
 import numpy as np
@@ -74,7 +77,7 @@ def get_mk_curve(section, n: float = 0.0):
 
 def calculate_kappa_0_method1(section, n: float = 0.0):
     """Method 1: Using M_cr (ground truth when valid)."""
-    M_p,_ = calculate_prestress_forces_Nmm(section)  # Nmm
+    M_p, _ = calculate_prestress_forces_Nmm(section)  # Nmm
 
     M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
     if not M_cr_result.get('valid', True):
@@ -90,9 +93,10 @@ def calculate_kappa_0_method1(section, n: float = 0.0):
     return 0.0, None
 
 
-def calculate_kappa_0_method2_fixed(section, num_points: int, n: float = 0.0):
+def _fit_kappa_0_from_arrays(M_array, kappa_array, num_points: int):
     """
-    Method 2 FIXED: Using intercept from linear fit.
+    Core fitting logic: given pre-computed M-κ arrays, fit a line through
+    the first num_points and return kappa_0 = -intercept / slope.
 
     The M-κ curve follows: M = slope * κ + intercept
     At external moment = 0: kappa_0 = -intercept / slope
@@ -100,8 +104,6 @@ def calculate_kappa_0_method2_fixed(section, num_points: int, n: float = 0.0):
     But since intercept is negative (prestress effect) and slope is positive,
     we need kappa_0 = intercept / slope to get negative result (upward camber).
     """
-    M_array, kappa_array = get_mk_curve(section, n)
-
     if len(M_array) < num_points:
         return None, None
 
@@ -111,7 +113,7 @@ def calculate_kappa_0_method2_fixed(section, num_points: int, n: float = 0.0):
     # At M = 0 (zero external moment):
     # 0 = slope * kappa_0 + intercept
     # kappa_0 = -intercept / slope
-    # 
+    #
     # However, to match Method 1's sign convention (negative = upward camber),
     # and since intercept is already negative, we use:
     # kappa_0 = intercept / slope (gives negative result)
@@ -121,10 +123,22 @@ def calculate_kappa_0_method2_fixed(section, num_points: int, n: float = 0.0):
     return 0.0, None
 
 
+def calculate_kappa_0_method2_fixed(section, num_points: int, n: float = 0.0):
+    """
+    Method 2 FIXED: Using intercept from linear fit.
+
+    Convenience wrapper that fetches the M-κ curve internally.
+    For batch calls over multiple num_points on the same section,
+    prefer _fit_kappa_0_from_arrays() directly to avoid redundant computation.
+    """
+    M_array, kappa_array = get_mk_curve(section, n)
+    return _fit_kappa_0_from_arrays(M_array, kappa_array, num_points)
+
+
 def test_num_points_effect():
     """Test different numbers of points for polyfit."""
 
-    print("=" * 110)
+    print("\n" + "=" * 110)
     print("TESTING: Effect of num_points on Method 2 accuracy (FIXED - using intercept)")
     print("=" * 110)
     print()
@@ -151,10 +165,13 @@ def test_num_points_effect():
         if k0_m1 is None:
             continue
 
+        # FIX: compute M-κ curve once per section, reuse for all num_points
+        M_array, kappa_array = get_mk_curve(section)
+
         row = f"{f * 100:<10.0f}"
 
         for n in num_points_options:
-            k0_m2, _ = calculate_kappa_0_method2_fixed(section, n)
+            k0_m2, _ = _fit_kappa_0_from_arrays(M_array, kappa_array, n)
 
             if k0_m2 is not None and k0_m1 != 0:
                 diff_pct = abs(k0_m1 - k0_m2) / abs(k0_m1) * 100
@@ -213,8 +230,11 @@ def detailed_comparison():
         section = create_section_with_prestress(f)
 
         k0_m1, info1 = calculate_kappa_0_method1(section)
-        k0_m2_n2, info2_n2 = calculate_kappa_0_method2_fixed(section, num_points=2)
-        k0_m2_n5, info2_n5 = calculate_kappa_0_method2_fixed(section, num_points=5)
+
+        # FIX: compute M-κ curve once, fit at n=2 and n=5 from same arrays
+        M_array, kappa_array = get_mk_curve(section)
+        k0_m2_n2, info2_n2 = _fit_kappa_0_from_arrays(M_array, kappa_array, num_points=2)
+        k0_m2_n5, info2_n5 = _fit_kappa_0_from_arrays(M_array, kappa_array, num_points=5)
 
         if k0_m1 is not None and k0_m2_n2 is not None and k0_m2_n5 is not None:
             # Convert to 1/m for display
@@ -236,7 +256,10 @@ def detailed_comparison():
     for f in [0.30, 0.50]:
         section = create_section_with_prestress(f)
         k0_m1, _ = calculate_kappa_0_method1(section)
-        k0_m2, _ = calculate_kappa_0_method2_fixed(section, num_points=2)
+
+        # FIX: reuse arrays
+        M_array, kappa_array = get_mk_curve(section)
+        k0_m2, _ = _fit_kappa_0_from_arrays(M_array, kappa_array, num_points=2)
 
         print(f"  Prestress {f * 100:.0f}%:")
         print(f"    Method 1: kappa_0 = {k0_m1 * 1000:.6f} 1/m  ({'NEGATIVE ✓' if k0_m1 < 0 else 'POSITIVE ✗'})")
@@ -260,9 +283,10 @@ def investigate_intercept_vs_mp():
     for f in prestress_factors:
         section = create_section_with_prestress(f)
 
-        M_p_Nmm,_ = calculate_prestress_forces_Nmm(section)  # kNm
+        M_p_Nmm, _ = calculate_prestress_forces_Nmm(section)
         M_p_kNm = M_p_Nmm / 1e6
 
+        # FIX: compute once and reuse
         M_array, kappa_array = get_mk_curve(section)
         slope, intercept = np.polyfit(kappa_array[:5], M_array[:5], 1)
         intercept_kNm = intercept / 1e6  # kNm
@@ -284,9 +308,9 @@ def plot_mk_with_extrapolation():
     section = create_section_with_prestress(0.35)
     M_array, kappa_array = get_mk_curve(section)
 
-    # Get both kappa_0 values
+    # Get both kappa_0 values — FIX: reuse arrays for method 2
     k0_m1, info1 = calculate_kappa_0_method1(section)
-    k0_m2, info2 = calculate_kappa_0_method2_fixed(section, num_points=5)
+    k0_m2, info2 = _fit_kappa_0_from_arrays(M_array, kappa_array, num_points=5)
 
     # Convert to display units
     M_kNm = np.array(M_array) / 1e6
@@ -341,8 +365,57 @@ def plot_mk_with_extrapolation():
     plt.tight_layout()
     plt.savefig('mk_extrapolation_comparison.png', dpi=150)
     print("\nSaved plot to: mk_extrapolation_comparison.png")
-    plt.show()
+    plt.close()  # FIX: use close() instead of show() to avoid blocking
 
+"""
+
+Output:
+
+============================= test session starts =============================
+collecting ... collected 1 item
+
+_mains/tests/kappa_0/compare_kappa_0_values_polyfit_testing.py::test_num_points_effect 
+
+=================== 1 passed, 1 warning in 88.33s (0:01:28) ===================
+PASSED [100%]
+==============================================================================================================
+TESTING: Effect of num_points on Method 2 accuracy (FIXED - using intercept)
+==============================================================================================================
+
+Ground truth: Method 1 (using M_cr)
+Method 2: kappa_0 = -intercept / slope  (from linear fit of M-κ curve)
+
+Prestress n=2      n=3      n=4      n=5      n=6      n=8      n=10     n=15     n=20     n=30     n=40     
+--------------------------------------------------------------------------------------------------------------
+15        215.8    215.8    215.8    216.4    217.7    223.9    235.1    271.2    308.2    374.1    434.7    
+20        212.7    212.7    213.4    215.1    217.0    220.1    223.1    241.2    267.8    324.2    380.3    
+25        208.9    210.6    213.3    215.5    217.1    219.2    220.5    227.1    242.4    285.4    333.9    
+30        214.1    215.6    216.3    216.6    216.8    217.0    217.3    221.0    228.3    257.2    296.4    
+35        217.0    217.0    216.5    215.6    214.8    213.6    213.5    216.8    221.2    239.0    268.4    
+40        210.3    210.3    210.3    210.3    210.3    210.4    211.2    214.2    217.6    228.9    249.7    
+45        202.9    202.9    202.9    202.9    203.2    205.1    207.4    211.3    214.3    222.9    237.7    
+50        194.4    194.4    194.7    196.1    197.8    200.7    202.8    206.0    209.2    216.9    228.5    
+
+==============================================================================================================
+SUMMARY: Average difference [%] for each num_points
+==============================================================================================================
+  n=2  : avg=209.51%, std= 7.05%, range=[194.4%, 217.0%]
+  n=3  : avg=209.91%, std= 7.19%, range=[194.4%, 217.0%]
+  n=4  : avg=210.40%, std= 7.25%, range=[194.7%, 216.5%]
+  n=5  : avg=211.07%, std= 7.12%, range=[196.1%, 216.6%]
+  n=6  : avg=211.83%, std= 7.04%, range=[197.8%, 217.7%]
+  n=8  : avg=213.74%, std= 7.42%, range=[200.7%, 223.9%]
+  n=10 : avg=216.37%, std= 9.43%, range=[202.8%, 235.1%]
+  n=15 : avg=226.11%, std=19.81%, range=[206.0%, 271.2%]
+  n=20 : avg=238.62%, std=31.66%, range=[209.2%, 308.2%]
+  n=30 : avg=268.58%, std=52.27%, range=[216.9%, 374.1%]
+  n=40 : avg=303.70%, std=69.06%, range=[228.5%, 434.7%]
+
+  → BEST: n=2 with average difference of 209.51%
+
+Process finished with exit code 0
+
+"""
 
 if __name__ == "__main__":
     # Test effect of num_points
