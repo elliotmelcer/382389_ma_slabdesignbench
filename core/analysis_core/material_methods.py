@@ -93,7 +93,6 @@ class CrackingConcreteLaw(UserDefined):
             self,
             strains: np.ndarray,
             stresses: np.ndarray,
-            eps_ctm: float,
             eps_cu1: float,
             eps_c1: float,
             **kwargs,
@@ -108,7 +107,6 @@ class CrackingConcreteLaw(UserDefined):
             **kwargs: Passed through to UserDefined (e.g. name, flag).
         """
         super().__init__(strains, stresses, **kwargs)
-        self._eps_ctm = eps_ctm
         self._eps_cu1 = eps_cu1  # negative, e.g. -0.0035
         self._eps_c1 = eps_c1  # negative, e.g. -0.0020
         self.eps_F_t = strains[-1]
@@ -127,6 +125,33 @@ class CrackingConcreteLaw(UserDefined):
             return self._eps_c1, 1e6
         return self._eps_cu1, 1e6
 
+class TensionStiffeningConcreteLaw(CrackingConcreteLaw):
+    """
+    Author: Elliot Melcer
+
+    A concrete constitutive law that handles tension stiffening
+
+    The class...
+    """
+
+    def __init__(
+            self,
+            strains: np.ndarray,
+            stresses: np.ndarray,
+            eps_cu1: float,
+            eps_c1: float,
+            **kwargs,
+    ) -> None:
+        """
+        Args:
+            strains:  Strain array passed to UserDefined
+            stresses: Stress array passed to UserDefined
+            eps_cu1:  Ultimate compressive strain (negative).
+            eps_c1:   Compressive strain at peak stress (negative), used when yielding=True.
+            **kwargs: Passed through to UserDefined (e.g. name, flag).
+        """
+        super().__init__(strains, stresses, eps_cu1, eps_c1, **kwargs)
+        self.eps_F_t = strains[-1]
 
 def sls_concrete(conc: Concrete, constitutive_law: str,) -> Concrete:
     f_ck = conc.fck
@@ -142,12 +167,12 @@ def sls_concrete(conc: Concrete, constitutive_law: str,) -> Concrete:
                                        name=f"C{f_ck}/{f_cube} SLS")
     elif constitutive_law_normalized == "FCTM_PARABOLIC":
         sls_conc = create_concrete(fck=f_ck,
-                                       constitutive_law=sargin_elastic_law(conc),
-                                       name=f"C{f_ck}/{f_cube} SLS")
+                                   constitutive_law=fctm_parabolic_law(conc),
+                                   name=f"C{f_ck}/{f_cube} SLS")
     elif constitutive_law_normalized == "TENSTIFF_PARABOLIC":
         sls_conc = create_concrete(fck=f_ck,
-                                       constitutive_law=sargin_tension_stiffening_law(conc),
-                                       name=f"C{f_ck}/{f_cube} SLS")
+                                   constitutive_law=tenstiff_parabolic_law(conc),
+                                   name=f"C{f_ck}/{f_cube} SLS")
     elif constitutive_law_normalized == "ELASTIC_ELASTIC":
         sls_conc = create_concrete(fck=f_ck,
                                        constitutive_law='elastic',
@@ -162,12 +187,14 @@ def sls_concrete(conc: Concrete, constitutive_law: str,) -> Concrete:
 
     return sls_conc
 
-def sargin_elastic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> UserDefined:
+def fctm_parabolic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> CrackingConcreteLaw:
     """
     Author: Elliot Melcer
     Creates a Non-Linear Constitutive Law with Linear Branch in Tension and Sargin Branch Under Compression
-    - Compression: Sargin (eps_cu1 → eps_c1)
     - Tension: linear elastic (0 → eps_ctm)
+    - Compression: Sargin (eps_cu1 → eps_c1)
+
+    Returns a CrackingConcreteLaw Object
     """
 
     # -------------------------------
@@ -216,21 +243,23 @@ def sargin_elastic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> User
     eps, unique_idx = np.unique(eps, return_index=True)
     sig = sig[unique_idx]
 
-    return UserDefined(
-        x=eps,
-        y=sig,
+    return CrackingConcreteLaw(
+        strains=eps,
+        stresses=sig,
+        eps_cu1=eps_cu1,
+        eps_c1 = eps_c1,
         name="SarginElastic",
         flag=0,
     )
 
-def sargin_tension_stiffening_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> CrackingConcreteLaw:
+def tenstiff_parabolic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> TensionStiffeningConcreteLaw:
     """
     Author: Elliot Melcer
     Creates a Non-Linear Constitutive Law
         Compression: Sargin Branch
         Tension:  Linear Branch until fctm + Tension Stiffening according to Naya(2006)
 
-    Returns a CrackingConcreteLaw Object
+    Returns a TensionStiffeningConcreteLaw Object
     """
 
     # -------------------------------
@@ -297,7 +326,7 @@ def sargin_tension_stiffening_law(concrete: Concrete, n_c: int = 80, n_t: int = 
     eps, unique_idx = np.unique(eps, return_index=True)
     sig = sig[unique_idx]
 
-    return CrackingConcreteLaw(
+    return TensionStiffeningConcreteLaw(
         strains=eps,
         stresses=sig,
         eps_ctm=eps_ctm,
