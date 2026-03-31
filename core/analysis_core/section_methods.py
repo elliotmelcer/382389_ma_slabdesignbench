@@ -1,15 +1,13 @@
 from copy import deepcopy
-from dataclasses import asdict
 
 import numpy as np
 from structuralcodes.core._section_results import MomentCurvatureResults
 from structuralcodes.geometry import  CompoundGeometry, SurfaceGeometry
-from structuralcodes.materials.concrete import Concrete, create_concrete
+from structuralcodes.materials.concrete import Concrete
 from structuralcodes.materials.reinforcement import Reinforcement
-from structuralcodes.sections import GenericSection, GenericSectionCalculator
+from structuralcodes.sections import GenericSection
 
-from core.analysis_core.material_methods import sargin_elastic_law, get_cube, sargin_tension_stiffening_law, \
-    sls_concrete
+from core.analysis_core.material_methods import sls_concrete, TensionStiffeningConcreteLaw
 
 
 def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
@@ -265,7 +263,7 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
 def calculate_moment_curvature_sls(section: GenericSection,
                                    n: float = 0.0,
                                    constitutive_law: str = "TENSTIFF_PARABOLIC",
-                                   simplified_mk: bool = False,
+                                   m_k_simplification = False,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
@@ -273,28 +271,31 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     For prestressed sections, adds initial state point (κ₀, M=0).
 
-    :param simplified_mk:
-    :param section: GenericSection (ULS)
-    :param n: Axial force [N]
+    :param section:             GenericSection (ULS)
+    :param n:                   Axial force [N]
+    :param m_k_simplification:  Control simplified M-K-Diagram Calculation in _simplified_moment_curvature_method()
     :param constitutive_law
     :param debug:
+
     :return: MomentCurvatureResults with complete M-κ curve
     """
     sls_sec = sls_section(section, constitutive_law)
 
-    if simplified_mk:
-        results = _simplified_moment_curvature_method(
-            section = sls_sec,
-            n = n,
-            debug = debug,
-        )
-    else: # full mk
+    if not m_k_simplification:
+        # Full M-K-Diagram
         results = _full_moment_curvature_method(
-            section = sls_sec,
-            n = n,
-            debug = debug,
+            section=sls_sec,
+            n=n,
+            debug=debug,
         )
-
+    else:
+        # Simplified M-K-Diagram
+        results = _simplified_moment_curvature_method(
+            section=sls_sec,
+            extra_points=m_k_simplification,
+            n=n,
+            debug=debug,
+        )
     return results
 
 def _full_moment_curvature_method(section: GenericSection,
@@ -395,6 +396,7 @@ def _full_moment_curvature_method(section: GenericSection,
     return results
 
 def _simplified_moment_curvature_method(section: GenericSection,
+                                   extra_points = None,
                                    n: float = 0.0,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
@@ -404,11 +406,24 @@ def _simplified_moment_curvature_method(section: GenericSection,
         Cracking Point
         End of Cracking Point:  based on tension stiffening of concrete Ultimate Point
 
+    Optional extra_points behavior:
+
+        Input   Range      Explanation
+        ------------------------------------------------------------------------------------------------
+        False              Do not use this simplified method (handled higher up, should not reach this code)
+        True               Use simplified method without extra points
+        int     n>=1       Creates n evenly distributed points between kappa_cr and kappa_eoc
+        float   0<n<1      Creates ONE additional point at
+                           kappa_cr + n * (kappa_eoc - kappa_cr)
+
     :param section:
     :param n:
     :param debug:
     :return:
     """
+
+    if not isinstance(get_concrete(section).constitutive_law, TensionStiffeningConcreteLaw):
+        raise Exception("Simplified M-K-Line only implemented for TENSTIFF_PARABOLIC")
 
     # Cracking Point
     M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
@@ -445,8 +460,53 @@ def _simplified_moment_curvature_method(section: GenericSection,
     M_u_Nmm = ultimate_result["m_u"]
     _, kappa_u, _ = ultimate_result["strain_profile"]
 
-    moments    = np.array([0.0,     M_cr_Nmm, M_eoc_Nmm, M_u_Nmm])
-    curvatures = np.array([kappa_0, kappa_cr, kappa_eoc, kappa_u])
+    # Extra Points
+    kappa_extra = np.array([])
+
+    if extra_points is False:
+        raise ValueError(
+            "extra_points=False means this simplified method should not be called. "
+            "Handle this case higher up in the call chain."
+        )
+
+    elif extra_points is True:
+        # use simplified method, but without extra points
+        pass
+
+    elif type(extra_points) is int:
+        if extra_points < 1:
+            raise ValueError("If extra_points is an int, it must be >= 1.")
+        kappa_extra = np.linspace(kappa_cr, kappa_eoc, extra_points + 2)[1:-1]
+
+    elif type(extra_points) is float:
+        if not (0.0 < extra_points < 1.0):
+            raise ValueError("If extra_points is a float, it must satisfy 0 < extra_points < 1.")
+        kappa_extra = np.array([kappa_cr + extra_points * (kappa_eoc - kappa_cr)])
+
+    else:
+        raise TypeError(
+            "extra_points must be one of: False, True, int >= 1, or float with 0 < value < 1 "
+            f"(got {type(extra_points).__name__})"
+        )
+
+    # Compute Extra Moments
+    if kappa_extra.size > 0:
+        Mk_res_extra = section.section_calculator.calculate_moment_curvature(
+            n=n, chi=kappa_extra
+        )
+        M_extra_Nmm = Mk_res_extra.m_y
+    else:
+        M_extra_Nmm = []
+
+    # Assemble Simplified M-K-Pairs
+    moments_pre_crack    = np.array([0.0,     M_cr_Nmm])
+    curvatures_pre_crack = np.array([kappa_0, kappa_cr])
+
+    moments_post_crack    = np.array([M_eoc_Nmm, M_u_Nmm])
+    curvatures_post_crack = np.array([kappa_eoc, kappa_u])
+
+    moments     = np.concatenate((moments_pre_crack,     M_extra_Nmm,    moments_post_crack))
+    curvatures  = np.concatenate((curvatures_pre_crack,  kappa_extra,    curvatures_post_crack))
 
     mk_results = section.section_calculator.calculate_moment_curvature(n = n, chi=[])
     mk_results.m_y=moments
@@ -693,8 +753,6 @@ def sls_section(
 
     # Create SLS Concrete from Concrete Used in Section
     conc = get_concrete(section_uls)
-    f_ck = conc.fck
-    f_cube = get_cube(f_ck)
     sls_conc = sls_concrete(conc, constitutive_law)
 
     # Change Concrete Material

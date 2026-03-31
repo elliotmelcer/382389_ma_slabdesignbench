@@ -109,7 +109,6 @@ class CrackingConcreteLaw(UserDefined):
         super().__init__(strains, stresses, **kwargs)
         self._eps_cu1 = eps_cu1  # negative, e.g. -0.0035
         self._eps_c1 = eps_c1  # negative, e.g. -0.0020
-        self.eps_F_t = strains[-1]
 
     # ------------------------------------------------------------------
     def get_ultimate_strain(self, yielding: bool = False):
@@ -329,7 +328,6 @@ def tenstiff_parabolic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> 
     return TensionStiffeningConcreteLaw(
         strains=eps,
         stresses=sig,
-        eps_ctm=eps_ctm,
         eps_cu1=eps_cu1,
         eps_c1=eps_c1,
         name="SarginTensionStiffening",
