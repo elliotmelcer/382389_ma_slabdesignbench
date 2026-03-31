@@ -1,6 +1,6 @@
 """
 Author: Elliot Melcer
-Deflection calculations using Simpson's rule and virtual work method
+Deflection calculations
 """
 
 import numpy as np
@@ -35,7 +35,7 @@ class DeflectionCalculator:
             N_axial_N: float = 0.0,
             constitutive_law: str = "TENSTIFF_PARABOLIC",
             load_history_method: str = "NONE",
-            simplified_mk: bool = False,
+            m_k_simplification = False,
             debug: bool = False,
             extended_debug: bool = False
     ) -> float:
@@ -44,14 +44,18 @@ class DeflectionCalculator:
         Uses position-dependent M-κ curves.
 
         :param load_history_method:
+                    Input       Explanation
+                    ------------------------------------------------------------------------------------------------
                     "NONE"      no load history considered, direct method used with parameter combination
                     "FACTOR"    load history considered according to Eurocode 2, Chapter 7.4.3, Equation (7.18)
                     "SECANT"    load history considered according to Kreller (1989)*, Chapter 4.2.4
 
                     *Title: "Zum nichtlinearen Trag- und Verformungsverhalten von Stahlbetonstabtragwerken unter Last- und Zwangeinwirkung"
 
-        :param simplified_mk:       Enable simplified M-K-Diagram Calculation
-        :param constitutive_law:    for available types see material_methods.py
+        :param m_k_simplification:  Control simplified M-K-Diagram Calculation
+                                    For available inputs see _simplified_moment_curvature_method() in section_methods.py
+        :param constitutive_law:    Control Concrete Material Behavior in SLS
+                                    for available inputs see sls_concrete() in material_methods.py
         :param slab_construction:   Slab construction object
         :param loads:               Loads object
         :param system:              Structural system type
@@ -97,7 +101,7 @@ class DeflectionCalculator:
                 n_intervals=n_intervals,
                 N_axial_N=N_axial_N,
                 constitutive_law = constitutive_law,
-                simplified_mk = simplified_mk,
+                m_k_simplification = m_k_simplification,
                 debug=debug,
                 extended_debug=extended_debug,
             )
@@ -110,7 +114,7 @@ class DeflectionCalculator:
                 combination=combination,
                 n_intervals=n_intervals,
                 N_axial_N=N_axial_N,
-                simplified_mk=simplified_mk,
+                m_k_simplification=m_k_simplification,
                 debug=debug,
                 extended_debug=extended_debug,
             )
@@ -133,7 +137,7 @@ class DeflectionCalculator:
             n_intervals: int,
             N_axial_N: float,
             constitutive_law: str,
-            simplified_mk: bool,
+            m_k_simplification,
             debug: bool,
             extended_debug: bool
     ) -> float:
@@ -149,7 +153,7 @@ class DeflectionCalculator:
             n_intervals=n_intervals,
             N_axial_N=N_axial_N,
             constitutive_law = constitutive_law,
-            simplified_mk = simplified_mk,
+            m_k_simplification = m_k_simplification,
         )
 
         # Setup integration points (half span due to symmetry)
@@ -181,7 +185,7 @@ class DeflectionCalculator:
             combination: str,
             n_intervals: int,
             N_axial_N: float,
-            simplified_mk: bool,
+            m_k_simplification,
             debug: bool,
             extended_debug: bool
     ) -> float:
@@ -206,7 +210,7 @@ class DeflectionCalculator:
             n_intervals = n_intervals,
             N_axial_N = N_axial_N,
             constitutive_law = "NONE_PARABOLIC",
-            simplified_mk=simplified_mk,
+            m_k_simplification=m_k_simplification,
         )
 
         # --------------------------
@@ -221,7 +225,7 @@ class DeflectionCalculator:
             n_intervals=n_intervals,
             N_axial_N=N_axial_N,
             constitutive_law="ELASTIC_ELASTIC",
-            simplified_mk = simplified_mk,
+            m_k_simplification = m_k_simplification,
         )
 
         # --------------------------
@@ -404,7 +408,7 @@ class DeflectionCalculator:
             n_intervals: int,
             N_axial_N: float,
             constitutive_law: str,
-            simplified_mk: bool,
+            m_k_simplification,
     ) -> list[float]:
         """
         Compute κ(x) at each position by parabolically interpolating the M-κ curve
@@ -421,7 +425,7 @@ class DeflectionCalculator:
             section_support,
             n=N_axial_N,
             constitutive_law = constitutive_law,
-            simplified_mk = simplified_mk
+            m_k_simplification = m_k_simplification
         )
         print("M_k_result_support")
         print(M_k_result_support.m_y)
@@ -431,7 +435,7 @@ class DeflectionCalculator:
             section_mid,
             n=N_axial_N,
             constitutive_law = constitutive_law,
-            simplified_mk = simplified_mk
+            m_k_simplification = m_k_simplification
         )
         print("M_k_result_mid")
         print(M_k_result_mid.m_y)
