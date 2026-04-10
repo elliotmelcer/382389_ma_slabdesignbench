@@ -297,109 +297,76 @@ def calculate_moment_curvature_sls(section: GenericSection,
             debug=debug,
         )
 
-    mon_incr_results = _check_monotonically_increasing(results)
+    mon_incr_results = _enforce_monotonically_increasing(results)
     return mon_incr_results
 
 
-def _check_monotonically_increasing(results: MomentCurvatureResults) -> MomentCurvatureResults:
+def _enforce_monotonically_increasing(results: MomentCurvatureResults) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
     Enforces monotonically increasing moment magnitudes in a MomentCurvatureResults object.
 
-    Moment-Curvature Calculation in structuralcodes is kappa-controlled. This may lead to
-    non-monotonically increasing moments, which can lead to erroneous deflections.
-    This method bridges over any dips in the moment-curvature-line as follows, to make it
-    moment-controlled.
-
-    When |m[i+1]| < |m[i]|, collect all dip indices until the first j where
-    |m[j]| > |m[i]|, insert an interpolated point (κ_new, m[i]) at i+1, and
+    When |m[i+1]| < |m[i]|, collects all dip indices until the first j where
+    |m[j]| > |m[i]|, inserts an interpolated point (κ_new, m[i]) at i+1, and
     removes the dip indices. If the moment never recovers, the tail is truncated.
 
     :param results: MomentCurvatureResults object (modified in-place).
     :return:        The same MomentCurvatureResults object with corrected arrays.
     """
-    moments = list(results.m_y)
-    curvatures = list(results.chi_y)
 
-    # Track whether eps_axial exists and is length-consistent.
-    has_eps_axial = (
-            hasattr(results, 'eps_axial')
-            and results.eps_axial is not None
-            and len(results.eps_axial) == len(moments)
-    )
-    axial_strains = list(results.eps_axial) if has_eps_axial else None
+    # Work with a single list of (moment, curvature) pairs so the two arrays
+    # can never be modified independently and get out of sync.
+    pairs = list(zip(results.m_y, results.chi_y))
 
     i = 0
-    while i < len(moments) - 1:
+    while i < len(pairs) - 1:
 
-        if abs(moments[i + 1]) < abs(moments[i]):
+        if abs(pairs[i + 1][0]) < abs(pairs[i][0]):
             # ----------------------------------------------------------------
-            # Dip detected: collect all indices where magnitude stays below
-            # the local peak at i.
+            # Dip detected: advance j until the moment recovers past m[i].
             # ----------------------------------------------------------------
-            print("Dip Detected")
-            dip_indices = []
             j = i + 1
-            while j < len(moments) and abs(moments[j]) <= abs(moments[i]):
-                dip_indices.append(j)
+            while j < len(pairs) and abs(pairs[j][0]) <= abs(pairs[i][0]):
                 j += 1
 
-            if j < len(moments):
+            m_peak = pairs[i][0]  # signed peak moment (negative)
+
+            if j < len(pairs):
                 # ------------------------------------------------------------
-                # Recovery found at index j.
-                # Capture boundary values BEFORE any removals so indices stay
-                # valid, then interpolate the new curvature at M = m[i].
+                # Indices i+1 … j-2: set moment to m_peak, curvature unchanged.
                 # ------------------------------------------------------------
-                m_peak = moments[i]  # signed peak moment (negative)
-                m_before = moments[j - 1]  # last point inside the dip
-                m_after = moments[j]  # first point that cleared the peak
+                for k in range(i + 1, j - 1):
+                    pairs[k] = (m_peak, pairs[k][1])
 
-                chi_before = curvatures[j - 1]
-                chi_after = curvatures[j]
+                # ------------------------------------------------------------
+                # Index j-1: set moment to m_peak, interpolate curvature
+                # between the original values at j-1 and j at M = m_peak.
+                # ------------------------------------------------------------
+                m_before = pairs[j - 1][0]
+                m_after = pairs[j][0]
+                chi_before = pairs[j - 1][1]
+                chi_after = pairs[j][1]
 
-                # Capture eps_axial boundary values before removal
-                if has_eps_axial:
-                    eps_before = axial_strains[j - 1]
-                    eps_after = axial_strains[j]
-
-                # Linear interpolation parameter t ∈ (0, 1):
-                #   κ_new = κ_{j-1} + t · (κ_j − κ_{j-1})
                 t = (m_peak - m_before) / (m_after - m_before)
-                chi_new = chi_before + t * (chi_after - chi_before)
-
-                # Remove dip points (reverse order preserves earlier indices)
-                for idx in sorted(dip_indices, reverse=True):
-                    moments.pop(idx)
-                    curvatures.pop(idx)
-                    if has_eps_axial:
-                        axial_strains.pop(idx)
-
-                # Insert interpolated point immediately after the peak (i+1)
-                moments.insert(i + 1, m_peak)
-                curvatures.insert(i + 1, chi_new)
-                if has_eps_axial:
-                    axial_strains.insert(i + 1, eps_before + t * (eps_after - eps_before))
+                pairs[j - 1] = (m_peak, chi_before + t * (chi_after - chi_before))
 
             else:
                 # ------------------------------------------------------------
-                # Moment never recovers — truncate from the first dip index.
+                # Moment never recovers: set all remaining to m_peak,
+                # curvatures unchanged.
                 # ------------------------------------------------------------
-                for idx in sorted(dip_indices, reverse=True):
-                    moments.pop(idx)
-                    curvatures.pop(idx)
-                    if has_eps_axial:
-                        axial_strains.pop(idx)
-                break  # nothing left to check after truncation
+                for k in range(i + 1, len(pairs)):
+                    pairs[k] = (m_peak, pairs[k][1])
 
         i += 1
 
-    # Write corrected arrays back to the results object
+    # Unzip pairs and write corrected arrays back to the results object
+    moments, curvatures = zip(*pairs) if pairs else ([], [])
     results.m_y = np.array(moments)
     results.chi_y = np.array(curvatures)
-    if has_eps_axial:
-        results.eps_axial = np.array(axial_strains)
 
     return results
+
 
 def _full_moment_curvature_method(section: GenericSection,
                                    n: float = 0.0,
