@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from structuralcodes.sections import GenericSection
 
-from core.analysis_core.statics.deformations import DeflectionCalculator
+from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.analysis_core.loads import Loads
 from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm, flipped_section, \
@@ -123,7 +123,7 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             debug: bool = False,
     ) -> float:
 
-        w_max_sls = DeflectionCalculator.calculate_deflection(
+        w_max_sls = DeflectionCalculator.calculate_deflection_mm(
             slab_construction,
             loads,
             system,
@@ -224,7 +224,7 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
             debug: bool = False,
     ) -> float:
 
-        w_max_uls = DeflectionCalculator.calculate_deflection(
+        w_max_uls = DeflectionCalculator.calculate_deflection_mm(
             slab_construction,
             loads,
             system,
