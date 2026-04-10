@@ -4,8 +4,8 @@ from _mains.testing_files.testing_slab_construction import test_slab_constructio
 from _mains.testing_files.testing_loads import test_loads
 from core.analysis_core.section_methods import calculate_moment_curvature_sls
 from core.analysis_core.statics import calculate_line_load_kN_m
-from core.analysis_core.statics.deformations import DeflectionCalculator
-from core.visualization_core.visualization import plot_moment_curvature, plot_moment_curvature_with_reference
+from core.analysis_core.statics.deflection import DeflectionCalculator
+from core.visualization_core.visualization import plot_moment_curvature_with_reference
 
 """
 This file is used to analyze the deflection of test_slab_construction_c1_3 after finding large discrepancies between the 
