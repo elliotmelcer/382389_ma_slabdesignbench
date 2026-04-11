@@ -154,6 +154,8 @@ class DeflectionCalculator:
             N_axial_N=N_axial_N,
             constitutive_law = constitutive_law,
             m_k_simplification = m_k_simplification,
+            debug = debug,
+            extended_debug = extended_debug,
         )
 
         # Setup integration points (half span due to symmetry)
@@ -211,6 +213,7 @@ class DeflectionCalculator:
             N_axial_N = N_axial_N,
             constitutive_law = "NONE_PARABOLIC",
             m_k_simplification=m_k_simplification,
+            debug = debug
         )
 
         # --------------------------
@@ -226,6 +229,7 @@ class DeflectionCalculator:
             N_axial_N=N_axial_N,
             constitutive_law="ELASTIC_ELASTIC",
             m_k_simplification = m_k_simplification,
+            debug = debug
         )
 
         # --------------------------
@@ -252,8 +256,8 @@ class DeflectionCalculator:
         # Cracking Moment along the Beam
         m_cr_interp_list_kNm = []
 
-        # Real Moment along the Beam under Rare Combination
-        m_real_rare_list_kNm = []
+        # Real Moment along the Beam
+        m_real_list_kNm = []
 
         # Zeta Array
         zeta_array = []
@@ -266,26 +270,26 @@ class DeflectionCalculator:
                 x_norm
             )
 
-            # Real Moment at x_norm under Rare Combination
-            m_real_x_rare_kNm = InternalForces.calculate_moment_kNm(
+            # Real Moment at x_norm
+            m_real_x_kNm = InternalForces.calculate_moment_kNm(
                 slab_construction,
                 loads,
-                combination = "RARE",
+                combination = combination,
                 system = system,
                 x_norm = x_norm)
 
             # Weight Factor Zeta according to EC2 Eq. (7.19)
             beta = 0.5 # short term load
 
-            if m_real_x_rare_kNm > m_cr_x_norm_kNm:
-                zeta_x_norm = 1 - beta * (m_cr_x_norm_kNm / m_real_x_rare_kNm)
+            if m_real_x_kNm > m_cr_x_norm_kNm:
+                zeta_x_norm = 1 - beta * (m_cr_x_norm_kNm / m_real_x_kNm)
                 zeta_x_norm = max(0.0, min(1.0, zeta_x_norm))
             else:
                 zeta_x_norm = 0.0
 
             # Append to Lists
             m_cr_interp_list_kNm.append(m_cr_x_norm_kNm)
-            m_real_rare_list_kNm.append(m_real_x_rare_kNm)
+            m_real_list_kNm.append(m_real_x_kNm)
             zeta_array.append(zeta_x_norm)
 
         # -----------------------------
@@ -305,11 +309,14 @@ class DeflectionCalculator:
         deflection_weighted_mm, _ = DeflectionCalculator._simpson_integration(
             span_m=span_m,
             n_intervals=n_intervals,
-            M_applied_array_kNm=m_real_rare_list_kNm,
+            M_applied_array_kNm=m_real_list_kNm,
             kappa_array=kappa_weighted_array,
             debug=debug,
             extended_debug=extended_debug,
         )
+
+        if debug:
+            print(f"zeta_array: {zeta_array}")
 
         return deflection_weighted_mm
 
@@ -385,7 +392,7 @@ class DeflectionCalculator:
             for r in extended_simpson_output:
                 print(
                     f"{r['i']:>4} {r['x_norm']:>8.4f} {r['weight']:>8.1f} "
-                    f"{r['M_real']:>12.4f} {r['M_virt']:>12.6f} "
+                    f"{r['M_real']:>12.4f} {r['M_v']:>12.6f} "
                     f"{r['kappa']:>14.6e} {r['incr']:>14.6e} {r['cum_sum']:>14.6e}"
                 )
 
@@ -393,9 +400,6 @@ class DeflectionCalculator:
         delta_x_real = delta_x_norm * span_m
         deflection_m = (integral_sum * delta_x_real / 3) * 2  # ×2 for full span
         deflection_mm = deflection_m * 1000 # Convert m to mm
-
-        if debug:
-            print(f"\n[DEBUG] Final deflection: {deflection_mm:.2f} mm")
 
         return deflection_mm, extended_simpson_output
 
@@ -409,6 +413,8 @@ class DeflectionCalculator:
             N_axial_N: float,
             constitutive_law: str,
             m_k_simplification,
+            debug: bool = False,
+            extended_debug: bool = False,
     ) -> list[float]:
         """
         Compute κ(x) at each position by parabolically interpolating the M-κ curve
@@ -427,9 +433,11 @@ class DeflectionCalculator:
             constitutive_law = constitutive_law,
             m_k_simplification = m_k_simplification
         )
-        print("M_k_result_support")
-        print(M_k_result_support.m_y)
-        print(M_k_result_support.chi_y)
+        #
+        # if debug:
+        #     print("M_k_result_support")
+        #     print(M_k_result_support.m_y)
+        #     print(M_k_result_support.chi_y)
 
         M_k_result_mid = calculate_moment_curvature_sls(
             section_mid,
@@ -437,9 +445,11 @@ class DeflectionCalculator:
             constitutive_law = constitutive_law,
             m_k_simplification = m_k_simplification
         )
-        print("M_k_result_mid")
-        print(M_k_result_mid.m_y)
-        print(M_k_result_mid.chi_y)
+        #
+        # if debug:
+        #     print("M_k_result_mid")
+        #     print(M_k_result_mid.m_y)
+        #     print(M_k_result_mid.chi_y)
 
         # Setup integration points (half span due to symmetry)
         x_positions = np.linspace(0, 0.5, n_intervals + 1)
@@ -452,8 +462,9 @@ class DeflectionCalculator:
 
         kappas = []
 
-        for x_norm, M_applied_kNm in zip(x_positions, M_applied_array_kNm):
+        interp_bounds_output = []
 
+        for x_norm, M_applied_kNm in zip(x_positions, M_applied_array_kNm):
             # -------------------------------------------------------
             # 1. Get interpolated M-k-curve at position x_norm
             # 2. Get real moment M(x) under load at x
@@ -472,9 +483,63 @@ class DeflectionCalculator:
                 x_norm
             )
 
+            M_low, M_high, kappa_low, kappa_high = DeflectionCalculator.interp_bounds(
+                M_applied_kNm,
+                M_array_interp_kNm,
+                kappa_array_interp
+            )
+
+            interp_bounds_output.append({
+                "x_norm": x_norm,
+                "M_applied_kNm": M_applied_kNm,
+                "M_low": M_low,
+                "M_high": M_high,
+                "kappa_low": kappa_low,
+                "kappa_high": kappa_high,
+            })
+
             kappas.append(np.interp(M_applied_kNm, M_array_interp_kNm, kappa_array_interp))
 
+        # ── Print extended debug table ─────────────────────────────────────────────
+        if extended_debug:
+            header = (
+                f"{'x_norm':>8} {'M_applied_kNm':>12} {'M_low':>12} {'M_high':>12} "
+                f"{'kappa_low':>14} {'kappa_high':>14}"
+            )
+            print("\n[DEBUG] Interpolation bounds:")
+            print(header)
+            print("-" * len(header))
+            for r in interp_bounds_output:
+                print(
+                    f"{r['x_norm']:>8.4f} "
+                    f"{r['M_applied_kNm']:>12.4f} "
+                    f"{r['M_low']:>12.4f} "
+                    f"{r['M_high']:>12.4f} "
+                    f"{r['kappa_low']:>14.6e} "
+                    f"{r['kappa_high']:>14.6e}"
+                )
+
+
+
         return kappas
+
+    @staticmethod
+    def interp_bounds(x, xs, ys):
+        """
+        Return (x_lo, x_hi, y_lo, y_hi) such that:
+        x_lo <= x <= x_hi and y values come from same indices.
+
+        xs must be sorted.
+        """
+        xs = np.asarray(xs)
+        ys = np.asarray(ys)
+
+        i = np.searchsorted(xs, x)
+
+        i_lo = max(i - 1, 0)
+        i_hi = min(i, len(xs) - 1)
+
+        return xs[i_lo], xs[i_hi], ys[i_lo], ys[i_hi]
 
     @staticmethod
     def _parabolic_interpolate(
