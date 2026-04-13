@@ -1,7 +1,7 @@
 from _mains.testing_files.testing_hp_sections import hp_shell_c1_4_uls, hp_shell_c1_3_uls, hp_shell_c1_2_c80_uls, \
     hp_shell_c1_2_c50_uls, hp_shell_c1_1_uls, hp_shell_ref
 from _mains.testing_files.testing_materials import infill
-from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
+from slab_construction.slabs.hp_slab.hp_model.hp_slab import HPSlab
 
 hp_slab_c1_1_uls        = HPSlab(hp_shell_c1_1_uls, infill)
 hp_slab_c1_2_c50_uls    = HPSlab(hp_shell_c1_2_c50_uls, infill)

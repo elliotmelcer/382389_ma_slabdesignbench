@@ -3,7 +3,7 @@ from structuralcodes.sections import GenericSection
 from core.unit_core import mm2_to_m2, mm3_to_m3
 from slab_construction.floor import InfillMaterial
 from slab_construction.slabs.one_way_slab import OneWaySlab
-from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
+from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 
 
 class HPSlab(OneWaySlab):

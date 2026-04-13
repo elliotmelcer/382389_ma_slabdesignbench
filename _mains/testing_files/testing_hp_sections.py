@@ -5,8 +5,8 @@ from core.visualization_core.visualization import plot_cross_section
 from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q142_pre_50, \
     concrete_c80_uls, solidian_Q142, solidian_Q95_pre_50, solidian_Q95_pre_20, solidian_Q142_pre_60, concrete_c55_uls, \
     solidian_Q85_pre_37
-from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
-from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
+from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
+from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 
 """
 Author: Elliot Melcer

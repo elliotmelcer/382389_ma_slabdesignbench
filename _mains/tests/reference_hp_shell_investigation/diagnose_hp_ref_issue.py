@@ -22,8 +22,8 @@ from structuralcodes.materials.constitutive_laws import Elastic
 set_design_code('ec2_2004')
 
 # Import the HP geometry classes
-from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
-from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
+from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
+from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 
 # Import testing materials
 from _mains.testing_files.testing_materials import (

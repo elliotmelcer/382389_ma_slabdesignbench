@@ -6,8 +6,8 @@ if __name__ == "__main__":
     from structuralcodes.materials.reinforcement import create_reinforcement
     from structuralcodes.materials.constitutive_laws import Elastic
 
-    from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
-    from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
+    from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
+    from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 
     set_design_code('ec2_2004')
 

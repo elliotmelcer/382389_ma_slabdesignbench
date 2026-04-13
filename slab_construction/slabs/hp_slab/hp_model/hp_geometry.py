@@ -62,7 +62,7 @@ class HPGeometry:
     def _z(self, x: float, y: float) -> float:
         """
         Adapted from: Jamila Loutfi
-        returns z coordinate at given y coordinate of midline of shell
+        returns z coordinate at given x and y coordinates of midline of shell
         """
         z = y ** 2 / self.param_b() ** 2 - x ** 2 / self.param_a() ** 2
         return z

@@ -1,5 +1,5 @@
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
-from core.analysis_core.loads import Loads
+from core.analysis_core.statics.loads import Loads
 
 
 def loads_from_category_test():

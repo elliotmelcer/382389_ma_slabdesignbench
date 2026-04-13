@@ -7,7 +7,7 @@ import numpy as np
 from typing import Dict, Tuple
 
 from slab_construction.slab_construction import SlabConstruction
-from core.analysis_core.loads import Loads
+from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls,
 )

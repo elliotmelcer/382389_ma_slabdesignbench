@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import Dict
 from enum import Enum
-from core.analysis_core.loads import Loads
+from core.analysis_core.statics.loads import Loads
 from core.unit_core import mm_to_m
 from slab_construction.slab_construction import SlabConstruction
 

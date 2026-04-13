@@ -16,8 +16,8 @@ from structuralcodes import set_design_code
 
 set_design_code('ec2_2004')
 
-from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
-from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
+from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
+from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
 from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q85_pre_37
 from _mains.testing_files.testing_hp_sections import hp_ref
 

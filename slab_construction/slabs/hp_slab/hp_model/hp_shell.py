@@ -10,7 +10,7 @@ from structuralcodes.materials.concrete import Concrete
 from structuralcodes.materials.reinforcement import Reinforcement
 from structuralcodes.sections import GenericSection
 
-from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
+from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
 
 
 class HPShell:

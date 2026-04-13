@@ -13,7 +13,7 @@ from core.analysis_core.checks.modeling_checks import NtDyCombinationCheck, Beam
 from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE, \
     DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE, \
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
-from core.analysis_core.loads import Loads
+from core.analysis_core.statics.loads import Loads
 from core.analysis_core.material_methods import ConcreteCO2Registry, get_material_properties
 from core.analysis_core.section_methods import calculate_moment_curvature_sls, calculate_bending_strength_uls_Nmm, \
     calculate_cracking_moment_sls_Nmm

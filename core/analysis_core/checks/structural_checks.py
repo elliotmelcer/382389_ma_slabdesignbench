@@ -4,7 +4,7 @@ from structuralcodes.sections import GenericSection
 
 from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
-from core.analysis_core.loads import Loads
+from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm, flipped_section, \
     calculate_cracking_moment_sls_Nmm
 from core.unit_core import Nmm_to_kNm

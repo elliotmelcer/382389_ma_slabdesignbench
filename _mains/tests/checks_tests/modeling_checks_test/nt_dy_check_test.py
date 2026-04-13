@@ -16,9 +16,9 @@ from _mains.testing_files.testing_floor import test_floor
 from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q95_pre_20, infill
 from core.analysis_core.checks.modeling_checks import NtDyCombinationCheck
 from slab_construction.slab_construction import SlabConstruction
-from slab_construction.slabs.hp_slab.model.hp_geometry import HPGeometry
-from slab_construction.slabs.hp_slab.model.hp_shell import HPShell
-from slab_construction.slabs.hp_slab.model.hp_slab import HPSlab
+from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
+from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
+from slab_construction.slabs.hp_slab.hp_model.hp_slab import HPSlab
 
 # Base geometry parameters (fixed, according to hp_c1_1)
 BASE_PARAMS = dict(

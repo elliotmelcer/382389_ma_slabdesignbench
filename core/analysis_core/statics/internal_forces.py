@@ -2,7 +2,7 @@ from typing import Dict, Optional
 
 from slab_construction.slab_construction import SlabConstruction
 from . import MOMENT_DATA, MAX_X_POSITIONS, calculate_line_load_kN_m, MOMENT_FUNCTIONS
-from ..loads import Loads
+from core.analysis_core.statics.loads import Loads
 from ...unit_core import *
 
 
