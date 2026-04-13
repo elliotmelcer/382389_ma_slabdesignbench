@@ -1,4 +1,4 @@
-from core.analysis_core.loads import Loads
+from core.analysis_core.statics.loads import Loads
 
 live_loads = [3.0] #kN/m²
 

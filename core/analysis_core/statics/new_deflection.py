@@ -8,7 +8,7 @@ from typing import Any, Union
 
 from core import normalize_input
 from slab_construction.slab_construction import SlabConstruction
-from core.analysis_core.loads import Loads
+from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls, calculate_cracking_moment_sls_Nmm,
 )
