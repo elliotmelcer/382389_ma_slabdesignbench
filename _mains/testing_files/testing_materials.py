@@ -103,6 +103,7 @@ solidian_Q85_pre_37 = create_reinforcement(
     constitutive_law=brittle_elastic_law_Q85,
     initial_strain= 0.37 * epsuk_Q85,
     gamma_s=1.3,
+    gamma_eps = 1/1.3,
     name="solidian GRID Q85/85-CCE-21 prestressed 37 %"
 )
 
@@ -118,6 +119,7 @@ solidian_Q95_pre_20 = create_reinforcement(
     constitutive_law=brittle_elastic_law_Q95,
     initial_strain= 0.20 * epsuk_Q95,
     gamma_s=1.3,
+    gamma_eps = 1/1.3,
     name="solidian GRID Q95/95-CCE-38 prestressed 20%"
 )
 
@@ -132,6 +134,7 @@ solidian_Q95_pre_50 = create_reinforcement(
     constitutive_law=brittle_elastic_law_Q95,
     initial_strain= 0.50 * epsuk_Q95,
     gamma_s=1.3,
+    gamma_eps = 1/1.3,
     name="solidian GRID Q95/95-CCE-38 prestressed 50%"
 )
 
@@ -145,6 +148,7 @@ solidian_Q142 = create_reinforcement(
     density=density_Q142,
     constitutive_law=brittle_elastic_law_Q142,
     gamma_s = 1.3,
+    gamma_eps = 1/1.3,
     initial_strain = 0.00 * epsuk_Q142,
     name = "solidian GRID Q142/142-CCE-25"
 )
@@ -160,6 +164,7 @@ solidian_Q142_pre_50 = create_reinforcement(
     constitutive_law = brittle_elastic_law_Q142,
     initial_strain = 0.50 * epsuk_Q142,
     gamma_s = 1.3,
+    gamma_eps = 1/1.3,
     name = "solidian GRID Q142/142-CCE-25 prestressed 50%"
 )
 
@@ -174,6 +179,7 @@ solidian_Q142_pre_60 = create_reinforcement(
     constitutive_law = brittle_elastic_law_Q142,
     initial_strain = 0.60 * epsuk_Q142,
     gamma_s = 1.3,
+    gamma_eps = 1/1.3,
     name = "solidian GRID Q142/142-CCE-25 prestressed 60%"
 )
 
