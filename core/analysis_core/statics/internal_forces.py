@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 
 from slab_construction.slab_construction import SlabConstruction
-from . import MOMENT_DATA, MAX_X_POSITIONS, MOMENT_FUNCTIONS
+from . import MOMENT_DATA, MAX_X_POSITIONS, MOMENT_FUNCTIONS, SystemType, MomentType
 from core.analysis_core.statics.loads import Loads
 from ...unit_core import *
 
@@ -20,7 +20,7 @@ class InternalForces:
     """
 
     @staticmethod
-    def validate_x_position(system: str, x_position: float) -> None:
+    def validate_x_position(system: SystemType, x_position: float) -> None:
         """
         Validate that x-position is within valid bounds for the given system
 
@@ -28,7 +28,6 @@ class InternalForces:
         :param x_position: Position to validate
         :raises ValueError: If x_position is out of bounds for the system
         """
-        system = system.strip().upper()
 
         if system not in MAX_X_POSITIONS:
             raise ValueError(
@@ -44,7 +43,7 @@ class InternalForces:
             )
 
     @staticmethod
-    def get_moment_data(system: str, moment_type: str) -> Dict[str, float]:
+    def get_moment_data(system: SystemType, moment_type: MomentType) -> Dict[str, float]:
         """
         Get moment coefficient and x-position from lookup table
 
@@ -52,9 +51,6 @@ class InternalForces:
         :param moment_type: Type of moment (MAX_POS_MOMENT or MAX_NEG_MOMENT)
         :return: Dictionary with 'coefficient' and 'x_position'
         """
-        # Normalize inputs
-        system = system.strip().upper()
-        moment_type = moment_type.strip().upper()
 
         # Validate inputs
         if system not in MOMENT_DATA:
@@ -73,10 +69,10 @@ class InternalForces:
     def calculate_moment_kNm(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str = "SIMPLE_BEAM",
+            system: SystemType = SystemType.SIMPLE_BEAM,
             combination: str = "FUNDAMENTAL",
             x_norm: Optional[float] = None,
-            moment_type: Optional[str] = None
+            moment: Optional[MomentType] = None
     ) -> float:
         """
         Calculate moment at a specific position OR maximum moment for a given type in kNm
@@ -89,25 +85,23 @@ class InternalForces:
         :param combination: Load combination type
         :param x_norm: Position along beam (normalized: 0 at first support, 1 at second, etc.)
                   Use this for M(x) calculation at arbitrary position.
-        :param moment_type: Type of moment (MAX_POS_MOMENT or MAX_NEG_MOMENT)
+        :param moment: Type of moment (MAX_POS_MOMENT or MAX_NEG_MOMENT)
                            Use this for maximum moment calculation.
         :return: Moment [kNm]
 
         Examples:
             # Get moment at specific position (requires implemented function)
-            M = calculate_moment(slab, loads, system="SIMPLE_BEAM", x=0.3)
+            M = calculate_moment(slab, loads, system=SystemType.SIMPLE_BEAM, x=0.3)
 
             # Get maximum positive moment (works for all systems via coefficient)
-            M_max = calculate_moment(slab, loads, system="THREE_SPAN", moment_type="MAX_POS_MOMENT")
+            M_max = calculate_moment(slab, loads, system=SystemType.THREE_SPAN, moment_type=MomentType.MAX_POS_MOMENT)
         """
         # Validate that exactly one of x or moment_type is provided
-        if (x_norm is None) == (moment_type is None):
+        if (x_norm is None) == (moment is None):
             raise ValueError(
                 "Must provide EITHER 'x' OR 'moment_type', but not both and not neither. "
                 "Use 'x' for M(x) at specific position, or 'moment_type' for maximum moment."
             )
-
-        system = system.strip().upper()
 
         # Calculate span and line load (needed for both methods)
         span_m = mm_to_m(slab_construction.slab.L)
@@ -138,12 +132,12 @@ class InternalForces:
         # METHOD 2: Calculate maximum moment using coefficient from lookup table
         else:  # moment_type is not None
             # Get moment data from lookup table
-            moment_data = InternalForces.get_moment_data(system, moment_type)
+            moment_data = InternalForces.get_moment_data(system, moment)
             coefficient = moment_data["coefficient"]
 
             if coefficient == 0.0:
                 raise ValueError(
-                    f"{moment_type} does not exist for {system}. "
+                    f"{moment} does not exist for {system}. "
                     f"(moment coefficient is 0.0 in lookup table)"
                 )
 

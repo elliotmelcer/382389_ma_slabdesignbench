@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_3
 from _mains.testing_files.testing_loads import test_loads
 from core.analysis_core.section_methods import calculate_moment_curvature_sls
+from core.analysis_core.statics import SystemType
 from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.visualization_core.visualization import plot_moment_curvature_with_reference
 
@@ -87,7 +88,7 @@ print("=" * 70)
 deflection = DeflectionCalculator.calculate_deflection_mm(
     test_slab_construction_c1_3,
     test_loads,
-    system="SIMPLE_BEAM",
+    system=SystemType.SIMPLE_BEAM,
     combination="QUASI-PERMANENT",
     debug=True,
     extended_debug=True

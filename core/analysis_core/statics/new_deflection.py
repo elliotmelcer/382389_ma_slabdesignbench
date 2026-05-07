@@ -12,7 +12,7 @@ from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls, calculate_cracking_moment_sls_Nmm,
 )
-from core.analysis_core.statics import virtual_moment_simple_beam
+from core.analysis_core.statics import virtual_moment_simple_beam, SystemType
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.unit_core import mm_to_m
 
@@ -29,7 +29,7 @@ class DeflectionCalculator:
     def calculate_deflection_mm(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str = "SIMPLE_BEAM",
+            system: SystemType = SystemType.SIMPLE_BEAM,
             combination: str = "QUASI-PERMANENT",
             n_intervals: int = 40,
             N_axial_N: float = 0.0,
@@ -79,7 +79,7 @@ class DeflectionCalculator:
         # --------------------------
         # Validate inputs
         # --------------------------
-        if system != "SIMPLE_BEAM":
+        if system != SystemType.SIMPLE_BEAM:
             raise NotImplementedError(
                 f"Deflection calculation currently only implemented for SIMPLE_BEAM"
             )
@@ -132,7 +132,7 @@ class DeflectionCalculator:
     def _direct_deflection_method(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str,
+            system: SystemType,
             combination: str,
             n_intervals: int,
             N_axial_N: float,
@@ -183,7 +183,7 @@ class DeflectionCalculator:
     def _factor_deflection_method(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str,
+            system: SystemType,
             combination: str,
             n_intervals: int,
             N_axial_N: float,
@@ -253,10 +253,10 @@ class DeflectionCalculator:
         # Setup Interpolation points (half span due to symmetry)
         x_positions = np.linspace(0, 0.5, n_intervals + 1)
 
-        # Cracking Moment along the Beam
+        # Cracking Moment along the Beam (Debugging)
         m_cr_interp_list_kNm = []
 
-        # Real Moment along the Beam
+        # Real Moment along the Beam (Debugging)
         m_real_list_kNm = []
 
         # Zeta Array
@@ -274,7 +274,7 @@ class DeflectionCalculator:
             m_real_x_kNm = InternalForces.calculate_moment_kNm(
                 slab_construction,
                 loads,
-                combination = combination,
+                combination = combination, #TODO: Should this be "RARE" combination?
                 system = system,
                 x_norm = x_norm)
 
@@ -282,12 +282,12 @@ class DeflectionCalculator:
             beta = 0.5 # short term load
 
             if m_real_x_kNm > m_cr_x_norm_kNm:
-                zeta_x_norm = 1 - beta * (m_cr_x_norm_kNm / m_real_x_kNm)
+                zeta_x_norm = 1 - beta * (m_cr_x_norm_kNm / m_real_x_kNm)**2
                 zeta_x_norm = max(0.0, min(1.0, zeta_x_norm))
             else:
                 zeta_x_norm = 0.0
 
-            # Append to Lists
+            # Append to Lists for debugging
             m_cr_interp_list_kNm.append(m_cr_x_norm_kNm)
             m_real_list_kNm.append(m_real_x_kNm)
             zeta_array.append(zeta_x_norm)
@@ -316,6 +316,7 @@ class DeflectionCalculator:
         )
 
         if debug:
+            print(f"M_cr_array: {m_cr_interp_list_kNm}")
             print(f"zeta_array: {zeta_array}")
 
         return deflection_weighted_mm
@@ -324,6 +325,11 @@ class DeflectionCalculator:
     @staticmethod
     def _secant_deflection_method():
         # TODO
+        # 1. Calculate M-K-Line at Support and Midsection
+        # 2. Determine (M_real, kappa_real) at every point along the beam using rare combination
+        # 3. Linearly interpolate down to quasi permanent combination
+        #       - use prestress point or (0,0)
+        #       - mind max slope determined by fully cracked section
         return None
 
     @staticmethod
@@ -407,7 +413,7 @@ class DeflectionCalculator:
     def _get_interpolated_kappa_array(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str,
+            system: SystemType,
             combination: str,
             n_intervals: int,
             N_axial_N: float,

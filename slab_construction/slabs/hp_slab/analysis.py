@@ -12,6 +12,7 @@ from core.analysis_core.checks.modeling_checks import NtDyCombinationCheck, Beam
 from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE, \
     DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE, \
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
+from core.analysis_core.statics import SystemType, MomentType
 from core.analysis_core.statics.loads import Loads
 from core.analysis_core.material_methods import get_cube, get_cfrp_reinforcement_from_registry, \
     get_floor_material_from_registry
@@ -178,8 +179,8 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     m_u_A_util = UltimateMomentCheckEC2004DE.calculate_utilization(
         slab_construction = slab_construction,
         loads = live_loads,
-        system = "SIMPLE_BEAM",
-        moment = "MAX_POS_MOMENT",
+        system = SystemType.SIMPLE_BEAM,
+        moment = MomentType.MAX_POS_MOMENT,
         n = n)
 
     # ======================================================================================================================
@@ -191,7 +192,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     w_max_B1a_util = DeflectionLimitByDeflectionCheckEC2004DE.calculate_utilization(
         slab_construction = slab_construction,
         loads = live_loads,
-        system = "SIMPLE_BEAM",
+        system = SystemType.SIMPLE_BEAM,
         limit_factor=defl_limit_factor_w_max
     )
 
@@ -200,8 +201,8 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     w_max_B1b_util = DeflectionLimitByMcrCheckEC2004DE.calculate_utilization(
         slab_construction = slab_construction,
         loads = live_loads,
-        system = "SIMPLE_BEAM",
-        moment = "MAX_POS_MOMENT",
+        system=SystemType.SIMPLE_BEAM,
+        moment=MomentType.MAX_POS_MOMENT,
     )
 
     # B.2a Check Minimum Deflection under Fundamental Combination
@@ -209,7 +210,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     fa_B2a_util = FailureAnnouncementByDeflectionCheckEC2004DE.calculate_utilization(
         slab_construction = slab_construction,
         loads = live_loads,
-        system = "SIMPLE_BEAM",
+        system=SystemType.SIMPLE_BEAM,
         min_factor = defl_min_factor_announce_failure
     )
 
@@ -218,8 +219,8 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     fa_B2b_util = FailureAnnouncementByMcrCheckEC2004DE.calculate_utilization(
         slab_construction=slab_construction,
         loads=live_loads,
-        system="SIMPLE_BEAM",
-        moment="MAX_POS_MOMENT",
+        system=SystemType.SIMPLE_BEAM,
+        moment=MomentType.MAX_POS_MOMENT,
     )
 
     # ======================================================================================================================

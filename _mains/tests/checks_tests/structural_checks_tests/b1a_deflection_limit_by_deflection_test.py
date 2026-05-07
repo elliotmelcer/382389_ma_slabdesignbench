@@ -2,6 +2,7 @@ from _mains.testing_files.testing_loads import test_loads
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4, test_slab_construction_c1_1, \
     test_slab_construction_c1_2_c50, test_slab_construction_c1_2_c80, test_slab_construction_c1_3
 from core.analysis_core.checks.structural_checks import DeflectionLimitByDeflectionCheckEC2004DE
+from core.analysis_core.statics import SystemType
 
 """
 Author: Elliot Melcer
@@ -35,7 +36,7 @@ c1_4     |  -0.311  |    -0.311    |    0.0 %
 util = DeflectionLimitByDeflectionCheckEC2004DE.calculate_utilization(
     test_slab_construction_c1_4,
     test_loads,
-    system = "SIMPLE_BEAM",
+    system = SystemType.SIMPLE_BEAM,
     limit_factor=250.,
     debug = True
     )

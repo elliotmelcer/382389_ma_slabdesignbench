@@ -9,7 +9,8 @@ from core.analysis_core.checks.structural_checks import DeflectionLimitByDeflect
     DeflectionLimitByMcrCheckEC2004DE
 from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, calculate_bending_strength_uls_Nmm, \
     calculate_prestress_forces_Nmm, calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm
-from core.analysis_core.statics.deformations import DeflectionCalculator
+from core.analysis_core.statics import SystemType, MomentType
+from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.visualization_core.visualization import plot_cross_section, plot_moment_curvature, plot_strain_profile
 from slab_construction.slab_construction import SlabConstruction
@@ -51,9 +52,9 @@ m_ud_kNm = -calculate_bending_strength_uls_Nmm(section_midspan)["m_u"] * 10 ** (
 m_qp_kNm = InternalForces.calculate_moment_kNm(
     slab_construction,
     test_loads,
-    system = "SIMPLE_BEAM",
+    system = SystemType.SIMPLE_BEAM,
     combination="QUASI-PERMANENT",
-    moment_type="MAX_POS_MOMENT"
+    moment=MomentType.MAX_POS_MOMENT
 )
 
 plot_strain_profile(mcr_results)
@@ -70,11 +71,11 @@ print("m_qp = ", m_qp_kNm)
 
 print("-" * 40)
 
-util = DeflectionLimitByMcrCheckEC2004DE.calculateUtilization(
+util = DeflectionLimitByMcrCheckEC2004DE.calculate_utilization(
     slab_construction,
     test_loads,
-    system = "SIMPLE_BEAM",
-    moment = "MAX_POS_MOMENT",
+    system = SystemType.SIMPLE_BEAM,
+    moment= MomentType.MAX_POS_MOMENT,
     debug = True
     )
 

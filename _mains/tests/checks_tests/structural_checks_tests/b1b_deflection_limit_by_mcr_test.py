@@ -1,7 +1,8 @@
 # --- Check ---
 from _mains.testing_files.testing_loads import test_loads
-from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4, test_slab_construction_c1_1
+from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
 from core.analysis_core.checks.structural_checks import DeflectionLimitByMcrCheckEC2004DE
+from core.analysis_core.statics import SystemType, MomentType
 
 """
 Testing of B.1b Deflection Limit Check by Cracking Moment
@@ -20,7 +21,7 @@ print("Testing of B.1b Deflection Limit Check by Cracking Moment")
 util = DeflectionLimitByMcrCheckEC2004DE.calculate_utilization(
     test_slab_construction_c1_4,
     test_loads,
-    system = "SIMPLE_BEAM",
-    moment = "MAX_POS_MOMENT",
+    system = SystemType.SIMPLE_BEAM,
+    moment = MomentType.MAX_POS_MOMENT,
     debug = True
     )

@@ -8,6 +8,7 @@ from _mains.testing_files.testing_slab_construction import (
     test_slab_construction_c1_4,
     test_slab_construction_ref,
 )
+from core.analysis_core.statics import SystemType, MomentType
 
 """
 Testing of A Ultimate Moment
@@ -40,8 +41,8 @@ for name, slab_construction in test_cases.items():
     util = UltimateMomentCheckEC2004DE.calculate_utilization(
         slab_construction,
         test_loads,
-        "SIMPLE_BEAM",
-        "MAX_POS_MOMENT",
+        SystemType.SIMPLE_BEAM,
+        MomentType.MAX_POS_MOMENT,
         debug_print=False,
     )
     print(f"util {name:<8}: {util:.3f}")

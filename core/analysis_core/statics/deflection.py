@@ -4,14 +4,14 @@ Deflection calculations using Simpson's rule and virtual work method
 """
 
 import numpy as np
-from typing import Dict, Tuple
+from typing import Tuple
 
 from slab_construction.slab_construction import SlabConstruction
 from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls,
 )
-from core.analysis_core.statics import virtual_moment_simple_beam
+from core.analysis_core.statics import virtual_moment_simple_beam, SystemType
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.unit_core import mm_to_m
 
@@ -28,7 +28,7 @@ class DeflectionCalculator:
     def calculate_deflection_mm(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str = "SIMPLE_BEAM",
+            system: SystemType = SystemType.SIMPLE_BEAM,
             combination: str = "QUASI-PERMANENT",
             n_intervals: int = 40,
             N_axial: float = 0.0,
@@ -60,7 +60,7 @@ class DeflectionCalculator:
         :return: Maximum deflection [mm] Note: positive: sagging, negative: hogging
         """
         # Validate inputs
-        if system.strip().upper() != "SIMPLE_BEAM":
+        if system != SystemType.SIMPLE_BEAM:
             raise NotImplementedError(
                 f"Deflection calculation currently only implemented for SIMPLE_BEAM"
             )

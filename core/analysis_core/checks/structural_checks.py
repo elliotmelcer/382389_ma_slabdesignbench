@@ -1,26 +1,27 @@
 from abc import ABC, abstractmethod
 
-from structuralcodes.sections import GenericSection
-
+from core.analysis_core.statics import SystemType, MomentType
 from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm, flipped_section, \
     calculate_cracking_moment_sls_Nmm
 from core.unit_core import Nmm_to_kNm
-from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slab_construction import SlabConstruction
 
 """
 STRUCTURAL CHECKS
-Adapted from Jamila Loutfi
+A.1, B.1a, B.1b, B.2a, B.2b adapted from Jamila Loutfi
 """
 
 class StructuralCheck(ABC):
-
+    """
+    Author: Elliot Melcer
+    Abstract class for structural checks
+    """
     @staticmethod
     @abstractmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             loads: Loads,
             system: str,
@@ -34,11 +35,11 @@ class StructuralCheck(ABC):
 class UltimateMomentCheckEC2004DE(StructuralCheck):
 
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str = "SIMPLE_BEAM",
-            moment: str = "MAX_POS_MOMENT",
+            system: SystemType = SystemType.SIMPLE_BEAM,
+            moment: MomentType = MomentType.MAX_POS_MOMENT,
             n: float = 0.0,
             debug_print: bool = False
     ) -> float:
@@ -49,23 +50,11 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
         :param n:
         :param slab_construction: Slab construction object
         :param loads: Loads object (only uniformly distributed loads over all spans)
-        :param system: Available structural system types:
-                            ("CANTILEVER",
-                            "SIMPLE_BEAM",
-                            "TWO_SPAN",
-                            "THREE_SPAN",
-                            "FOUR_SPAN" or
-                            "FIVE_SPAN")
-        :param moment: Moment type
-                            ("MAX_POS_MOMENT" or
-                            "MAX_NEG_MOMENT")
+        :param system: System type (see Enum)
+        :param moment: Moment type (see Enum)
         :return: Utilization ratio (MEd/MRd)
         """
         slab = slab_construction.slab
-
-        # Normalize string inputs
-        system = system.strip().upper()
-        moment = moment.strip().upper()
 
         # Get moment data (coefficient and x-position) from lookup table
         moment_data = InternalForces.get_moment_data(system, moment)
@@ -76,7 +65,7 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
 
         # Calculate resistance at the specific x-position where max moment occurs
         # x_position is normalized (0 at first support, 1 at second support, etc.)
-        if moment == "MAX_POS_MOMENT":
+        if moment == MomentType.MAX_POS_MOMENT:
             MRd_kNm = -Nmm_to_kNm(
                 calculate_bending_strength_uls_Nmm(slab.section_at(x_position), n).get("m_u")
             )
@@ -92,8 +81,8 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
             slab_construction,
             loads,
             system,
-            "FUNDAMENTAL",
-            moment_type=moment
+            combination="FUNDAMENTAL",
+            moment=moment
         )
 
         # Calculate utilization
@@ -115,10 +104,10 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
 class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
 
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str = "SIMPLE_BEAM",
+            system: SystemType = SystemType.SIMPLE_BEAM,
             limit_factor: float = 250.0,
             debug: bool = False,
     ) -> float:
@@ -153,11 +142,11 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
 """B.1b Deflection Limit Check"""
 class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str = "SIMPLE_BEAM",
-            moment: str = "MAX_POS_MOMENT",
+            system: SystemType = SystemType.SIMPLE_BEAM,
+            moment: MomentType = MomentType.MAX_POS_MOMENT,
             n: float = 0.0,
             debug: bool = False
     ) -> float:
@@ -177,7 +166,7 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
             loads,
             system,
             combination = "QUASI-PERMANENT",
-            moment_type = moment,
+            moment = moment,
         )
 
         # Get section at midspan
@@ -216,10 +205,10 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
 """B.2a Failure Announcement"""
 class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str = "SIMPLE_BEAM",
+            system: SystemType = SystemType.SIMPLE_BEAM,
             min_factor: float = 250.0,
             debug: bool = False,
     ) -> float:
@@ -256,11 +245,11 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
 """B.2b Failure Announcement"""
 class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             loads: Loads,
-            system: str = "SIMPLE_BEAM",
-            moment: str = "MAX_POS_MOMENT",
+            system: SystemType = SystemType.SIMPLE_BEAM,
+            moment: MomentType = MomentType.MAX_POS_MOMENT,
             n: float = 0.0,
             debug: bool = False
     ) -> float:
@@ -280,7 +269,7 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
             loads,
             system,
             combination = "FUNDAMENTAL",
-            moment_type = moment,
+            moment = moment,
         )
 
         # Get section at midspan

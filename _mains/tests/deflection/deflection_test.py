@@ -6,6 +6,7 @@ Author: Elliot Melcer
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4, test_slab_construction_c1_1, \
     test_slab_construction_c1_2_c50, test_slab_construction_c1_2_c80, test_slab_construction_c1_3
 from _mains.testing_files.testing_loads import test_loads
+from core.analysis_core.statics import SystemType
 from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 
@@ -47,7 +48,7 @@ q_fund = test_loads.line_load_kN_m(
 deflection_fund = DeflectionCalculator.calculate_deflection_mm(
     slab_construction=slab_construction,
     loads=test_loads,
-    system="SIMPLE_BEAM",
+    system=SystemType.SIMPLE_BEAM,
     combination="FUNDAMENTAL",
     n_intervals=40,
     N_axial=0.0,
@@ -68,7 +69,7 @@ q_qp = test_loads.line_load_kN_m(
 deflection_qp = DeflectionCalculator.calculate_deflection_mm(
     slab_construction=slab_construction,
     loads=test_loads,
-    system="SIMPLE_BEAM",
+    system=SystemType.SIMPLE_BEAM,
     combination="QUASI-PERMANENT",
     n_intervals=40,
     N_axial=0.0,
@@ -89,7 +90,7 @@ q_freq = test_loads.line_load_kN_m(
 deflection_freq = DeflectionCalculator.calculate_deflection_mm(
     slab_construction=slab_construction,
     loads=test_loads,
-    system="SIMPLE_BEAM",
+    system=SystemType.SIMPLE_BEAM,
     combination="FREQUENT",
     n_intervals=40,
     N_axial=0.0,
