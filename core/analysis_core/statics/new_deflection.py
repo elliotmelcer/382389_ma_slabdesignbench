@@ -12,7 +12,7 @@ from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls, calculate_cracking_moment_sls_Nmm,
 )
-from core.analysis_core.statics import virtual_moment_simple_beam, SystemType
+from core.analysis_core.statics import virtual_moment_unit_load_at_midspan_simple_beam, SystemType
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.unit_core import mm_to_m
 
@@ -368,7 +368,7 @@ class DeflectionCalculator:
             kappa_x = kappa_array[i]
 
             # 2. Find Virtual Moment at x
-            M_virtual_x_kNm = virtual_moment_simple_beam(x_norm, span_m)
+            M_virtual_x_kNm = DeflectionCalculator._virtual_moment_unit_load_at_midspan_simple_beam(x_norm, span_m)
 
             # 3. Virtual work integration
             increment = kappa_x * M_virtual_x_kNm * weight_x
@@ -408,6 +408,17 @@ class DeflectionCalculator:
         deflection_mm = deflection_m * 1000 # Convert m to mm
 
         return deflection_mm, extended_simpson_output
+
+    @staticmethod
+    def _virtual_moment_unit_load_at_midspan_simple_beam(x_norm: float, span_m: float) -> float:
+        """
+        Calculate virtual moment for unit load at midspan of simple beam.
+
+        :param x_norm: Normalized position along beam (0 at first support, 0.5 at midspan)
+        :param span_m: Span length [m]
+        :return: Virtual moment [m] (moment arm for unit load)
+        """
+        return x_norm * span_m / 2
 
     @staticmethod
     def _get_interpolated_kappa_array(
