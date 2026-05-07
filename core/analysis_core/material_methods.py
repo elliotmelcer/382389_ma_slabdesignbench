@@ -2,6 +2,8 @@
 Author: Elliot Melcer
 Internal CO2 and cost registry for materials.
 """
+from typing import Union
+
 import numpy as np
 from structuralcodes.materials.concrete import Concrete, create_concrete
 from structuralcodes.materials.constitutive_laws import Sargin, UserDefined, Elastic
@@ -152,8 +154,15 @@ class TensionStiffeningConcreteLaw(CrackingConcreteLaw):
         super().__init__(strains, stresses, eps_cu1, eps_c1, **kwargs)
         self.eps_F_t = strains[-1]
 
-def sls_concrete(conc: Concrete, constitutive_law: str,) -> Concrete:
-    f_ck = conc.fck
+def create_sls_concrete(conc: Union[Concrete, float, int], constitutive_law: str) -> Concrete:
+    """
+    Creates an SLS Concrete object with constitutive law a give n Concrete object or fck value and constitutive law (by keyword).
+    Available constitutive law keywords: NONE_PARABOLIC, FCTM_PARABOLIC, TENSTIFF_PARABOLIC, ELASTIC_ELASTIC
+    :param conc:
+    :param constitutive_law:
+    :return:
+    """
+    f_ck = conc.fck if isinstance(conc, Concrete) else float(conc)
     f_cube = get_cube(f_ck)
 
     # Normalize Input
@@ -186,7 +195,31 @@ def sls_concrete(conc: Concrete, constitutive_law: str,) -> Concrete:
 
     return sls_conc
 
-def fctm_parabolic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> CrackingConcreteLaw:
+def create_uls_concrete(conc: Union[Concrete, float, int],
+                        alpha_cc: float = 0.85,
+                        gamma_c: float = 1.5) -> Concrete:
+    """
+    Author: Elliot Melcer
+    Creates a ULS Concrete object with parabola-rectangle constitutive law, alpha_cc and gamma_c for a give n Concrete object or fck value
+    :param conc:
+    :param alpha_cc:
+    :param gamma_c:
+    :return:
+    """
+    f_ck = conc.fck if isinstance(conc, Concrete) else float(conc)
+    f_cube = get_cube(f_ck)
+
+    uls_concrete = create_concrete(
+        fck=f_ck,
+        constitutive_law='parabolarectangle',
+        alpha_cc=alpha_cc,
+        gamma_c=gamma_c,
+        name=f"C{f_ck}/{f_cube} ULS",
+    )
+
+    return uls_concrete
+
+def fctm_parabolic_law(concrete: Union[Concrete, float, int], n_c: int = 80, n_t: int = 20) -> CrackingConcreteLaw:
     """
     Author: Elliot Melcer
     Creates a Non-Linear Constitutive Law with Linear Branch in Tension and Sargin Branch Under Compression
@@ -196,16 +229,22 @@ def fctm_parabolic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> Crac
     Returns a CrackingConcreteLaw Object
     """
 
+    if not isinstance(concrete, Concrete):
+        f_ck = float(concrete)
+        _concrete = create_concrete(fck=f_ck, constitutive_law='sargin') #temporary Concrete object, constitutive_law is irrelevant
+    else:
+        _concrete = concrete
+
     # -------------------------------
     # Read parameters
     # -------------------------------
-    fcm = concrete.fcm
-    Ecm = concrete.Ecm
-    fctm = concrete.fctm
+    fcm = _concrete.fcm
+    Ecm = _concrete.Ecm
+    fctm = _concrete.fctm
 
-    eps_c1 = -abs(concrete.eps_c1)
-    eps_cu1 = -abs(concrete.eps_cu1)
-    k = concrete.k_sargin
+    eps_c1 = -abs(_concrete.eps_c1)
+    eps_cu1 = -abs(_concrete.eps_cu1)
+    k = _concrete.k_sargin
 
     eps_ctm = fctm / Ecm
 
@@ -251,7 +290,7 @@ def fctm_parabolic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> Crac
         flag=0,
     )
 
-def tenstiff_parabolic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> TensionStiffeningConcreteLaw:
+def tenstiff_parabolic_law(concrete: Union[Concrete, float, int], n_c: int = 80, n_t: int = 20) -> TensionStiffeningConcreteLaw:
     """
     Author: Elliot Melcer
     Creates a Non-Linear Constitutive Law
@@ -261,16 +300,22 @@ def tenstiff_parabolic_law(concrete: Concrete, n_c: int = 80, n_t: int = 20) -> 
     Returns a TensionStiffeningConcreteLaw Object
     """
 
+    if not isinstance(concrete, Concrete):
+        f_ck = float(concrete)
+        _concrete = create_concrete(fck=f_ck, constitutive_law='sargin') #temporary Concrete object, constitutive_law is irrelevant
+    else:
+        _concrete = concrete
+
     # -------------------------------
     # Read parameters
     # -------------------------------
-    fcm = concrete.fcm
-    Ecm = concrete.Ecm
-    fctm = concrete.fctm
+    fcm = _concrete.fcm
+    Ecm = _concrete.Ecm
+    fctm = _concrete.fctm
 
-    eps_c1 = -abs(concrete.eps_c1)
-    eps_cu1 = -abs(concrete.eps_cu1)
-    k = concrete.k_sargin
+    eps_c1 = -abs(_concrete.eps_c1)
+    eps_cu1 = -abs(_concrete.eps_cu1)
+    k = _concrete.k_sargin
 
     eps_ctm = fctm / Ecm
 
@@ -363,14 +408,14 @@ def get_cube(cylinder_strength) -> int:
     return table[cylinder_strength]
 
 
-def get_reinforcement_from_registry(
+def get_cfrp_reinforcement_from_registry(
         mat_id: str,
         materials: dict,
         prestress_percent: float = 0.0,
         gamma_s: float = 1.3
 ):
     """
-    Create a Reinforcement object from materials registry.
+    Create a CFRP-Reinforcement object from materials registry.
 
     Args:
         mat_id: Material identifier (e.g., "solidian GRID Q142/142-CCE-25")

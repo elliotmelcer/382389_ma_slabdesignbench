@@ -7,7 +7,7 @@ from structuralcodes.materials.concrete import Concrete
 from structuralcodes.materials.reinforcement import Reinforcement
 from structuralcodes.sections import GenericSection
 
-from core.analysis_core.material_methods import sls_concrete, TensionStiffeningConcreteLaw
+from core.analysis_core.material_methods import create_sls_concrete, TensionStiffeningConcreteLaw, create_uls_concrete
 
 
 def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
@@ -243,7 +243,8 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
         Associated Strain Profile
     """
 
-    analysis_section = deepcopy(section) # in reference to structuralcodes issue #303 https://github.com/fib-international/structuralcodes/issues/303
+    # Safety Conversion to ULS Section in case SLS Section was passed
+    analysis_section = uls_section(section)
 
     bending_strength_result = analysis_section.section_calculator.calculate_bending_strength(n=n)
 
@@ -254,7 +255,7 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
     strain_profile = [eps_0, chi_y, 0.0]
 
     return {
-        'section': section,
+        'section': analysis_section,
         'm_u': m_u,
         'strain_profile': strain_profile,
     }
@@ -811,19 +812,21 @@ def get_strain_at_point(strain_profile, y, z) -> float:
     return eps_0 + chi_y * z + chi_z * y
 
 def sls_section(
-        section_uls: GenericSection,
+        section: GenericSection,
         constitutive_law: str,
 ) -> GenericSection:
     """
     Author: Elliot Melcer
     Returns the section with sls constitutive law for concrete
+    :param section              GenericSection (SLS or ULS)
+    :param constitutive_law:    Keyword for constitutive law (for available keywords see create_sls_concrete())
     """
     # Get the geometry of the section
-    geo = section_uls.geometry
+    geo = section.geometry
 
     # Create SLS Concrete from Concrete Used in Section
-    conc = get_concrete(section_uls)
-    sls_conc = sls_concrete(conc, constitutive_law)
+    conc = get_concrete(section)
+    sls_conc = create_sls_concrete(conc, constitutive_law)
 
     # Change Concrete Material
     processed_geoms = []
@@ -834,9 +837,42 @@ def sls_section(
     for pg in geo.point_geometries:
         processed_geoms.append(pg) # keep same reinforcement material
 
-    new_sls_section = GenericSection(CompoundGeometry(geometries=processed_geoms), name = section_uls.name)
+    new_sls_section = GenericSection(CompoundGeometry(geometries=processed_geoms), name = section.name)
 
     return new_sls_section
+
+def uls_section(
+        section: GenericSection,
+        alpha_cc: float = 0.85,
+        gamma_c: float = 1.5,
+) -> GenericSection:
+    """
+    Author: Elliot Melcer
+    Returns the section with ULS constitutive law (parabola-rectangle) for concrete.
+    :param section:     GenericSection (SLS or ULS)
+    :param alpha_cc:    Effectiveness factor for concrete compressive strength (default: 0.85)
+    :param gamma_c:     Partial safety factor for concrete (default: 1.5)
+    :return:            GenericSection with ULS concrete
+    """
+    # Get the geometry of the section
+    geo = section.geometry
+
+    # Create SLS Concrete from Concrete Used in Section
+    conc = get_concrete(section)
+    uls_conc = create_uls_concrete(conc, alpha_cc=alpha_cc, gamma_c=gamma_c)
+
+    # Change Concrete Material
+    processed_geoms = []
+    for g in geo.geometries:
+        processed_geoms.append(
+            SurfaceGeometry.from_geometry(geo=g, new_material=uls_conc)  # swap concrete
+        )
+    for pg in geo.point_geometries:
+        processed_geoms.append(pg)  # keep reinforcement unchanged
+
+    new_uls_section = GenericSection(CompoundGeometry(geometries=processed_geoms), name=section.name)
+
+    return new_uls_section
 
 def flipped_section(section: GenericSection) -> GenericSection:
     """
