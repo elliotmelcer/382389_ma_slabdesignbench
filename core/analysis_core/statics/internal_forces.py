@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Dict, Optional
 
 from slab_construction.slab_construction import SlabConstruction
@@ -77,7 +78,7 @@ class InternalForces:
         """
         Calculate moment at a specific position OR maximum moment for a given type in kNm
 
-        Must provide EITHER x OR moment_type (but not both, not neither).
+        Must provide EITHER x_norm OR moment_type
 
         :param slab_construction: Slab construction object
         :param loads: Loads object
@@ -145,3 +146,43 @@ class InternalForces:
             moment = coefficient * w_line_kN_m * span_m ** 2
 
             return moment
+
+    @staticmethod
+    def moment_simple_beam(x: float, w: float, L: float) -> float:
+        """
+        Calculate moment at position x for a simple beam.
+
+        :param x: Position along beam [m]
+        :param w: Uniformly distributed load [kN/m]
+        :param L: Span length [m]
+        :return: Moment at x [kNm]
+        """
+        return w * x * (L - x) / 2
+
+    @staticmethod
+    def moment_two_span(x: float, w: float, L: float):
+        """
+        Calculate moment at position x for a two span beam with constant spans
+        :param x: Position along beam [m]
+        :param w: Uniformly distributed load [kN/m]
+        :param L: Span length [m]
+        :return: Moment at x [kNm]
+        """
+        if not (0 <= x <= 2 * L):
+            return 0
+
+        xi = L - x if x <= L else x - L
+
+        return w * (xi ** 2 / 2 - 5 * L * xi / 8 + L ** 2 / 8)
+
+    @staticmethod
+    def moment_cantilever(x: float, w: float, L: float) -> float:
+        """
+        Calculate moment at position x for a cantilever beam.
+
+        :param x: Position along beam [m] (0 at fixed support, L at free end)
+        :param w: Uniformly distributed load [kN/m]
+        :param L: Span length [m]
+        :return: Moment at x [kNm]
+        """
+        return -w * x ** 2 / 2
