@@ -14,7 +14,7 @@ from _mains.testing_files.testing_slab_construction import test_slab_constructio
 from core.analysis_core.checks.construction_checks import ReinforcementSpacingCheck
 
 print("Testing of C.2. Sufficient Reinforcement Spacing")
-util = ReinforcementSpacingCheck.calculateUtilization(
+util = ReinforcementSpacingCheck.calculate_utilization(
     test_slab_construction_c1_4,
     debug_print=True
     )

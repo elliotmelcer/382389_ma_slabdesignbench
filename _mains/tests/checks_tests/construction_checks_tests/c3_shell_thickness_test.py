@@ -15,7 +15,7 @@ from _mains.testing_files.testing_slab_construction import test_slab_constructio
 from core.analysis_core.checks.construction_checks import MinimumHPShellThicknessCheck
 
 print("Testing of C.3. Minimum Shell Thickness")
-util = MinimumHPShellThicknessCheck.calculateUtilization(
+util = MinimumHPShellThicknessCheck.calculate_utilization(
     test_slab_construction_c1_4
     )
 

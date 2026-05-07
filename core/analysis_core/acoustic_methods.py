@@ -65,8 +65,7 @@ def calculate_standard_impact_sound_pressure_level(
 ) -> float:
     """
     Adapted From: Jamila Loutfi + Ahmad Eiz Eddin
-    Calculate sound reduction index for a slab construction.
-    Note: Only considers DIRECT sound reduction index
+    Calculate standard impact sound pressure level for a slab construction.
     """
     hp_shell = slab_construction.slab.hp_shell
     hp_geometry = hp_shell.hp_geometry

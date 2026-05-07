@@ -8,10 +8,13 @@ Adapted from Jamila Loutfi
 """
 
 class ModelingCheck(ABC):
-
+    """
+    Author: Elliot Melcer
+    Abstract class for modeling checks
+    """
     @staticmethod
     @abstractmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction
     ) -> float:
         """Returns the utilization ratio"""
@@ -22,7 +25,7 @@ class ModelingCheck(ABC):
 
 class NtDyCombinationCheck(ModelingCheck):
     @staticmethod
-    def calculateUtilization(slab_construction: SlabConstruction) -> float:
+    def calculate_utilization(slab_construction: SlabConstruction) -> float:
         # get geometry
         hp_geometry = slab_construction.slab.hp_shell.hp_geometry
 
@@ -45,7 +48,7 @@ class NtDyCombinationCheck(ModelingCheck):
 
 class BeamTheoryHgesLRatioCheck(ModelingCheck):
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             f_b: float = 5.0
     ) -> float:
@@ -64,7 +67,7 @@ class BeamTheoryHgesLRatioCheck(ModelingCheck):
 
 class BeamTheoryBLRatioCheck(ModelingCheck):
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             f_b: float = 5.0
     ) -> float:

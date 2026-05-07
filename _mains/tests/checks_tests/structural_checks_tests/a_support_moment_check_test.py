@@ -23,7 +23,7 @@ plot_cross_section(test_slab.section_at(1.0))   # Section at second support
 test_slab_construction_two_span = SlabConstruction(test_slab, test_floor)
 
 # --- Check ---
-UltimateMomentCheckEC2004DE.calculateUtilization(
+UltimateMomentCheckEC2004DE.calculate_utilization(
     test_slab_construction_two_span,
     test_loads,
     "TWO_SPAN",

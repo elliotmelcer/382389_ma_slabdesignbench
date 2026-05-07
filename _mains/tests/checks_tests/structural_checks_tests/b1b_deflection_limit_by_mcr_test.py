@@ -17,7 +17,7 @@ passed: 17.02.2026
 """
 
 print("Testing of B.1b Deflection Limit Check by Cracking Moment")
-util = DeflectionLimitByMcrCheckEC2004DE.calculateUtilization(
+util = DeflectionLimitByMcrCheckEC2004DE.calculate_utilization(
     test_slab_construction_c1_4,
     test_loads,
     system = "SIMPLE_BEAM",

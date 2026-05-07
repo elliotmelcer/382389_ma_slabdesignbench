@@ -15,7 +15,7 @@ c1_1   |    0.653    |  0.642
 passed: 17.02.2025
 """
 
-util = FailureAnnouncementByMcrCheckEC2004DE.calculateUtilization(
+util = FailureAnnouncementByMcrCheckEC2004DE.calculate_utilization(
     test_slab_construction_c1_1,
     test_loads,
     system = "SIMPLE_BEAM",

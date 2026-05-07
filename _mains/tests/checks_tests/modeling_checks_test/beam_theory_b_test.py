@@ -14,13 +14,13 @@ from _mains.testing_files.testing_slab_construction import test_slab_constructio
 from core.analysis_core.checks.modeling_checks import BeamTheoryBLRatioCheck
 
 print("Testing of Z.3. Beam Theory B / L - Ratio Check \n")
-util = BeamTheoryBLRatioCheck.calculateUtilization(
+util = BeamTheoryBLRatioCheck.calculate_utilization(
     test_slab_construction_c1_1
     )
 
 print(f"c1_util = {util}")
 
-util = BeamTheoryBLRatioCheck.calculateUtilization(
+util = BeamTheoryBLRatioCheck.calculate_utilization(
     test_slab_construction_c1_4
     )
 

@@ -37,7 +37,7 @@ test_cases = {
 print("Testing Check A: Ultimate Moment")
 
 for name, slab_construction in test_cases.items():
-    util = UltimateMomentCheckEC2004DE.calculateUtilization(
+    util = UltimateMomentCheckEC2004DE.calculate_utilization(
         slab_construction,
         test_loads,
         "SIMPLE_BEAM",

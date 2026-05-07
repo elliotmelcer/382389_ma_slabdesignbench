@@ -13,11 +13,10 @@ from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC200
     DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE, \
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
 from core.analysis_core.statics.loads import Loads
-from core.analysis_core.material_methods import get_cube, get_reinforcement_from_registry, \
+from core.analysis_core.material_methods import get_cube, get_cfrp_reinforcement_from_registry, \
     get_floor_material_from_registry
 from core.ioh_core.io_util import _req_param
 from core.unit_core import mm3_to_m3
-from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slab_construction import SlabConstruction
 from slab_construction.floor import FloorLayer, Floor
 from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
@@ -33,7 +32,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # - unpenalized objective y,
     # - penalized objective y_p (apply weights / exponents / logic internally)
     # - raw violations per constraint in result["violations"][ < name >]
-    # - default we set enforcement=HIDDEN, weight=1, exponent=1 (users can still override in runs.csv, but it’s not needed).
+    # - default we set enforcement=HIDDEN, weight=1, exponent=1 (users can still override in csv, but it’s not needed).
     # - the IOH-problem can get all these infos from the cache
 
     # ======================================================
@@ -97,7 +96,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # Reinforcement
     try:
-        reinforcement = get_reinforcement_from_registry(
+        reinforcement = get_cfrp_reinforcement_from_registry(
             mat_id=reinf_id,
             materials=materials,
             prestress_percent=prestress_pct,
@@ -176,7 +175,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # COMPUTE CONSTRAINTS (A) - ULS
     # ======================================================================================================================
 
-    m_u_A_util = UltimateMomentCheckEC2004DE.calculateUtilization(
+    m_u_A_util = UltimateMomentCheckEC2004DE.calculate_utilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
@@ -189,7 +188,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.1a Limiting Deflection by Checking the Maximum Deflection against Limit Factor
 
-    w_max_B1a_util = DeflectionLimitByDeflectionCheckEC2004DE.calculateUtilization(
+    w_max_B1a_util = DeflectionLimitByDeflectionCheckEC2004DE.calculate_utilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
@@ -198,7 +197,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.1b Limiting Deflection by Checking the Quasi-Permanent Moment Against the Cracking Moment
 
-    w_max_B1b_util = DeflectionLimitByMcrCheckEC2004DE.calculateUtilization(
+    w_max_B1b_util = DeflectionLimitByMcrCheckEC2004DE.calculate_utilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
@@ -207,7 +206,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.2a Check Minimum Deflection under Fundamental Combination
 
-    fa_B2a_util = FailureAnnouncementByDeflectionCheckEC2004DE.calculateUtilization(
+    fa_B2a_util = FailureAnnouncementByDeflectionCheckEC2004DE.calculate_utilization(
         slab_construction = slab_construction,
         loads = live_loads,
         system = "SIMPLE_BEAM",
@@ -216,7 +215,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # B.2b Limiting Deflection by Checking the Quasi-Permanent Moment Against the Cracking Moment
 
-    fa_B2b_util = FailureAnnouncementByMcrCheckEC2004DE.calculateUtilization(
+    fa_B2b_util = FailureAnnouncementByMcrCheckEC2004DE.calculate_utilization(
         slab_construction=slab_construction,
         loads=live_loads,
         system="SIMPLE_BEAM",
@@ -229,19 +228,19 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # C.1. Sufficient Concrete Cover from the outermost Reinforcement to the Edge along the HP-Shell Midline
 
-    cc_C1_util = MidlineConcreteCoverCheck.calculateUtilization(
+    cc_C1_util = MidlineConcreteCoverCheck.calculate_utilization(
         slab_construction=slab_construction,
     )
 
     # C.2. Check for Sufficient Clear Spacing between Reinforcement along the HP-Shell Midline
 
-    s_C2_util = ReinforcementSpacingCheck.calculateUtilization(
+    s_C2_util = ReinforcementSpacingCheck.calculate_utilization(
         slab_construction = slab_construction,
     )
 
     # C.3 Check for Minimum Shell Thickness
 
-    tmin_C3_util = MinimumHPShellThicknessCheck.calculateUtilization(
+    tmin_C3_util = MinimumHPShellThicknessCheck.calculate_utilization(
         slab_construction = slab_construction,
     )
 
@@ -251,14 +250,14 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # D.1 Airborne Sound Insulation Check
 
-    asi_D1_util = AirborneSoundInsulationCheck.calculateUtilization(
+    asi_D1_util = AirborneSoundInsulationCheck.calculate_utilization(
         slab_construction = slab_construction,
         limit_dB = R_w_req_db,
         mod_att = modular_attenuation,
         buffer_dB = 2.0
     )
 
-    isi_D2_util = ImpactSoundInsulationCheck.calculateUtilization(
+    isi_D2_util = ImpactSoundInsulationCheck.calculate_utilization(
         slab_construction = slab_construction,
         limit_dB = L_nw_max_db,
         mod_att = modular_attenuation,
@@ -271,19 +270,19 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     # Z.1. Combination of nt and dy
 
-    ntdy_Z1_util = NtDyCombinationCheck.calculateUtilization(
+    ntdy_Z1_util = NtDyCombinationCheck.calculate_utilization(
         slab_construction = slab_construction
     )
 
     # Z.2. Beam Theory H_ges / L - Ratio
 
-    beam_hL_Z2_util = BeamTheoryHgesLRatioCheck.calculateUtilization(
+    beam_hL_Z2_util = BeamTheoryHgesLRatioCheck.calculate_utilization(
         slab_construction = slab_construction,
     )
 
     # Z.3. Beam Theory B / L - Ratio
 
-    beam_BL_Z3_util = BeamTheoryBLRatioCheck.calculateUtilization(
+    beam_BL_Z3_util = BeamTheoryBLRatioCheck.calculate_utilization(
         slab_construction = slab_construction,
     )
 

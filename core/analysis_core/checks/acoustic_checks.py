@@ -10,10 +10,13 @@ Adapted from Jamila Loutfi and Ahmad Eiz Eddin
 """
 
 class AcousticCheck(ABC):
-
+    """
+    Author: Elliot Melcer
+    Abstract class for acoustic checks
+    """
     @staticmethod
     @abstractmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             limit_dB: float,
             mod_att: float,
@@ -26,7 +29,7 @@ class AcousticCheck(ABC):
 
 class AirborneSoundInsulationCheck(AcousticCheck):
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
         slab_construction: SlabConstruction,
         limit_dB: float,
         mod_att: float,
@@ -44,7 +47,7 @@ class AirborneSoundInsulationCheck(AcousticCheck):
 
 class ImpactSoundInsulationCheck(AcousticCheck):
     @staticmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction,
             limit_dB: float,
             mod_att: float,

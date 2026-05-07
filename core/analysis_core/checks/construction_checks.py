@@ -11,10 +11,13 @@ Adapted from Jamila Loutfi
 """
 
 class ConstructionCheck(ABC):
-
+    """
+    Author: Elliot Melcer
+    Abstract class for construction checks
+    """
     @staticmethod
     @abstractmethod
-    def calculateUtilization(
+    def calculate_utilization(
             slab_construction: SlabConstruction) -> float:
         """Returns the utilization ratio"""
         raise NotImplementedError
@@ -24,7 +27,7 @@ class ConstructionCheck(ABC):
 
 class MidlineConcreteCoverCheck(ConstructionCheck):
     @staticmethod
-    def calculateUtilization(slab_construction: SlabConstruction) -> float:
+    def calculate_utilization(slab_construction: SlabConstruction) -> float:
         # get geometry
         hp_shell = slab_construction.slab.hp_shell
 
@@ -43,7 +46,7 @@ class MidlineConcreteCoverCheck(ConstructionCheck):
 
 class ReinforcementSpacingCheck(ConstructionCheck):
     @staticmethod
-    def calculateUtilization(slab_construction: SlabConstruction, debug_print: bool = False) -> float:
+    def calculate_utilization(slab_construction: SlabConstruction, debug_print: bool = False) -> float:
         # get geometry
         hp_shell = slab_construction.slab.hp_shell
 
@@ -68,7 +71,7 @@ class ReinforcementSpacingCheck(ConstructionCheck):
 
 class MinimumHPShellThicknessCheck(ConstructionCheck):
     @staticmethod
-    def calculateUtilization(slab_construction: SlabConstruction) -> float:
+    def calculate_utilization(slab_construction: SlabConstruction) -> float:
         # get geometry
         hp_shell = slab_construction.slab.hp_shell
 

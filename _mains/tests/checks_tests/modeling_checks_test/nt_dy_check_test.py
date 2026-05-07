@@ -41,7 +41,7 @@ def make_test_slab_construction_c1_1(base_params: dict, dy: float, nt: int) -> S
 # --- CASE 1 ---
 # nt == 1 AND abs(dy - dy_real) > 0.01 -> utilization = 1.0
 test_sc_1_50 = make_test_slab_construction_c1_1(BASE_PARAMS, dy=50, nt=1)
-util_1_50 = NtDyCombinationCheck.calculateUtilization(test_sc_1_50)
+util_1_50 = NtDyCombinationCheck.calculate_utilization(test_sc_1_50)
 print("Case 1 (nt=1, dy=50)")
 print("util = ", util_1_50, "\n")
 
@@ -49,21 +49,21 @@ print("util = ", util_1_50, "\n")
 # --- CASE 2 ---
 # nt == 1 AND abs(dy - dy_real) < 0.01 -> utilization = 10.0
 test_sc_1_300 = make_test_slab_construction_c1_1(BASE_PARAMS, dy=300, nt=1)
-util_1_300 = NtDyCombinationCheck.calculateUtilization(test_sc_1_300)
+util_1_300 = NtDyCombinationCheck.calculate_utilization(test_sc_1_300)
 print("Case 2 (nt=1, dy=300)")
 print("util = ", util_1_300, "\n")
 
 # --- CASE 3 ---
 # nt != 1 AND dy matches -> utilization = 1.0
 test_sc_2_300 = make_test_slab_construction_c1_1(BASE_PARAMS, dy=300, nt=2)
-util_2_300 = NtDyCombinationCheck.calculateUtilization(test_sc_2_300)
+util_2_300 = NtDyCombinationCheck.calculate_utilization(test_sc_2_300)
 print("Case 3 (nt=2, dy=300)")
 print("util = ", util_2_300, "\n")
 
 # --- CASE 4 ---
 # nt != 1 AND dy differs significantly -> still utilization = 1.0
 test_sc_2_50 = make_test_slab_construction_c1_1(BASE_PARAMS, dy=50, nt=2)
-util_2_50 = NtDyCombinationCheck.calculateUtilization(test_sc_2_50)
+util_2_50 = NtDyCombinationCheck.calculate_utilization(test_sc_2_50)
 print("Case 4 (nt=2, dy=50)")
 print("util = ", util_2_50, "\n")
 

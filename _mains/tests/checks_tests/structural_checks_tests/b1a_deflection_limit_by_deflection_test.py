@@ -32,7 +32,7 @@ c1_4     |  -0.311  |    -0.311    |    0.0 %
 """
 
 # --- Check ---
-util = DeflectionLimitByDeflectionCheckEC2004DE.calculateUtilization(
+util = DeflectionLimitByDeflectionCheckEC2004DE.calculate_utilization(
     test_slab_construction_c1_4,
     test_loads,
     system = "SIMPLE_BEAM",

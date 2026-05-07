@@ -29,7 +29,7 @@ c1_4     |   -10.35    |  -10.49  |   1 %
 passed: 03.03.26
 """
 
-util = FailureAnnouncementByDeflectionCheckEC2004DE.calculateUtilization(
+util = FailureAnnouncementByDeflectionCheckEC2004DE.calculate_utilization(
     test_slab_construction_c1_1,
     test_loads,
     system = "SIMPLE_BEAM",

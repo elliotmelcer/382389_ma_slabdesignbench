@@ -14,13 +14,13 @@ from _mains.testing_files.testing_slab_construction import test_slab_constructio
 from core.analysis_core.checks.construction_checks import MidlineConcreteCoverCheck
 
 print("Testing of C.1. Sufficient Concrete Cover \n")
-util = MidlineConcreteCoverCheck.calculateUtilization(
+util = MidlineConcreteCoverCheck.calculate_utilization(
     test_slab_construction_c1_1
     )
 
 print(f"c1_util = {util}")
 
-util = MidlineConcreteCoverCheck.calculateUtilization(
+util = MidlineConcreteCoverCheck.calculate_utilization(
     test_slab_construction_c1_4
     )
 
