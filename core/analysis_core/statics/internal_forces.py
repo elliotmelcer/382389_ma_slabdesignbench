@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 
 from slab_construction.slab_construction import SlabConstruction
-from . import MOMENT_DATA, MAX_X_POSITIONS, calculate_line_load_kN_m, MOMENT_FUNCTIONS
+from . import MOMENT_DATA, MAX_X_POSITIONS, MOMENT_FUNCTIONS
 from core.analysis_core.statics.loads import Loads
 from ...unit_core import *
 
@@ -111,7 +111,7 @@ class InternalForces:
 
         # Calculate span and line load (needed for both methods)
         span_m = mm_to_m(slab_construction.slab.L)
-        w_line_kN_m = calculate_line_load_kN_m(slab_construction, loads, combination)
+        w_line_kN_m = loads.line_load_kN_m(slab_construction, combination)
 
         # METHOD 1: Calculate M(x) at specific position using moment function
         if x_norm is not None:

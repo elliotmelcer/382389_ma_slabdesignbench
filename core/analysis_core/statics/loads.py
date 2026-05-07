@@ -1,6 +1,7 @@
 import numpy as np
 from unicodedata import category
 
+from core.unit_core import mm_to_m
 from slab_construction.slab_construction import SlabConstruction
 
 
@@ -85,6 +86,32 @@ class Loads:
         for arr in [self.psi_0_values, self.psi_1_values, self.psi_2_values]:
             if len(arr) != n:
                 raise ValueError("All live load (Qk) and psi arrays must have the same length")
+
+    def line_load_kN_m(self, slab_construction: SlabConstruction, combination: str = "FUNDAMENTAL") -> float:
+        """
+        Berechnet die Linienlast [kN/m] aus der Flächenlast für die gegebene Lastkombination.
+
+        :param slab_construction: SlabConstruction-Objekt
+        :param combination: Lastkombination ("FUNDAMENTAL", "RARE", "FREQUENT", "QUASI-PERMANENT")
+        :return: Linienlast in kN/m
+        """
+        width_m = mm_to_m(slab_construction.slab.B)
+        combination = combination.strip().upper()
+
+        if combination == "FUNDAMENTAL":
+            area_load_kN_m2 = self.fundamental_combination_kN_m2(slab_construction)
+        elif combination == "FREQUENT":
+            area_load_kN_m2 = self.frequent_combination_kN_m2(slab_construction)
+        elif combination in ("QUASI-PERMANENT", "QUASI_PERMANENT", "QUASI PERMANENT"):
+            area_load_kN_m2 = self.quasi_permanent_combination_kN_m2(slab_construction)
+        elif combination == "RARE":
+            area_load_kN_m2 = self.rare_combination_kN_m2(slab_construction)
+        else:
+            raise ValueError(
+                "Invalid combination. Must be one of: 'FUNDAMENTAL', 'RARE', 'FREQUENT' or 'QUASI-PERMANENT'."
+            )
+
+        return area_load_kN_m2 * width_m
 
     def fundamental_combination_kN_m2(self, slab_construction: SlabConstruction):
         """

@@ -3,7 +3,6 @@ from matplotlib import pyplot as plt
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_3
 from _mains.testing_files.testing_loads import test_loads
 from core.analysis_core.section_methods import calculate_moment_curvature_sls
-from core.analysis_core.statics import calculate_line_load_kN_m
 from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.visualization_core.visualization import plot_moment_curvature_with_reference
 
@@ -41,7 +40,7 @@ print(f"\nLoads:")
 print(f"  Live load (Qk):      {test_loads.Qk[0]:.1f} kN/m²")
 print(f"  Structural DL:       {testing_slab_const.structural_dead_load_kN_m2():.2f} kN/m²")
 print(f"  Non-structural DL:   {testing_slab_const.non_structural_dead_load_kN_m2():.2f} kN/m²")
-print(f"  QP-Combination:      {calculate_line_load_kN_m(testing_slab_const, test_loads, "QUASI-PERMANENT"):.2f} kN/m")
+print(f"  QP-Combination:      {test_loads.line_load_kN_m(testing_slab_const, "QUASI-PERMANENT"):.2f} kN/m")
 
 # ---------------------------------------------------------------------------
 # M-κ diagram points (support x=0.0 and midspan x=0.5)

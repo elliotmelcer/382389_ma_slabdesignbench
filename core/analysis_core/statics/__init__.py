@@ -103,41 +103,6 @@ MOMENT_DATA: Dict[str, Dict[str, Dict[str, float]]] = {
     },
 }
 
-def calculate_line_load_kN_m(
-        slab_construction: SlabConstruction,
-        loads: Loads,
-        combination: str = "FUNDAMENTAL"
-) -> float:
-    """
-    Calculate line load from surface load.
-
-    Shared utility function for internal forces and deflection calculations.
-
-    :param slab_construction: Slab construction object
-    :param loads: Loads object
-    :param combination: Load combination type
-    :return: Line load in kN/m
-    """
-    width_m = mm_to_m(slab_construction.slab.B)
-    combination = combination.strip().upper()
-
-    if combination == "FUNDAMENTAL":
-        area_load_kN_m2 = loads.fundamental_combination_kN_m2(slab_construction)
-    elif combination == "FREQUENT":
-        area_load_kN_m2 = loads.frequent_combination_kN_m2(slab_construction)
-    elif combination in ("QUASI-PERMANENT", "QUASI_PERMANENT", "QUASI PERMANENT"):
-        area_load_kN_m2 = loads.quasi_permanent_combination_kN_m2(slab_construction)
-    elif combination == "RARE":
-        area_load_kN_m2 = loads.rare_combination_kN_m2(slab_construction)
-    else:
-        raise ValueError(
-            "Invalid combination. Must be one of: 'FUNDAMENTAL', 'RARE', 'FREQUENT' or 'QUASI-PERMANENT'."
-        )
-
-    line_load_kN_m = area_load_kN_m2 * width_m
-
-    return line_load_kN_m
-
 def moment_simple_beam(x: float, w: float, L: float) -> float:
     """
     Calculate moment at position x for a simple beam.
