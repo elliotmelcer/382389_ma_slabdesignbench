@@ -421,30 +421,11 @@ def _full_moment_curvature_method(section: GenericSection,
     # Calculate initial state point (κ₀, M=0)
     # -------------------------------------------------------
 
-    # Calculate prestressing moment
-    M_p, _ = calculate_prestress_forces_Nmm(section)
+    kappa_0 = _calculate_kappa_0(section, n=n, mk_results=results, debug=debug)
 
-    # Get cracking properties (using same material model)
-    M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
-
-    # Determine initial curvature from prestressing kappa_0
-    if M_cr_result.get('valid', True):
-        # Method 1: Use M_cr and kappa_cr
-        M_cr = abs(M_cr_result["m_cr"])  # Nmm
-        kappa_cr = abs(M_cr_result["strain_profile"][1])  # 1/mm
-
-        if abs(M_cr - M_p) > 1e-3:
-            kappa_0 = (M_p * kappa_cr) / (M_cr - M_p)
-        else:
-            kappa_0 = 0.0
-    else:
-        # Method 2 fallback: Use initial slope of M-κ curve
-        if len(results.chi_y) >= 5:
-            slope, intercept = np.polyfit(results.chi_y[:2], results.m_y[:2], 1)
-
-            kappa_0 = -intercept / slope if slope > 1e-6 else 0.0
-        else:
-            kappa_0 = 0.0
+    # -------------------------------------------------------
+    # Stitch together moments and curvatures
+    # -------------------------------------------------------
 
     # Add single initial state point at beginning
     moments_combined = np.concatenate([[0.0], results.m_y])
@@ -502,13 +483,8 @@ def _simplified_moment_curvature_method(section: GenericSection,
 
     kappa_cr = M_cr_result["strain_profile"][1]  # 1/mm
 
-
-    # Intersect Point
-    Mk_res_0 = section.section_calculator.calculate_moment_curvature(n = n, chi=[0.0])
-    M_int_Nmm = Mk_res_0.m_y[0]  # intersect moment
-
     # Prestress Point
-    kappa_0 = - M_int_Nmm * kappa_cr / (M_cr_Nmm - M_int_Nmm)
+    kappa_0 = _calculate_kappa_0(section, n=n, m_cr_result=M_cr_result, debug=debug)
 
     # End of Cracking Point
     concrete_sls = get_concrete(section)
@@ -602,7 +578,6 @@ def _simplified_moment_curvature_method(section: GenericSection,
         print(separator)
 
     return mk_results
-
 
 def calculate_section_state_from_bottom_strain_sls(
         section_uls,
@@ -759,8 +734,8 @@ def calculate_prestress_forces_Nmm(section: GenericSection) -> tuple[float, floa
     cz = section.gross_properties.cz
 
     # Initialize Forces
-    M_p = 0.0
-    N_p = 0.0
+    M_p = 0.0 # [Nmm]
+    N_p = 0.0 # [N]
 
     # Get prestressed reinforcement point geometries
     if hasattr(section.geometry, 'point_geometries'):
@@ -794,6 +769,124 @@ def calculate_prestress_forces_Nmm(section: GenericSection) -> tuple[float, floa
                 N_p += F_p
 
     return abs(M_p), N_p
+
+def _calculate_kappa_0(
+    sls_sec: GenericSection,
+    n: float = 0.0,
+    mk_results: MomentCurvatureResults | None = None,
+    m_cr_result: dict | None = None,
+    debug: bool = False,
+) -> float:
+    """
+    kappa_0 calculation for prestressed sections, used by both
+    the full and simplified M-κ paths in calculate_moment_curvature_sls().
+
+    Primary Method:
+        kappa_0 = (M_p · κ_cr) / (M_cr - M_p)
+        Requires valid M_cr. Source: [your reference].
+
+    Fallback Method (only if M_cr is invalid):
+        kappa_0 = -intercept / slope  (linear fit on first two pre-yield points)
+
+        Full path (mk_results provided):
+            Uses the first two points from the already-computed M-κ curve
+            (num_pre_yield=40), so spacing is consistent with the full calculation.
+
+        Simplified path (mk_results=None):
+            1. find chi_yield
+            2. Replicate the first 40 curvatures from full path
+            3. evaluate the first two curvatures like in the full path
+
+    :param sls_sec:     GenericSection (assumed SLS section)
+    :param n:           Axial force [N]
+    :param mk_results:  Pre-computed M-κ results from full path (None for simplified path)
+    :param debug:       Print intermediate values
+    :return:            κ₀ [1/mm]
+    """
+
+    # -----------------------------------------------------------------------
+    # Primary Method
+    # -----------------------------------------------------------------------
+    # Use pre-computed M_cr if provided, otherwise compute it
+    if m_cr_result is None:
+        m_cr_result = calculate_cracking_moment_sls_Nmm(sls_sec, n=n)
+
+    if m_cr_result.get('valid', True):
+        M_p_Nmm, _ = calculate_prestress_forces_Nmm(sls_sec)
+
+        M_cr     = abs(m_cr_result['m_cr'])       # Nmm
+        kappa_cr = abs(m_cr_result['strain_profile'][1])  # 1/mm
+
+        if abs(M_cr - M_p_Nmm) > 1e-3:
+            kappa_0 = (M_p_Nmm * kappa_cr) / (M_cr - M_p_Nmm)
+
+            if debug:
+                print(f"[kappa_0] Method 1:"
+                      f"  M_p={M_p_Nmm/1e6:.3f} kNm"
+                      f"  M_cr={M_cr/1e6:.3f} kNm"
+                      f"  κ_cr={kappa_cr*1000:.6f} 1/m"
+                      f"  → κ₀={kappa_0*1000:.6f} 1/m")
+            return kappa_0
+        else:
+            if debug:
+                print(f"[kappa_0] Method 1: M_cr ≈ M_p, κ₀=0.0")
+            return 0.0
+
+    # -----------------------------------------------------------------------
+    # Fallback Method
+    # -----------------------------------------------------------------------
+    if debug:
+        reason = m_cr_result.get('reason', 'unknown')
+        print(f"[kappa_0] M_cr invalid ({reason}) → falling back to Method 2")
+
+    if mk_results is not None:
+        # Full path: reuse first two points from already-computed curve
+        chi = mk_results.chi_y[:2]
+        m   = mk_results.m_y[:2]
+
+        if debug:
+            print(f"[kappa_0] Method 2 (full path): using existing M-κ points"
+                  f"  χ={chi}, M={[v/1e6 for v in m]} kNm")
+
+    else:
+        # Simplified path: find chi_yield, replicate pre-yield linspace of curvatures,
+        # evaluate 2 points
+        calculator = sls_sec.section_calculator
+
+        strain_yield = calculator.find_equilibrium_fixed_pivot(
+            sls_sec.geometry, n, yielding=True
+        )
+        chi_yield = strain_yield[1]
+
+        # Replicate chi_first logic from calculate_moment_curvature() internals
+        chi_first  = 1e-8
+        chi_first *= -1.0 if chi_first * chi_yield < 0 else 1.0
+
+        # First two points of the 40-point pre-yield linspace
+        chi_probe = np.linspace(chi_first, chi_yield, 40)[:2]
+
+        res = calculator.calculate_moment_curvature(n=n, chi=chi_probe)
+        chi = res.chi_y
+        m   = res.m_y
+
+        if debug:
+            print(f"[kappa_0] Method 2 (simplified path): chi_yield={chi_yield*1000:.6f} 1/m"
+                  f"  chi_probe={chi_probe*1000}"
+                  f"  M={[v/1e6 for v in m]} kNm")
+
+    slope, intercept = np.polyfit(chi, m, 1)
+
+    if abs(slope) > 1e-6:
+        kappa_0 = -intercept / slope
+    else:
+        kappa_0 = 0.0
+
+    if debug:
+        print(f"[kappa_0] Method 2: slope={slope:.4e}"
+              f"  intercept={intercept:.4e}"
+              f"  → κ₀={kappa_0*1000:.6f} 1/m")
+
+    return kappa_0
 
 def get_strain_at_point(strain_profile, y, z) -> float:
     """
