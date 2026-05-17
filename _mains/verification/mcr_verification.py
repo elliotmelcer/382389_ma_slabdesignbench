@@ -17,7 +17,7 @@ passed 27.01.2026
 Output:
 
 Section     Mcr [kNm]
-1               37.53
+1               38.62
 2 (C50/60)     185.10
 2 (C80/90)     192.82
 3               46.34
@@ -44,16 +44,16 @@ print(f"Cracking Moment Verification\n"
 # Plots:
 
 # --- cross-section ---
-plot_cross_section(results_c1_1.get("section"), x = 0.5)
+# plot_cross_section(results_c1_1.get("section"), x = 0.5)
 #
 # #   - Constitutive Laws:
 #
 # plot_constitutive_law_concrete(get_concrete(results_c1_1.get("section")))
-plot_constitutive_law_concrete(get_concrete(results_c1_1.get("section")))
+# plot_constitutive_law_concrete(get_concrete(results_c1_1.get("section")))
 # plot_constitutive_law_reinforcement(get_reinforcement(results_c1_1.get("section"))[0])
 #
 # #   - Section Strain Profile
-plot_strain_profile(results_c1_1)
+# plot_strain_profile(results_c1_1)
 #
 # # Display all plots
 plt.show()
