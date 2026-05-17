@@ -12,7 +12,7 @@ from core.analysis_core.checks.modeling_checks import NtDyCombinationCheck, Beam
 from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE, \
     DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE, \
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
-from core.analysis_core.statics import SystemType, MomentType
+from core.analysis_core.statics.constants import SystemType, MomentType
 from core.analysis_core.statics.loads import Loads
 from core.analysis_core.material_methods import get_cube, get_cfrp_reinforcement_from_registry, \
     get_floor_material_from_registry
@@ -288,7 +288,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     )
 
     # ======================================================================================================================
-    # COMPUTE OBJECTIVE FUNCTION
+    # COMPUTE WEIGHTED OBJECTIVE VALUE
     # ======================================================================================================================
 
     # Reference Values for cost and gwp (C30/37)
@@ -321,7 +321,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     y = y_cost * weight_cost + y_gwp * weight_gwp
 
     # ======================================================================================================================
-    # COMPUTE PENALIZED OBJECTIVE FUNCTION
+    # COMPUTE OBJECTIVE FUNCTION
     # Author: Max Dombrowski
     # ======================================================================================================================
     # Collect constraint values

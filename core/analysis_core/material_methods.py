@@ -129,10 +129,7 @@ class CrackingConcreteLaw(UserDefined):
 class TensionStiffeningConcreteLaw(CrackingConcreteLaw):
     """
     Author: Elliot Melcer
-
     A concrete constitutive law that handles tension stiffening
-
-    The class...
     """
 
     def __init__(
