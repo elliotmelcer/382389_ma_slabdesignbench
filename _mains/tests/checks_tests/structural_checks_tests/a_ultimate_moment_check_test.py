@@ -8,7 +8,7 @@ from _mains.testing_files.testing_slab_construction import (
     test_slab_construction_c1_4,
     test_slab_construction_ref,
 )
-from core.analysis_core.statics import SystemType, MomentType
+from core.analysis_core.statics.constants import SystemType, MomentType
 
 """
 Testing of A Ultimate Moment

@@ -9,8 +9,7 @@ from core.analysis_core.checks.structural_checks import DeflectionLimitByDeflect
     DeflectionLimitByMcrCheckEC2004DE
 from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, calculate_bending_strength_uls_Nmm, \
     calculate_prestress_forces_Nmm, calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm
-from core.analysis_core.statics import SystemType, MomentType
-from core.analysis_core.statics.deflection import DeflectionCalculator
+from core.analysis_core.statics.constants import SystemType, MomentType
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.visualization_core.visualization import plot_cross_section, plot_moment_curvature, plot_strain_profile
 from slab_construction.slab_construction import SlabConstruction

@@ -6,8 +6,8 @@ Author: Elliot Melcer
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4, test_slab_construction_c1_1, \
     test_slab_construction_c1_2_c50, test_slab_construction_c1_2_c80, test_slab_construction_c1_3
 from _mains.testing_files.testing_loads import test_loads
-from core.analysis_core.statics import SystemType
-from core.analysis_core.statics.deflection import DeflectionCalculator
+from core.analysis_core.statics.constants import SystemType
+from core.analysis_core.statics.new_deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 
 """
