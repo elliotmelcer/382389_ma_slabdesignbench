@@ -33,7 +33,7 @@ class Loads:
 
     # Format: "psi": (psi_0, psi_1, psi_2)
     # Qk in kN/m²
-    PSI_TABLE_EC_2004_DE = {
+    PSI_TABLE_EC1_2004_DE = {
         "A": {"psi": (0.7, 0.5, 0.3), "Qk": {1: 1.0, 2: 1.5, 3: 2.0}},
         "B": {"psi": (0.7, 0.5, 0.3), "Qk": {1: 2.0, 2: 3.0, 3: 5.0}},
         "C": {"psi": (0.7, 0.7, 0.6), "Qk": {1: 3.0, 2: 4.0, 3: 5.0, 4: 5.0, 5: 5.0, 6: 7.5}},
@@ -50,12 +50,12 @@ class Loads:
         """
         key = _category.upper().strip()
         letter, number = key[0], int(key[1:])
-        if letter not in cls.PSI_TABLE_EC_2004_DE:
+        if letter not in cls.PSI_TABLE_EC1_2004_DE:
             raise ValueError(f"Unknown category '{letter}'")
-        if number not in cls.PSI_TABLE_EC_2004_DE[letter]["Qk"]:
+        if number not in cls.PSI_TABLE_EC1_2004_DE[letter]["Qk"]:
             raise ValueError(f"Unknown subcategory '{number}' for category '{letter}'")
-        psi = cls.PSI_TABLE_EC_2004_DE[letter]["psi"]
-        Qk = cls.PSI_TABLE_EC_2004_DE[letter]["Qk"][number]
+        psi = cls.PSI_TABLE_EC1_2004_DE[letter]["psi"]
+        Qk = cls.PSI_TABLE_EC1_2004_DE[letter]["Qk"][number]
         return Qk, psi[0], psi[1], psi[2]
 
     @classmethod
@@ -102,7 +102,7 @@ class Loads:
             area_load_kN_m2 = self.fundamental_combination_kN_m2(slab_construction)
         elif combination == "FREQUENT":
             area_load_kN_m2 = self.frequent_combination_kN_m2(slab_construction)
-        elif combination in ("QUASI-PERMANENT", "QUASI_PERMANENT", "QUASI PERMANENT"):
+        elif combination in ("QUASI-PERMANENT", "QUASI-PERMANENT", "QUASI PERMANENT"):
             area_load_kN_m2 = self.quasi_permanent_combination_kN_m2(slab_construction)
         elif combination == "RARE":
             area_load_kN_m2 = self.rare_combination_kN_m2(slab_construction)

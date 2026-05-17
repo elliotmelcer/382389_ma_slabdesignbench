@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Dict, Optional, Callable
 
 from slab_construction.slab_construction import SlabConstruction
-from . import MOMENT_DATA, MAX_X_POSITIONS, MOMENT_FUNCTIONS, SystemType, MomentType
+from core.analysis_core.statics.constants import MOMENT_DATA, MAX_X_POSITIONS, SystemType, MomentType
 from core.analysis_core.statics.loads import Loads
 from ...unit_core import *
 
@@ -186,3 +186,14 @@ class InternalForces:
         :return: Moment at x [kNm]
         """
         return -w * x ** 2 / 2
+
+"""
+Moment functions M(x) for systems where full distribution is implemented
+Signature: (x_m: float, w: float, L: float) -> float
+where x_m is position in meters, w is line load in kN/m, L is span in meters
+"""
+MOMENT_FUNCTIONS: Dict[SystemType, Callable[[float, float, float], float]] = {
+    SystemType.SIMPLE_BEAM: InternalForces.moment_simple_beam,
+    SystemType.CANTILEVER: InternalForces.moment_cantilever,
+    SystemType.TWO_SPAN: InternalForces.moment_two_span,
+}
