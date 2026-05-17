@@ -264,7 +264,7 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
 def calculate_moment_curvature_sls(section: GenericSection,
                                    n: float = 0.0,
                                    constitutive_law: str = "TENSTIFF_PARABOLIC",
-                                   m_k_simplification = False,
+                                   simplification: bool | int | float = False,
                                    debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
@@ -274,7 +274,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     :param section:             GenericSection (ULS)
     :param n:                   Axial force [N]
-    :param m_k_simplification:  Control simplified M-K-Diagram Calculation in _simplified_moment_curvature_method()
+    :param simplification:  Control simplified M-K-Diagram Calculation in _simplified_moment_curvature_method()
     :param constitutive_law
     :param debug:
 
@@ -282,30 +282,33 @@ def calculate_moment_curvature_sls(section: GenericSection,
     """
     sls_sec = sls_section(section, constitutive_law)
 
-    if not m_k_simplification:
+    if simplification is False:
         # Full M-K-Diagram
         results = _full_moment_curvature_method(
             section=sls_sec,
             n=n,
             debug=debug,
         )
-    else:
+    elif simplification is True or (isinstance(simplification, (int, float)) and simplification > 0):
         # Simplified M-K-Diagram
         results = _simplified_moment_curvature_method(
             section=sls_sec,
-            extra_points=m_k_simplification,
+            simplification=simplification,
             n=n,
             debug=debug,
         )
+    else:
+        raise ValueError(f"simplification must be False, True, or a positive number, got {simplification!r}")
 
-    mon_incr_results = _enforce_monotonically_increasing(results)
+    mon_incr_results = _ensure_force_controlled(results)
     return mon_incr_results
 
 
-def _enforce_monotonically_increasing(results: MomentCurvatureResults) -> MomentCurvatureResults:
+def _ensure_force_controlled(results: MomentCurvatureResults) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
-    Enforces monotonically increasing moment magnitudes in a MomentCurvatureResults object.
+    Ensures the moment-curvature-diagram is force controlled by
+    enforcing monotonically increasing moment magnitudes
 
     When |m[i+1]| < |m[i]|, collects all dip indices until the first j where
     |m[j]| > |m[i]|, inserts an interpolated point (κ_new, m[i]) at i+1, and
@@ -448,9 +451,9 @@ def _full_moment_curvature_method(section: GenericSection,
     return results
 
 def _simplified_moment_curvature_method(section: GenericSection,
-                                   extra_points = None,
-                                   n: float = 0.0,
-                                   debug: bool = False) -> MomentCurvatureResults:
+                                        simplification = None,
+                                        n: float = 0.0,
+                                        debug: bool = False) -> MomentCurvatureResults:
     """
     Calculates a simplified trilinear version of calculate_moment_curvature_sls().
     Points:
@@ -458,7 +461,7 @@ def _simplified_moment_curvature_method(section: GenericSection,
         Cracking Point
         End of Cracking Point:  based on tension stiffening of concrete Ultimate Point
 
-    Optional extra_points behavior:
+    Optional simplification behavior:
 
         Input   Range      Explanation
         ------------------------------------------------------------------------------------------------
@@ -474,29 +477,26 @@ def _simplified_moment_curvature_method(section: GenericSection,
     :return:
     """
 
-    if not isinstance(get_concrete(section).constitutive_law, TensionStiffeningConcreteLaw):
+    # Concrete Properties
+    concrete_sls = get_concrete(section)
+    law = concrete_sls.constitutive_law
+    eps_F_t = law.eps_F_t
+
+    # Check Constitutive Law
+    if not isinstance(law, TensionStiffeningConcreteLaw):
         raise Exception("Simplified M-K-Line only implemented for TENSTIFF_PARABOLIC")
 
     # Cracking Point
     M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
-    M_cr_Nmm = M_cr_result["m_cr"]  # Nmm
 
+    M_cr_Nmm = M_cr_result["m_cr"]  # Nmm
     kappa_cr = M_cr_result["strain_profile"][1]  # 1/mm
 
     # Prestress Point
     kappa_0 = _calculate_kappa_0(section, n=n, m_cr_result=M_cr_result, debug=debug)
 
     # End of Cracking Point
-    concrete_sls = get_concrete(section)
-    law = concrete_sls.constitutive_law
-    eps_F_t = law.eps_F_t
-
-    eoc_results = calculate_section_state_from_bottom_strain_sls(
-        section_uls = section,
-        n = n,
-        eps_bot=eps_F_t,
-        constitutive_law="TENSTIFF_PARABOLIC"
-    )
+    eoc_results = _calculate_section_state_from_bottom_strain_sls(section_uls = section, n = n, eps_bot=eps_F_t, constitutive_law="TENSTIFF_PARABOLIC")
     _, kappa_eoc, _ = eoc_results["strain_profile"]
 
     Mk_res_eoc = section.section_calculator.calculate_moment_curvature(n = n, chi=[kappa_eoc])
@@ -510,30 +510,30 @@ def _simplified_moment_curvature_method(section: GenericSection,
     # Extra Points
     kappa_extra = np.array([])
 
-    if extra_points is False:
+    if simplification is False:
         raise ValueError(
-            "extra_points=False means this simplified method should not be called. "
+            "simplification=False means this simplified method should not be called. "
             "Handle this case higher up in the call chain."
         )
 
-    elif extra_points is True:
+    elif simplification is True:
         # use simplified method, but without extra points
         pass
 
-    elif type(extra_points) is int:
-        if extra_points < 1:
-            raise ValueError("If extra_points is an int, it must be >= 1.")
-        kappa_extra = np.linspace(kappa_cr, kappa_eoc, extra_points + 2)[1:-1]
+    elif type(simplification) is int:
+        if simplification < 1:
+            raise ValueError("If simplification is an int, it must be >= 1.")
+        kappa_extra = np.linspace(kappa_cr, kappa_eoc, simplification + 2)[1:-1]
 
-    elif type(extra_points) is float:
-        if not (0.0 < extra_points < 1.0):
-            raise ValueError("If extra_points is a float, it must satisfy 0 < extra_points < 1.")
-        kappa_extra = np.array([kappa_cr + extra_points * (kappa_eoc - kappa_cr)])
+    elif type(simplification) is float:
+        if not (0.0 < simplification < 1.0):
+            raise ValueError("If simplification is a float, it must satisfy 0 < simplification < 1.")
+        kappa_extra = np.array([kappa_cr + simplification * (kappa_eoc - kappa_cr)])
 
     else:
         raise TypeError(
-            "extra_points must be one of: False, True, int >= 1, or float with 0 < value < 1 "
-            f"(got {type(extra_points).__name__})"
+            "simplification must be one of: False, True, int >= 1, or float with 0 < value < 1 "
+            f"(got {type(simplification).__name__})"
         )
 
     # Compute Extra Moments
@@ -579,7 +579,7 @@ def _simplified_moment_curvature_method(section: GenericSection,
 
     return mk_results
 
-def calculate_section_state_from_bottom_strain_sls(
+def _calculate_section_state_from_bottom_strain_sls(
         section_uls,
         eps_bot: float,
         n: float = 0.0,
@@ -788,11 +788,11 @@ def _calculate_kappa_0(
     Fallback Method (only if M_cr is invalid):
         kappa_0 = -intercept / slope  (linear fit on first two pre-yield points)
 
-        Full path (mk_results provided):
+        Full path (mk_np_results provided):
             Uses the first two points from the already-computed M-κ curve
             (num_pre_yield=40), so spacing is consistent with the full calculation.
 
-        Simplified path (mk_results=None):
+        Simplified path (mk_np_results=None):
             1. find chi_yield
             2. Replicate the first 40 curvatures from full path
             3. evaluate the first two curvatures like in the full path
@@ -805,6 +805,14 @@ def _calculate_kappa_0(
     """
 
     # -----------------------------------------------------------------------
+    # Check if Section is prestressed
+    # -----------------------------------------------------------------------
+    M_p_Nmm, _ = calculate_prestress_forces_Nmm(sls_sec)
+
+    if M_p_Nmm == 0:
+        return 0.0
+
+    # -----------------------------------------------------------------------
     # Primary Method
     # -----------------------------------------------------------------------
     # Use pre-computed M_cr if provided, otherwise compute it
@@ -812,8 +820,6 @@ def _calculate_kappa_0(
         m_cr_result = calculate_cracking_moment_sls_Nmm(sls_sec, n=n)
 
     if m_cr_result.get('valid', True):
-        M_p_Nmm, _ = calculate_prestress_forces_Nmm(sls_sec)
-
         M_cr     = abs(m_cr_result['m_cr'])       # Nmm
         kappa_cr = abs(m_cr_result['strain_profile'][1])  # 1/mm
 
