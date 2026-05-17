@@ -168,6 +168,21 @@ solidian_Q142_pre_50 = create_reinforcement(
     name = "solidian GRID Q142/142-CCE-25 prestressed 50%"
 )
 
+# solidian GRID Q142/142-CCE-25 prestressed 75 %
+
+solidian_Q142_pre_75 = create_reinforcement(
+    fyk=fyk_Q142,
+    Es=Es_Q142,
+    ftk=ftk_Q142,
+    epsuk=epsuk_Q142,
+    density=density_Q142,
+    constitutive_law = brittle_elastic_law_Q142,
+    initial_strain = 0.75 * epsuk_Q142,
+    gamma_s = 1.3,
+    gamma_eps = 1/1.3,
+    name = "solidian GRID Q142/142-CCE-25 prestressed 50%"
+)
+
 # solidian GRID Q142/142-CCE-25 prestressed 60 %
 
 solidian_Q142_pre_60 = create_reinforcement(
@@ -188,3 +203,4 @@ solidian_Q142_pre_60 = create_reinforcement(
 infill = InfillMaterial(density = 1000, name = "Infill")
 sound_insulation = InsulationMaterial(density = 24, E_dyn = 0.6, name = "Sound insulation")
 screed = ScreedMaterial(density = 2000, name = "Screed")
+
