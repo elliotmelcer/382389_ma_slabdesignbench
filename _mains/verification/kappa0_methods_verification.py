@@ -320,7 +320,12 @@ def _method2(section, n: float = 0.0) -> dict:
     slope, intercept = np.polyfit(res.chi_y, res.m_y, 1)
     kappa_0          = -intercept / slope if abs(slope) > 1e-6 else 0.0
 
-    return {'valid': True, 'kappa_0': kappa_0, 'slope': slope, 'intercept': intercept}
+    return {
+        'valid': True,
+        'kappa_0': kappa_0,
+        'slope': slope,
+        'intercept': intercept
+    }
 
 
 # ──────────────────────────────────────────────────────────────────────────────
