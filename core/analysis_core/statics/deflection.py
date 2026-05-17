@@ -11,7 +11,7 @@ from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls,
 )
-from core.analysis_core.statics import virtual_moment_unit_load_at_midspan_simple_beam, SystemType
+from core.analysis_core.statics.constants import SystemType
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.unit_core import mm_to_m
 

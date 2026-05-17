@@ -12,7 +12,7 @@ from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls, calculate_cracking_moment_sls_Nmm,
 )
-from core.analysis_core.statics import SystemType
+from core.analysis_core.statics.constants import SystemType
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.unit_core import mm_to_m
 
@@ -59,7 +59,7 @@ class DeflectionCalculator:
         :param slab_construction:   Slab construction object
         :param loads:               Loads object
         :param system:              Structural system type
-        :param combination:         Load combination
+        :param combination:         Load combination (Ignored when load_history_method='FACTOR')
         :param n_intervals:         Number of intervals for Simpson's rule (must be even)
         :param N_axial_N:           Axial force [N] (positive = tension)
         :param debug:               Enable debug output
@@ -88,34 +88,33 @@ class DeflectionCalculator:
             raise ValueError("combination must be 'FUNDAMENTAL', 'QUASI-PERMANENT', 'FREQUENT' or 'RARE'")
 
         # --------------------------
+        # Shared Input kwargs
+        # --------------------------
+        deflection_kwargs = dict(
+            slab_construction=slab_construction,
+            loads=loads,
+            system=system,
+            n_intervals=n_intervals,
+            N_axial_N=N_axial_N,
+            m_k_simplification=m_k_simplification,
+            debug=debug,
+            extended_debug=extended_debug,
+        )
+
+        # --------------------------
         # Consider Load History
         # --------------------------
         if load_history_method == "NONE":
             # Use Direct Calculation Method
             deflection_mm = DeflectionCalculator._direct_deflection_method(
-                slab_construction=slab_construction,
-                loads=loads,
-                system=system,
                 combination=combination,
-                n_intervals=n_intervals,
-                N_axial_N=N_axial_N,
                 constitutive_law = constitutive_law,
-                m_k_simplification = m_k_simplification,
-                debug=debug,
-                extended_debug=extended_debug,
+                **deflection_kwargs
             )
 
         elif load_history_method == "FACTOR":
             deflection_mm = DeflectionCalculator._factor_deflection_method(
-                slab_construction=slab_construction,
-                loads=loads,
-                system=system,
-                combination=combination,
-                n_intervals=n_intervals,
-                N_axial_N=N_axial_N,
-                m_k_simplification=m_k_simplification,
-                debug=debug,
-                extended_debug=extended_debug,
+                **deflection_kwargs
             )
 
         # elif load_history_method == "SECANT":
@@ -144,8 +143,6 @@ class DeflectionCalculator:
         # Setup
         # --------------------------
         span_m = mm_to_m(slab_construction.slab.L)
-        # Interpolation points (half span due to symmetry)
-        x_positions = np.linspace(0, 0.5, n_intervals + 1)
 
         # Calculate Kappas along the Beam
         kappa_array, kappa_debug = DeflectionCalculator._get_interpolated_kappa_array(
@@ -159,11 +156,8 @@ class DeflectionCalculator:
             m_k_simplification = m_k_simplification,
         )
 
-        # Calculate real Moment at integration points
-        M_applied_array_kNm = [
-            InternalForces.calculate_moment_kNm(slab_construction, loads, system, combination, x)
-            for x in x_positions
-        ]
+        # Real Moments at integration points
+        M_applied_array_kNm = kappa_debug["M_applied_kNm"]
 
         # Integrate using Simpson's Method
         deflection_mm, simpson_debug  = DeflectionCalculator._simpson_integration(
@@ -184,7 +178,6 @@ class DeflectionCalculator:
             slab_construction: SlabConstruction,
             loads: Loads,
             system: SystemType,
-            combination: str,
             n_intervals: int,
             N_axial_N: float,
             m_k_simplification,
@@ -204,7 +197,7 @@ class DeflectionCalculator:
             slab_construction=slab_construction,
             loads=loads,
             system=system,
-            combination=combination,
+            combination="QUASI-PERMANENT",
             n_intervals=n_intervals,
             N_axial_N=N_axial_N,
             m_k_simplification=m_k_simplification,
@@ -233,11 +226,10 @@ class DeflectionCalculator:
             slab_construction=slab_construction,
             loads=loads,
             system=system,
-            combination=combination,
             N_axial_N=N_axial_N,
             x_positions=x_positions,
         )
-        m_real_array_kNm = zeta_debug["m_real_kNm"]
+        m_real_array_kNm = zeta_debug["m_qp_kNm"] # Use quasi-permanent combination for integration
         m_cr_interp_list_kNm = zeta_debug["m_cr_interp_kNm"]
 
         # -----------------------------
@@ -323,7 +315,7 @@ class DeflectionCalculator:
             kappa_x = kappa_array[i]
 
             # 2. Find Virtual Moment at x
-            M_virtual_x_kNm = DeflectionCalculator._virtual_moment_unit_load_at_midspan_simple_beam(x_norm, span_m)
+            M_virtual_x_kNm = DeflectionCalculator._virtual_moment(x_norm, span_m)
 
             # 3. Virtual work integration
             increment = kappa_x * M_virtual_x_kNm * weight_x
@@ -380,13 +372,12 @@ class DeflectionCalculator:
             slab_construction: SlabConstruction,
             loads: Loads,
             system: SystemType,
-            combination: str,
             N_axial_N: float,
             x_positions: np.ndarray,
             beta: float = 0.5,
     ) -> tuple[list[float], dict[str, list[float]]]:
         """
-        Distribution coefficient ζ along the half-span per EC2 (7.19):
+        Distribution coefficient ζ along the half-span per EC2 (7.19) under rare combination:
             ζ = 1 - β · (M_cr / M)²   if M > M_cr
             ζ = 0                     otherwise
 
@@ -412,7 +403,8 @@ class DeflectionCalculator:
 
         zeta_array: list[float] = []
         m_cr_interp_list_kNm: list[float] = []
-        m_real_list_kNm: list[float] = []
+        m_rare_list_kNm: list[float] = []
+        m_qp_list_kNm: list[float] = []
 
         for x_norm in x_positions:
             # Cracking moment at this station
@@ -422,30 +414,41 @@ class DeflectionCalculator:
                 x_norm
             )
 
-            # Applied moment at this station
-            m_real_kNm = InternalForces.calculate_moment_kNm(
+            # Quasi-Permanent moment for debug info
+            m_qp_kNm = InternalForces.calculate_moment_kNm(
                 slab_construction,
                 loads,
                 system,
-                combination, #TODO: Should this be "RARE" combination?
+                "QUASI-PERMANENT",
                 x_norm
             )
 
-            # EC2 (7.19)
-            if m_real_kNm > m_cr_kNm:
-                zeta = 1.0 - beta * (m_cr_kNm / m_real_kNm) ** 2
+            # Cracking state under rare combination, used for zeta calculation
+            m_rare_kNm = InternalForces.calculate_moment_kNm(
+                slab_construction,
+                loads,
+                system,
+                "RARE",
+                x_norm
+            )
+
+            # EC2 (7.19): Use rare combination to determine cracking state of structure
+            if m_rare_kNm > m_cr_kNm:
+                zeta = 1.0 - beta * (m_cr_kNm / m_rare_kNm) ** 2
                 zeta = max(0.0, min(1.0, zeta))
             else:
                 zeta = 0.0
 
             zeta_array.append(zeta)
             m_cr_interp_list_kNm.append(m_cr_kNm)
-            m_real_list_kNm.append(m_real_kNm)
+            m_rare_list_kNm.append(m_rare_kNm)
+            m_qp_list_kNm.append(m_qp_kNm)
 
         debug_info = {
             "x_positions": list(x_positions),
             "m_cr_interp_kNm": m_cr_interp_list_kNm,
-            "m_real_kNm": m_real_list_kNm,
+            "m_rare_kNm": m_rare_list_kNm,
+            "m_qp_kNm": m_qp_list_kNm,
         }
 
         return zeta_array, debug_info
@@ -453,30 +456,42 @@ class DeflectionCalculator:
     @staticmethod
     def _print_zeta_debug(zeta_array: list[float], zeta_debug: dict[str, list]) -> None:
         header = (
-            f"{'i':>4} {'x_norm':>8} {'M_real[kNm]':>12} "
-            f"{'M_cr[kNm]':>12} {'zeta':>10}"
+            f"{'i':>4} {'x_norm':>8} {'M_rare':>10} {'M_qp':>10} "
+            f"{'M_cr':>10} {'zeta':>8}"
         )
         print("\n[DEBUG] Zeta calculation (0 → 0.5):")
         print(header)
         print("-" * len(header))
-        for i, (x, m_r, m_cr, z) in enumerate(zip(
+        for i, (x, m_rare, m_qp, m_cr, z) in enumerate(zip(
                 zeta_debug["x_positions"],
-                zeta_debug["m_real_kNm"],
+                zeta_debug["m_rare_kNm"],
+                zeta_debug["m_qp_kNm"],
                 zeta_debug["m_cr_interp_kNm"],
                 zeta_array,
         )):
-            print(f"{i:>4} {x:>8.4f} {m_r:>12.4f} {m_cr:>12.4f} {z:>10.4f}")
+            print(f"{i:>4} {x:>8.4f} {m_rare:>10.4f} {m_qp:>10.4f} {m_cr:>10.4f} {z:>8.4f}")
 
     @staticmethod
-    def _virtual_moment_unit_load_at_midspan_simple_beam(x_norm: float, span_m: float) -> float:
+    def _calculate_weighted_kappa(
+            kappa_array_fully_cracked: list[float],
+            kappa_array_fully_uncracked: list[float],
+            zeta_array: list[float]
+    ) -> list[float]:
         """
-        Calculate virtual moment for unit load at midspan of simple beam.
+        Returns a list of zeta weighted kappas according to EC2 Eq. (7.18)
+        :param kappa_array_fully_cracked:   list of curvatures for a fully cracked structure
+        :param kappa_array_fully_uncracked: list of curvatures for a fully uncracked structure
+        :param zeta_array:                  list of factors for weighting cracked and uncracked curvatures
+        :return:
+        """
+        kappa_weighted_array = []
 
-        :param x_norm: Normalized position along beam (0 at first support, 0.5 at midspan)
-        :param span_m: Span length [m]
-        :return: Virtual moment [m] (moment arm for unit load)
-        """
-        return x_norm * span_m / 2
+        for k_cr, k_uncr, zeta in zip(kappa_array_fully_cracked, kappa_array_fully_uncracked, zeta_array):
+            # Weighted Kappa according to EC2 Eq. (7.18)
+            kappa_weighted = zeta * k_cr + (1 - zeta) * k_uncr
+            kappa_weighted_array.append(kappa_weighted)
+
+        return kappa_weighted_array
 
     @staticmethod
     def _get_interpolated_kappa_array(
@@ -533,8 +548,6 @@ class DeflectionCalculator:
         m_high_list = []
         kappa_low_list = []
         kappa_high_list = []
-
-        interp_bounds_output = []
 
         for x_norm, M_applied_kNm in zip(x_positions, M_applied_array_kNm):
             # Compute interpolated M-k-curve at position x_norm
@@ -625,6 +638,7 @@ class DeflectionCalculator:
     ) -> Union[float, np.ndarray]:
         """
         Performs parabolic interpolation between y_0 and y_1 at x_norm
+        Source: Loutfi 2022
         :param y_0:     Function value at x_0
         :param y_1:     Function value at x_1
         :param x_norm:  Normalized x value
@@ -649,23 +663,12 @@ class DeflectionCalculator:
         return weights
 
     @staticmethod
-    def _calculate_weighted_kappa(
-            kappa_array_fully_cracked: list[float],
-            kappa_array_fully_uncracked: list[float],
-            zeta_array: list[float]
-    ) -> list[float]:
+    def _virtual_moment(x_norm: float, span_m: float) -> float:
         """
-        Returns a list of zeta weighted kappas according to EC2 Eq. (7.18)
-        :param kappa_array_fully_cracked
-        :param kappa_array_fully_uncracked
-        :param zeta_array
-        :return:
+        Calculate virtual moment for unit load at midspan of simple beam.
+
+        :param x_norm: Normalized position along beam (0 at first support, 0.5 at midspan)
+        :param span_m: Span length [m]
+        :return: Virtual moment [m] (moment arm for unit load)
         """
-        kappa_weighted_array = []
-
-        for k_cr, k_uncr, zeta in zip(kappa_array_fully_cracked, kappa_array_fully_uncracked, zeta_array):
-            # Weighted Kappa according to EC2 Eq. (7.18)
-            kappa_weighted = zeta * k_cr + (1 - zeta) * k_uncr
-            kappa_weighted_array.append(kappa_weighted)
-
-        return kappa_weighted_array
+        return x_norm * span_m / 2
