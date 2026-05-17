@@ -1,7 +1,7 @@
 # For SIMPLE_BEAM - both methods work:
 from _mains.testing_files.testing_loads import test_loads
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
-from core.analysis_core.statics import SystemType, MomentType
+from core.analysis_core.statics.constants import SystemType, MomentType
 from core.analysis_core.statics.internal_forces import InternalForces
 
 x=0.25

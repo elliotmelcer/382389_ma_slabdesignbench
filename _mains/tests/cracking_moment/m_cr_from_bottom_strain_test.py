@@ -9,7 +9,7 @@ from core.analysis_core.section_methods import (
     calculate_cracking_moment_sls_Nmm,
     sls_section,
     get_concrete,
-    calculate_section_state_from_bottom_strain_sls,
+    _calculate_section_state_from_bottom_strain_sls,
 )
 
 """
@@ -60,7 +60,7 @@ for name, section in sections.items():
 
     concrete_sls = get_concrete(current_sls_section)
     eps_cr = concrete_sls.fctm / concrete_sls.Ecm
-    m_cr_result_from_strain = calculate_section_state_from_bottom_strain_sls(current_sls_section, eps_cr, constitutive_law="TENSTIFF_PARABOLIC")
+    m_cr_result_from_strain = _calculate_section_state_from_bottom_strain_sls(current_sls_section, eps_cr, constitutive_law="TENSTIFF_PARABOLIC")
     m_cr_from_strain = m_cr_result_from_strain["m_y"]
     _,kappa_cr_from_strain,_ = m_cr_result_from_strain["strain_profile"]
 

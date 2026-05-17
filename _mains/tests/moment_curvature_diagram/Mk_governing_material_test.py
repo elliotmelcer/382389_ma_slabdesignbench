@@ -10,14 +10,14 @@ from core.visualization_core.visualization import plot_moment_curvature
 """
 This file is used to show the differences in moment-curvature-diagrams when handling concrete- vs. reinforcement-governed sections.
 
-This demonstration shows, that a concrete governed MK Diagram would stops after concrete reaches fcm(sargin)/fck(parabola-rectangle) plateau.
+This demonstration shows, that a concrete governed MK Diagram would stops after concrete reaches fcm(sargin)/fck(parabola-rectangle) plateau IF num_post_yield = 0. 
 
 Changes were made in section_methods.py/calculate_moment_curvature_sls() to continue on after reaching that point, by controlling num_post_yield
 according to which material is governing.  
 """
 
 
-# Section Known to be governed by reinforcement
+# Section Known to be governed by reinforcement or concrete
 reinf_governed_sec = hp_section_c2_uls_x_0_50 # C50/60
 conc_governed_sec = hp_section_c1_3_uls # C50/60
 

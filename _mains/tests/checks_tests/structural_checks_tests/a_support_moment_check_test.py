@@ -4,7 +4,7 @@ from _mains.testing_files.test_slab_two_span import TestSlabTwoWay
 from _mains.testing_files.testing_floor import test_floor
 from _mains.testing_files.testing_loads import test_loads
 from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE
-from core.analysis_core.statics import SystemType, MomentType
+from core.analysis_core.statics.constants import SystemType, MomentType
 from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slab_construction import SlabConstruction
 

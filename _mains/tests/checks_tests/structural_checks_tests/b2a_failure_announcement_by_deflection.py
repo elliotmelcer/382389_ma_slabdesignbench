@@ -2,7 +2,7 @@ from _mains.testing_files.testing_loads import test_loads
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4, test_slab_construction_c1_1, \
     test_slab_construction_c1_2_c50, test_slab_construction_c1_2_c80, test_slab_construction_c1_3
 from core.analysis_core.checks.structural_checks import FailureAnnouncementByDeflectionCheckEC2004DE
-from core.analysis_core.statics import SystemType
+from core.analysis_core.statics.constants import SystemType
 
 """
 Testing of B.2a Failure Announcement by Deflection
