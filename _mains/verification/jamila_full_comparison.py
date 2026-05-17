@@ -11,7 +11,7 @@ from core.analysis_core.checks.modeling_checks import NtDyCombinationCheck, Beam
 from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC2004DE, \
     DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE, \
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
-from core.analysis_core.statics import SystemType, MomentType
+from core.analysis_core.statics.constants import SystemType, MomentType
 from core.analysis_core.statics.loads import Loads
 from core.analysis_core.material_methods import ConcreteCO2Registry, get_material_properties
 from core.ioh_core.import_specs import load_materials_registry
