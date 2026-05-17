@@ -14,13 +14,17 @@ import matplotlib.pyplot as plt
 from core.analysis_core.section_methods import get_strain_at_point
 
 
-# --- Moment-Curvature-Diagram ---
-
 def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, title = ""):
     """
-            Author: Elliot Melcer
-            Plot moment–curvature (M–K) diagram with My and Mu annotations.
-            """
+    Author: Elliot Melcer
+    Plot moment–curvature (M–K) diagram with My and Mu annotations.
+
+    :param m_c_res:     MomentCurvatureResults object from structuralcodes library
+    :param x:           Relative position along the Beam x∈[0,1]
+    :param ax:          The axes with the plot.
+    :param title:       Optional title
+    :return:
+    """
 
     import matplotlib.pyplot as plt
 
@@ -196,6 +200,185 @@ def plot_moment_curvature_with_reference(
 
     return ax
 
+from dataclasses import dataclass, field
+from typing import Optional
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.axes
+
+
+@dataclass
+class MomentCurvatureLine:
+    """
+    Author: Elliot Melcer
+    Container for a single moment–curvature dataset to be plotted.
+
+    Attributes
+    ----------
+    moments : list or array
+        Moment values [kNm].
+    curvatures : list or array
+        Curvature values.
+    name : str
+        Legend label for this line.
+    color : str
+        Matplotlib color string (e.g. "black", "#FF0000", "tab:blue").
+    linestyle : str
+        Matplotlib linestyle string (e.g. "solid", "dashed", "dotted",
+        "dashdot") or shorthand ("-", "--", ":", "-.").
+    linewidth : float
+        Line width. Defaults to 1.0.
+    marker : str
+        Matplotlib marker string (e.g. "x", "o", ""). Defaults to "".
+    markersize : float
+        Marker size. Defaults to 4.0.
+    """
+
+    moments: list
+    curvatures: list
+    name: str
+    color: str = "black"
+    linestyle: str = "solid"
+    linewidth: float = 1.0
+    marker: str = ""
+    markersize: float = 4.0
+
+    def __post_init__(self):
+        self.moments = np.asarray(self.moments, dtype=float)
+        self.curvatures = np.asarray(self.curvatures, dtype=float)
+        if len(self.moments) != len(self.curvatures):
+            raise ValueError(
+                f"MomentCurvatureLine '{self.name}': "
+                "'moments' and 'curvatures' must have the same length "
+                f"({len(self.moments)} vs {len(self.curvatures)})."
+            )
+
+    @classmethod
+    def from_results(
+            cls,
+            m_c_res: MomentCurvatureResults,
+            name: str,
+            color: str = "black",
+            linestyle: str = "solid",
+            linewidth: float = 1.0,
+            marker: str = "",
+            markersize: float = 4.0,
+    ) -> "MomentCurvatureLine":
+        """
+        Construct a MomentCurvatureLine from a MomentCurvatureResults object,
+        applying the standard unit conversions:
+            curvatures : chi_y  →  -chi_y * 1e6   [1/1000m]
+            moments    : m_y    →  -m_y   / 1e6   [kNm]
+
+        Parameters
+        ----------
+        m_c_res : MomentCurvatureResults
+            Raw results object with chi_y [1/m] and m_y [Nm] arrays.
+        name : str
+            Legend label for this line.
+        color, linestyle, linewidth, marker, markersize
+            Forwarded directly to MomentCurvatureLine.
+        """
+        return cls(
+            moments=-m_c_res.m_y / 1e6,
+            curvatures=-m_c_res.chi_y * 1e6,
+            name=name,
+            color=color,
+            linestyle=linestyle,
+            linewidth=linewidth,
+            marker=marker,
+            markersize=markersize,
+        )
+
+
+def plot_moment_curvature_multiple(
+    lines: list[MomentCurvatureLine],
+    ax: Optional[matplotlib.axes.Axes] = None,
+    title: str = "",
+    x: Optional[float] = None,
+    xlabel: str = "Krümmung κ [1/1000m]",
+    ylabel: str = "My [kNm]",
+    xlim: Optional[tuple[float, float]] = None,
+    ylim: Optional[tuple[float, float]] = None,
+) -> matplotlib.axes.Axes:
+    """
+    Author: Elliot Melcer
+    Plot multiple moment–curvature (M–K) datasets on a single axes.
+
+    Parameters
+    ----------
+    lines : list[MomentCurvatureLine]
+        One or more M–K datasets to plot, drawn in list order.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes to plot on. A new figure/axes is created when omitted.
+    title : str, optional
+        Plot title prefix.
+    x : float, optional
+        Position factor appended to the title as ``"M-K-Diagram at x = {x} * L"``.
+    xlabel : str, optional
+        Label for the horizontal axis. Defaults to ``"K [1/1000m]"``.
+    ylabel : str, optional
+        Label for the vertical axis. Defaults to ``"My [kNm]"``.
+    xlim : tuple[float, float], optional
+        (x_min, x_max) axis limits. If omitted, matplotlib auto-scales.
+    ylim : tuple[float, float], optional
+        (y_min, y_max) axis limits. If omitted, matplotlib auto-scales.
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        The axes with the finished plot.
+
+    Raises
+    ------
+    ValueError
+        If *lines* is empty.
+    """
+
+    if not lines:
+        raise ValueError("'lines' must contain at least one MomentCurvatureLine.")
+
+    if ax is None:
+        _, ax = plt.subplots()
+
+    # --- Zero axes ---
+    ax.axhline(0, color="#b0b0b0", linewidth=0.7, linestyle="solid", zorder=1)
+    ax.axvline(0, color="#b0b0b0", linewidth=0.7, linestyle="solid", zorder=1)
+
+    # --- Data lines ---
+    for line in lines:
+        ax.plot(
+            line.curvatures,
+            line.moments,
+            color=line.color,
+            linestyle=line.linestyle,
+            linewidth=line.linewidth,
+            marker=line.marker,
+            markersize=line.markersize,
+            label=line.name,
+            zorder=2,
+        )
+
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    if ylim is not None:
+        ax.set_ylim(ylim)
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.yaxis.set_major_locator(plt.MultipleLocator(5))
+    ax.grid(True, linestyle="-", linewidth=0.5, alpha=0.7)
+    ax.legend(loc="lower right")
+
+    full_title = title
+    if x is not None:
+        full_title = f"{title}\nM-K-Diagram at x = {x} * L"
+    ax.set_title(full_title)
+
+    return ax
+
+
+
 def table_moment_curvature(m_c_res: MomentCurvatureResults):
         """
         Author: Elliot Melcer
@@ -226,7 +409,7 @@ def table_moment_curvature(m_c_res: MomentCurvatureResults):
 
 # --- Concrete ---
 
-def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100):
+def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool = False):
     """
     Author: Elliot Melcer
     Plot the constitutive law (stress–strain curve) for this concrete material
@@ -243,6 +426,10 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100):
 
     eps = np.linspace(eps_min, -eps_min, n)
     sig = law.get_stress(eps)
+
+    if debug:
+        print(f"eps: {eps*1000}")
+        print(f"sig: {sig}")
 
     # === FLIP OVER X AND Y AXIS ===
     eps_plot = -eps
