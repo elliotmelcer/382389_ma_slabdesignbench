@@ -709,6 +709,7 @@ def plot_strain_profile(results: dict):
     eps_top = get_strain_at_point(strain_profile, 0, zmax)
     eps_bot = get_strain_at_point(strain_profile, 0, zmin)
 
+
     # Reinforcement z-coordinates
     z_reinf = [pg.point.y for pg in section.geometry.point_geometries]
 
@@ -718,10 +719,18 @@ def plot_strain_profile(results: dict):
         for z_s in z_reinf
     ]
 
+    # Check Failure
+    concrete_fail = eps_top <= -3.49e-3
+
+    reinf_failures = []
+    for pg, eps_s in zip(section.geometry.point_geometries, eps_reinf):
+        eps_u_neg, eps_u_pos = pg.material.constitutive_law.get_ultimate_strain()
+        reinf_failures.append(eps_s >= eps_u_pos or eps_s <= eps_u_neg)
+
     # --- X-axis strain limits (‰) with padding ------------------------
     eps_vals = [0.0, eps_top * 1e3, eps_bot * 1e3]
-    eps_min = min(eps_vals) - 0.15
-    eps_max = max(eps_vals) + 0.15
+    eps_min = min(eps_vals) - 2
+    eps_max = max(eps_vals) + 2
 
     # --- Y-axis padding (5% of section depth) -------------------------
     z_pad = 0.05 * depth
@@ -745,7 +754,7 @@ def plot_strain_profile(results: dict):
         [eps_top * 1e3, eps_bot * 1e3],
         [zmax, zmin],
         color="black",
-        linewidth=2
+        linewidth=1.25
     )
 
     # Top & bottom strain lines (thick)
@@ -753,8 +762,8 @@ def plot_strain_profile(results: dict):
         y=zmax,
         xmin=min(0.0, eps_top * 1e3),
         xmax=max(0.0, eps_top * 1e3),
-        color="black",
-        linewidth=2
+        color="red" if concrete_fail else "black",
+        linewidth=1.25
     )
 
     ax.hlines(
@@ -762,7 +771,7 @@ def plot_strain_profile(results: dict):
         xmin=min(0.0, eps_bot * 1e3),
         xmax=max(0.0, eps_bot * 1e3),
         color="black",
-        linewidth=2
+        linewidth=1.25
     )
 
     # Centroid line (dash-dot)
@@ -775,39 +784,53 @@ def plot_strain_profile(results: dict):
         linestyle="-."
     )
 
-    # Reinforcement strains (RED)
-    for z_s, eps_s in zip(z_reinf, eps_reinf):
+    ax.annotate(
+        "centroid",
+        (eps_max, cz),
+        textcoords="offset points",
+        xytext=(-5, 4),
+        ha="right",
+        va="bottom",
+        fontsize=12,
+        color="black",
+        fontfamily="serif",
+    )
+
+    # Reinforcement strains (coloured by failure)
+    for z_s, eps_s, failed in zip(z_reinf, eps_reinf, reinf_failures):
+        color = "red" if failed else "black"
+
         ax.hlines(
             y=z_s,
             xmin=0.0,
             xmax=eps_s * 1e3,
-            color="red",
+            color=color,
             linewidth=1.5
         )
 
         ax.annotate(
-            f"{eps_s * 1e3:+.3f}‰",
+            f"{eps_s * 1e3:+.1f}‰",
             (eps_s * 1e3, z_s),
             textcoords="offset points",
             xytext=(5, 0),
             va="center",
-            color="red"
+            color=color
         )
 
-    # Top strain label (left)
+    # Top strain label (red if concrete fails)
     ax.annotate(
-        f"{eps_top * 1e3:+.3f}‰",
+        f"{eps_top * 1e3:+.1f}‰",
         (eps_top * 1e3, zmax),
         textcoords="offset points",
         xytext=(-5, 0),
         ha="right",
         va="center",
-        color="black"
+        color="red" if concrete_fail else "black"
     )
 
     # Bottom strain label (right)
     ax.annotate(
-        f"{eps_bot * 1e3:+.3f}‰",
+        f"{eps_bot * 1e3:+.1f}‰",
         (eps_bot * 1e3, zmin),
         textcoords="offset points",
         xytext=(5, 0),
@@ -816,7 +839,7 @@ def plot_strain_profile(results: dict):
     )
 
     # Axes formatting
-    ax.axvline(0.0, color="black", linewidth=1)
+    # ax.axvline(0.0, color="black", linewidth=1)
     ax.set_xlabel("Strain ε [‰]")
     ax.set_ylabel("z [mm]")
     ax.set_title(f"Strain Profile for {section.name}")
