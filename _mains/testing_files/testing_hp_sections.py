@@ -32,7 +32,7 @@ hp_c1_2         = HPGeometry(B = 1200, L = 6750, Hx = 75,  Hy = 300, t = 70, dy 
 hp_c1_3         = HPGeometry(B = 1500, L = 6750, Hx = 125, Hy = 500, t = 50, dy = 50, nt = 1)
 hp_c1_4         = HPGeometry(B = 1200, L = 6750, Hx = 100, Hy = 400, t = 100, dy = 80, nt = 10)
 hp_ref          = HPGeometry(B = 1200, L = 8000, Hx = 80,  Hy = 320, t = 45, dy = 220, nt = 11)
-hp_kappa_0_fail = HPGeometry(B = 1520, L = 7000, Hx = 130, Hy = 520, t = 85, dy = 190, nt = 15)
+hp_kappa_0_m2 = HPGeometry(B = 1520, L = 7000, Hx = 130, Hy = 520, t = 85, dy = 190, nt = 15)
 
 hp_shell_c1_1_uls     = HPShell(hp_c1_1,            concrete_c50_uls, solidian_Q95_pre_20 ,  reinf_area =  50,   name = "C.1. Section 1")
 hp_shell_c1_2_c50_uls = HPShell(hp_c1_2,            concrete_c50_uls, solidian_Q95_pre_50 ,  reinf_area =  50,   name = "C.1. Section 2.1")
@@ -40,7 +40,7 @@ hp_shell_c1_2_c80_uls = HPShell(hp_c1_2,            concrete_c80_uls, solidian_Q
 hp_shell_c1_3_uls     = HPShell(hp_c1_3,            concrete_c50_uls, solidian_Q142       ,  reinf_area = 300,   name = "C.1. Section 3")
 hp_shell_c1_4_uls     = HPShell(hp_c1_4,            concrete_c55_uls, solidian_Q142_pre_50,  reinf_area =  80,   name = "C.1. Section 4")
 hp_shell_ref          = HPShell(hp_ref ,            concrete_c50_uls, solidian_Q85_pre_37 ,  reinf_area =   8.5, name = "Reference HP-Shell")
-hp_shell_kappa_0_fail = HPShell(hp_kappa_0_fail ,   concrete_c30_uls, solidian_Q142_pre_75 , reinf_area = 100.5,   name = "HP-Shell uses Fallback Method for kappa_0")
+hp_shell_kappa_0_m2 = HPShell(hp_kappa_0_m2 ,   concrete_c30_uls, solidian_Q142_pre_75 , reinf_area = 100.5,   name = "HP-Shell uses Fallback Method for kappa_0")
 
 # ULS Sections
 hp_section_c1_1_uls     = hp_shell_c1_1_uls.section_at(x)
@@ -48,7 +48,7 @@ hp_section_c1_2_c50_uls = hp_shell_c1_2_c50_uls.section_at(x)
 hp_section_c1_2_c80_uls = hp_shell_c1_2_c80_uls.section_at(x)
 hp_section_c1_3_uls     = hp_shell_c1_3_uls.section_at(x)
 hp_section_c1_4_uls     = hp_shell_c1_4_uls.section_at(x)
-hp_section_kappa_0_fail = hp_shell_kappa_0_fail.section_at(x)
+hp_section_kappa_0_m2 = hp_shell_kappa_0_m2.section_at(x)
 
 # --- HP Shell for Verification of Moment-Curvature-Diagram ---
 hp_c2 = HPGeometry(B = 1200, L = 6750, Hx = 70, Hy = 280, t = 40, dy = 30, nt = 5)

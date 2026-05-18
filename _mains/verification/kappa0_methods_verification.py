@@ -21,28 +21,28 @@ kappa_0 — METHOD 1 vs METHOD 2 AT ALL PRESTRESS LEVELS  [C1_1]
 
 Prestress   M_cr valid  M_p [kNm]    M_cr [kNm]   κ₀ M1 [1/m]     κ₀ M2 [1/m]     |ΔM2/M1| [%]   Active method
 ---------------------------------------------------------------------------------------------------------------
-10.0        Yes         8.54         22.70        0.001721        0.001694        1.59           Method 1
-15.0        Yes         12.81        30.15        0.002615        0.002566        1.86           Method 1
-20.0        Yes         17.08        37.53        0.003537        0.003456        2.28           Method 1
-25.0        Yes         21.36        44.85        0.004493        0.004367        2.81           Method 1
-30.0        Yes         25.63        52.10        0.005487        0.005300        3.42           Method 1
-35.0        Yes         29.90        59.27        0.006527        0.006256        4.15           Method 1
-40.0        Yes         34.17        66.35        0.007618        0.007236        5.02           Method 1
-45.0        Yes         38.44        73.33        0.008771        0.008244        6.01           Method 1
-50.0        Yes         42.71        80.19        0.010000        0.009284        7.16           Method 1
-55.0        Yes         46.98        86.91        0.011320        0.010358        8.49           Method 1
-60.0        Yes         51.25        93.46        0.012755        0.011474        10.04          Method 1
-65.0        Yes         55.52        99.79        0.014341        0.012626        11.96          Method 1
-70.0        Yes         59.79        105.84       0.016129        0.013829        14.26          Method 1
-75.0        Yes         64.07        111.53       0.018207        0.015087        17.14          Method 1
+10.0        Yes         8.66         23.89        0.001370        0.001351        1.41           Method 1
+15.0        Yes         13.00        31.28        0.002074        0.002043        1.50           Method 1
+20.0        Yes         17.33        38.62        0.002794        0.002746        1.72           Method 1
+25.0        Yes         21.66        45.92        0.003533        0.003461        2.01           Method 1
+30.0        Yes         25.99        53.16        0.004292        0.004190        2.38           Method 1
+35.0        Yes         30.32        60.36        0.005075        0.004933        2.82           Method 1
+40.0        Yes         34.65        67.50        0.005885        0.005691        3.30           Method 1
+45.0        Yes         38.99        74.58        0.006723        0.006467        3.82           Method 1
+50.0        Yes         43.32        81.58        0.007595        0.007259        4.43           Method 1
+55.0        Yes         47.65        88.52        0.008505        0.008071        5.10           Method 1
+60.0        Yes         51.98        95.37        0.009459        0.008904        5.87           Method 1
+65.0        Yes         56.31        102.12       0.010464        0.009758        6.74           Method 1
+70.0        Yes         60.65        108.76       0.011528        0.010637        7.74           Method 1
+75.0        Yes         64.98        115.27       0.012665        0.011541        8.87           Method 1
 
 ===============================================================================================================
 SUMMARY  (deviation only where M1 is valid)
 ===============================================================================================================
   Method 2 vs Method 1:
-    mean = 6.87%
-    max  = 17.14%  (at 75.0% prestress)
-    min  = 1.59%
+    mean = 4.12%
+    max  = 8.87%  (at 75.0% prestress)
+    min  = 1.41%
 ===============================================================================================================
 kappa_0 — METHOD 1 vs METHOD 2 AT ALL PRESTRESS LEVELS  [C1_2_C50]
 ===============================================================================================================
@@ -164,7 +164,7 @@ SUMMARY  (deviation only where M1 is valid)
     max  = 3.59%  (at 75.0% prestress)
     min  = 1.15%
 ===============================================================================================================
-kappa_0 — METHOD 1 vs METHOD 2 AT ALL PRESTRESS LEVELS  [HP_FAIL]
+kappa_0 — METHOD 1 vs METHOD 2 AT ALL PRESTRESS LEVELS  [HP_M2]
 ===============================================================================================================
   M1 (primary):  (M_p · κ_cr) / (M_cr - M_p)         [Loutfi, 2023]
   M2 (fallback): -intercept / slope                  [polyfit on initial M-κ]
@@ -207,7 +207,7 @@ from core.analysis_core.section_methods import (
 )
 from _mains.testing_files.testing_hp_sections import (
     hp_shell_c1_1_uls, hp_shell_c1_2_c50_uls, hp_shell_c1_2_c80_uls,
-    hp_shell_c1_3_uls, hp_shell_c1_4_uls, hp_shell_kappa_0_fail,
+    hp_shell_c1_3_uls, hp_shell_c1_4_uls,
 )
 from structuralcodes.materials.reinforcement import create_reinforcement
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
@@ -229,7 +229,7 @@ _SECTION_REGISTRY: dict[str, HPShell] = {
     'c1_2_c80': hp_shell_c1_2_c80_uls,
     'c1_3':     hp_shell_c1_3_uls,
     'c1_4':     hp_shell_c1_4_uls,
-    'hp_fail':  hp_shell_kappa_0_fail,
+    'hp_m2':  hp_shell_kappa_0_m2,
 }
 
 def create_section_with_prestress(
@@ -436,7 +436,7 @@ def compare_all_methods(prestress_factors: list, _shell_id: str = 'c1_1',  n: fl
 
 FACTORS = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75]
 
-# def test_fallback_threshold(_shell_id: str = 'hp_fail'):
+# def test_fallback_threshold(_shell_id: str = 'hp_m2'):
 #     """
 #     Validates two things:
 #
