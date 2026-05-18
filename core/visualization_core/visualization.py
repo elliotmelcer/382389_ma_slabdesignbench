@@ -720,12 +720,14 @@ def plot_strain_profile(results: dict):
     ]
 
     # Check Failure
-    concrete_fail = eps_top <= -3.49e-3
+    epsilon = 0.01e-3 # account for rounding error
+
+    concrete_fail = eps_top <= -3.5 + epsilon
 
     reinf_failures = []
     for pg, eps_s in zip(section.geometry.point_geometries, eps_reinf):
         eps_u_neg, eps_u_pos = pg.material.constitutive_law.get_ultimate_strain()
-        reinf_failures.append(eps_s >= eps_u_pos or eps_s <= eps_u_neg)
+        reinf_failures.append(eps_s >= eps_u_pos-epsilon or eps_s <= eps_u_neg+epsilon)
 
     # --- X-axis strain limits (‰) with padding ------------------------
     eps_vals = [0.0, eps_top * 1e3, eps_bot * 1e3]
