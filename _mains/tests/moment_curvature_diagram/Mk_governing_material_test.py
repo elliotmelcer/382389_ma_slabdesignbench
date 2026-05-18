@@ -5,7 +5,9 @@ from structuralcodes.sections import GenericSection
 from _mains.testing_files.testing_hp_sections import hp_section_c2_uls_x_0_50, hp_section_c1_3_uls
 from core.analysis_core.section_methods import calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm, \
     get_concrete, sls_section
-from core.visualization_core.visualization import plot_moment_curvature
+from core.visualization_core.visualization import plot_moment_curvature, plot_strain_profile
+
+plt.rcParams["font.family"] = "STIXGeneral"
 
 """
 This file is used to show the differences in moment-curvature-diagrams when handling concrete- vs. reinforcement-governed sections.
@@ -34,9 +36,24 @@ mk_conc_gov = calculate_moment_curvature_sls(conc_governed_sec, 0.0, "NONE_PARAB
 plot_moment_curvature(mk_reinf_gov, x = 0.5, title = "Reinforcement Governing")
 plot_moment_curvature(mk_conc_gov,  x = 0.5, title = "Concrete Governing")
 
-# M_u_sls
+# M_u_sls from method
 m_u_reinf_gov = calculate_bending_strength_sls_Nmm(reinf_governed_sec)
 m_u_conc_gov = calculate_bending_strength_sls_Nmm(conc_governed_sec)
+
+# Strain Profile for the last point of the moment curvature diagram
+m_u_mk_reinf_gov = mk_reinf_gov.m_y[-1]
+sp_u_mk_sp_reinf_gov = reinf_governed_sec_sls.section_calculator.calculate_strain_profile(0, m_u_mk_reinf_gov, 0)
+mk_u_result_reinf_gov = {
+    "section":          reinf_governed_sec_sls,
+    "strain_profile":   sp_u_mk_sp_reinf_gov
+}
+
+m_u_mk_conc_gov = mk_conc_gov.m_y[-1]
+sp_u_mk_sp_conc_gov = conc_governed_sec_sls.section_calculator.calculate_strain_profile(0, m_u_mk_conc_gov, 0)
+mk_u_result_conc_gov = {
+    "section":          conc_governed_sec_sls,
+    "strain_profile":   sp_u_mk_sp_conc_gov
+}
 
 # Kappa_u_sls
 _,kappa_u_reinf_gov,_ = m_u_reinf_gov.get("strain_profile", (None, None, None))
@@ -49,5 +66,8 @@ print(f"Kappa (reinf. gov.): {kappa_u_reinf_gov * -10**6:.2f} 1/m\n")
 print("Concrete governed design")
 print(f"M_u_sls (conc. gov.): {m_u_conc_gov["m_u"] * (-10**-6):.2f} kNm")
 print(f"Kappa (conc. gov.): {kappa_u_conc_gov * -10**6:.2f} 1/m")
+
+plot_strain_profile(mk_u_result_reinf_gov)
+plot_strain_profile(mk_u_result_conc_gov)
 
 plt.show()
