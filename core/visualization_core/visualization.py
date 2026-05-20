@@ -5,6 +5,7 @@ from structuralcodes.core._section_results import MomentCurvatureResults
 from structuralcodes.core.base import ConstitutiveLaw
 from structuralcodes.geometry import Geometry
 from structuralcodes.materials.concrete import Concrete
+from structuralcodes.materials.constitutive_laws import Elastic
 from structuralcodes.materials.reinforcement import Reinforcement
 from structuralcodes.sections import GenericSection
 from tabulate import tabulate
@@ -18,6 +19,16 @@ from matplotlib.ticker import FuncFormatter
 from core.analysis_core.material_methods import CrackingConcreteLaw, TensionStiffeningConcreteLaw
 from core.analysis_core.section_methods import get_strain_at_point
 
+TU_COLORS = {
+    "BLACK":        "#000000",
+    "DARK GREY":    "#434343",
+    "LIGHT GREY":   "#b2b2b2",
+    "RED":          "#c40d20",
+    "ORANGE":       "#ff6e00",
+    "VIOLET":       "#8f13fc",
+    "BLUE":         "#1f91cc",
+    "GREEN":        "#47cb3f",
+}
 
 def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, title = "", show_points:bool = False, show_ultimate_point: bool = False):
     """
@@ -308,30 +319,24 @@ def plot_moment_curvature_multiple(
     ylabel: str = "My [kNm]",
     xlim: Optional[tuple[float, float]] = None,
     ylim: Optional[tuple[float, float]] = None,
+    xmarker: float = 5.0,
+    ymarker: float = 5.0,
 ) -> tuple[plt.Figure, matplotlib.axes.Axes]:
     """
     Author: Elliot Melcer
     Plot multiple moment–curvature (M–K) datasets on a single axes.
 
-    Parameters
-    ----------
-    lines : list[MomentCurvatureLine]
-        One or more M–K datasets to plot, drawn in list order.
-    ax : matplotlib.axes.Axes, optional
-        Existing axes to plot on. A new figure/axes is created when omitted.
-    title : str, optional
-        Plot title prefix.
-    x : float, optional
-        Position factor appended to the title as ``"M-K-Diagram at x = {x} * L"``.
-    xlabel : str, optional
-        Label for the horizontal axis. Defaults to ``"K [1/1000m]"``.
-    ylabel : str, optional
-        Label for the vertical axis. Defaults to ``"My [kNm]"``.
-    xlim : tuple[float, float], optional
-        (x_min, x_max) axis limits. If omitted, matplotlib auto-scales.
-    ylim : tuple[float, float], optional
-        (y_min, y_max) axis limits. If omitted, matplotlib auto-scales.
-
+    Parameters:
+        :param lines:   One or more M–K datasets to plot, drawn in list order.
+        :param ax:      Existing axes to plot on. A new figure/axes is created when omitted.
+        :param title:   Plot title prefix.
+        :param x:       Position factor appended to the title as ``"M-K-Diagram at x = {x} * L"``.
+        :param xlabel:  Label for the horizontal axis. Defaults to ``"K [1/1000m]"``.
+        :param ylabel:  Label for the vertical axis. Defaults to ``"My [kNm]"``.
+        :param xlim:    (x_min, x_max) axis limits. If omitted, matplotlib auto-scales.
+        :param ylim:    (y_min, y_max) axis limits. If omitted, matplotlib auto-scales.
+        :param ymarker: Marker spacing on x-axis
+        :param xmarker: Marker spacing on y-axis
     Returns
     -------
     ax : matplotlib.axes.Axes
@@ -341,6 +346,7 @@ def plot_moment_curvature_multiple(
     ------
     ValueError
         If *lines* is empty.
+
     """
 
     if not lines:
@@ -376,7 +382,8 @@ def plot_moment_curvature_multiple(
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.yaxis.set_major_locator(plt.MultipleLocator(5))
+    # ax.xaxis.set_major_locator(plt.MultipleLocator(xmarker))
+    ax.yaxis.set_major_locator(plt.MultipleLocator(ymarker))
     ax.grid(True, linestyle="-", linewidth=0.5, alpha=0.7)
     ax.legend(loc="lower right")
 
@@ -636,6 +643,8 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool
         eps_t = [eps_ctm, eps_P_t, eps_S_t, eps_F_t]
     elif isinstance(law, CrackingConcreteLaw):
         eps_t = [eps_ctm]
+    elif isinstance(law, Elastic):
+        eps_t = np.flip(np.linspace(-eps_min, 0, n, endpoint = False))
     else:
         eps_t = [0.0]
 
@@ -658,8 +667,10 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool
 
     ax.plot(eps_plot, sig_plot, **plot_kwargs)
 
-    ax.axhline(0, color="black", linewidth=0.8)
-    ax.axvline(0, color="black", linewidth=0.8)
+    ax.axhline(0, color="#b0b0b0", linewidth=0.8, zorder=1)
+    ax.axvline(0, color="#b0b0b0", linewidth=0.8, zorder=1)
+
+
 
     # Reverse the sign of tick labels on both axes
     negate = FuncFormatter(lambda val, _: f"{-val:g}")
@@ -669,8 +680,8 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool
     ax.set_xlabel("Strain [-]")
     ax.set_ylabel("Stress [MPa]")
     ax.set_title(f"Constitutive Law of {concrete.name}")
-    ax.grid(True, linestyle="--", alpha=0.5)
-    ax.legend()
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+    ax.legend(loc="lower right")
 
     return fig, ax
 
@@ -714,11 +725,11 @@ def plot_constitutive_law_reinforcement(reinforcement: Reinforcement, n: int = 1
     ax.plot(
         eps, sig,
         color="black", linewidth=1.8,
-        label=f"{reinforcement.name} ({law.name})"
+        label=f"{law.name}"
     )
 
-    ax.axhline(0, color="black", linewidth=0.8)
-    ax.axvline(0, color="black", linewidth=0.8)
+    ax.axhline(0, color="#b0b0b0", linewidth=0.8, zorder=1)
+    ax.axvline(0, color="#b0b0b0", linewidth=0.8, zorder=1)
 
     # ---------------------------------------------
     #   Axes & grid
@@ -726,8 +737,8 @@ def plot_constitutive_law_reinforcement(reinforcement: Reinforcement, n: int = 1
     ax.set_xlabel("Strain [-]")
     ax.set_ylabel("Stress [MPa]")
     ax.set_title("Reinforcement Constitutive Law")
-    ax.grid(True, linestyle="--", alpha=0.55)
-    ax.legend()
+    ax.grid(True, linestyle="-", linewidth=0.5, alpha=0.7)
+    ax.legend(loc="lower right")
 
     return fig, ax
 
@@ -1086,7 +1097,7 @@ def plot_strain_profile(results: dict, title: str = None):
     else:
         ax.set_title(f"Strain Profile for {section.name}")
 
-    ax.grid(True, linestyle="--", linewidth=0.5)
+    ax.grid(True, linestyle="-", linewidth=0.5, alpha=0.7)
 
     # Apply padded limits
     ax.set_xlim(eps_min, eps_max)

@@ -12,7 +12,7 @@ from core.analysis_core.section_methods import (
 )
 from core.visualization_core.visualization import (
     plot_moment_curvature_with_reference,
-    MomentCurvatureLine, plot_moment_curvature_multiple, plot_moment_curvature_multiple_and_differences,
+    MomentCurvatureLine, plot_moment_curvature_multiple, plot_moment_curvature_multiple_and_differences, TU_COLORS,
 )
 plt.rcParams["font.family"] = "STIXGeneral"
 
@@ -188,7 +188,9 @@ SECTIONS = {
 
 
 " ── Run ───────────────────────────────────────────────────────────────────────"
+"Set Location here:"
 LOCATION = 0.50
+" ──────────────────────────────────────────────────────────────────────────────"
 
 # Inka Results──────────────────────────────────────────────────────────────────
 inca_standard   = INCA_STANDARD[LOCATION]
@@ -234,33 +236,20 @@ loutfi_moments = loutfi_results["moments"]
 loutfi_curvatures = loutfi_results["curvatures"]
 
 
-# Plot Colors
-COLORS = {
-    "INCA_STANDARD":      "#57C5D3",
-    "INCA_NONE-PARA":     "#AB60DA",
-    "INCA_FCTM-PARA":     "#DF786A",
-    "INCA_TENS-PARA":     "#A0E575",
-
-    "Python_NONE-PARA":   "#A0E575",
-    "Python_FCTM-PARA":   "#57C5D3",
-    "Python_TENS-PARA":   "#DF786A",
-
-    "LOUTFI":             "#d95319"  # orange
-}
-
 # Lines ────────────────────────────────────────────────────────────────────────
-mk_line_inca_st     = MomentCurvatureLine(inca_st_moments, inca_st_curvatures,  name="INCA_STANDARD",       color=COLORS["INCA_STANDARD"],        linestyle="solid")
-mk_line_inca_np     = MomentCurvatureLine(inca_np_moments, inca_np_curvatures,  name="INCA_NONE-PARA",      color=COLORS["INCA_NONE-PARA"],       linestyle="solid")
-mk_line_inca_fp     = MomentCurvatureLine(inca_fp_moments, inca_fp_curvatures,  name="INCA_FCTM-PARA",      color=COLORS["INCA_FCTM-PARA"],       linestyle="solid")
-mk_line_inca_tp     = MomentCurvatureLine(inca_tp_moments, inca_tp_curvatures,  name="INCA_TENS-PARA",      color=COLORS["INCA_TENS-PARA"],       linestyle="solid")
+mk_line_inca_st     = MomentCurvatureLine(inca_st_moments, inca_st_curvatures,  name="INCA_STANDARD",       color=TU_COLORS["BLACK"],        linestyle="solid")
+mk_line_inca_np     = MomentCurvatureLine(inca_np_moments, inca_np_curvatures,  name="INCA_NONE-PARA",      color=TU_COLORS["BLUE"],       linestyle="solid")
+mk_line_inca_fp     = MomentCurvatureLine(inca_fp_moments, inca_fp_curvatures,  name="INCA_FCTM-PARA",      color=TU_COLORS["GREEN"],       linestyle="solid")
+mk_line_inca_tp     = MomentCurvatureLine(inca_tp_moments, inca_tp_curvatures,  name="INCA_TENS-PARA",      color=TU_COLORS["RED"],       linestyle="solid")
 
-mk_loutfi           = MomentCurvatureLine(loutfi_moments, loutfi_curvatures,    name="LOUTFI",              color=COLORS["LOUTFI"],               linestyle="solid")
+mk_loutfi           = MomentCurvatureLine(loutfi_moments, loutfi_curvatures,    name="LOUTFI",              color=TU_COLORS["ORANGE"],               linestyle="solid")
 
-mk_line_np_python = MomentCurvatureLine.from_results(mk_np_results, name="Python_NONE-PARA", color=COLORS["Python_NONE-PARA"], linestyle="solid")
+mk_line_np_python_b = MomentCurvatureLine.from_results(mk_np_results, name="Python_NONE-PARA", color=TU_COLORS["BLUE"], linestyle="solid")
+mk_line_np_python_o = MomentCurvatureLine.from_results(mk_np_results, name="Python_NONE-PARA", color=TU_COLORS["ORANGE"], linestyle="solid")
 
 if LOCATION == 0.5:
-    mk_line_fp_python = MomentCurvatureLine.from_results(mk_fp_results, name="Python_FCTM-PARA", color=COLORS["Python_FCTM-PARA"], linestyle="solid")
-    mk_line_tp_python = MomentCurvatureLine.from_results(mk_tp_results, name="Python_TENS-PARA", color=COLORS["Python_TENS-PARA"], linestyle="solid")
+    mk_line_fp_python = MomentCurvatureLine.from_results(mk_fp_results, name="Python_FCTM-PARA", color=TU_COLORS["GREEN"], linestyle="solid")
+    mk_line_tp_python = MomentCurvatureLine.from_results(mk_tp_results, name="Python_TENS-PARA", color=TU_COLORS["RED"], linestyle="solid")
 
 '# Plot──────────────────────────────────────────────────────────────────────────'
 FIGURES_DIR = os.path.join(os.path.dirname(__file__), "figures")
@@ -269,9 +258,9 @@ FIGURES_DIR = os.path.join(os.path.dirname(__file__), "figures")
 if LOCATION == 0.5:
     lines_inca_comparison = [
         mk_line_inca_st,
-        mk_line_inca_np,
-        mk_line_inca_fp,
         mk_line_inca_tp,
+        mk_line_inca_fp,
+        mk_line_inca_np,
     ]
 
     fig_1, ax_main1, ax_diffs1 = plot_moment_curvature_multiple_and_differences(list(reversed(lines_inca_comparison)), title="C.2 Comparison of INCA2 M-K-diagrams with different constitutive laws", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
@@ -280,7 +269,7 @@ if LOCATION == 0.5:
 # 2. Comparison of Python M-K-diagrams
 if LOCATION == 0.5:
     lines_python = [
-        mk_line_np_python,
+        mk_line_np_python_b,
         mk_line_fp_python,
         mk_line_tp_python,
     ]
@@ -290,7 +279,7 @@ if LOCATION == 0.5:
 # 3. Comparison of Python and INCA2 M-K-diagrams for NONE_PARABOLIC
 lines_inca_python_comparison = [
     mk_line_inca_np,
-    mk_line_np_python,
+    mk_line_np_python_o,
 ]
 fig_3, ax_3 = plot_moment_curvature_multiple(lines_inca_python_comparison, title="C.2 Comparison of INCA2 and Python with NONE_PARABOLIC constitutive law", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
 fig_3.savefig(os.path.join(FIGURES_DIR,"comp_inca_python.pdf"), bbox_inches="tight")
