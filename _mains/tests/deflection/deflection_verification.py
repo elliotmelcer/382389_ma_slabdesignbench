@@ -49,8 +49,8 @@ hp_section_uls_mid     = slab_construction.slab.section_at(0.5)
 hp_section_uls_supp     = slab_construction.slab.section_at(0.0)
 
 # Loads
-q_fund_kN_m2 = test_loads.fundamental_combination_kN_m2(slab_construction)
-q_qp_kN_m2 = test_loads.quasi_permanent_combination_kN_m2(slab_construction)
+q_fund_kN_m2 = test_loads.fundamental_combination_kN_m2_EC0(slab_construction)
+q_qp_kN_m2 = test_loads.quasi_permanent_combination_kN_m2_EC0(slab_construction)
 
 # Cracking Moment
 m_cr_res_mid = calculate_cracking_moment_sls_Nmm(hp_section_uls_mid)
