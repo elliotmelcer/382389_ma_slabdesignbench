@@ -10,19 +10,28 @@ from structuralcodes.sections import GenericSection
 from tabulate import tabulate
 import typing as t
 import matplotlib.pyplot as plt
+from dataclasses import dataclass, field
+from typing import Optional
+import matplotlib.axes
+from matplotlib.ticker import FuncFormatter
 
+from core.analysis_core.material_methods import CrackingConcreteLaw, TensionStiffeningConcreteLaw
 from core.analysis_core.section_methods import get_strain_at_point
 
 
-def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, title = ""):
+def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, title = "", show_points:bool = False, show_ultimate_point: bool = False):
     """
     Author: Elliot Melcer
     Plot moment–curvature (M–K) diagram with My and Mu annotations.
 
-    :param m_c_res:     MomentCurvatureResults object from structuralcodes library
-    :param x:           Relative position along the Beam x∈[0,1]
-    :param ax:          The axes with the plot.
-    :param title:       Optional title
+
+    :param m_c_res:             MomentCurvatureResults object from structuralcodes library
+    :param x:                   Relative position along the Beam x∈[0,1]
+    :param ax:                  The axes with the plot.
+    :param title:               Optional title
+    :param show_points:         Optional flag to show each point
+    :param show_ultimate_point: Optional flag to highlight the last point
+
     :return:
     """
 
@@ -31,6 +40,8 @@ def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, ti
     # Create figure/axes if not provided
     if ax is None:
         fig, ax = plt.subplots()
+    else:
+        fig = ax.get_figure()
 
     # ============================================================
     #              Plot continuous M–K curve
@@ -41,28 +52,30 @@ def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, ti
     # ============================================================
     #              Plot ALL points as small purple dots
     # ============================================================
-    ax.scatter(-m_c_res.chi_y * 1e6, -m_c_res.m_y / 1e6,
-               s=6, color="purple", label="M–K points")
+    if show_points:
+        ax.scatter(-m_c_res.chi_y * 1e6, -m_c_res.m_y / 1e6,
+                   s=6, color="black", label="M–K points")
 
     # ============================================================
     #                    ULTIMATE POINT (Mu)
     # ============================================================
-    x_u = -m_c_res.chi_y[-1] * 1e6
-    y_u = -m_c_res.m_y[-1] / 1e6
+    if show_ultimate_point:
+        x_u = -m_c_res.chi_y[-1] * 1e6
+        y_u = -m_c_res.m_y[-1] / 1e6
 
-    # Dot
-    ax.plot(x_u, y_u, 'ro', markersize=5)
+        # Dot
+        ax.plot(x_u, y_u, 'ro', markersize=5)
 
-    # Label
-    label_u = (
-        f"(K_u = {-m_c_res.chi_y[-1] * 1e6 :.3e},\n"
-        f" M_u = {-m_c_res.m_y[-1] / 1e6:.3f} kNm)"
-    )
-    ax.text(
-        x_u, y_u, label_u,
-        fontsize=10, color="red",
-        ha="right", va="bottom"
-    )
+        # Label
+        label_u = (
+            f"(K_u = {-m_c_res.chi_y[-1] * 1e6 :.3e},\n"
+            f" M_u = {-m_c_res.m_y[-1] / 1e6:.3f} kNm)"
+        )
+        ax.text(
+            x_u, y_u, label_u,
+            fontsize=10, color="red",
+            ha="right", va="bottom"
+        )
 
     # --- Axis labels ---
     ax.set_xlabel("K [1/1000m]")
@@ -74,7 +87,7 @@ def plot_moment_curvature(m_c_res: MomentCurvatureResults, x = None, ax=None, ti
     # ---- Add title here ----
     ax.set_title(f"{title} \n M-K-Diagram at x = {x} * L")
 
-    return ax
+    return fig, ax
 
 def plot_moment_curvature_with_reference(
     m_c_res: MomentCurvatureResults,
@@ -126,6 +139,8 @@ def plot_moment_curvature_with_reference(
     # Create figure/axes if not provided
     if ax is None:
         fig, ax = plt.subplots()
+    else:
+        fig = ax.get_figure()
 
     # ============================================================
     #                  Plot main M–K curve
@@ -198,14 +213,7 @@ def plot_moment_curvature_with_reference(
     # --- Title ---
     ax.set_title(f"{title}\nM-K-Diagram at x = {x} * L")
 
-    return ax
-
-from dataclasses import dataclass, field
-from typing import Optional
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.axes
-
+    return fig, ax
 
 @dataclass
 class MomentCurvatureLine:
@@ -300,7 +308,7 @@ def plot_moment_curvature_multiple(
     ylabel: str = "My [kNm]",
     xlim: Optional[tuple[float, float]] = None,
     ylim: Optional[tuple[float, float]] = None,
-) -> matplotlib.axes.Axes:
+) -> tuple[plt.Figure, matplotlib.axes.Axes]:
     """
     Author: Elliot Melcer
     Plot multiple moment–curvature (M–K) datasets on a single axes.
@@ -339,7 +347,9 @@ def plot_moment_curvature_multiple(
         raise ValueError("'lines' must contain at least one MomentCurvatureLine.")
 
     if ax is None:
-        _, ax = plt.subplots()
+        fig, ax = plt.subplots()
+    else:
+        fig = ax.get_figure()
 
     # --- Zero axes ---
     ax.axhline(0, color="#b0b0b0", linewidth=0.7, linestyle="solid", zorder=1)
@@ -375,8 +385,193 @@ def plot_moment_curvature_multiple(
         full_title = f"{title}\nM-K-Diagram at x = {x} * L"
     ax.set_title(full_title)
 
-    return ax
+    return fig, ax
 
+def plot_moment_curvature_multiple_and_differences(
+    lines: list[MomentCurvatureLine],
+    title: str = "",
+    x: Optional[float] = None,
+    xlabel: str = "Krümmung κ [1/1000m]",
+    ylabel: str = "My [kNm]",
+    ylabel_diff: str = r"$\mathrm{\Delta M_y}$ [kNm]",
+    xlim: Optional[tuple[float, float]] = None,
+    ylim: Optional[tuple[float, float]] = None,
+    ylim_diff: Optional[tuple[float, float]] = None,
+    main_height: float = 3.0,
+    diff_height: float = 0.6,
+    figsize: tuple[float, float] = (6.4, 8.0),
+) -> tuple[plt.Figure, matplotlib.axes.Axes, list[matplotlib.axes.Axes]]:
+    """
+    Author: Elliot Melcer
+    Plot multiple moment–curvature (M–K) datasets on a primary axes, with one
+    dedicated difference panel beneath it per comparison line.
+
+    Layout:
+        Row 0    : full M–K plot (all lines)
+        Row 1    : ΔMy  lines[0] − lines[-1]
+        Row 2    : ΔMy  lines[1] − lines[-1]
+        …
+
+    lines[-1] is the reference. All panels share the x-axis. Differences are
+    computed by linearly interpolating each comparison line onto lines[-1]'s
+    curvature grid; points outside a comparison line's range are masked as NaN.
+    A single annotation is placed to the right of the difference panels,
+    vertically centred across all of them.
+
+    Parameters
+    ----------
+    lines : list[MomentCurvatureLine]
+        At least two M–K datasets. lines[-1] is the reference.
+    title : str, optional
+        Plot title prefix.
+    x : float, optional
+        Position factor appended to the title.
+    xlabel : str, optional
+        Label for the shared horizontal axis (bottom panel only).
+    ylabel : str, optional
+        Label for the primary (moment) axis.
+    ylabel_diff : str, optional
+        y-axis label for every difference panel.
+    xlim : tuple[float, float], optional
+        x-axis limits shared across all panels.
+    ylim : tuple[float, float], optional
+        y-axis limits for the primary panel.
+    ylim_diff : tuple[float, float], optional
+        y-axis limits applied to every difference panel.
+    main_height : float, optional
+        Relative height of the primary panel. Default 3.0.
+    diff_height : float, optional
+        Relative height of each difference panel. Default 0.6.
+    figsize : tuple[float, float], optional
+        Figure size (width, height) in inches. Default (6.4, 7.776),
+        which is the matplotlib default width and 1.62x the default height.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+    ax_main : matplotlib.axes.Axes
+        The primary M–K axes (row 0).
+    ax_diffs : list[matplotlib.axes.Axes]
+        One axes per comparison line, in the same order as lines[:-1].
+
+    Raises
+    ------
+    ValueError
+        If *lines* contains fewer than two entries.
+    """
+    if len(lines) < 2:
+        raise ValueError(
+            "plot_moment_curvature_multiple_and_differences requires at least "
+            "two MomentCurvatureLine objects (one reference + one comparison)."
+        )
+
+    def _mathtext_name(name: str) -> str:
+        """Escape underscores so they are not interpreted as subscript operators."""
+        return name.replace("_", r"\_")
+
+    n_diffs = len(lines) - 1
+    height_ratios = [main_height] + [diff_height] * n_diffs
+
+    fig, axes = plt.subplots(
+        1 + n_diffs, 1,
+        sharex=True,
+        gridspec_kw={"height_ratios": height_ratios},
+        figsize=figsize,
+    )
+    fig.subplots_adjust(hspace=0.08, right=0.88)
+
+    ax_main = axes[0]
+    ax_diffs = list(axes[1:])
+
+    ref = lines[-1]
+
+    # ----------------------------------------------------------- primary panel
+    ax_main.axhline(0, color="#b0b0b0", linewidth=0.7, zorder=1)
+    ax_main.axvline(0, color="#b0b0b0", linewidth=0.7, zorder=1)
+
+    for line in lines:
+        ax_main.plot(
+            line.curvatures,
+            line.moments,
+            color=line.color,
+            linestyle=line.linestyle,
+            linewidth=line.linewidth,
+            marker=line.marker,
+            markersize=line.markersize,
+            label=line.name,
+            zorder=2,
+        )
+
+    if ylim is not None:
+        ax_main.set_ylim(ylim)
+
+    ax_main.set_ylabel(ylabel)
+    ax_main.yaxis.set_major_locator(plt.MultipleLocator(5))
+    ax_main.grid(True, linestyle="-", linewidth=0.5, alpha=0.7)
+    ax_main.legend(loc="lower right")
+    ax_main.tick_params(labelbottom=False)
+
+    full_title = title
+    if x is not None:
+        full_title = f"{title}\nM-K-Diagram at x = {x} * L"
+    ax_main.set_title(full_title)
+
+    # ----------------------------------------- one difference panel per line
+    ref_kappa = ref.curvatures
+
+    for ax_d, line in zip(ax_diffs, lines[:-1]):
+        ax_d.axhline(0, color="#b0b0b0", linewidth=0.7, zorder=1)
+        ax_d.axvline(0, color="#b0b0b0", linewidth=0.7, zorder=1)
+
+        m_interp = np.interp(ref_kappa, line.curvatures, line.moments)
+
+        lo, hi = line.curvatures.min(), line.curvatures.max()
+        mask = (ref_kappa >= lo) & (ref_kappa <= hi)
+        delta = np.where(mask, m_interp - ref.moments, np.nan)
+
+        ax_d.plot(
+            ref_kappa,
+            delta,
+            color=line.color,
+            linestyle=line.linestyle,
+            linewidth=line.linewidth,
+            marker=line.marker,
+            markersize=line.markersize,
+            zorder=2,
+        )
+
+        if ylim_diff is not None:
+            ax_d.set_ylim(ylim_diff)
+
+        ax_d.set_ylabel(ylabel_diff, fontsize="small")
+        ax_d.grid(True, linestyle="-", linewidth=0.5, alpha=0.7)
+
+        if ax_d is ax_diffs[-1]:
+            ax_d.set_xlabel(xlabel)
+        else:
+            ax_d.tick_params(labelbottom=False)
+
+    # --- annotation to the right, vertically centred across all diff panels ---
+    # Force layout so bounding boxes are accurate before reading positions.
+    fig.canvas.draw()
+    top    = ax_diffs[0].get_position().y1
+    bottom = ax_diffs[-1].get_position().y0
+    mid_y  = (top + bottom) / 2
+
+    ref_mt = _mathtext_name(ref.name)
+    fig.text(
+        0.90, mid_y,
+        rf"$\mathrm{{\Delta M_{{y,i}} = M_{{y,i}} - M_{{y,\,{ref_mt}}}}}$",
+        fontsize="small",
+        color="#444444",
+        ha="left", va="center",
+        rotation=90,
+    )
+
+    if xlim is not None:
+        ax_main.set_xlim(xlim)
+
+    return fig, ax_main, ax_diffs
 
 
 def table_moment_curvature(m_c_res: MomentCurvatureResults):
@@ -409,7 +604,7 @@ def table_moment_curvature(m_c_res: MomentCurvatureResults):
 
 # --- Concrete ---
 
-def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool = False):
+def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool = False, show_markers: bool = False):
     """
     Author: Elliot Melcer
     Plot the constitutive law (stress–strain curve) for this concrete material
@@ -418,13 +613,33 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool
     if concrete.constitutive_law is None:
         raise ValueError("No constitutive law is attached to this Concrete instance.")
 
+    fctm = concrete.fctm
+    Ecm = concrete.Ecm
+    eps_ctm = fctm / Ecm
+
     law = concrete.constitutive_law
 
     # Build strain range based on law parameters if present
+    # compression range
     eps_min, _ = law.get_ultimate_strain()
-    eps_0 = getattr(law, "_eps_0", -0.002)
+    eps_c = np.linspace(eps_min, 0, n, endpoint = False)
 
-    eps = np.linspace(eps_min, -eps_min, n)
+    # 0,0
+    eps_0 = [0.00]
+
+    # tension range
+    if isinstance(law, TensionStiffeningConcreteLaw):
+        eps_P_t = eps_ctm + 0.001e-3
+        eps_S_t = law.eps_S_t
+        eps_F_t = law.eps_F_t
+
+        eps_t = [eps_ctm, eps_P_t, eps_S_t, eps_F_t]
+    elif isinstance(law, CrackingConcreteLaw):
+        eps_t = [eps_ctm]
+    else:
+        eps_t = [0.0]
+
+    eps = np.concatenate((eps_c, eps_0, eps_t))
     sig = law.get_stress(eps)
 
     if debug:
@@ -436,13 +651,28 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool
     sig_plot = -sig
 
     fig, ax = plt.subplots()
-    ax.plot(eps_plot, sig_plot, linewidth=1.8, color="black", label=law.name)
+
+    plot_kwargs = dict(linewidth=1.8, color="black", label=law.name)
+    if show_markers:
+        plot_kwargs.update(marker="o", markersize=4, markerfacecolor="white", markeredgewidth=1.0)
+
+    ax.plot(eps_plot, sig_plot, **plot_kwargs)
+
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.axvline(0, color="black", linewidth=0.8)
+
+    # Reverse the sign of tick labels on both axes
+    negate = FuncFormatter(lambda val, _: f"{-val:g}")
+    ax.xaxis.set_major_formatter(negate)
+    ax.yaxis.set_major_formatter(negate)
 
     ax.set_xlabel("Strain [-]")
     ax.set_ylabel("Stress [MPa]")
     ax.set_title(f"Constitutive Law of {concrete.name}")
     ax.grid(True, linestyle="--", alpha=0.5)
     ax.legend()
+
+    return fig, ax
 
 # --- Reinforcement ---
 
@@ -469,10 +699,10 @@ def plot_constitutive_law_reinforcement(reinforcement: Reinforcement, n: int = 1
     #   Build strain domain for steel
     # ------------------------------------------------------------
     eps_y = reinforcement.epsyk  # yield strain
-    eps_u = reinforcement.epsud()  # ultimate strain
+    eps_u = reinforcement.epsuk  # ultimate strain
 
     # Positive strain range typical for reinforcement
-    eps = np.linspace(0.0, eps_u * 1.0, n)
+    eps = np.linspace(-eps_u, eps_u, n)
 
     # Compute stresses (in MPa)
     sig = law.get_stress(eps)
@@ -487,6 +717,9 @@ def plot_constitutive_law_reinforcement(reinforcement: Reinforcement, n: int = 1
         label=f"{reinforcement.name} ({law.name})"
     )
 
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.axvline(0, color="black", linewidth=0.8)
+
     # ---------------------------------------------
     #   Axes & grid
     # ---------------------------------------------
@@ -496,6 +729,7 @@ def plot_constitutive_law_reinforcement(reinforcement: Reinforcement, n: int = 1
     ax.grid(True, linestyle="--", alpha=0.55)
     ax.legend()
 
+    return fig, ax
 
 # --- Cross Section ---
 
@@ -520,6 +754,8 @@ def plot_cross_section(gs: GenericSection, ax=None, x=None, title = "", **kwargs
     # Create axes if needed
     if ax is None:
         fig, ax = plt.subplots()
+    else:
+        fig = ax.get_figure()
 
     # ---- 1. Plot the geometry using geometry method ----
     _plot_geometry(gs.geometry, ax=ax, x=x, **kwargs)
@@ -552,7 +788,7 @@ def plot_cross_section(gs: GenericSection, ax=None, x=None, title = "", **kwargs
     ax.set_title(f"{gs.name} at x = {x} * L" if x is not None else f"{gs.name} \n {title}")
     ax.set_aspect("equal")
 
-    return ax
+    return fig, ax
 
 # --- Geometry ---
 
@@ -663,6 +899,7 @@ def plot_triangulated_mesh(triangulated_data: t.List[t.Tuple[np.ndarray, np.ndar
     ax.set_ylabel("y")
     ax.set_title("Triangulated Fibers (centroids)")
 
+    return fig, ax
 
 def plot_mesh_with_triangles(triangulated_data):
     fig, ax = plt.subplots()
@@ -688,8 +925,10 @@ def plot_mesh_with_triangles(triangulated_data):
     ax.set_ylabel("y")
     ax.set_title("Triangulated mesh")
 
+    return fig, ax
 
-def plot_strain_profile(results: dict):
+
+def plot_strain_profile(results: dict, title: str = None):
     """
     Author: Elliot Melcer
     Plots Strain Profile for Moment Calculation Results
@@ -709,7 +948,6 @@ def plot_strain_profile(results: dict):
     eps_top = get_strain_at_point(strain_profile, 0, zmax)
     eps_bot = get_strain_at_point(strain_profile, 0, zmin)
 
-
     # Reinforcement z-coordinates
     z_reinf = [pg.point.y for pg in section.geometry.point_geometries]
 
@@ -722,8 +960,7 @@ def plot_strain_profile(results: dict):
     # Check Failure
     epsilon = 0.01e-3 # account for rounding error
 
-    concrete_fail = eps_top <= -3.5 + epsilon
-
+    concrete_fail = eps_top <= -3.5e-3 + epsilon
     reinf_failures = []
     for pg, eps_s in zip(section.geometry.point_geometries, eps_reinf):
         eps_u_neg, eps_u_pos = pg.material.constitutive_law.get_ultimate_strain()
@@ -793,7 +1030,7 @@ def plot_strain_profile(results: dict):
         xytext=(-5, 4),
         ha="right",
         va="bottom",
-        fontsize=12,
+        fontsize=8,
         color="black",
         fontfamily="serif",
     )
@@ -811,7 +1048,7 @@ def plot_strain_profile(results: dict):
         )
 
         ax.annotate(
-            f"{eps_s * 1e3:+.1f}‰",
+            f"{eps_s * 1e3:+.2f}‰",
             (eps_s * 1e3, z_s),
             textcoords="offset points",
             xytext=(5, 0),
@@ -821,7 +1058,7 @@ def plot_strain_profile(results: dict):
 
     # Top strain label (red if concrete fails)
     ax.annotate(
-        f"{eps_top * 1e3:+.1f}‰",
+        f"{eps_top * 1e3:+.2f}‰",
         (eps_top * 1e3, zmax),
         textcoords="offset points",
         xytext=(-5, 0),
@@ -832,7 +1069,7 @@ def plot_strain_profile(results: dict):
 
     # Bottom strain label (right)
     ax.annotate(
-        f"{eps_bot * 1e3:+.1f}‰",
+        f"{eps_bot * 1e3:+.2f}‰",
         (eps_bot * 1e3, zmin),
         textcoords="offset points",
         xytext=(5, 0),
@@ -844,7 +1081,10 @@ def plot_strain_profile(results: dict):
     # ax.axvline(0.0, color="black", linewidth=1)
     ax.set_xlabel("Strain ε [‰]")
     ax.set_ylabel("z [mm]")
-    ax.set_title(f"Strain Profile for {section.name}")
+    if title is not None:
+        ax.set_title(title)
+    else:
+        ax.set_title(f"Strain Profile for {section.name}")
 
     ax.grid(True, linestyle="--", linewidth=0.5)
 
@@ -853,4 +1093,3 @@ def plot_strain_profile(results: dict):
     ax.set_ylim(zmin - z_pad, zmax + z_pad)
 
     return fig, ax
-
