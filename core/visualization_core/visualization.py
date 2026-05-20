@@ -1059,7 +1059,7 @@ def plot_strain_profile(results: dict, title: str = None):
         )
 
         ax.annotate(
-            f"{eps_s * 1e3:+.2f}‰",
+            f"{eps_s * 1e3:+.1f}‰",
             (eps_s * 1e3, z_s),
             textcoords="offset points",
             xytext=(5, 0),
@@ -1069,7 +1069,7 @@ def plot_strain_profile(results: dict, title: str = None):
 
     # Top strain label (red if concrete fails)
     ax.annotate(
-        f"{eps_top * 1e3:+.2f}‰",
+        f"{eps_top * 1e3:+.1f}‰",
         (eps_top * 1e3, zmax),
         textcoords="offset points",
         xytext=(-5, 0),
@@ -1080,7 +1080,7 @@ def plot_strain_profile(results: dict, title: str = None):
 
     # Bottom strain label (right)
     ax.annotate(
-        f"{eps_bot * 1e3:+.2f}‰",
+        f"{eps_bot * 1e3:+.1f}‰",
         (eps_bot * 1e3, zmin),
         textcoords="offset points",
         xytext=(5, 0),
