@@ -207,7 +207,7 @@ from core.analysis_core.section_methods import (
 )
 from _mains.testing_files.testing_hp_sections import (
     hp_shell_c1_1_uls, hp_shell_c1_2_c50_uls, hp_shell_c1_2_c80_uls,
-    hp_shell_c1_3_uls, hp_shell_c1_4_uls,
+    hp_shell_c1_3_uls, hp_shell_c1_4_uls, hp_shell_kappa_0_m2,
 )
 from structuralcodes.materials.reinforcement import create_reinforcement
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
@@ -229,7 +229,7 @@ _SECTION_REGISTRY: dict[str, HPShell] = {
     'c1_2_c80': hp_shell_c1_2_c80_uls,
     'c1_3':     hp_shell_c1_3_uls,
     'c1_4':     hp_shell_c1_4_uls,
-    'hp_m2':  hp_shell_kappa_0_m2,
+    'hp_m2':    hp_shell_kappa_0_m2,
 }
 
 def create_section_with_prestress(
