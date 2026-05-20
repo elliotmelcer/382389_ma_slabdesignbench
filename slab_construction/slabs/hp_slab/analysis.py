@@ -170,7 +170,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # LIVE LOADS
     # ======================================================================================================================
 
-    live_loads = Loads.from_categories(load_category)
+    live_loads = Loads.from_categories_EC0_NA_DE(load_category)
 
     # ======================================================================================================================
     # COMPUTE CONSTRAINTS (A) - ULS
