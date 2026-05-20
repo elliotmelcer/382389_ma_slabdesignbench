@@ -3,8 +3,7 @@ import os
 import matplotlib.pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c2_uls_x_0_50, hp_section_c1_3_uls
-from core.analysis_core.section_methods import calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm, \
-    get_concrete, sls_section
+from core.analysis_core.section_methods import calculate_moment_curvature_sls, sls_section
 from core.visualization_core.visualization import plot_moment_curvature, plot_strain_profile
 
 plt.rcParams["font.family"] = "STIXGeneral"
