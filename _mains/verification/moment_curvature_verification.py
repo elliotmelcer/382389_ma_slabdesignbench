@@ -1,5 +1,6 @@
-from matplotlib import pyplot as plt
+import os
 
+from matplotlib import pyplot as plt
 from _mains.testing_files.testing_hp_sections import (
     hp_section_c2_uls_x_0_00, hp_section_c2_uls_x_0_10,
     hp_section_c2_uls_x_0_20, hp_section_c2_uls_x_0_30,
@@ -11,8 +12,9 @@ from core.analysis_core.section_methods import (
 )
 from core.visualization_core.visualization import (
     plot_moment_curvature_with_reference,
-    MomentCurvatureLine, plot_moment_curvature_multiple,
+    MomentCurvatureLine, plot_moment_curvature_multiple, plot_moment_curvature_multiple_and_differences,
 )
+plt.rcParams["font.family"] = "STIXGeneral"
 
 # ── INCA reference data (M in kNm, curvature in mm/m)─────────────────────────
 # SETTINGS:  NAME OF CONCRETE MATERIAL
@@ -52,9 +54,29 @@ INCA_STANDARD = {
 }
 
 INCA_NONE_PARA = {
-    # SETTINGS: Mittel für Verformung:
+    # SETTINGS: NONE_PARA:
     #   Zug:    0.0   , 0.0   , 0.0
     #   MBZ:    -     , -     , -
+    0.00: {
+        "curvatures": [-17.4894, -11.3681, -7.8702, -5.7715, -4.4598, -3.4979, -2.7983, -2.3611, -2.0113, -1.7489, -1.4866, -1.3117, -1.1368, -1.0494, -0.9619, -0.8745, -0.7870, -0.6996, -0.6121, -0.5247, -0.4372, -0.3498, 0.0000, 0.2824, 0.4707, 0.5649, 0.6590, 0.7531, 0.8473, 0.9414, 1.0356, 1.1297, 1.2238, 1.3180, 1.5063, 1.6946, 1.9770, 2.2594, 2.6360, 3.1067, 3.7657, 4.6130, 5.8368, 7.6255, 10.4498, 15.0627, 18.8284],
+        "moments": [-19.2171, -16.5442, -14.9156, -13.8455, -13.0951, -12.4624, -11.9184, -11.5149, -11.1338, -10.7960, -10.3907, -10.0654, -9.6752, -9.4468, -9.1890, -8.8946, -8.5521, -8.1455, -7.6507, -7.0290, -6.2143, -5.0864, 0.4146, 4.8491, 7.7987, 9.2502, 10.5127, 11.5180, 12.3067, 12.9614, 13.5213, 14.0097, 14.4426, 14.8315, 15.5062, 16.0785, 16.8031, 17.4152, 18.1129, 18.8570, 19.7480, 20.7354, 21.9819, 23.6005, 25.9200, 29.4393, 32.1932]
+    },
+    0.10: {
+        "curvatures": [-21.9411, -15.0296, -10.7511, -8.0085, -6.1435, -4.9367, -4.0591, -3.4009, -2.8523, -2.4135, -2.0844, -1.8650, -1.6456, -1.5359, -1.4262, -1.3165, -1.2068, -1.0971, -0.9873, -0.8776, -0.7679, -0.6582, -0.5485, -0.4388, -0.3291, -0.2194, 0.0000, 0.4744, 0.5693, 0.6642, 0.7591, 0.8539, 0.9488, 1.0437, 1.1386, 1.2335, 1.4232, 1.6130, 1.8976, 2.1823, 2.5618, 3.1311, 3.8902, 4.9339, 6.4520, 8.8240, 12.7142, 18.9764],
+        "moments": [-14.6650, -12.7584, -11.4993, -10.6201, -9.9527, -9.4622, -9.0517, -8.6937, -8.3416, -8.0039, -7.7001, -7.4622, -7.1845, -7.0261, -6.8512, -6.6562, -6.4358, -6.1835, -5.8898, -5.5410, -5.1165, -4.5831, -3.8844, -2.9131, -1.4565, 0.2681, 3.7127, 11.1365, 12.5925, 13.8530, 14.8551, 15.6428, 16.2985, 16.8611, 17.3532, 17.7903, 18.5406, 19.1703, 19.9611, 20.6270, 21.3849, 22.3427, 23.4196, 24.6920, 26.3173, 28.6007, 32.0556, 37.3115]
+    },
+    0.20: {
+        "curvatures": [-28.2851, -20.6481, -15.2740, -11.5969, -9.0512, -7.2127, -5.9399, -4.9499, -4.2428, -3.6771, -3.2528, -2.8285, -2.5457, -2.2628, -2.1214, -1.9800, -1.8385, -1.6971, -1.5557, -1.4143, -1.2728, -1.1314, -0.9900, -0.8486, -0.7071, -0.5657, -0.4243, -0.2829, 0.0000, 0.4793, 0.5752, 0.6710, 0.7669, 0.8627, 0.9586, 1.0544, 1.1503, 1.2462, 1.4379, 1.6296, 1.9172, 2.3006, 2.7799, 3.4509, 4.4095, 5.7515, 7.8604, 11.4072, 17.4462, 19.1717],
+        "moments":    [-11.1056, -9.8387, -8.8804, -8.1678, -7.6224, -7.1786, -6.8279, -6.5135, -6.2533, -6.0126, -5.8044, -5.5623, -5.3748, -5.1588, -5.0368, -4.9030, -4.7552, -4.5900, -4.4036, -4.1901, -3.9416, -3.6468, -3.2880, -2.8375, -2.2482, -1.4285, -0.1810, 1.8398, 6.2779, 13.7713, 15.2356, 16.4946, 17.4910, 18.2779, 18.9351, 19.4999, 19.9951, 20.4358, 21.1959, 21.8375, 22.6485, 23.5439, 24.4772, 25.5778, 26.9174, 28.5549, 30.8594, 34.4201, 40.1272, 41.7129]
+    },
+    0.30:{
+        "curvatures": [-37.7358, -28.1132, -21.6981, -17.1698, -13.5849, -10.9434, -9.0566, -7.5472, -6.4151, -5.4717, -4.7170, -4.1509, -3.7736, -3.3962, -3.0189, -2.8302, -2.6415, -2.4528, -2.2642, -2.0755, -1.8868, -1.6981, -1.5094, -1.3208, -1.1321, -0.9434, -0.7547, -0.5660, -0.3774, -0.1887, 0.0000, 0.4785, 0.5742, 0.6699, 0.7656, 0.8613, 0.9570, 1.0527, 1.1484, 1.3398, 1.5312, 1.8184, 2.2012, 2.6797, 3.3496, 4.3066, 5.7422, 8.0390, 11.9628, 18.5663, 19.1405],
+        "moments":    [-8.5382, -7.6186, -6.9566, -6.4438, -5.9944, -5.6241, -5.3258, -5.0542, -4.8202, -4.5947, -4.3842, -4.2010, -4.0618, -3.9045, -3.7229, -3.6205, -3.5083, -3.3845, -3.2463, -3.0905, -2.9123, -2.7053, -2.4600, -2.1619, -1.7890, -1.3009, -0.6229, 0.4070, 2.2319, 5.1511, 8.1102, 15.5907, 17.0543, 18.3160, 19.3179, 20.1097, 20.7714, 21.3413, 21.8420, 22.6916, 23.3980, 24.2802, 25.2442, 26.2439, 27.4194, 28.8497, 30.7184, 33.3954, 37.6125, 44.3220, 44.8920]
+    },
+    0.40: {
+        "curvatures": [-52.7078, -39.7944, -30.8341, -24.5091, -20.0290, -16.3394, -13.4405, -11.3322, -9.4874, -8.1697, -7.1156, -6.3249, -5.5343, -5.0072, -4.4802, -4.2166, -3.9531, -3.6895, -3.4260, -3.1625, -2.8989, -2.6354, -2.3719, -2.1083, -1.8448, -1.5812, -1.3177, -1.0542, -0.7906, -0.5271, -0.2635, 0.0000, 0.4855, 0.5826, 0.6796, 0.7767, 0.8738, 0.9709, 1.0680, 1.1651, 1.3593, 1.5535, 1.8448, 2.2331, 2.7186, 3.3982, 4.3692, 5.8255, 8.2529, 12.4278, 19.4185],
+        "moments":    [-7.0882, -6.3677, -5.8269, -5.4070, -5.0754, -4.7665, -4.4916, -4.2653, -4.0398, -3.8551, -3.6865, -3.5426, -3.3777, -3.2520, -3.1093, -3.0299, -2.9438, -2.8499, -2.7465, -2.6315, -2.5024, -2.3553, -2.1850, -1.9841, -1.7415, -1.4382, -1.0427, -0.4958, 0.3320, 1.7939, 5.0743, 9.2095, 16.7997, 18.2753, 19.5333, 20.5240, 21.3105, 21.9706, 22.5400, 23.0409, 23.8930, 24.6044, 25.4973, 26.4786, 27.5013, 28.7122, 30.1968, 32.1518, 35.0854, 39.7582, 47.1776]
+    },
     0.50: {
         "curvatures": [-55.8159, -42.4201, -33.2105, -26.5126, -21.7682, -18.1402, -15.0703, -12.5586, -10.6050, -9.2096, -8.0933, -6.9770, -6.1398, -5.5816, -5.0234, -4.4653, -4.1862, -3.9071, -3.6280, -3.3490, -3.0699, -2.7908, -2.5117, -2.2326, -1.9536, -1.6745, -1.3954, -1.1163, -0.8372, -0.5582, -0.2791, 0.0000, 0.4799, 0.5759, 0.6718, 0.7678, 0.8638, 0.9598, 1.0557, 1.1517, 1.3437, 1.5356, 1.8235, 2.2074, 2.6873, 3.3591, 4.3189, 5.7585, 8.1579, 12.2848, 19.1950],
         "moments":    [-6.3206, -5.7275, -5.2826, -4.9238, -4.6382, -4.3900, -4.1501, -3.9258, -3.7255, -3.5620, -3.4137, -3.2432, -3.0947, -2.9823, -2.8556, -2.7100, -2.6281, -2.5386, -2.4401, -2.3305, -2.2071, -2.0666, -1.9038, -1.7115, -1.4787, -1.1878, -0.8086, -0.2842, 0.5094, 1.9111, 5.1723, 9.5585, 17.0731, 18.5417, 19.8061, 20.8094, 21.6037, 22.2690, 22.8427, 23.3473, 24.2058, 24.9220, 25.8203, 26.8074, 27.8360, 29.0537, 30.5468, 32.5127, 35.4626, 40.1615, 47.6239],
@@ -62,11 +84,31 @@ INCA_NONE_PARA = {
 }
 
 INCA_FCTM_PARA = {
-    # SETTINGS: like FCTM_PARABOLIC
+    # SETTINGS: FCTM_PARA
     #   Zug:    4.1   , 0.1047*, 1.0000
     #   MBZ:    0.1047, 0.1047 , 1.0000
 
     # * f_ctm / Tangentenmodul = 4.1 / 39141.76 = 0.1047
+    0.00: {
+        "curvatures": [],
+        "moments": []
+    },
+    0.10: {
+        "curvatures": [],
+        "moments": []
+    },
+    0.20: {
+        "curvatures": [],
+        "moments": []
+    },
+    0.30: {
+        "curvatures": [],
+        "moments": []
+    },
+    0.40: {
+        "curvatures": [],
+        "moments": []
+    },
     0.50: {
         "curvatures": [-55.8159, -42.4201, -33.2105, -26.5126, -21.7682, -18.1402, -15.0703, -12.5586, -10.6050, -9.2096, -8.0933, -6.9770, -6.1398, -5.5816, -5.0234, -4.4653, -4.1862, -3.9071, -3.6280, -3.3490, -3.0699, -2.7908, -2.5117, -2.2326, -1.9536, -1.6745, -1.3954, -1.1163, -0.8372, -0.5582, -0.2791, 0.0000, 0.4799, 0.5759, 0.6718, 0.7678, 0.8638, 0.9598, 1.0557, 1.1517, 1.3437, 1.5356, 1.8235, 2.2074, 2.6873, 3.3591, 4.3189, 5.7585, 8.1579, 12.2848, 19.1950],
         "moments":    [-6.3206, -5.7275, -5.2826, -4.9238, -4.6382, -4.3900, -4.1501, -3.9258, -3.7255, -3.5620, -3.4137, -3.2432, -3.0947, -2.9823, -2.8556, -2.7100, -2.6281, -2.5386, -2.4401, -2.3305, -2.2071, -2.0666, -1.9038, -1.7115, -1.4787, -1.1878, -0.8086, -0.2842, 0.5094, 1.9111, 5.1723, 9.5585, 17.0731, 18.5417, 19.8061, 20.8094, 21.6037, 22.2690, 22.8427, 23.3473, 24.2058, 24.9220, 25.8203, 26.8074, 27.8360, 29.0537, 30.5468, 32.5127, 35.4626, 40.1615, 47.6239],
@@ -74,9 +116,33 @@ INCA_FCTM_PARA = {
 }
 
 INCA_TENS_PARA = {
-    # SETTINGS: like FCTM_PARABOLIC
+    # SETTINGS: TENS_PARA
     #   Zug:    4.1   , 0.1047*, 1.0000
-    #   MBZ:    0.1047, 1.047  , 1.0000
+    #   MBZ***: 0.1047, 1.047**, 1.0000
+
+    # *  f_ctm / Tangentenmodul = 4.1 / 39141.76 = 0.1047
+    # ** = 10 * 0.1047 (like F_t * eps_ctm in material_methods.py)
+    # *** not identical with tension stiffening acc. to Nayal et al.
+    0.00: {
+        "curvatures": [],
+        "moments": []
+    },
+    0.10: {
+        "curvatures": [],
+        "moments": []
+    },
+    0.20: {
+        "curvatures": [],
+        "moments": []
+    },
+    0.30: {
+        "curvatures": [],
+        "moments": []
+    },
+    0.40: {
+        "curvatures": [],
+        "moments": []
+    },
     0.50: {
         "curvatures": [-55.8159, -42.4201, -33.2105, -26.5126, -21.7682, -18.1402, -15.0703, -12.5586, -10.6050, -9.2096, -8.0933, -6.9770, -6.1398, -5.5816, -5.0234, -4.4653, -4.1862, -3.9071, -3.6280, -3.3490, -3.0699, -2.7908, -2.5117, -2.2326, -1.9536, -1.6745, -1.3954, -1.1163, -0.8372, -0.5582, -0.2791, 0.0000, 0.4799, 0.5759, 0.6718, 0.7678, 0.8638, 0.9598, 1.0557, 1.1517, 1.3437, 1.5356, 1.8235, 2.2074, 2.6873, 3.3591, 4.3189, 5.7585, 8.1579, 12.2848, 19.1950],
         "moments":    [-6.3206, -5.7275, -5.2826, -4.9238, -4.6382, -4.3900, -4.1501, -3.9258, -3.7255, -3.5620, -3.4137, -3.2432, -3.0947, -2.9823, -2.8556, -2.7100, -2.6281, -2.5386, -2.4401, -2.3305, -2.2071, -2.0666, -1.9038, -1.7115, -1.4787, -1.1878, -0.8086, -0.2842, 0.5094, 1.9111, 5.1723, 9.5585, 17.0731, 18.5417, 19.8061, 20.8094, 21.6037, 22.2690, 22.8427, 23.3473, 24.2058, 24.9220, 25.8203, 26.8074, 27.8360, 29.0537, 30.5468, 32.5127, 35.4626, 40.1615, 47.6239],
@@ -145,9 +211,13 @@ inca_tp_curvatures = inca_tp["curvatures"]
 # Python Results────────────────────────────────────────────────────────────────
 section     = SECTIONS[LOCATION]
 
-mk_np_results  = calculate_moment_curvature_sls(section, constitutive_law="NONE-PARABOLIC")
-mk_fp_results  = calculate_moment_curvature_sls(section, constitutive_law="FCTM-PARABOLIC")
-mk_tp_results  = calculate_moment_curvature_sls(section, constitutive_law="TENSTIFF-PARABOLIC")
+# Python Results────────────────────────────────────────────────────────────────
+section = SECTIONS[LOCATION]
+
+mk_np_results = calculate_moment_curvature_sls(section, constitutive_law="NONE-PARABOLIC")
+if LOCATION == 0.5:
+    mk_fp_results = calculate_moment_curvature_sls(section, constitutive_law="FCTM-PARABOLIC")
+    mk_tp_results = calculate_moment_curvature_sls(section, constitutive_law="TENSTIFF-PARABOLIC")
 
 m_u_result  = calculate_bending_strength_sls_Nmm(section)
 _, kappa_u, _ = m_u_result.get("strain_profile", (None, None, None))
@@ -166,44 +236,64 @@ loutfi_curvatures = loutfi_results["curvatures"]
 
 # Plot Colors
 COLORS = {
-    "INCA_STANDARD":      "#0C341D",
-    "INCA_NONE-PARA":     "#12522E",
-    "INCA_FCTM-PARA":     "#19703F",
-    "INCA_TENS-PARA":     "#1F8F4F",
-    "Python_NONE-PARA":   "#696969",
-    "Python_FCTM-PARA":   "#7B7B7B",
-    "Python_TENS-PARA":   "#8D8D8D",
+    "INCA_STANDARD":      "#57C5D3",
+    "INCA_NONE-PARA":     "#AB60DA",
+    "INCA_FCTM-PARA":     "#DF786A",
+    "INCA_TENS-PARA":     "#A0E575",
+
+    "Python_NONE-PARA":   "#A0E575",
+    "Python_FCTM-PARA":   "#57C5D3",
+    "Python_TENS-PARA":   "#DF786A",
+
     "LOUTFI":             "#d95319"  # orange
 }
 
 # Lines ────────────────────────────────────────────────────────────────────────
 mk_line_inca_st     = MomentCurvatureLine(inca_st_moments, inca_st_curvatures,  name="INCA_STANDARD",       color=COLORS["INCA_STANDARD"],        linestyle="solid")
-mk_line_inca_np     = MomentCurvatureLine(inca_st_moments, inca_np_curvatures,  name="INCA_NONE-PARA",      color=COLORS["INCA_NONE-PARA"],       linestyle="solid")
-mk_line_inca_fp     = MomentCurvatureLine(inca_st_moments, inca_fp_curvatures,  name="INCA_FCTM-PARA",      color=COLORS["INCA_FCTM-PARA"],       linestyle="solid")
-mk_line_inca_tp     = MomentCurvatureLine(inca_st_moments, inca_tp_curvatures,  name="INCA_TENS-PARA",      color=COLORS["INCA_TENS-PARA"],       linestyle="solid")
+mk_line_inca_np     = MomentCurvatureLine(inca_np_moments, inca_np_curvatures,  name="INCA_NONE-PARA",      color=COLORS["INCA_NONE-PARA"],       linestyle="solid")
+mk_line_inca_fp     = MomentCurvatureLine(inca_fp_moments, inca_fp_curvatures,  name="INCA_FCTM-PARA",      color=COLORS["INCA_FCTM-PARA"],       linestyle="solid")
+mk_line_inca_tp     = MomentCurvatureLine(inca_tp_moments, inca_tp_curvatures,  name="INCA_TENS-PARA",      color=COLORS["INCA_TENS-PARA"],       linestyle="solid")
 
 mk_loutfi           = MomentCurvatureLine(loutfi_moments, loutfi_curvatures,    name="LOUTFI",              color=COLORS["LOUTFI"],               linestyle="solid")
 
-mk_line_np_python   = MomentCurvatureLine.from_results(mk_np_results, name="Python_NONE-PARA",           color=COLORS["Python_NONE-PARA"],     linestyle="solid")
-mk_line_fp_python   = MomentCurvatureLine.from_results(mk_fp_results, name="Python_FCTM-PARA",           color=COLORS["Python_FCTM-PARA"],     linestyle="solid")
-mk_line_tp_python   = MomentCurvatureLine.from_results(mk_tp_results, name="Python_TENS-PARA",           color=COLORS["Python_TENS-PARA"],     linestyle="solid")
+mk_line_np_python = MomentCurvatureLine.from_results(mk_np_results, name="Python_NONE-PARA", color=COLORS["Python_NONE-PARA"], linestyle="solid")
 
-# Lines List (plotted bottom to top)
-lines = [
-    mk_line_inca_st,
+if LOCATION == 0.5:
+    mk_line_fp_python = MomentCurvatureLine.from_results(mk_fp_results, name="Python_FCTM-PARA", color=COLORS["Python_FCTM-PARA"], linestyle="solid")
+    mk_line_tp_python = MomentCurvatureLine.from_results(mk_tp_results, name="Python_TENS-PARA", color=COLORS["Python_TENS-PARA"], linestyle="solid")
+
+'# Plot──────────────────────────────────────────────────────────────────────────'
+FIGURES_DIR = os.path.join(os.path.dirname(__file__), "figures")
+
+# 1. Comparison of INCA2 M-K-diagrams
+if LOCATION == 0.5:
+    lines_inca_comparison = [
+        mk_line_inca_st,
+        mk_line_inca_np,
+        mk_line_inca_fp,
+        mk_line_inca_tp,
+    ]
+
+    fig_1, ax_main1, ax_diffs1 = plot_moment_curvature_multiple_and_differences(list(reversed(lines_inca_comparison)), title="C.2 Comparison of INCA2 M-K-diagrams with different constitutive laws", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
+    fig_1.savefig(os.path.join(FIGURES_DIR,"comp_inca.pdf"), bbox_inches="tight")
+
+# 2. Comparison of Python M-K-diagrams
+if LOCATION == 0.5:
+    lines_python = [
+        mk_line_np_python,
+        mk_line_fp_python,
+        mk_line_tp_python,
+    ]
+    fig_2, ax_2 = plot_moment_curvature_multiple(lines_python, title="C.2 Comparison of Python M-K-diagrams with different constitutive laws", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
+    fig_2.savefig(os.path.join(FIGURES_DIR, "comp_python.pdf"), bbox_inches="tight")
+
+# 3. Comparison of Python and INCA2 M-K-diagrams for NONE_PARABOLIC
+lines_inca_python_comparison = [
     mk_line_inca_np,
-    mk_line_inca_fp,
-    mk_line_inca_tp,
-
-    mk_loutfi,
-
     mk_line_np_python,
-    mk_line_fp_python,
-    mk_line_tp_python,
 ]
-
-# Plot──────────────────────────────────────────────────────────────────────────
-plot_moment_curvature_multiple(lines, title="C.2 Verification", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
+fig_3, ax_3 = plot_moment_curvature_multiple(lines_inca_python_comparison, title="C.2 Comparison of INCA2 and Python with NONE_PARABOLIC constitutive law", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
+fig_3.savefig(os.path.join(FIGURES_DIR,"comp_inca_python.pdf"), bbox_inches="tight")
 
 # Print to console──────────────────────────────────────────────────────────────
 print(f"M_u_sls   x = {LOCATION:.2f} m: {m_u_result['m_u']:.2f} kNm")
