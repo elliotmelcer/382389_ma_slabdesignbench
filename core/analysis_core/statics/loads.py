@@ -1,11 +1,38 @@
+from abc import abstractmethod, ABC
+from enum import Enum
+from typing import Callable
+
 import numpy as np
 from unicodedata import category
 
 from core.unit_core import mm_to_m
 from slab_construction.slab_construction import SlabConstruction
 
+# ── Abstract Base ────────────────────────────────────────────────────────────
 
-class LoadsEC:
+class Loads(ABC):
+
+    @property
+    @abstractmethod
+    def combinations_enum(self) -> type[Enum]:
+        """Subclasses must return their Combinations enum class."""
+        ...
+
+    def check_valid_combination(self, combination: str) -> str:
+        normalised = combination.strip().upper().replace("-", "_").replace(" ", "_")
+        valid = {member.name for member in self.combinations_enum}
+        if normalised not in valid:
+            raise ValueError(
+                f"Invalid combination '{combination}'. "
+                f"Must be one of: {sorted(valid)}"
+            )
+        return normalised
+
+    @abstractmethod
+    def line_load_kN_m(self, slab_construction: SlabConstruction, combination: str) -> float:
+        ...
+
+class LoadsEC(Loads):
 
     """
     Author: Elliot Melcer
@@ -13,6 +40,16 @@ class LoadsEC:
 
     Note: only uniformly distributed loads over ALL spans
     """
+
+    class Combinations(Enum):
+        FUNDAMENTAL = "FUNDAMENTAL"
+        RARE = "RARE"
+        FREQUENT = "FREQUENT"
+        QUASI_PERMANENT = "QUASI-PERMANENT"
+
+    @property
+    def combinations_enum(self) -> type[Enum]:
+        return LoadsEC.Combinations
 
     def __init__(
         self,
@@ -98,18 +135,14 @@ class LoadsEC:
         width_m = mm_to_m(slab_construction.slab.B)
         combination = combination.strip().upper()
 
-        if combination == "FUNDAMENTAL":
-            area_load_kN_m2 = self.fundamental_combination_kN_m2_EC0(slab_construction)
-        elif combination == "FREQUENT":
-            area_load_kN_m2 = self.frequent_combination_kN_m2_EC0(slab_construction)
-        elif combination in ("QUASI_PERMANENT", "QUASI-PERMANENT", "QUASI PERMANENT"):
-            area_load_kN_m2 = self.quasi_permanent_combination_kN_m2_EC0(slab_construction)
-        elif combination == "RARE":
-            area_load_kN_m2 = self.rare_combination_kN_m2_EC0(slab_construction)
-        else:
-            raise ValueError(
-                "Invalid combination. Must be one of: 'FUNDAMENTAL', 'RARE', 'FREQUENT' or 'QUASI-PERMANENT'."
-            )
+        dispatch: dict[str, Callable[[SlabConstruction], float]] = {
+            "FUNDAMENTAL": self.fundamental_combination_kN_m2_EC0,
+            "RARE": self.rare_combination_kN_m2_EC0,
+            "FREQUENT": self.frequent_combination_kN_m2_EC0,
+            "QUASI_PERMANENT": self.quasi_permanent_combination_kN_m2_EC0,
+        }
+
+        area_load_kN_m2 = dispatch[combination](slab_construction)
 
         return area_load_kN_m2 * width_m
 
