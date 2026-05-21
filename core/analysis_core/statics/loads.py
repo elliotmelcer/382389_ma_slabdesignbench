@@ -18,6 +18,11 @@ class Loads(ABC):
         """Subclasses must return their Combinations enum class."""
         ...
 
+    @property
+    @abstractmethod
+    def live_loads(self) -> np.ndarray:
+        ...
+
     def check_valid_combination(self, combination: str) -> str:
         normalised = combination.strip().upper().replace("-", "_").replace(" ", "_")
         valid = {member.name for member in self.combinations_enum}
@@ -77,6 +82,10 @@ class LoadsEC(Loads):
         "D": {"psi": (0.7, 0.7, 0.6), "Qk": {1: 2.0, 2: 5.0, 3: 5.0}},
         "E": {"psi": (1.0, 0.9, 0.8), "Qk": {1: 5.0, 2: 6.0, 3: 7.5}},
     }
+
+    @property
+    def live_loads(self) -> np.ndarray:
+        return self.Qk
 
     @classmethod
     def _parse_category(cls, _category: str):
