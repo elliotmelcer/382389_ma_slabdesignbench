@@ -3,7 +3,7 @@ from typing import Dict, Optional, Callable
 
 from slab_construction.slab_construction import SlabConstruction
 from core.analysis_core.statics.constants import MOMENT_DATA, MAX_X_POSITIONS, SystemType, MomentType
-from core.analysis_core.statics.loads import Loads
+from core.analysis_core.statics.loads import LoadsEC
 from ...unit_core import *
 
 
@@ -69,7 +69,7 @@ class InternalForces:
     @staticmethod
     def calculate_moment_kNm(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType = SystemType.SIMPLE_BEAM,
             combination: str = "FUNDAMENTAL",
             x_norm: Optional[float] = None,
@@ -81,7 +81,7 @@ class InternalForces:
         Must provide EITHER x_norm OR moment_type
 
         :param slab_construction: Slab construction object
-        :param loads: Loads object
+        :param loads: LoadsEC object
         :param system: Structural system type
         :param combination: Load combination type
         :param x_norm: Position along beam (normalized: 0 at first support, 1 at second, etc.)

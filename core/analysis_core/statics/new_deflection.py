@@ -8,7 +8,7 @@ from typing import Any, Union
 
 from core import normalize_input
 from slab_construction.slab_construction import SlabConstruction
-from core.analysis_core.statics.loads import Loads
+from core.analysis_core.statics.loads import LoadsEC
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls, calculate_cracking_moment_sls_Nmm,
 )
@@ -28,7 +28,7 @@ class DeflectionCalculator:
     @staticmethod
     def calculate_deflection_mm(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType = SystemType.SIMPLE_BEAM,
             combination: str = "QUASI-PERMANENT",
             n_intervals: int = 40,
@@ -47,7 +47,7 @@ class DeflectionCalculator:
                     Input       Explanation
                     ------------------------------------------------------------------------------------------------
                     "NONE"      no load history considered, direct method used with parameter combination
-                    "FACTOR"    load history considered according to Eurocode 2, Chapter 7.4.3, Equation (7.18)
+                    "FACTOR_EC"    load history considered according to Eurocode 2, Chapter 7.4.3, Equation (7.18)
                     # "SECANT"    load history considered according to Kreller (1989)*, Chapter 4.2.4
                     #
                     # *Title: "Zum nichtlinearen Trag- und Verformungsverhalten von Stahlbetonstabtragwerken unter Last- und Zwangeinwirkung"
@@ -57,9 +57,9 @@ class DeflectionCalculator:
         :param constitutive_law:    Control Concrete Material Behavior in SLS
                                     for available inputs see sls_concrete() in material_methods.py
         :param slab_construction:   Slab construction object
-        :param loads:               Loads object
+        :param loads:               LoadsEC object
         :param system:              Structural system type
-        :param combination:         Load combination (Ignored when load_history_method='FACTOR')
+        :param combination:         Load combination (Ignored when load_history_method='FACTOR_EC')
         :param n_intervals:         Number of intervals for Simpson's rule (must be even)
         :param N_axial_N:           Axial force [N] (positive = tension)
         :param debug:               Enable debug output
@@ -112,7 +112,7 @@ class DeflectionCalculator:
                 **deflection_kwargs
             )
 
-        elif load_history_method == "FACTOR":
+        elif load_history_method == "FACTOR_EC":
             deflection_mm = DeflectionCalculator._factor_deflection_method(
                 **deflection_kwargs
             )
@@ -122,14 +122,14 @@ class DeflectionCalculator:
         #     deflection_mm = 0.0
 
         else:
-            raise ValueError("load_history_method must be 'NONE' or 'FACTOR'")
+            raise ValueError("load_history_method must be 'NONE' or 'FACTOR_EC'")
 
         return deflection_mm
 
     @staticmethod
     def _direct_deflection_method(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType,
             combination: str,
             n_intervals: int,
@@ -176,7 +176,7 @@ class DeflectionCalculator:
     @staticmethod
     def _factor_deflection_method(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType,
             n_intervals: int,
             N_axial_N: float,
@@ -370,7 +370,7 @@ class DeflectionCalculator:
     @staticmethod
     def _calculate_zeta_array(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType,
             N_axial_N: float,
             x_positions: np.ndarray,
@@ -496,7 +496,7 @@ class DeflectionCalculator:
     @staticmethod
     def _get_interpolated_kappa_array(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType,
             combination: str,
             n_intervals: int,

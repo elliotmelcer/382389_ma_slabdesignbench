@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from core.analysis_core.statics.constants import SystemType, MomentType
 from core.analysis_core.statics.new_deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
-from core.analysis_core.statics.loads import Loads
+from core.analysis_core.statics.loads import LoadsEC
 from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm, flipped_section, \
     calculate_cracking_moment_sls_Nmm
 from core.unit_core import Nmm_to_kNm
@@ -23,7 +23,7 @@ class StructuralCheck(ABC):
     @abstractmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: str,
             moment: str) -> float:
         """Returns the utilization ratio"""
@@ -37,7 +37,7 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
     @staticmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType = SystemType.SIMPLE_BEAM,
             moment: MomentType = MomentType.MAX_POS_MOMENT,
             n: float = 0.0,
@@ -49,7 +49,7 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
         :param debug_print:
         :param n:
         :param slab_construction: Slab construction object
-        :param loads: Loads object (only uniformly distributed loads over all spans)
+        :param loads: LoadsEC object (only uniformly distributed loads over all spans)
         :param system: System type (see Enum)
         :param moment: Moment type (see Enum)
         :return: Utilization ratio (MEd/MRd)
@@ -106,7 +106,7 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
     @staticmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType = SystemType.SIMPLE_BEAM,
             limit_factor: float = 250.0,
             debug: bool = False,
@@ -144,7 +144,7 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
     @staticmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType = SystemType.SIMPLE_BEAM,
             moment: MomentType = MomentType.MAX_POS_MOMENT,
             n: float = 0.0,
@@ -207,7 +207,7 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
     @staticmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType = SystemType.SIMPLE_BEAM,
             min_factor: float = 250.0,
             debug: bool = False,
@@ -247,7 +247,7 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
     @staticmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType = SystemType.SIMPLE_BEAM,
             moment: MomentType = MomentType.MAX_POS_MOMENT,
             n: float = 0.0,

@@ -1,5 +1,5 @@
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_4
-from core.analysis_core.statics.loads import Loads
+from core.analysis_core.statics.loads import LoadsEC
 
 
 def loads_from_category_test():
@@ -7,19 +7,19 @@ def loads_from_category_test():
 
     # --- Input validation ---
     try:
-        Loads.from_categories_EC0_NA_DE("Z9")
+        LoadsEC.from_categories_EC0_NA_DE("Z9")
         print("ERROR: should have raised ValueError for 'Z9'")
     except ValueError as e:
         print(f"Correctly raised ValueError for 'Z9': {e}")
 
     try:
-        Loads.from_categories_EC0_NA_DE("A9")
+        LoadsEC.from_categories_EC0_NA_DE("A9")
         print("ERROR: should have raised ValueError for 'A9'")
     except ValueError as e:
         print(f"Correctly raised ValueError for 'A9': {e}")
 
     # --- Single load ---
-    loads_single = Loads.from_categories_EC0_NA_DE("A1")
+    loads_single = LoadsEC.from_categories_EC0_NA_DE("A1")
     print(f"\nSingle category 'A1':")
     print(f"  Qk:    {loads_single.Qk}")
     print(f"  psi_0: {loads_single.psi_0_values}")
@@ -31,7 +31,7 @@ def loads_from_category_test():
     print(f"  Quasi-permanent (SLS):  {loads_single.quasi_permanent_combination_kN_m2_EC0(test_slab_construction_c1_4):.2f} kN/m²")
 
     # --- Multiple loads (A1 leading, B2 accompanying) ---
-    loads_multi = Loads.from_categories_EC0_NA_DE(["A1", "B2"])
+    loads_multi = LoadsEC.from_categories_EC0_NA_DE(["A1", "B2"])
     print(f"\nMultiple categories ['A1', 'B2'] — A1 is leading:")
     print(f"  Qk:    {loads_multi.Qk}")
     print(f"  psi_0: {loads_multi.psi_0_values}")

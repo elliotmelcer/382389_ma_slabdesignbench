@@ -13,7 +13,7 @@ from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC200
     DeflectionLimitByDeflectionCheckEC2004DE, DeflectionLimitByMcrCheckEC2004DE, \
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
 from core.analysis_core.statics.constants import SystemType, MomentType
-from core.analysis_core.statics.loads import Loads
+from core.analysis_core.statics.loads import LoadsEC
 from core.analysis_core.material_methods import get_cube, get_cfrp_reinforcement_from_registry, \
     get_floor_material_from_registry
 from core.ioh_core.io_util import _req_param
@@ -170,7 +170,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     # LIVE LOADS
     # ======================================================================================================================
 
-    live_loads = Loads.from_categories_EC0_NA_DE(load_category)
+    live_loads = LoadsEC.from_categories_EC0_NA_DE(load_category)
 
     # ======================================================================================================================
     # COMPUTE CONSTRAINTS (A) - ULS

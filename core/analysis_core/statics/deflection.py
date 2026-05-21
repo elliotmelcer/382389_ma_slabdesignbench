@@ -7,7 +7,7 @@ import numpy as np
 from typing import Tuple
 
 from slab_construction.slab_construction import SlabConstruction
-from core.analysis_core.statics.loads import Loads
+from core.analysis_core.statics.loads import LoadsEC
 from core.analysis_core.section_methods import (
     calculate_moment_curvature_sls,
 )
@@ -27,7 +27,7 @@ class DeflectionCalculator:
     @staticmethod
     def calculate_deflection_mm(
             slab_construction: SlabConstruction,
-            loads: Loads,
+            loads: LoadsEC,
             system: SystemType = SystemType.SIMPLE_BEAM,
             combination: str = "QUASI-PERMANENT",
             n_intervals: int = 40,
@@ -44,12 +44,12 @@ class DeflectionCalculator:
         :param constitutive_law:
         :param load_history_method:
                     "NONE"      no load history considered
-                    "FACTOR"    load history considered according to Eurocode 2, Chapter 7.4.3, Equation (7.18)
+                    "FACTOR_EC"    load history considered according to Eurocode 2, Chapter 7.4.3, Equation (7.18)
                     "SECANT"    load history considered according to Kreller (1989)*, Chapter 4.2.4
 
                     *Zum nichtlinearen Trag- und Verformungsverhalten von Stahlbetonstabtragwerken unter Last- und Zwangeinwirkung
         :param slab_construction: Slab construction object
-        :param loads: Loads object
+        :param loads: LoadsEC object
         :param system: Structural system type
         :param combination: Load combination
         :param n_intervals: Number of intervals for Simpson's rule (must be even)
