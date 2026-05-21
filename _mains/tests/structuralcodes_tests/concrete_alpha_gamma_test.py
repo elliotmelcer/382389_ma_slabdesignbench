@@ -6,7 +6,7 @@ from structuralcodes.sections import GenericSection
 
 from _mains.testing_files.testing_materials import reinforcement_B500
 from _mains.testing_files.testing_sections import t_section_polygon
-from core.analysis_core.material_methods import fctm_parabolic_law
+from core.analysis_core.material_methods import fctm_parabolic_law_EC
 from core.analysis_core.section_methods import calculate_moment_curvature_sls
 from core.visualization_core.visualization import plot_constitutive_law_concrete, plot_moment_curvature
 
@@ -30,10 +30,10 @@ ULS:
 set_design_code('ec2_2004')
 
 c = create_concrete(fck=30,
-                    constitutive_law=fctm_parabolic_law(30),
+                    constitutive_law=fctm_parabolic_law_EC(30),
                     name = "c")
 
-c_alpha = create_concrete(fck=30, constitutive_law=fctm_parabolic_law(30),
+c_alpha = create_concrete(fck=30, constitutive_law=fctm_parabolic_law_EC(30),
                           alpha_cc = 1.0,
                           gamma_c=1.0,
                           name="c_alpha")

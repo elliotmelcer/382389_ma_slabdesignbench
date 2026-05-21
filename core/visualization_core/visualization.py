@@ -16,7 +16,7 @@ from typing import Optional
 import matplotlib.axes
 from matplotlib.ticker import FuncFormatter
 
-from core.analysis_core.material_methods import CrackingConcreteLaw, TensionStiffeningConcreteLaw
+from core.analysis_core.material_methods import CrackingConcreteLawEC, TensionStiffeningConcreteLawEC
 from core.analysis_core.section_methods import get_strain_at_point
 
 TU_COLORS = {
@@ -635,13 +635,13 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool
     eps_0 = [0.00]
 
     # tension range
-    if isinstance(law, TensionStiffeningConcreteLaw):
+    if isinstance(law, TensionStiffeningConcreteLawEC):
         eps_P_t = eps_ctm + 0.001e-3
         eps_S_t = law.eps_S_t
         eps_F_t = law.eps_F_t
 
         eps_t = [eps_ctm, eps_P_t, eps_S_t, eps_F_t]
-    elif isinstance(law, CrackingConcreteLaw):
+    elif isinstance(law, CrackingConcreteLawEC):
         eps_t = [eps_ctm]
     elif isinstance(law, Elastic):
         eps_t = np.flip(np.linspace(-eps_min, 0, n, endpoint = False))
@@ -1059,7 +1059,7 @@ def plot_strain_profile(results: dict, title: str = None):
         )
 
         ax.annotate(
-            f"{eps_s * 1e3:+.1f}‰",
+            f"{eps_s * 1e3:+.2f}‰",
             (eps_s * 1e3, z_s),
             textcoords="offset points",
             xytext=(5, 0),
@@ -1069,7 +1069,7 @@ def plot_strain_profile(results: dict, title: str = None):
 
     # Top strain label (red if concrete fails)
     ax.annotate(
-        f"{eps_top * 1e3:+.1f}‰",
+        f"{eps_top * 1e3:+.2f}‰",
         (eps_top * 1e3, zmax),
         textcoords="offset points",
         xytext=(-5, 0),
@@ -1080,7 +1080,7 @@ def plot_strain_profile(results: dict, title: str = None):
 
     # Bottom strain label (right)
     ax.annotate(
-        f"{eps_bot * 1e3:+.1f}‰",
+        f"{eps_bot * 1e3:+.2f}‰",
         (eps_bot * 1e3, zmin),
         textcoords="offset points",
         xytext=(5, 0),

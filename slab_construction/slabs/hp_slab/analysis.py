@@ -14,7 +14,7 @@ from core.analysis_core.checks.structural_checks import UltimateMomentCheckEC200
     FailureAnnouncementByDeflectionCheckEC2004DE, FailureAnnouncementByMcrCheckEC2004DE
 from core.analysis_core.statics.constants import SystemType, MomentType
 from core.analysis_core.statics.loads import LoadsEC
-from core.analysis_core.material_methods import get_cube, get_cfrp_reinforcement_from_registry, \
+from core.analysis_core.material_methods import get_cube_EC, get_cfrp_reinforcement_from_registry, \
     get_floor_material_from_registry
 from core.ioh_core.io_util import _req_param
 from core.unit_core import mm3_to_m3
@@ -93,7 +93,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
         constitutive_law ='parabolarectangle',
         alpha_cc = 0.85,
         gamma_c = 1.5,
-        name = f"C {conc_fck_MPa}/{get_cube(conc_fck_MPa)} ULS")
+        name = f"C {conc_fck_MPa}/{get_cube_EC(conc_fck_MPa)} ULS")
 
     # Reinforcement
     try:

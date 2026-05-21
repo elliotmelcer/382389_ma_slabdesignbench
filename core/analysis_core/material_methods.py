@@ -1,7 +1,4 @@
-"""
-Author: Elliot Melcer
-Internal CO2 and cost registry for materials.
-"""
+
 from typing import Union
 
 import numpy as np
@@ -16,6 +13,8 @@ from slab_construction.floor import InsulationMaterial, InfillMaterial, ScreedMa
 # ---------------------------------------------------------------------------
 
 CONCRETE_CO2_TABLE: dict[int, dict[str, float]] = {
+    # Author: Elliot Melcer
+    # Internal CO2 and cost registry for materials.
     12:  {"gwp": 140.0, "cost": 70.0},
     16:  {"gwp": 159.0, "cost": 72.5},
     20:  {"gwp": 178.0, "cost": 75.0},
@@ -73,12 +72,12 @@ class ConcreteCO2Registry:
         return cls._cache[concrete]["cost"]
 
 
-class CrackingConcreteLaw(UserDefined):
+class CrackingConcreteLawEC(UserDefined):
     """
     Author: Elliot Melcer
 
     A concrete constitutive law that handles tensile cracking correctly
-    in moment-curvature analysis.
+    in moment-curvature analysis according to Eurocode.
 
     The class overrides get_ultimate_strain of UserDefined to allow for cracking:
 
@@ -126,7 +125,7 @@ class CrackingConcreteLaw(UserDefined):
             return self._eps_c1, 1e6
         return self._eps_cu1, 1e6
 
-class TensionStiffeningConcreteLaw(CrackingConcreteLaw):
+class TensionStiffeningConcreteLawEC(CrackingConcreteLawEC):
     """
     Author: Elliot Melcer
     A concrete constitutive law that handles tension stiffening
@@ -150,17 +149,18 @@ class TensionStiffeningConcreteLaw(CrackingConcreteLaw):
         """
         super().__init__(strains, stresses, eps_cu1, eps_c1, **kwargs)
         self.eps_F_t = strains[-1]
+        self.eps_S_t = strains[-2]
 
-def create_sls_concrete(conc: Union[Concrete, float, int], constitutive_law: str) -> Concrete:
+def create_sls_concrete_EC(conc: Union[Concrete, float, int], constitutive_law: str) -> Concrete:
     """
-    Creates an SLS Concrete object with constitutive law a give n Concrete object or fck value and constitutive law (by keyword).
+    Creates an SLS Concrete object with new constitutive law according to Eurocode
     Available constitutive law keywords: NONE_PARABOLIC, FCTM_PARABOLIC, TENSTIFF_PARABOLIC, ELASTIC_ELASTIC
-    :param conc:
-    :param constitutive_law:
+    :param conc: Concrete object or fck value
+    :param constitutive_law: constitutive law (by keyword)
     :return:
     """
     f_ck = conc.fck if isinstance(conc, Concrete) else float(conc)
-    f_cube = get_cube(f_ck)
+    f_cube = get_cube_EC(f_ck)
 
     # Normalize Input
     constitutive_law_normalized = constitutive_law.strip().upper().replace("-", "_").replace(" ", "_")
@@ -172,11 +172,11 @@ def create_sls_concrete(conc: Union[Concrete, float, int], constitutive_law: str
                                        name=f"C{f_ck}/{f_cube} SLS")
     elif constitutive_law_normalized == "FCTM_PARABOLIC":
         sls_conc = create_concrete(fck=f_ck,
-                                   constitutive_law=fctm_parabolic_law(conc),
+                                   constitutive_law=fctm_parabolic_law_EC(conc),
                                    name=f"C{f_ck}/{f_cube} SLS")
     elif constitutive_law_normalized == "TENSTIFF_PARABOLIC":
         sls_conc = create_concrete(fck=f_ck,
-                                   constitutive_law=tenstiff_parabolic_law(conc),
+                                   constitutive_law=tenstiff_parabolic_law_EC(conc),
                                    name=f"C{f_ck}/{f_cube} SLS")
     elif constitutive_law_normalized == "ELASTIC_ELASTIC":
         sls_conc = create_concrete(fck=f_ck,
@@ -192,19 +192,19 @@ def create_sls_concrete(conc: Union[Concrete, float, int], constitutive_law: str
 
     return sls_conc
 
-def create_uls_concrete(conc: Union[Concrete, float, int],
-                        alpha_cc: float = 0.85,
-                        gamma_c: float = 1.5) -> Concrete:
+def create_uls_concrete_EC(conc: Union[Concrete, float, int],
+                           alpha_cc: float = 0.85,
+                           gamma_c: float = 1.5) -> Concrete:
     """
     Author: Elliot Melcer
-    Creates a ULS Concrete object with parabola-rectangle constitutive law, alpha_cc and gamma_c for a give n Concrete object or fck value
-    :param conc:
-    :param alpha_cc:
-    :param gamma_c:
+    Creates a ULS Concrete object with parabola-rectangle constitutive law according to Eurocode
+    :param conc: Concrete object or fck value
+    :param alpha_cc: alpha_cc
+    :param gamma_c: gamma_c
     :return:
     """
     f_ck = conc.fck if isinstance(conc, Concrete) else float(conc)
-    f_cube = get_cube(f_ck)
+    f_cube = get_cube_EC(f_ck)
 
     uls_concrete = create_concrete(
         fck=f_ck,
@@ -216,14 +216,14 @@ def create_uls_concrete(conc: Union[Concrete, float, int],
 
     return uls_concrete
 
-def fctm_parabolic_law(concrete: Union[Concrete, float, int], n_c: int = 80, n_t: int = 20) -> CrackingConcreteLaw:
+def fctm_parabolic_law_EC(concrete: Union[Concrete, float, int], n_c: int = 80, n_t: int = 20) -> CrackingConcreteLawEC:
     """
     Author: Elliot Melcer
     Creates a Non-Linear Constitutive Law with Linear Branch in Tension and Sargin Branch Under Compression
     - Tension: linear elastic (0 → eps_ctm)
     - Compression: Sargin (eps_cu1 → eps_c1)
 
-    Returns a CrackingConcreteLaw Object
+    Returns a CrackingConcreteLawEC Object
     """
 
     if not isinstance(concrete, Concrete):
@@ -278,23 +278,23 @@ def fctm_parabolic_law(concrete: Union[Concrete, float, int], n_c: int = 80, n_t
     eps, unique_idx = np.unique(eps, return_index=True)
     sig = sig[unique_idx]
 
-    return CrackingConcreteLaw(
+    return CrackingConcreteLawEC(
         strains=eps,
         stresses=sig,
         eps_cu1=eps_cu1,
         eps_c1 = eps_c1,
-        name="SarginElastic",
+        name="CrackingConcreteLawEC",
         flag=0,
     )
 
-def tenstiff_parabolic_law(concrete: Union[Concrete, float, int], n_c: int = 80, n_t: int = 20) -> TensionStiffeningConcreteLaw:
+def tenstiff_parabolic_law_EC(concrete: Union[Concrete, float, int], n_c: int = 80, n_t: int = 20) -> TensionStiffeningConcreteLawEC:
     """
     Author: Elliot Melcer
     Creates a Non-Linear Constitutive Law
         Compression: Sargin Branch
         Tension:  Linear Branch until fctm + Tension Stiffening according to Naya(2006)
 
-    Returns a TensionStiffeningConcreteLaw Object
+    Returns a TensionStiffeningConcreteLawEC Object
     """
 
     if not isinstance(concrete, Concrete):
@@ -334,7 +334,7 @@ def tenstiff_parabolic_law(concrete: Union[Concrete, float, int], n_c: int = 80,
     # -------------------------------
     # Elastic tension
     # -------------------------------
-    eps_t = np.linspace(0.0, eps_ctm, n_t, endpoint=True) # dim = 1
+    eps_t = np.linspace(0.0, eps_ctm, 2, endpoint=True) # dim = 1
     sig_t = Ecm * eps_t # dim = 1
 
     # -------------------------------
@@ -367,16 +367,16 @@ def tenstiff_parabolic_law(concrete: Union[Concrete, float, int], n_c: int = 80,
     eps, unique_idx = np.unique(eps, return_index=True)
     sig = sig[unique_idx]
 
-    return TensionStiffeningConcreteLaw(
+    return TensionStiffeningConcreteLawEC(
         strains=eps,
         stresses=sig,
         eps_cu1=eps_cu1,
         eps_c1=eps_c1,
-        name="SarginTensionStiffening",
+        name="TensionStiffeningConcreteLawEC",
         flag=0,
     )
 
-def get_cube(cylinder_strength) -> int:
+def get_cube_EC(cylinder_strength) -> int:
     """
     Author: Elliot Melcer
     Return cube strength (MPa) from EN 206 concrete class table.

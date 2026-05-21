@@ -7,7 +7,7 @@ from structuralcodes.materials.concrete import Concrete
 from structuralcodes.materials.reinforcement import Reinforcement
 from structuralcodes.sections import GenericSection
 
-from core.analysis_core.material_methods import create_sls_concrete, TensionStiffeningConcreteLaw, create_uls_concrete
+from core.analysis_core.material_methods import create_sls_concrete_EC, TensionStiffeningConcreteLawEC, create_uls_concrete_EC
 
 
 def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
@@ -392,9 +392,9 @@ def _full_moment_curvature_method(section: GenericSection,
     _, _, zmin, zmax = section.geometry.calculate_extents()
     eps_top = eps_0 + chi_y * zmax  # concrete top fiber strain at failure
 
-    # If concrete top exceeds ε_c1 at failure → concrete is in post-yield zone
+    # If concrete top exceeds ε_c1 → concrete reaches post-yield zone
     concrete_governs = abs(eps_top) > eps_c1
-    num_post_yield = 10 if concrete_governs else 0
+    num_post_yield = 0 if concrete_governs else 0
 
 
     # -----------------------------------
@@ -483,7 +483,7 @@ def _simplified_moment_curvature_method(section: GenericSection,
     eps_F_t = law.eps_F_t
 
     # Check Constitutive Law
-    if not isinstance(law, TensionStiffeningConcreteLaw):
+    if not isinstance(law, TensionStiffeningConcreteLawEC):
         raise Exception("Simplified M-K-Line only implemented for TENSTIFF_PARABOLIC")
 
     # Cracking Point
@@ -925,7 +925,7 @@ def sls_section(
 
     # Create SLS Concrete from Concrete Used in Section
     conc = get_concrete(section)
-    sls_conc = create_sls_concrete(conc, constitutive_law)
+    sls_conc = create_sls_concrete_EC(conc, constitutive_law)
 
     # Change Concrete Material
     processed_geoms = []
@@ -958,7 +958,7 @@ def uls_section(
 
     # Create SLS Concrete from Concrete Used in Section
     conc = get_concrete(section)
-    uls_conc = create_uls_concrete(conc, alpha_cc=alpha_cc, gamma_c=gamma_c)
+    uls_conc = create_uls_concrete_EC(conc, alpha_cc=alpha_cc, gamma_c=gamma_c)
 
     # Change Concrete Material
     processed_geoms = []
