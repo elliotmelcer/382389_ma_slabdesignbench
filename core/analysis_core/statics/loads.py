@@ -24,7 +24,7 @@ class Loads(ABC):
         ...
 
     @abstractmethod
-    def line_load_kN_m(self, slab_construction: SlabConstruction, combination: str) -> float:
+    def combined_line_load_kN_m(self, slab_construction: SlabConstruction, combination: str) -> float:
         ...
 
     def check_valid_combination(self, combination: str) -> str:
@@ -135,7 +135,7 @@ class LoadsEC(Loads):
             if len(arr) != n:
                 raise ValueError("All live load (Qk) and psi arrays must have the same length")
 
-    def line_load_kN_m(self, slab_construction: SlabConstruction, combination: str = "FUNDAMENTAL") -> float:
+    def combined_line_load_kN_m(self, slab_construction: SlabConstruction, combination: str = "FUNDAMENTAL") -> float:
         """
         Calculates a line load [kN/m] from area loads for the given load combination
 

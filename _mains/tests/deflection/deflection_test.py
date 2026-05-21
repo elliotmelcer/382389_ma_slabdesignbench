@@ -41,7 +41,7 @@ print("=" * 70)
 # Fundamental combination
 print("\n1. FUNDAMENTAL COMBINATION (ULS)")
 
-q_fund = test_loads.line_load_kN_m(
+q_fund = test_loads.combined_line_load_kN_m(
     slab_construction=slab_construction,
     combination="FUNDAMENTAL")
 
@@ -62,7 +62,7 @@ print(f"   Deflection/Span: L/{span_m * 1000 / deflection_fund:.0f}")
 # Quasi-permanent combination
 print("\n2. QUASI-PERMANENT COMBINATION (SLS)")
 
-q_qp = test_loads.line_load_kN_m(
+q_qp = test_loads.combined_line_load_kN_m(
     slab_construction=slab_construction,
     combination="QUASI-PERMANENT")
 
@@ -83,7 +83,7 @@ print(f"   Deflection/Span: L/{span_m * 1000 / deflection_qp:.0f}")
 # Frequent combination
 print("\n3. FREQUENT COMBINATION (SLS)")
 
-q_freq = test_loads.line_load_kN_m(
+q_freq = test_loads.combined_line_load_kN_m(
     slab_construction=slab_construction,
     combination="FREQUENT")
 
