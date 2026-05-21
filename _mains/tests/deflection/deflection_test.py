@@ -45,7 +45,7 @@ q_fund = test_loads.combined_line_load_kN_m(
     slab_construction=slab_construction,
     combination="FUNDAMENTAL")
 
-deflection_fund = DeflectionCalculator.calculate_deflection_mm(
+deflection_fund = DeflectionCalculator.calculate_deflection_mm_EC(
     slab_construction=slab_construction,
     loads=test_loads,
     system=SystemType.SIMPLE_BEAM,
@@ -66,7 +66,7 @@ q_qp = test_loads.combined_line_load_kN_m(
     slab_construction=slab_construction,
     combination="QUASI-PERMANENT")
 
-deflection_qp = DeflectionCalculator.calculate_deflection_mm(
+deflection_qp = DeflectionCalculator.calculate_deflection_mm_EC(
     slab_construction=slab_construction,
     loads=test_loads,
     system=SystemType.SIMPLE_BEAM,
@@ -87,7 +87,7 @@ q_freq = test_loads.combined_line_load_kN_m(
     slab_construction=slab_construction,
     combination="FREQUENT")
 
-deflection_freq = DeflectionCalculator.calculate_deflection_mm(
+deflection_freq = DeflectionCalculator.calculate_deflection_mm_EC(
     slab_construction=slab_construction,
     loads=test_loads,
     system=SystemType.SIMPLE_BEAM,

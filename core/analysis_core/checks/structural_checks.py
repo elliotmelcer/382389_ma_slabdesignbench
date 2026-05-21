@@ -112,7 +112,7 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             debug: bool = False,
     ) -> float:
 
-        w_max_sls = DeflectionCalculator.calculate_deflection_mm(
+        w_max_sls = DeflectionCalculator.calculate_deflection_mm_EC(
             slab_construction,
             loads,
             system,
@@ -213,7 +213,7 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
             debug: bool = False,
     ) -> float:
 
-        w_max_uls = DeflectionCalculator.calculate_deflection_mm(
+        w_max_uls = DeflectionCalculator.calculate_deflection_mm_EC(
             slab_construction,
             loads,
             system,

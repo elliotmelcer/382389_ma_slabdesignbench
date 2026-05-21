@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_slab_construction import test_slab_construction_c1_3
 from _mains.testing_files.testing_loads import test_loads
-from core.analysis_core.section_methods import calculate_moment_curvature_sls
+from core.analysis_core.section_methods import calculate_moment_curvature_sls_EC
 from core.analysis_core.statics.constants import SystemType
 from core.analysis_core.statics.new_deflection import DeflectionCalculator
 from core.visualization_core.visualization import plot_moment_curvature_with_reference
@@ -48,7 +48,7 @@ print(f"  QP-Combination:      {test_loads.combined_line_load_kN_m(testing_slab_
 # ---------------------------------------------------------------------------
 def print_mk_points(label: str, x_norm: float) -> None:
     section = testing_slab_const.slab.section_at(x_norm)
-    mk_result = calculate_moment_curvature_sls(
+    mk_result = calculate_moment_curvature_sls_EC(
         section,
         n=0,
         constitutive_law="NONE_PARABOLIC"
@@ -69,7 +69,7 @@ print_mk_points("Support", 0.0)
 print(f"\n--- Midspan (x = 0.5) ---")
 print_mk_points("Midspan", 0.5)
 
-mk_results = calculate_moment_curvature_sls(testing_slab_const.slab.section_at(0.5), constitutive_law="NONE_PARABOLIC")
+mk_results = calculate_moment_curvature_sls_EC(testing_slab_const.slab.section_at(0.5), constitutive_law="NONE_PARABOLIC")
 
 #----------------------------------------------------------------------------
 # Results from INCA
@@ -85,7 +85,7 @@ print(f"\n" + "=" * 70)
 print("DEFLECTION RESULT")
 print("=" * 70)
 
-deflection = DeflectionCalculator.calculate_deflection_mm(
+deflection = DeflectionCalculator.calculate_deflection_mm_EC(
     test_slab_construction_c1_3,
     test_loads,
     system=SystemType.SIMPLE_BEAM,
