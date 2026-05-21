@@ -3,7 +3,7 @@ from structuralcodes.geometry import SurfaceGeometry, add_reinforcement
 from structuralcodes.sections import GenericSection
 
 from core.analysis_core import section_methods
-from core.analysis_core.section_methods import sls_section, get_concrete
+from core.analysis_core.section_methods import sls_section_EC, get_concrete
 from core.visualization_core.visualization import plot_moment_curvature, plot_constitutive_law_concrete, \
     plot_constitutive_law_reinforcement, table_moment_curvature, plot_cross_section
 from slab_construction.slabs import HPSlab
@@ -41,7 +41,7 @@ for pt in reinforcement_points:
     )
 
 hp_section = GenericSection(hp_geometry)
-hp_section_sls = sls_section(hp_section, "NONE_PARABOLIC")
+hp_section_sls = sls_section_EC(hp_section, "NONE_PARABOLIC")
 
 moment_curvature = hp_section.section_calculator.calculate_moment_curvature()
 

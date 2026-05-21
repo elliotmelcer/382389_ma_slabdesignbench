@@ -203,7 +203,7 @@ def test_manual_calculation():
     from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q85_pre_37
     from _mains.testing_files.testing_hp_sections import hp_ref
 
-    from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm
+    from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm_EC
     from core.visualization_core.visualization import plot_cross_section
 
     print("=" * 70)
@@ -218,7 +218,7 @@ def test_manual_calculation():
 
     print("\n[1] STANDARD METHOD (structuralcodes):")
     print("-" * 50)
-    result_std = calculate_bending_strength_uls_Nmm(section, n=0)
+    result_std = calculate_bending_strength_uls_Nmm_EC(section, n=0)
 
     m_u_std = result_std['m_u']
     strain_std = result_std['strain_profile']

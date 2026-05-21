@@ -6,8 +6,8 @@ from _mains.testing_files.testing_hp_sections import (
     hp_section_c1_1_uls,
 )
 from core.analysis_core.section_methods import (
-    calculate_cracking_moment_sls_Nmm,
-    sls_section,
+    calculate_cracking_moment_sls_Nmm_EC,
+    sls_section_EC,
     get_concrete,
     _calculate_section_state_from_bottom_strain_sls,
 )
@@ -52,9 +52,9 @@ sections = {
 
 results = {}
 for name, section in sections.items():
-    current_sls_section = sls_section(section, constitutive_law="TENSTIFF_PARABOLIC")
+    current_sls_section = sls_section_EC(section, constitutive_law="TENSTIFF_PARABOLIC")
 
-    m_cr_result_original = calculate_cracking_moment_sls_Nmm(section)
+    m_cr_result_original = calculate_cracking_moment_sls_Nmm_EC(section)
     m_cr_original = m_cr_result_original["m_cr"]
     _, kappa_cr_original, _ = m_cr_result_original["strain_profile"]
 

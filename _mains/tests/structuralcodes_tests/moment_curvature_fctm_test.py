@@ -1,24 +1,24 @@
 from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c1_4_uls
-from core.analysis_core.section_methods import calculate_moment_curvature_sls, calculate_cracking_moment_sls_Nmm
+from core.analysis_core.section_methods import calculate_moment_curvature_sls_EC, calculate_cracking_moment_sls_Nmm_EC
 from core.visualization_core.visualization import plot_moment_curvature
 
 test_section = hp_section_c1_4_uls
 
 # M-K Results for a concrete with fctm = 0
-cracked_m_k_results = calculate_moment_curvature_sls(
+cracked_m_k_results = calculate_moment_curvature_sls_EC(
     test_section,
     constitutive_law="NONE_PARABOLIC"
 )
 
 # M-K Results for a concrete with fctm != 0
-uncracked_m_k_results = calculate_moment_curvature_sls(
+uncracked_m_k_results = calculate_moment_curvature_sls_EC(
     test_section,
     constitutive_law="FCTM_PARABOLIC"
 )
 
-mcr = calculate_cracking_moment_sls_Nmm(
+mcr = calculate_cracking_moment_sls_Nmm_EC(
     test_section,
 )
 

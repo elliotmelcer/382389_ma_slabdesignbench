@@ -201,9 +201,9 @@ from structuralcodes import set_design_code
 from structuralcodes.materials.constitutive_laws import Elastic
 from structuralcodes.sections import GenericSection
 from core.analysis_core.section_methods import (
-    calculate_cracking_moment_sls_Nmm,
+    calculate_cracking_moment_sls_Nmm_EC,
     calculate_prestress_forces_Nmm,
-    sls_section,
+    sls_section_EC,
 )
 from _mains.testing_files.testing_hp_sections import (
     hp_shell_c1_1_uls, hp_shell_c1_2_c50_uls, hp_shell_c1_2_c80_uls,
@@ -286,7 +286,7 @@ def create_section_with_prestress(
 def _method1(section, n: float = 0.0) -> dict:
     """Method 1: kappa_0 = (M_p · κ_cr) / (M_cr - M_p)"""
     M_p, _      = calculate_prestress_forces_Nmm(section)
-    M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
+    M_cr_result = calculate_cracking_moment_sls_Nmm_EC(section, n=n)
 
     if not M_cr_result.get('valid', True):
         return {'valid': False, 'kappa_0': None,
@@ -374,7 +374,7 @@ def compare_all_methods(prestress_factors: list, _shell_id: str = 'c1_1',  n: fl
 
     for f in prestress_factors:
         section  = create_section_with_prestress(f, _shell_id)
-        sls_sec = sls_section(section, "TENSTIFF_PARABOLIC")
+        sls_sec = sls_section_EC(section, "TENSTIFF_PARABOLIC")
         r1       = _method1(sls_sec, n=n)
         r2       = _method2(sls_sec, n=n)
 

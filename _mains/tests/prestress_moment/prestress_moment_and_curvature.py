@@ -2,12 +2,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c1_4_uls
-from core.analysis_core.section_methods import sls_section, calculate_prestress_forces_Nmm, \
-    calculate_cracking_moment_sls_Nmm, calculate_moment_curvature_sls
+from core.analysis_core.section_methods import sls_section_EC, calculate_prestress_forces_Nmm, \
+    calculate_cracking_moment_sls_Nmm_EC, calculate_moment_curvature_sls_EC
 from core.visualization_core.visualization import plot_moment_curvature_with_reference, plot_moment_curvature
 
 section = hp_section_c1_4_uls
-sls_section = sls_section(section, "TENSTIFF_PARABOLIC")
+sls_section = sls_section_EC(section, "TENSTIFF_PARABOLIC")
 
 M_p, N_p = calculate_prestress_forces_Nmm(section)
 M_p_sls, N_p_sls = calculate_prestress_forces_Nmm(sls_section)
@@ -17,7 +17,7 @@ M_p_sls, N_p_sls = calculate_prestress_forces_Nmm(sls_section)
 #
 
 """Moment- Curvature Diagram"""
-mk_res = calculate_moment_curvature_sls(section)
+mk_res = calculate_moment_curvature_sls_EC(section)
 plot_moment_curvature(mk_res)
 
 #
@@ -59,7 +59,7 @@ results = sls_section.section_calculator.calculate_moment_curvature(
 kappa_0_indirect = 0.0
 
 # Get tension_stiffening properties (using same material model)
-M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=0)
+M_cr_result = calculate_cracking_moment_sls_Nmm_EC(section, n=0)
 
 # Determine initial curvature from prestressing kappa_0
 

@@ -32,7 +32,7 @@ from _mains.testing_files.testing_materials import (
 from _mains.testing_files.testing_hp_sections import hp_ref
 
 from core.analysis_core.section_methods import (
-    calculate_bending_strength_uls_Nmm,
+    calculate_bending_strength_uls_Nmm_EC,
     get_strain_at_point
 )
 from core.visualization_core.visualization import plot_cross_section
@@ -98,7 +98,7 @@ def diagnose_hp_ref():
 
     # Now calculate bending strength
     print(f"\n[6] CALCULATING BENDING STRENGTH...")
-    result = calculate_bending_strength_uls_Nmm(section, n=0)
+    result = calculate_bending_strength_uls_Nmm_EC(section, n=0)
 
     m_u = result['m_u']
     strain_profile = result['strain_profile']

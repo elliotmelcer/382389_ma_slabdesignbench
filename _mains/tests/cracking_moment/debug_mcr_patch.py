@@ -20,8 +20,8 @@ from structuralcodes.materials.reinforcement import create_reinforcement
 from structuralcodes.materials.constitutive_laws import Elastic
 
 from core.analysis_core.section_methods import (
-    calculate_cracking_moment_sls_Nmm,
-    sls_section,
+    calculate_cracking_moment_sls_Nmm_EC,
+    sls_section_EC,
     get_concrete,
 )
 from core.visualization_core.visualization import plot_cross_section
@@ -40,7 +40,7 @@ def debug_cracking_moment(section, n: float = 0.0):
     print("=" * 60)
 
     # Step 1: Create SLS section
-    sls_sec = sls_section(section, constitutive_law="FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(section, constitutive_law="FCTM_PARABOLIC")
     analysis_sls_sec = deepcopy(sls_sec)
 
     # Step 2: Get concrete properties

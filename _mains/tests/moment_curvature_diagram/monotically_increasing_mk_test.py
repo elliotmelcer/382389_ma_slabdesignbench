@@ -11,7 +11,7 @@ from _mains.testing_files.testing_slab_construction import (
     test_slab_construction_c1_3,
     test_slab_construction_c1_4,
 )
-from core.analysis_core.section_methods import get_concrete, sls_section, calculate_moment_curvature_sls
+from core.analysis_core.section_methods import get_concrete, sls_section_EC, calculate_moment_curvature_sls_EC
 from core.analysis_core.statics.new_deflection import DeflectionCalculator
 from core.visualization_core.visualization import plot_constitutive_law_concrete, plot_moment_curvature
 
@@ -58,7 +58,7 @@ for name, slab_construction in test_slabs.items():
         with timed("Deflection  ", timed_run):
             section = slab_construction.slab.section_at(x)
 
-            moment_curvature = calculate_moment_curvature_sls(
+            moment_curvature = calculate_moment_curvature_sls_EC(
                 section             = section,
                 n                   = 0.0,
                 constitutive_law    = c_law,

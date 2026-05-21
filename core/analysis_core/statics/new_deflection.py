@@ -8,9 +8,9 @@ from typing import Any, Union
 
 from core import normalize_input
 from slab_construction.slab_construction import SlabConstruction
-from core.analysis_core.statics.loads import LoadsEC
+from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import (
-    calculate_moment_curvature_sls, calculate_cracking_moment_sls_Nmm,
+    calculate_moment_curvature_sls_EC, calculate_cracking_moment_sls_Nmm_EC,
 )
 from core.analysis_core.statics.constants import SystemType
 from core.analysis_core.statics.internal_forces import InternalForces
@@ -28,7 +28,7 @@ class DeflectionCalculator:
     @staticmethod
     def calculate_deflection_mm(
             slab_construction: SlabConstruction,
-            loads: LoadsEC,
+            loads: Loads,
             system: SystemType = SystemType.SIMPLE_BEAM,
             combination: str = "QUASI-PERMANENT",
             n_intervals: int = 40,
@@ -57,7 +57,7 @@ class DeflectionCalculator:
         :param constitutive_law:    Control Concrete Material Behavior in SLS
                                     for available inputs see sls_concrete() in material_methods.py
         :param slab_construction:   Slab construction object
-        :param loads:               LoadsEC object
+        :param loads:               Loads object
         :param system:              Structural system type
         :param combination:         Load combination (Ignored when load_history_method='FACTOR_EC')
         :param n_intervals:         Number of intervals for Simpson's rule (must be even)
@@ -129,7 +129,7 @@ class DeflectionCalculator:
     @staticmethod
     def _direct_deflection_method(
             slab_construction: SlabConstruction,
-            loads: LoadsEC,
+            loads: Loads,
             system: SystemType,
             combination: str,
             n_intervals: int,
@@ -176,7 +176,7 @@ class DeflectionCalculator:
     @staticmethod
     def _factor_deflection_method(
             slab_construction: SlabConstruction,
-            loads: LoadsEC,
+            loads: Loads,
             system: SystemType,
             n_intervals: int,
             N_axial_N: float,
@@ -370,7 +370,7 @@ class DeflectionCalculator:
     @staticmethod
     def _calculate_zeta_array(
             slab_construction: SlabConstruction,
-            loads: LoadsEC,
+            loads: Loads,
             system: SystemType,
             N_axial_N: float,
             x_positions: np.ndarray,
@@ -394,10 +394,10 @@ class DeflectionCalculator:
         slab = slab_construction.slab
 
         # Cracking moments at support and midspan: Nmm → kNm, flipped to positive
-        m_cr_support_kNm = -calculate_cracking_moment_sls_Nmm(
+        m_cr_support_kNm = -calculate_cracking_moment_sls_Nmm_EC(
             slab.section_at(0.0), n=N_axial_N
         )["m_cr"] / 1e6
-        m_cr_mid_kNm = -calculate_cracking_moment_sls_Nmm(
+        m_cr_mid_kNm = -calculate_cracking_moment_sls_Nmm_EC(
             slab.section_at(0.5), n=N_axial_N
         )["m_cr"] / 1e6
 
@@ -496,7 +496,7 @@ class DeflectionCalculator:
     @staticmethod
     def _get_interpolated_kappa_array(
             slab_construction: SlabConstruction,
-            loads: LoadsEC,
+            loads: Loads,
             system: SystemType,
             combination: str,
             n_intervals: int,
@@ -514,14 +514,14 @@ class DeflectionCalculator:
         x_positions = np.linspace(0, 0.5, n_intervals + 1)
 
         # M-k-curves at support and midspan
-        M_k_result_support = calculate_moment_curvature_sls(
+        M_k_result_support = calculate_moment_curvature_sls_EC(
             slab.section_at(0.0),
             n=N_axial_N,
             constitutive_law = constitutive_law,
             simplification= m_k_simplification
         )
 
-        M_k_result_mid = calculate_moment_curvature_sls(
+        M_k_result_mid = calculate_moment_curvature_sls_EC(
             slab.section_at(0.5),
             n=N_axial_N,
             constitutive_law = constitutive_law,

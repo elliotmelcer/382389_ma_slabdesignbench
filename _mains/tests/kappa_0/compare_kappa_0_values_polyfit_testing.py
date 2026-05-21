@@ -17,9 +17,9 @@ from structuralcodes.materials.reinforcement import create_reinforcement
 from structuralcodes.materials.constitutive_laws import Elastic
 
 from core.analysis_core.section_methods import (
-    calculate_cracking_moment_sls_Nmm,
+    calculate_cracking_moment_sls_Nmm_EC,
     calculate_prestress_forces_Nmm,
-    sls_section,
+    sls_section_EC,
 )
 from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
@@ -68,7 +68,7 @@ def create_section_with_prestress(prestress_factor: float):
 
 def get_mk_curve(section, n: float = 0.0):
     """Get the raw M-κ curve from the library."""
-    sls_sec = sls_section(section, constitutive_law="NONE_PARABOLIC")
+    sls_sec = sls_section_EC(section, constitutive_law="NONE_PARABOLIC")
     results = sls_sec.section_calculator.calculate_moment_curvature(
         n=n, num_pre_yield=40, num_post_yield=0
     )
@@ -79,7 +79,7 @@ def calculate_kappa_0_method1(section, n: float = 0.0):
     """Method 1: Using M_cr (ground truth when valid)."""
     M_p, _ = calculate_prestress_forces_Nmm(section)  # Nmm
 
-    M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
+    M_cr_result = calculate_cracking_moment_sls_Nmm_EC(section, n=n)
     if not M_cr_result.get('valid', True):
         return None, None
 

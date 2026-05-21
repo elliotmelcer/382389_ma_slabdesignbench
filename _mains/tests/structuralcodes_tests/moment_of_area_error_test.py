@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c1_1_uls
-from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, sls_section
+from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm_EC, sls_section_EC
 from core.visualization_core.visualization import plot_cross_section
 
 def test_1_plot_sls_section() -> None:
@@ -11,7 +11,7 @@ def test_1_plot_sls_section() -> None:
     RUNS
     """
     print("test_1")
-    sls_sec = sls_section(hp_section_c1_1_uls, "FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(hp_section_c1_1_uls, "FCTM_PARABOLIC")
 
     plot_cross_section(sls_sec, x = 0.5)
 
@@ -28,7 +28,7 @@ def test_2_get_section_from_results() -> None:
     """
     print("test_2")
 
-    results_c1_1 = calculate_cracking_moment_sls_Nmm(hp_section_c1_1_uls, n=0)
+    results_c1_1 = calculate_cracking_moment_sls_Nmm_EC(hp_section_c1_1_uls, n=0)
 
     plot_cross_section(results_c1_1.get("section"), x=0.5)
 
@@ -43,7 +43,7 @@ def test_2_1_calculate_extents() -> None:
     """
 
     print("test_2.2")
-    sls_sec = sls_section(hp_section_c1_1_uls, "FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(hp_section_c1_1_uls, "FCTM_PARABOLIC")
 
     sls_sec.geometry.calculate_extents()
 
@@ -61,7 +61,7 @@ def test_2_2_section_calculator() -> None:
     """
 
     print("test_2.2")
-    sls_sec = sls_section(hp_section_c1_1_uls, "FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(hp_section_c1_1_uls, "FCTM_PARABOLIC")
 
     calculator = sls_sec.section_calculator
 
@@ -80,7 +80,7 @@ def test_2_3_integrate_strain_profile() -> None:
     print("test_2.1")
 
 
-    sls_sec = sls_section(hp_section_c1_1_uls, "FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(hp_section_c1_1_uls, "FCTM_PARABOLIC")
 
     strain_profile = [0.001, 0.001, 0.0]
     N_cr, My_cr, Mz_cr = sls_sec.section_calculator.integrate_strain_profile(
@@ -101,7 +101,7 @@ def test_2_4_integrate_strain_response_on_geometry() -> None:
     """
     print("test_2.4")
 
-    sls_sec = sls_section(hp_section_c1_1_uls, "FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(hp_section_c1_1_uls, "FCTM_PARABOLIC")
     calculator = sls_sec.section_calculator
 
     # Simulate what happens in the bisection loop
@@ -127,7 +127,7 @@ def test_2_5_multiple_integrations() -> None:
     """
     print("test_2.5")
 
-    sls_sec = sls_section(hp_section_c1_1_uls, "FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(hp_section_c1_1_uls, "FCTM_PARABOLIC")
     calculator = sls_sec.section_calculator
 
     integration_data = None
@@ -156,7 +156,7 @@ def test_2_6_integrate_strain_profile_different_params() -> None:
     """
     print("test_2.6")
 
-    sls_sec = sls_section(hp_section_c1_1_uls, "FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(hp_section_c1_1_uls, "FCTM_PARABOLIC")
 
     # Try without the integrate parameter (if it has a default)
     try:

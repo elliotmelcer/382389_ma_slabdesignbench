@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c1_1_uls, hp_section_c1_2_c50_uls, \
     hp_section_c1_2_c80_uls, hp_section_c1_3_uls, hp_section_c1_4_uls
-from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm, get_concrete
+from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm_EC, get_concrete
 from core.unit_core import Nmm_to_kNm
 from core.visualization_core.visualization import plot_cross_section, plot_constitutive_law_concrete, \
     plot_strain_profile
@@ -26,11 +26,11 @@ Section     Mu [kNm]
 
 # Section 1:
 
-results_c1_1        = calculate_bending_strength_uls_Nmm(hp_section_c1_1_uls)
-results_c1_2_c50    = calculate_bending_strength_uls_Nmm(hp_section_c1_2_c50_uls)
-results_c1_2_c80    = calculate_bending_strength_uls_Nmm(hp_section_c1_2_c80_uls)
-results_c1_3        = calculate_bending_strength_uls_Nmm(hp_section_c1_3_uls)
-results_c1_4        = calculate_bending_strength_uls_Nmm(hp_section_c1_4_uls)
+results_c1_1        = calculate_bending_strength_uls_Nmm_EC(hp_section_c1_1_uls)
+results_c1_2_c50    = calculate_bending_strength_uls_Nmm_EC(hp_section_c1_2_c50_uls)
+results_c1_2_c80    = calculate_bending_strength_uls_Nmm_EC(hp_section_c1_2_c80_uls)
+results_c1_3        = calculate_bending_strength_uls_Nmm_EC(hp_section_c1_3_uls)
+results_c1_4        = calculate_bending_strength_uls_Nmm_EC(hp_section_c1_4_uls)
 
 print(f"Ultimate Moment (ULS) Verification\n"
       f"\n"

@@ -10,7 +10,7 @@ from structuralcodes.sections import GenericSection
 from core.analysis_core.material_methods import create_sls_concrete_EC, TensionStiffeningConcreteLawEC, create_uls_concrete_EC
 
 
-def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
+def calculate_cracking_moment_sls_Nmm_EC(section, n: float = 0.0):
     """
     Calculate the cracking moment for a section at SLS.
 
@@ -33,7 +33,7 @@ def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
             - reason: Explanation if invalid
     """
 
-    sls_sec = sls_section(section, "FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(section, "FCTM_PARABOLIC")
     analysis_sls_sec = deepcopy(sls_sec)
 
     # --- Concrete Properties ---
@@ -207,7 +207,7 @@ def calculate_cracking_moment_sls_Nmm(section, n: float = 0.0):
         print(f"Error in equilibrium calculation: {e}")
         raise
 
-def calculate_bending_strength_sls_Nmm(section: GenericSection, n: float = 0.0) -> dict:
+def calculate_bending_strength_sls_Nmm_EC(section: GenericSection, n: float = 0.0) -> dict:
     """
     Author: Elliot Melcer
     Returns a triplet of:
@@ -216,7 +216,7 @@ def calculate_bending_strength_sls_Nmm(section: GenericSection, n: float = 0.0) 
         Associated Strain Profile
     """
 
-    sls_sec = sls_section(section, "NONE_PARABOLIC")
+    sls_sec = sls_section_EC(section, "NONE_PARABOLIC")
 
     analysis_sls_sec = deepcopy(sls_sec) # in reference to structuralcodes issue #303 https://github.com/fib-international/structuralcodes/issues/303
 
@@ -234,7 +234,7 @@ def calculate_bending_strength_sls_Nmm(section: GenericSection, n: float = 0.0) 
         'strain_profile': strain_profile,
     }
 
-def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) -> dict:
+def calculate_bending_strength_uls_Nmm_EC(section: GenericSection, n: float = 0.0) -> dict:
     """
     Author: Elliot Melcer
     Returns a triplet of:
@@ -244,7 +244,7 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
     """
 
     # Safety Conversion to ULS Section in case SLS Section was passed
-    analysis_section = uls_section(section)
+    analysis_section = uls_section_EC(section)
 
     bending_strength_result = analysis_section.section_calculator.calculate_bending_strength(n=n)
 
@@ -261,11 +261,11 @@ def calculate_bending_strength_uls_Nmm(section: GenericSection, n: float = 0.0) 
     }
 
 
-def calculate_moment_curvature_sls(section: GenericSection,
-                                   n: float = 0.0,
-                                   constitutive_law: str = "TENSTIFF_PARABOLIC",
-                                   simplification: bool | int | float = False,
-                                   debug: bool = False) -> MomentCurvatureResults:
+def calculate_moment_curvature_sls_EC(section: GenericSection,
+                                      n: float = 0.0,
+                                      constitutive_law: str = "TENSTIFF_PARABOLIC",
+                                      simplification: bool | int | float = False,
+                                      debug: bool = False) -> MomentCurvatureResults:
     """
     Author: Elliot Melcer
     Returns the Results of a Moment-Curvature calculation for the given section.
@@ -280,7 +280,7 @@ def calculate_moment_curvature_sls(section: GenericSection,
 
     :return: MomentCurvatureResults with complete M-κ curve
     """
-    sls_sec = sls_section(section, constitutive_law)
+    sls_sec = sls_section_EC(section, constitutive_law)
 
     if simplification is False:
         # Full M-K-Diagram
@@ -387,7 +387,7 @@ def _full_moment_curvature_method(section: GenericSection,
     eps_c1 = abs(conc.eps_c1)  # ~2.0–2.5‰ for typical concretes
 
     # Get bending strength strain profile
-    m_u_res = calculate_bending_strength_sls_Nmm(section, n=n)
+    m_u_res = calculate_bending_strength_sls_Nmm_EC(section, n=n)
     eps_0, chi_y, _ = m_u_res["strain_profile"]
     _, _, zmin, zmax = section.geometry.calculate_extents()
     eps_top = eps_0 + chi_y * zmax  # concrete top fiber strain at failure
@@ -487,7 +487,7 @@ def _simplified_moment_curvature_method(section: GenericSection,
         raise Exception("Simplified M-K-Line only implemented for TENSTIFF_PARABOLIC")
 
     # Cracking Point
-    M_cr_result = calculate_cracking_moment_sls_Nmm(section, n=n)
+    M_cr_result = calculate_cracking_moment_sls_Nmm_EC(section, n=n)
 
     M_cr_Nmm = M_cr_result["m_cr"]  # Nmm
     kappa_cr = M_cr_result["strain_profile"][1]  # 1/mm
@@ -503,7 +503,7 @@ def _simplified_moment_curvature_method(section: GenericSection,
     M_eoc_Nmm = Mk_res_eoc.m_y[0]
 
     # Ultimate Point
-    ultimate_result = calculate_bending_strength_sls_Nmm(section)
+    ultimate_result = calculate_bending_strength_sls_Nmm_EC(section)
     M_u_Nmm = ultimate_result["m_u"]
     _, kappa_u, _ = ultimate_result["strain_profile"]
 
@@ -628,7 +628,7 @@ def _calculate_section_state_from_bottom_strain_sls(
     """
 
     # --- Build SLS section ---
-    analysis_sec = deepcopy(sls_section(section_uls, constitutive_law))
+    analysis_sec = deepcopy(sls_section_EC(section_uls, constitutive_law))
 
     _, _, zmin, zmax = analysis_sec.geometry.calculate_extents()
 
@@ -817,7 +817,7 @@ def _calculate_kappa_0(
     # -----------------------------------------------------------------------
     # Use pre-computed M_cr if provided, otherwise compute it
     if m_cr_result is None:
-        m_cr_result = calculate_cracking_moment_sls_Nmm(sls_sec, n=n)
+        m_cr_result = calculate_cracking_moment_sls_Nmm_EC(sls_sec, n=n)
 
     if m_cr_result.get('valid', True):
         M_cr     = abs(m_cr_result['m_cr'])       # Nmm
@@ -910,7 +910,7 @@ def get_strain_at_point(strain_profile, y, z) -> float:
     eps_0, chi_y, chi_z = strain_profile
     return eps_0 + chi_y * z + chi_z * y
 
-def sls_section(
+def sls_section_EC(
         section: GenericSection,
         constitutive_law: str,
 ) -> GenericSection:
@@ -940,7 +940,7 @@ def sls_section(
 
     return new_sls_section
 
-def uls_section(
+def uls_section_EC(
         section: GenericSection,
         alpha_cc: float = 0.85,
         gamma_c: float = 1.5,

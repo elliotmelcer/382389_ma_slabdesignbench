@@ -4,8 +4,8 @@ from core.analysis_core.statics.constants import SystemType, MomentType
 from core.analysis_core.statics.new_deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.analysis_core.statics.loads import LoadsEC
-from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm, flipped_section, \
-    calculate_cracking_moment_sls_Nmm
+from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm_EC, flipped_section, \
+    calculate_cracking_moment_sls_Nmm_EC
 from core.unit_core import Nmm_to_kNm
 from slab_construction.slab_construction import SlabConstruction
 
@@ -67,13 +67,13 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
         # x_position is normalized (0 at first support, 1 at second support, etc.)
         if moment == MomentType.MAX_POS_MOMENT:
             MRd_kNm = -Nmm_to_kNm(
-                calculate_bending_strength_uls_Nmm(slab.section_at(x_position), n).get("m_u")
+                calculate_bending_strength_uls_Nmm_EC(slab.section_at(x_position), n).get("m_u")
             )
         else:
             rotated_section = flipped_section(slab.section_at(x_position))
             # plot_cross_section(rotated_section)
             MRd_kNm = Nmm_to_kNm(
-                calculate_bending_strength_uls_Nmm(rotated_section, n).get("m_u")
+                calculate_bending_strength_uls_Nmm_EC(rotated_section, n).get("m_u")
             )
 
         # Calculate design moment based on system and moment type
@@ -173,7 +173,7 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
         section_midspan = slab_construction.slab.section_at(0.5)
 
         # Calculate cracking moment with physical checks
-        m_cr_result = calculate_cracking_moment_sls_Nmm(section_midspan, n)
+        m_cr_result = calculate_cracking_moment_sls_Nmm_EC(section_midspan, n)
 
         # Handle invalid cases (section crushes before cracking)
         if not m_cr_result['valid']:
@@ -276,7 +276,7 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
         section_midspan = slab_construction.slab.section_at(0.5)
 
         # Calculate cracking moment with physical checks
-        m_cr_result = calculate_cracking_moment_sls_Nmm(section_midspan, n)
+        m_cr_result = calculate_cracking_moment_sls_Nmm_EC(section_midspan, n)
 
         # Handle invalid cases (section crushes before cracking)
         if not m_cr_result['valid']:

@@ -1,4 +1,4 @@
-from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm
+from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm_EC
 
 if __name__ == "__main__":
     from structuralcodes import set_design_code
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         section = hp_shell.section_at(0.5)
 
         # Test the fixed function
-        result = calculate_cracking_moment_sls_Nmm(section, n=0)
+        result = calculate_cracking_moment_sls_Nmm_EC(section, n=0)
 
         m_cr_kNm = result['m_cr'] / 1e6 if result['valid'] else float('-inf')
 

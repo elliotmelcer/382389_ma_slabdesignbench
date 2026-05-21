@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 from core.analysis_core import section_methods
 from _mains.testing_files.testing_hp_sections import hp_section_c1_1_uls, hp_section_c1_2_c50_uls, \
     hp_section_c1_2_c80_uls, hp_section_c1_3_uls, hp_section_c1_4_uls
-from core.analysis_core.section_methods import get_concrete, calculate_cracking_moment_sls_Nmm, get_reinforcement
+from core.analysis_core.section_methods import get_concrete, calculate_cracking_moment_sls_Nmm_EC, get_reinforcement
 from core.visualization_core.visualization import plot_strain_profile, plot_constitutive_law_concrete, \
     plot_constitutive_law_reinforcement, plot_cross_section
 
@@ -26,11 +26,11 @@ Section     Mcr [kNm]
 
 # Section 1:
 
-results_c1_1        = calculate_cracking_moment_sls_Nmm(hp_section_c1_1_uls, n=0)
-results_c1_2_c50    = calculate_cracking_moment_sls_Nmm(hp_section_c1_2_c50_uls, n=0)
-results_c1_2_c80    = calculate_cracking_moment_sls_Nmm(hp_section_c1_2_c80_uls, n=0)
-results_c1_3        = calculate_cracking_moment_sls_Nmm(hp_section_c1_3_uls, n=0)
-results_c1_4        = calculate_cracking_moment_sls_Nmm(hp_section_c1_4_uls, n=0)
+results_c1_1        = calculate_cracking_moment_sls_Nmm_EC(hp_section_c1_1_uls, n=0)
+results_c1_2_c50    = calculate_cracking_moment_sls_Nmm_EC(hp_section_c1_2_c50_uls, n=0)
+results_c1_2_c80    = calculate_cracking_moment_sls_Nmm_EC(hp_section_c1_2_c80_uls, n=0)
+results_c1_3        = calculate_cracking_moment_sls_Nmm_EC(hp_section_c1_3_uls, n=0)
+results_c1_4        = calculate_cracking_moment_sls_Nmm_EC(hp_section_c1_4_uls, n=0)
 
 print(f"Cracking Moment Verification\n"
       f"\n"

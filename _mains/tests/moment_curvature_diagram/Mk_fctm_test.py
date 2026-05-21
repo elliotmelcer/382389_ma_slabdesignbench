@@ -3,8 +3,8 @@ from structuralcodes.core._section_results import MomentCurvatureResults
 from structuralcodes.sections import GenericSection
 
 from _mains.testing_files.testing_hp_sections import hp_section_c2_uls_x_0_50, hp_section_c1_3_uls
-from core.analysis_core.section_methods import calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm, \
-    get_concrete, sls_section
+from core.analysis_core.section_methods import calculate_moment_curvature_sls_EC, calculate_bending_strength_sls_Nmm_EC, \
+    get_concrete, sls_section_EC
 from core.visualization_core.visualization import plot_moment_curvature, plot_constitutive_law_concrete
 
 """
@@ -18,15 +18,15 @@ When you specify fctm =/= 0, structural codes only stops when reinforcement fail
 conc_governed_sec = hp_section_c1_3_uls # C50/60
 
 # SLS Sections
-conc_governed_sec_sls_tension = sls_section(conc_governed_sec, "FCTM_PARABOLIC")
-conc_governed_sec_sls         = sls_section(conc_governed_sec, "NONE_PARABOLIC")
+conc_governed_sec_sls_tension = sls_section_EC(conc_governed_sec, "FCTM_PARABOLIC")
+conc_governed_sec_sls         = sls_section_EC(conc_governed_sec, "NONE_PARABOLIC")
 
 # Plot Constitutive Law
 plot_constitutive_law_concrete(get_concrete(conc_governed_sec_sls_tension))
 plot_constitutive_law_concrete(get_concrete(conc_governed_sec_sls))
 
-mk_conc_gov_tension = calculate_moment_curvature_sls(conc_governed_sec_sls_tension, constitutive_law="FCTM_PARABOLIC")
-mk_conc_gov         = calculate_moment_curvature_sls(conc_governed_sec_sls,         constitutive_law="NONE_PARABOLIC")
+mk_conc_gov_tension = calculate_moment_curvature_sls_EC(conc_governed_sec_sls_tension, constitutive_law="FCTM_PARABOLIC")
+mk_conc_gov         = calculate_moment_curvature_sls_EC(conc_governed_sec_sls, constitutive_law="NONE_PARABOLIC")
 
 # --- M-K-results_c2 ---
 
@@ -35,8 +35,8 @@ plot_moment_curvature(mk_conc_gov_tension, x = 0.5, title = "fctm =/= 0")
 plot_moment_curvature(mk_conc_gov,         x = 0.5, title = "fctm = 0")
 
 # M_u_sls
-m_u_conc_gov_tension = calculate_bending_strength_sls_Nmm(conc_governed_sec_sls_tension)
-m_u_conc_gov         = calculate_bending_strength_sls_Nmm(conc_governed_sec_sls)
+m_u_conc_gov_tension = calculate_bending_strength_sls_Nmm_EC(conc_governed_sec_sls_tension)
+m_u_conc_gov         = calculate_bending_strength_sls_Nmm_EC(conc_governed_sec_sls)
 
 # Kappa_u_sls
 _,kappa_u_conc_gov_tension,_ = m_u_conc_gov_tension.get("strain_profile", (None, None, None))

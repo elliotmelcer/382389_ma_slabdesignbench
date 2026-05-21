@@ -9,7 +9,7 @@ from typing import Tuple
 from slab_construction.slab_construction import SlabConstruction
 from core.analysis_core.statics.loads import LoadsEC
 from core.analysis_core.section_methods import (
-    calculate_moment_curvature_sls,
+    calculate_moment_curvature_sls_EC,
 )
 from core.analysis_core.statics.constants import SystemType
 from core.analysis_core.statics.internal_forces import InternalForces
@@ -76,13 +76,13 @@ class DeflectionCalculator:
         section_support = slab.section_at(0.0)
         section_mid = slab.section_at(0.5)
 
-        M_k_result_support = calculate_moment_curvature_sls(
+        M_k_result_support = calculate_moment_curvature_sls_EC(
             section_support,
             n=n_N,
             constitutive_law = constitutive_law
         )
 
-        M_k_result_mid = calculate_moment_curvature_sls(
+        M_k_result_mid = calculate_moment_curvature_sls_EC(
             section_mid,
             n=n_N,
             constitutive_law = constitutive_law

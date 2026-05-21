@@ -14,9 +14,9 @@ from structuralcodes.materials.reinforcement import create_reinforcement
 from structuralcodes.materials.constitutive_laws import Elastic
 
 from core.analysis_core.section_methods import (
-    calculate_cracking_moment_sls_Nmm,
-    calculate_moment_curvature_sls,
-    sls_section,
+    calculate_cracking_moment_sls_Nmm_EC,
+    calculate_moment_curvature_sls_EC,
+    sls_section_EC,
 )
 from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
@@ -102,7 +102,7 @@ def analyze_prestress_effect(prestress_factor: float, verbose: bool = True):
     prestress_force_kN = prestress_force / 1000
 
     # Get concrete properties
-    sls_sec = sls_section(section, constitutive_law="FCTM_PARABOLIC")
+    sls_sec = sls_section_EC(section, constitutive_law="FCTM_PARABOLIC")
     conc = None
     for geo in sls_sec.geometry.geometries:
         if hasattr(geo, 'concrete') and geo.concrete:
@@ -115,7 +115,7 @@ def analyze_prestress_effect(prestress_factor: float, verbose: bool = True):
 
     # Calculate cracking moment
     try:
-        m_cr_result = calculate_cracking_moment_sls_Nmm(section, n=0)
+        m_cr_result = calculate_cracking_moment_sls_Nmm_EC(section, n=0)
         m_cr = m_cr_result["m_cr"] / 1e6  # kNm
         strain_profile = m_cr_result["strain_profile"]
         eps_0, chi_y, _ = strain_profile
@@ -306,7 +306,7 @@ def plot_comparison(factor_ok: float = 0.392, factor_bad: float = 0.40):
 
         # Get m_cr result
         try:
-            m_cr_result = calculate_cracking_moment_sls_Nmm(section, n=0)
+            m_cr_result = calculate_cracking_moment_sls_Nmm_EC(section, n=0)
             m_cr = m_cr_result["m_cr"] / 1e6
             strain_profile = m_cr_result["strain_profile"]
         except Exception as e:
@@ -334,7 +334,7 @@ def plot_comparison(factor_ok: float = 0.392, factor_bad: float = 0.40):
 
         # Mark cracking strain
         conc = None
-        sls_sec = sls_section(section, constitutive_law="FCTM_PARABOLIC")
+        sls_sec = sls_section_EC(section, constitutive_law="FCTM_PARABOLIC")
         for geo in sls_sec.geometry.geometries:
             if hasattr(geo, 'concrete') and geo.concrete:
                 conc = geo.material
@@ -357,7 +357,7 @@ def plot_comparison(factor_ok: float = 0.392, factor_bad: float = 0.40):
         # Plot 3: Moment-curvature
         ax3 = axes[idx, 2]
         try:
-            mk_result = calculate_moment_curvature_sls(
+            mk_result = calculate_moment_curvature_sls_EC(
                 section, n=0, constitutive_law="NONE_PARABOLIC"
             )
             M_array = -mk_result.m_y / 1e6  # kNm

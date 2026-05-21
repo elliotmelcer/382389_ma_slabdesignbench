@@ -7,8 +7,8 @@ from _mains.testing_files.testing_materials import infill, concrete_c30_uls, fyk
     brittle_elastic_law_Q142, density_Q142
 from core.analysis_core.checks.structural_checks import DeflectionLimitByDeflectionCheckEC2004DE, \
     DeflectionLimitByMcrCheckEC2004DE
-from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm, calculate_bending_strength_uls_Nmm, \
-    calculate_prestress_forces_Nmm, calculate_moment_curvature_sls, calculate_bending_strength_sls_Nmm
+from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm_EC, calculate_bending_strength_uls_Nmm_EC, \
+    calculate_prestress_forces_Nmm, calculate_moment_curvature_sls_EC, calculate_bending_strength_sls_Nmm_EC
 from core.analysis_core.statics.constants import SystemType, MomentType
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.visualization_core.visualization import plot_cross_section, plot_moment_curvature, plot_strain_profile
@@ -41,13 +41,13 @@ section_support = slab_construction.slab.section_at(0.0)
 # plot_cross_section(section_midspan)
 # plot_cross_section(section_support)
 
-mcr_results = calculate_cracking_moment_sls_Nmm(section_midspan)
+mcr_results = calculate_cracking_moment_sls_Nmm_EC(section_midspan)
 
 m0_Nmm,_ = calculate_prestress_forces_Nmm(section_midspan)
 m0_kNm = -m0_Nmm* 10 ** (-6)
 m_cr_kNm = -mcr_results["m_cr"] * 10**(-6)
-m_uk_kNm = -calculate_bending_strength_sls_Nmm(section_midspan)["m_u"] * 10 ** (-6)
-m_ud_kNm = -calculate_bending_strength_uls_Nmm(section_midspan)["m_u"] * 10 ** (-6)
+m_uk_kNm = -calculate_bending_strength_sls_Nmm_EC(section_midspan)["m_u"] * 10 ** (-6)
+m_ud_kNm = -calculate_bending_strength_uls_Nmm_EC(section_midspan)["m_u"] * 10 ** (-6)
 m_qp_kNm = InternalForces.calculate_moment_kNm(
     slab_construction,
     test_loads,
@@ -58,7 +58,7 @@ m_qp_kNm = InternalForces.calculate_moment_kNm(
 
 plot_strain_profile(mcr_results)
 
-mk_results = calculate_moment_curvature_sls(section_midspan, constitutive_law="FCTM_PARABOLIC")
+mk_results = calculate_moment_curvature_sls_EC(section_midspan, constitutive_law="FCTM_PARABOLIC")
 
 plot_moment_curvature(mk_results)
 

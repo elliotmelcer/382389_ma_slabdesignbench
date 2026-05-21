@@ -7,8 +7,8 @@ from _mains.testing_files.testing_hp_sections import (
     hp_section_c2_uls_x_0_40, hp_section_c2_uls_x_0_50, hp_section_c1_3_uls,
 )
 from core.analysis_core.section_methods import (
-    calculate_moment_curvature_sls,
-    calculate_bending_strength_sls_Nmm,
+    calculate_moment_curvature_sls_EC,
+    calculate_bending_strength_sls_Nmm_EC,
 )
 from core.visualization_core.visualization import (
     plot_moment_curvature_with_reference,
@@ -216,12 +216,12 @@ section     = SECTIONS[LOCATION]
 # Python Results────────────────────────────────────────────────────────────────
 section = SECTIONS[LOCATION]
 
-mk_np_results = calculate_moment_curvature_sls(section, constitutive_law="NONE-PARABOLIC")
+mk_np_results = calculate_moment_curvature_sls_EC(section, constitutive_law="NONE-PARABOLIC")
 if LOCATION == 0.5:
-    mk_fp_results = calculate_moment_curvature_sls(section, constitutive_law="FCTM-PARABOLIC")
-    mk_tp_results = calculate_moment_curvature_sls(section, constitutive_law="TENSTIFF-PARABOLIC")
+    mk_fp_results = calculate_moment_curvature_sls_EC(section, constitutive_law="FCTM-PARABOLIC")
+    mk_tp_results = calculate_moment_curvature_sls_EC(section, constitutive_law="TENSTIFF-PARABOLIC")
 
-m_u_result  = calculate_bending_strength_sls_Nmm(section)
+m_u_result  = calculate_bending_strength_sls_Nmm_EC(section)
 _, kappa_u, _ = m_u_result.get("strain_profile", (None, None, None))
 
 # Plot Settings─────────────────────────────────────────────────────────────────

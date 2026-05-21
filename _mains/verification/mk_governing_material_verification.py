@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 
 from _mains.testing_files.testing_hp_sections import hp_section_c2_uls_x_0_50, hp_section_c1_3_uls
-from core.analysis_core.section_methods import calculate_moment_curvature_sls, sls_section
+from core.analysis_core.section_methods import calculate_moment_curvature_sls_EC, sls_section_EC
 from core.visualization_core.visualization import plot_moment_curvature, plot_strain_profile
 
 plt.rcParams["font.family"] = "STIXGeneral"
@@ -35,12 +35,12 @@ reinf_governed_sec = hp_section_c2_uls_x_0_50   # C50/60, reinforcement prestres
 conc_governed_sec = hp_section_c1_3_uls         # C50/60, reinforcement prestressed 0%
 
 # SLS Sections──────────────────────────────────────────────────────────────────────────
-reinf_governed_sec_sls = sls_section(reinf_governed_sec, "NONE_PARABOLIC")
-conc_governed_sec_sls = sls_section(conc_governed_sec, "NONE_PARABOLIC")
+reinf_governed_sec_sls = sls_section_EC(reinf_governed_sec, "NONE_PARABOLIC")
+conc_governed_sec_sls = sls_section_EC(conc_governed_sec, "NONE_PARABOLIC")
 
 # moment-curvature-diagrams─────────────────────────────────────────────────────────────
-mk_reinf_gov = calculate_moment_curvature_sls(reinf_governed_sec, 0.0, "NONE_PARABOLIC")
-mk_conc_gov = calculate_moment_curvature_sls(conc_governed_sec, 0.0, "NONE_PARABOLIC")
+mk_reinf_gov = calculate_moment_curvature_sls_EC(reinf_governed_sec, 0.0, "NONE_PARABOLIC")
+mk_conc_gov = calculate_moment_curvature_sls_EC(conc_governed_sec, 0.0, "NONE_PARABOLIC")
 
 # Strain Profile for the last point of the moment curvature diagram─────────────────────
 m_u_mk_reinf_gov = mk_reinf_gov.m_y[-1]
