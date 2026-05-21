@@ -23,6 +23,10 @@ class Loads(ABC):
     def live_loads(self) -> np.ndarray:
         ...
 
+    @abstractmethod
+    def line_load_kN_m(self, slab_construction: SlabConstruction, combination: str) -> float:
+        ...
+
     def check_valid_combination(self, combination: str) -> str:
         normalised = combination.strip().upper().replace("-", "_").replace(" ", "_")
         valid = {member.name for member in self.combinations_enum}
@@ -33,9 +37,7 @@ class Loads(ABC):
             )
         return normalised
 
-    @abstractmethod
-    def line_load_kN_m(self, slab_construction: SlabConstruction, combination: str) -> float:
-        ...
+
 
 class LoadsEC(Loads):
 
