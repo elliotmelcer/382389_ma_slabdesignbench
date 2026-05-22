@@ -150,7 +150,7 @@ class LoadsEC(Loads):
             "FUNDAMENTAL": self.fundamental_combination_kN_m2_EC0,
             "RARE": self.rare_combination_kN_m2_EC0,
             "FREQUENT": self.frequent_combination_kN_m2_EC0,
-            "QUASI_PERMANENT": self.quasi_permanent_combination_kN_m2_EC0,
+            "QUASI-PERMANENT": self.quasi_permanent_combination_kN_m2_EC0,
         }
 
         area_load_kN_m2 = dispatch[combination](slab_construction)
