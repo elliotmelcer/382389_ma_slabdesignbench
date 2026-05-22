@@ -81,13 +81,13 @@ density_Q95 = 1340
 # - Constitutive Law -
 
 # solidian GRID Q142/142-CCE-25 regular
-brittle_elastic_law_Q142 = Elastic(Es_Q142, eps_u=epsuk_Q142)
+brittle_elastic_law_Q142 = Elastic(Es_Q142, eps_u=epsuk_Q142, name = "ElasticLaw")
 
 # # solidian GRID Q85/85-CCE-25
-brittle_elastic_law_Q85 = Elastic(Es_Q85, eps_u=epsuk_Q85)
+brittle_elastic_law_Q85 = Elastic(Es_Q85, eps_u=epsuk_Q85,  name = "ElasticLaw")
 
 # solidian GRID Q95/95-CCE-38
-brittle_elastic_law_Q95 = Elastic(Es_Q95, eps_u=epsuk_Q95)
+brittle_elastic_law_Q95 = Elastic(Es_Q95, eps_u=epsuk_Q95,  name = "ElasticLaw")
 
 
 # - Material Definitions -
@@ -149,7 +149,6 @@ solidian_Q142 = create_reinforcement(
     constitutive_law=brittle_elastic_law_Q142,
     gamma_s = 1.3,
     gamma_eps = 1/1.3,
-    initial_strain = 0.00 * epsuk_Q142,
     name = "solidian GRID Q142/142-CCE-25"
 )
 
