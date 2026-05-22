@@ -60,17 +60,17 @@ print(f"   Deflection: {deflection_fund:.2f} mm")
 print(f"   Deflection/Span: L/{span_m * 1000 / deflection_fund:.0f}")
 
 # Quasi-permanent combination
-print("\n2. QUASI-PERMANENT COMBINATION (SLS)")
+print("\n2. QUASI_PERMANENT COMBINATION (SLS)")
 
 q_qp = test_loads.combined_line_load_kN_m(
     slab_construction=slab_construction,
-    combination="QUASI-PERMANENT")
+    combination="QUASI_PERMANENT")
 
 deflection_qp = DeflectionCalculator.calculate_deflection_mm_EC(
     slab_construction=slab_construction,
     loads=test_loads,
     system=SystemType.SIMPLE_BEAM,
-    combination="QUASI-PERMANENT",
+    combination="QUASI_PERMANENT",
     n_intervals=40,
     N_axial=0.0,
     debug=False

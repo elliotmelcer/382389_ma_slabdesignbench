@@ -30,7 +30,7 @@ class DeflectionCalculator:
             slab_construction: SlabConstruction,
             loads: Loads,
             system: SystemType = SystemType.SIMPLE_BEAM,
-            combination: str = "QUASI-PERMANENT",
+            combination: str = "QUASI_PERMANENT",
             n_intervals: int = 40,
             N_axial_N: float = 0.0,
             constitutive_law: str = "TENSTIFF_PARABOLIC",
@@ -84,8 +84,8 @@ class DeflectionCalculator:
             )
         if n_intervals % 2 != 0:
             raise ValueError("n_intervals must be even for Simpson's rule")
-        if combination not in ("FUNDAMENTAL", "QUASI-PERMANENT", "FREQUENT", "RARE"):
-            raise ValueError("combination must be 'FUNDAMENTAL', 'QUASI-PERMANENT', 'FREQUENT' or 'RARE'")
+        if combination not in ("FUNDAMENTAL", "QUASI_PERMANENT", "FREQUENT", "RARE"):
+            raise ValueError("combination must be 'FUNDAMENTAL', 'QUASI_PERMANENT', 'FREQUENT' or 'RARE'")
 
         # --------------------------
         # Shared Input kwargs
@@ -197,7 +197,7 @@ class DeflectionCalculator:
             slab_construction=slab_construction,
             loads=loads,
             system=system,
-            combination="QUASI-PERMANENT",
+            combination="QUASI_PERMANENT",
             n_intervals=n_intervals,
             N_axial_N=N_axial_N,
             m_k_simplification=m_k_simplification,
@@ -419,7 +419,7 @@ class DeflectionCalculator:
                 slab_construction,
                 loads,
                 system,
-                "QUASI-PERMANENT",
+                "QUASI_PERMANENT",
                 x_norm
             )
 

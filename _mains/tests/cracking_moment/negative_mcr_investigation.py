@@ -52,7 +52,7 @@ m_qp_kNm = InternalForces.calculate_moment_kNm(
     slab_construction,
     test_loads,
     system = SystemType.SIMPLE_BEAM,
-    combination="QUASI-PERMANENT",
+    combination="QUASI_PERMANENT",
     moment=MomentType.MAX_POS_MOMENT
 )
 

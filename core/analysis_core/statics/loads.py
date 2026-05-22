@@ -52,7 +52,7 @@ class LoadsEC(Loads):
         FUNDAMENTAL = "FUNDAMENTAL"
         RARE = "RARE"
         FREQUENT = "FREQUENT"
-        QUASI_PERMANENT = "QUASI-PERMANENT"
+        QUASI_PERMANENT = "QUASI_PERMANENT"
 
     @property
     def combinations_enum(self) -> type[Enum]:
@@ -140,7 +140,7 @@ class LoadsEC(Loads):
         Calculates a line load [kN/m] from area loads for the given load combination
 
         :param slab_construction: SlabConstruction-Objekt
-        :param combination: Lastkombination ("FUNDAMENTAL", "RARE", "FREQUENT", "QUASI-PERMANENT")
+        :param combination: Lastkombination ("FUNDAMENTAL", "RARE", "FREQUENT", "QUASI_PERMANENT")
         :return: Linienlast in kN/m
         """
         width_m = mm_to_m(slab_construction.slab.B)
@@ -150,7 +150,7 @@ class LoadsEC(Loads):
             "FUNDAMENTAL": self.fundamental_combination_kN_m2_EC0,
             "RARE": self.rare_combination_kN_m2_EC0,
             "FREQUENT": self.frequent_combination_kN_m2_EC0,
-            "QUASI-PERMANENT": self.quasi_permanent_combination_kN_m2_EC0,
+            "QUASI_PERMANENT": self.quasi_permanent_combination_kN_m2_EC0,
         }
 
         area_load_kN_m2 = dispatch[combination](slab_construction)

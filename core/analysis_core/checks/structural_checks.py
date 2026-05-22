@@ -116,7 +116,7 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             slab_construction,
             loads,
             system,
-            combination = "QUASI-PERMANENT",
+            combination = "QUASI_PERMANENT",
             debug = debug,
         )
 
@@ -165,7 +165,7 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
             slab_construction,
             loads,
             system,
-            combination = "QUASI-PERMANENT",
+            combination = "QUASI_PERMANENT",
             moment = moment,
         )
 

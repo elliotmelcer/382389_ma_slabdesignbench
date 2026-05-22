@@ -41,7 +41,7 @@ print(f"\nLoads:")
 print(f"  Live load (Qk):      {test_loads.Qk[0]:.1f} kN/m²")
 print(f"  Structural DL:       {testing_slab_const.structural_dead_load_kN_m2():.2f} kN/m²")
 print(f"  Non-structural DL:   {testing_slab_const.non_structural_dead_load_kN_m2():.2f} kN/m²")
-print(f"  QP-Combination:      {test_loads.combined_line_load_kN_m(testing_slab_const, "QUASI-PERMANENT"):.2f} kN/m")
+print(f"  QP-Combination:      {test_loads.combined_line_load_kN_m(testing_slab_const, "QUASI_PERMANENT"):.2f} kN/m")
 
 # ---------------------------------------------------------------------------
 # M-κ diagram points (support x=0.0 and midspan x=0.5)
@@ -89,7 +89,7 @@ deflection = DeflectionCalculator.calculate_deflection_mm_EC(
     test_slab_construction_c1_3,
     test_loads,
     system=SystemType.SIMPLE_BEAM,
-    combination="QUASI-PERMANENT",
+    combination="QUASI_PERMANENT",
     debug=True,
     extended_debug=True
 )
