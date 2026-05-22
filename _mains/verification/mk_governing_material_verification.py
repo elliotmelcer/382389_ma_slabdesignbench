@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 
@@ -58,7 +59,8 @@ mk_u_result_conc_gov = {
 }
 
 # plots─────────────────────────────────────────────────────────────────────────────────
-FIGURES_DIR = os.path.join(os.path.dirname(__file__), "figures")
+FIGURES_DIR = Path(__file__).resolve().parent / "figures"
+FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
 # moment-curvature-diagrams
 fig_1, ax_1 = plot_moment_curvature(mk_reinf_gov, x = 0.5, title = f"C.2: Moment-curvature-diagram for reinforcement governing section \nnum_post_yield = {num_post_yield}")
