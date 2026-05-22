@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from core.analysis_core.statics.constants import SystemType, MomentType
-from core.analysis_core.statics.new_deflection import DeflectionCalculator
+from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm_EC, flipped_section, \

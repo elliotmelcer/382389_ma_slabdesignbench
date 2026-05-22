@@ -12,7 +12,7 @@ from _mains.testing_files.testing_slab_construction import (
     test_slab_construction_c1_4,
 )
 from core.analysis_core.section_methods import get_concrete, sls_section_EC, calculate_moment_curvature_sls_EC
-from core.analysis_core.statics.new_deflection import DeflectionCalculator
+from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.visualization_core.visualization import plot_constitutive_law_concrete, plot_moment_curvature
 
 """
