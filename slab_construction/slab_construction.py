@@ -1,8 +1,3 @@
-from dataclasses import dataclass
-from typing import Dict
-
-from structuralcodes.core.base import Material
-
 from core.unit_core import mm2_to_m2, mm3_to_m3
 from slab_construction.floor import Floor, InfillMaterial, InsulationMaterial
 from slab_construction.slabs.hp_slab.hp_model.hp_slab import HPSlab
