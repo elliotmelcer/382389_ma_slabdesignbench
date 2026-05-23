@@ -227,7 +227,7 @@ def plot_moment_curvature_with_reference(
     return fig, ax
 
 @dataclass
-class MomentCurvatureLine:
+class PlotLine:
     """
     Author: Elliot Melcer
     Container for a single moment–curvature dataset to be plotted.
@@ -267,7 +267,7 @@ class MomentCurvatureLine:
         self.curvatures = np.asarray(self.curvatures, dtype=float)
         if len(self.moments) != len(self.curvatures):
             raise ValueError(
-                f"MomentCurvatureLine '{self.name}': "
+                f"PlotLine '{self.name}': "
                 "'moments' and 'curvatures' must have the same length "
                 f"({len(self.moments)} vs {len(self.curvatures)})."
             )
@@ -282,9 +282,9 @@ class MomentCurvatureLine:
             linewidth: float = 1.0,
             marker: str = "",
             markersize: float = 4.0,
-    ) -> "MomentCurvatureLine":
+    ) -> "PlotLine":
         """
-        Construct a MomentCurvatureLine from a MomentCurvatureResults object,
+        Construct a PlotLine from a MomentCurvatureResults object,
         applying the standard unit conversions:
             curvatures : chi_y  →  -chi_y * 1e6   [1/1000m]
             moments    : m_y    →  -m_y   / 1e6   [kNm]
@@ -296,7 +296,7 @@ class MomentCurvatureLine:
         name : str
             Legend label for this line.
         color, linestyle, linewidth, marker, markersize
-            Forwarded directly to MomentCurvatureLine.
+            Forwarded directly to PlotLine.
         """
         return cls(
             moments=-m_c_res.m_y / 1e6,
@@ -311,7 +311,7 @@ class MomentCurvatureLine:
 
 
 def plot_moment_curvature_multiple(
-    lines: list[MomentCurvatureLine],
+    lines: list[PlotLine],
     ax: Optional[matplotlib.axes.Axes] = None,
     title: str = "",
     x: Optional[float] = None,
@@ -350,7 +350,7 @@ def plot_moment_curvature_multiple(
     """
 
     if not lines:
-        raise ValueError("'lines' must contain at least one MomentCurvatureLine.")
+        raise ValueError("'lines' must contain at least one PlotLine.")
 
     if ax is None:
         fig, ax = plt.subplots()
@@ -395,7 +395,7 @@ def plot_moment_curvature_multiple(
     return fig, ax
 
 def plot_moment_curvature_multiple_and_differences(
-    lines: list[MomentCurvatureLine],
+    lines: list[PlotLine],
     title: str = "",
     x: Optional[float] = None,
     xlabel: str = "Krümmung κ [1/1000m]",
@@ -427,7 +427,7 @@ def plot_moment_curvature_multiple_and_differences(
 
     Parameters
     ----------
-    lines : list[MomentCurvatureLine]
+    lines : list[PlotLine]
         At least two M–K datasets. lines[-1] is the reference.
     title : str, optional
         Plot title prefix.
@@ -469,7 +469,7 @@ def plot_moment_curvature_multiple_and_differences(
     if len(lines) < 2:
         raise ValueError(
             "plot_moment_curvature_multiple_and_differences requires at least "
-            "two MomentCurvatureLine objects (one reference + one comparison)."
+            "two PlotLine objects (one reference + one comparison)."
         )
 
     def _mathtext_name(name: str) -> str:
@@ -1102,5 +1102,256 @@ def plot_strain_profile(results: dict, title: str = None):
     # Apply padded limits
     ax.set_xlim(eps_min, eps_max)
     ax.set_ylim(zmin - z_pad, zmax + z_pad)
+
+    return fig, ax
+
+def mirror_plot(
+    lines: list[PlotLine],
+    ax: Optional[matplotlib.axes.Axes] = None,
+    title: str = "",
+    xlabel: str = "",
+    ylabel: str = "",
+    xlim: Optional[tuple[float, float]] = None,
+    ylim: Optional[tuple[float, float]] = None,
+    xmarker: float = 5.0,
+    ymarker: float = 5.0,
+    figsize: tuple[float, float] = (12, 5),
+    flip_y_axis: bool = False,
+    coordinate_axes: bool = True,
+    show_x_numbers: bool = True,
+    show_legend: bool = True,
+    x_number_pad: float = 8.0,
+    axis_arrows: bool = True,
+    show_vertical_grid: bool = True,
+    show_horizontal_grid: bool = True,
+    limit_grid_to_xlim: bool = True,
+    x_scale: float = 1.0,
+    y_scale: float = 1.0,
+) -> tuple[plt.Figure, matplotlib.axes.Axes]:
+
+    if not lines:
+        raise ValueError("'lines' must contain at least one PlotLine.")
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.get_figure()
+
+    # --- Data lines and mirrored lines ---
+    for line in lines:
+        x = [value * x_scale for value in line.moments]
+        y = [value * y_scale for value in line.curvatures]
+
+        if len(x) != len(y):
+            raise ValueError(
+                f"Length mismatch for line {line.name!r}: "
+                f"{len(x)} x-values but {len(y)} y-values."
+            )
+
+        if not x:
+            raise ValueError(f"Line {line.name!r} contains no data.")
+
+        mirror_axis = x[-1]
+
+        x_mirrored = [
+            2 * mirror_axis - x_value
+            for x_value in reversed(x)
+        ]
+        y_mirrored = list(reversed(y))
+
+        ax.plot(
+            x,
+            y,
+            color=line.color,
+            linestyle=line.linestyle,
+            linewidth=line.linewidth,
+            marker=line.marker,
+            markersize=line.markersize,
+            label=line.name,
+            zorder=2,
+        )
+
+        ax.plot(
+            x_mirrored,
+            y_mirrored,
+            color=line.color,
+            linestyle=line.linestyle,
+            linewidth=line.linewidth,
+            marker=line.marker,
+            markersize=line.markersize,
+            label=None,
+            zorder=2,
+        )
+
+    if xlim is not None:
+        ax.set_xlim(xlim)
+
+    if ylim is not None:
+        ax.set_ylim(ylim)
+
+    if flip_y_axis:
+        ax.invert_yaxis()
+
+    # --- Coordinate-axis style ---
+    if coordinate_axes:
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        if axis_arrows:
+            ax.spines["bottom"].set_visible(False)
+            ax.spines["left"].set_visible(False)
+        else:
+            ax.spines["bottom"].set_position(("data", 0))
+            ax.spines["left"].set_position(("data", 0))
+
+            ax.spines["bottom"].set_color("#606060")
+            ax.spines["left"].set_color("#606060")
+
+            ax.spines["bottom"].set_linewidth(1.0)
+            ax.spines["left"].set_linewidth(1.0)
+
+        ax.xaxis.set_ticks_position("bottom")
+        ax.yaxis.set_ticks_position("left")
+        ax.tick_params(axis="both", direction="out")
+
+    else:
+        ax.axhline(0, color="#b0b0b0", linewidth=0.7, linestyle="solid", zorder=1)
+        ax.axvline(0, color="#b0b0b0", linewidth=0.7, linestyle="solid", zorder=1)
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+    ax.xaxis.set_major_locator(plt.MultipleLocator(xmarker * x_scale))
+    ax.yaxis.set_major_locator(plt.MultipleLocator(ymarker * y_scale))
+
+    if show_x_numbers:
+        ax.tick_params(
+            axis="x",
+            which="both",
+            bottom=True,
+            top=False,
+            labelbottom=True,
+            direction="out",
+            pad=x_number_pad,
+        )
+    else:
+        ax.tick_params(
+            axis="x",
+            which="both",
+            bottom=False,
+            top=False,
+            labelbottom=False,
+        )
+
+    # --- Grid ---
+    if show_vertical_grid or show_horizontal_grid:
+        if limit_grid_to_xlim and xlim is not None:
+            y_min, y_max = ax.get_ylim()
+
+            if show_vertical_grid:
+                for x_tick in ax.get_xticks():
+                    if xlim[0] <= x_tick <= xlim[1]:
+                        ax.plot(
+                            [x_tick, x_tick],
+                            [y_min, y_max],
+                            color="#b0b0b0",
+                            linestyle="-",
+                            linewidth=0.5,
+                            alpha=0.7,
+                            zorder=0,
+                        )
+
+            if show_horizontal_grid:
+                for y_tick in ax.get_yticks():
+                    ax.plot(
+                        [xlim[0], xlim[1]],
+                        [y_tick, y_tick],
+                        color="#b0b0b0",
+                        linestyle="-",
+                        linewidth=0.5,
+                        alpha=0.7,
+                        zorder=0,
+                    )
+        else:
+            ax.grid(
+                True,
+                axis="both",
+                linestyle="-",
+                linewidth=0.5,
+                alpha=0.7,
+            )
+
+            if not show_vertical_grid:
+                ax.xaxis.grid(False)
+
+            if not show_horizontal_grid:
+                ax.yaxis.grid(False)
+
+    # --- Axis arrows ---
+    if axis_arrows and coordinate_axes:
+        x_min, x_max = ax.get_xlim()
+        y_min, y_max = ax.get_ylim()
+
+        ax.annotate(
+            "",
+            xy=(x_max, 0),
+            xytext=(x_min, 0),
+            arrowprops=dict(
+                arrowstyle="->",
+                color="#000000",
+                linewidth=1.0,
+                shrinkA=0,
+                shrinkB=0,
+            ),
+            annotation_clip=False,
+            zorder=3,
+        )
+
+        if flip_y_axis:
+            y_arrow_end = y_min
+            y_arrow_start = y_max
+        else:
+            y_arrow_end = y_max
+            y_arrow_start = y_min
+
+        ax.annotate(
+            "",
+            xy=(0, y_arrow_end),
+            xytext=(0, y_arrow_start),
+            arrowprops=dict(
+                arrowstyle="->",
+                color="#000000",
+                linewidth=1.0,
+                shrinkA=0,
+                shrinkB=0,
+            ),
+            annotation_clip=False,
+            zorder=3,
+        )
+
+    if show_legend:
+        ax.legend(loc="lower right")
+
+    # --- Title left-aligned below plot ---
+    ax.text(
+        0.01,
+        0.00,
+        title,
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=plt.rcParams["axes.titlesize"],
+        fontweight=plt.rcParams["axes.titleweight"],
+    )
+
+    # Axis Label
+    ax.text(
+        1.02,
+        0.95,
+        "x",
+        transform=ax.transAxes,
+        ha="right",
+        va="top",
+    )
 
     return fig, ax
