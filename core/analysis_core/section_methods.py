@@ -375,35 +375,43 @@ def _ensure_force_controlled(results: MomentCurvatureResults) -> MomentCurvature
 def _full_moment_curvature_method(section: GenericSection,
                                    n: float = 0.0,
                                    debug: bool = False) -> MomentCurvatureResults:
+    """
+    Author: Elliot Melcer
+    Calculates the full moment-curvature-diagram for a given section and normal force.
+    Moments are calculated for a list of curvatures that includes the cracking curvature
+    using the calculate_moment_curvature()-method in StructuralCodes. If the section is
+    prestressed, the prestress curvature point is added.
+    
+    :param section: section to be analyzed
+    :param n:       normal force in N
+    :param debug:   optional debugging flag
+    :return:        MomentCurvatureResults-object
+    """
     # ------------------------------------
-    # Check which material governs failure
+    # Build custom curvature list to be evaluated for moment-curvature-diagram
+    # Must include exactly the point of cracking to accurately reflect correct
+    # cracking behavior
     # ------------------------------------
-    # Get concrete ε_c1
-    conc = None
-    for geo in section.geometry.geometries:
-        if hasattr(geo, 'concrete') and geo.concrete:
-            conc = geo.material
-            break
-    eps_c1 = abs(conc.eps_c1)  # ~2.0–2.5‰ for typical concretes
 
     # Get bending strength strain profile
     m_u_res = calculate_bending_strength_sls_Nmm_EC(section, n=n)
-    eps_0, chi_y, _ = m_u_res["strain_profile"]
-    _, _, zmin, zmax = section.geometry.calculate_extents()
-    eps_top = eps_0 + chi_y * zmax  # concrete top fiber strain at failure
+    eps_0, chi_u, _ = m_u_res["strain_profile"]
 
-    # If concrete top exceeds ε_c1 → concrete reaches post-yield zone
-    concrete_governs = abs(eps_top) > eps_c1
-    num_post_yield = 0 if concrete_governs else 0
+    # Get curvature at cracking
+    M_cr = calculate_cracking_moment_sls_Nmm_EC(section)["m_cr"]
+    sp = section.section_calculator.calculate_strain_profile(0, M_cr, 0)
+    _, kappa_cr,_ = sp
 
+    # Standard-chi-Array + κ_cr deterministisch einfügen
+    chi_default = np.linspace(1e-8, chi_u, 40)
+    chi_with_crack = np.sort(np.concatenate([chi_default, [kappa_cr]]))[::-1]  # für negative Krümmungen umkehren
 
     # -----------------------------------
     # Get standard M-κ curve from library
     #------------------------------------
     results = section.section_calculator.calculate_moment_curvature(
         n=n,
-        num_pre_yield=40,
-        num_post_yield=num_post_yield    # in case concrete is governing, at least 1 post yield point is necessary
+        chi = chi_with_crack
     )
 
     # FIX SIGNS - Library may return negative values
@@ -455,26 +463,24 @@ def _simplified_moment_curvature_method(section: GenericSection,
                                         n: float = 0.0,
                                         debug: bool = False) -> MomentCurvatureResults:
     """
+    Author: Elliot Melcer
     Calculates a simplified trilinear version of calculate_moment_curvature_sls().
     Points:
         Prestress Point:        kappa_0 = - M_int * K_cr / (M_cr - M_int)
         Cracking Point
         End of Cracking Point:  based on tension stiffening of concrete Ultimate Point
+    :param simplification: Optional simplification behavior:
+                           Input   Range      Explanation
+                           ------------------------------------------------------------------------------------------------
+                           False              Do not use this simplified method (handled higher up, should not reach this code)
+                           True               Use simplified method without extra points
+                           int     n>=1       Creates n evenly distributed points between kappa_cr and kappa_eoc
+                           float   0<n<1      Creates ONE additional point at kappa_cr + n * (kappa_eoc - kappa_cr)
 
-    Optional simplification behavior:
-
-        Input   Range      Explanation
-        ------------------------------------------------------------------------------------------------
-        False              Do not use this simplified method (handled higher up, should not reach this code)
-        True               Use simplified method without extra points
-        int     n>=1       Creates n evenly distributed points between kappa_cr and kappa_eoc
-        float   0<n<1      Creates ONE additional point at
-                           kappa_cr + n * (kappa_eoc - kappa_cr)
-
-    :param section:
-    :param n:
-    :param debug:
-    :return:
+    :param section:         section to be analyzed
+    :param n:               normal force in N
+    :param debug:           optional debugging flag
+    :return:                MomentCurvatureResults-object
     """
 
     # Concrete Properties
