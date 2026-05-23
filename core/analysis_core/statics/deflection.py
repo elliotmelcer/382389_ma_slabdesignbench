@@ -168,6 +168,7 @@ class DeflectionCalculator:
         )
 
         if extended_debug:
+            print(f"\n\n[EXTENDED DEBUG] Constitutive Law: {constitutive_law}")
             DeflectionCalculator._print_kappa_interp_debug(kappa_debug)
             DeflectionCalculator._print_simpson_debug(simpson_debug)
 
@@ -543,11 +544,15 @@ class DeflectionCalculator:
         kappas = []
 
         # Debug arrays
-        m_applied_list = []
-        m_low_list = []
-        m_high_list = []
-        kappa_low_list = []
-        kappa_high_list = []
+        m_support_list      = list(M_k_result_support.m_y)
+        kappa_support_list  = list(M_k_result_support.chi_y)
+        m_midspan_list      = list(M_k_result_mid.m_y)
+        kappa_midspan_list  = list(M_k_result_mid.chi_y)
+        m_applied_list      = []
+        m_low_list          = []
+        m_high_list         = []
+        kappa_low_list      = []
+        kappa_high_list     = []
 
         for x_norm, M_applied_kNm in zip(x_positions, M_applied_array_kNm):
             # Compute interpolated M-k-curve at position x_norm
@@ -577,21 +582,38 @@ class DeflectionCalculator:
             kappa_high_list.append(kappa_high)
 
         debug_info = {
+            "m_support_list": m_support_list,
+            "kappa_support_list": kappa_support_list,
+            "m_midspan_list": m_midspan_list,
+            "kappa_midspan_list": kappa_midspan_list,
             "x_positions": list(x_positions),
             "M_applied_kNm": m_applied_list,
             "M_low": m_low_list,
             "M_high": m_high_list,
             "kappa_low": kappa_low_list,
             "kappa_high": kappa_high_list,
+            "kappa": list(kappas)
         }
 
         return kappas, debug_info
 
     @staticmethod
     def _print_kappa_interp_debug(kappa_debug: dict[str, list], label: str = "") -> None:
+        print("[DEBUG] Moment-Curvature-Diagram-Lists at Support and Midspan")
+        print("Moments")
+        print(" - Support")
+        print(kappa_debug["m_support_list"])
+        print(" - Midspan")
+        print(kappa_debug["m_midspan_list"])
+        print("\nCurvatures")
+        print(" - Support")
+        print(kappa_debug["kappa_support_list"])
+        print(" - Midspan")
+        print(kappa_debug["kappa_midspan_list"])
+
         header = (
-            f"{'x_norm':>8} {'M_applied_kNm':>14} {'M_low':>12} {'M_high':>12} "
-            f"{'kappa_low':>14} {'kappa_high':>14}"
+             f"{'x_norm':>8} {'M_applied_kNm':>14} {'M_low':>12}"
++            f"{'M_high':>12} {'kappa_low':>14} {'kappa_high':>14} {'kappa [1/m]':>14}"
         )
         title = "[DEBUG] κ-interpolation bounds"
         if label:
@@ -599,17 +621,18 @@ class DeflectionCalculator:
         print(f"\n{title}:")
         print(header)
         print("-" * len(header))
-        for x, m_a, m_lo, m_hi, k_lo, k_hi in zip(
+        for x, m_a, m_lo, m_hi, k_lo, k_hi, k in zip(
                 kappa_debug["x_positions"],
                 kappa_debug["M_applied_kNm"],
                 kappa_debug["M_low"],
                 kappa_debug["M_high"],
                 kappa_debug["kappa_low"],
                 kappa_debug["kappa_high"],
+                kappa_debug["kappa"],
         ):
             print(
-                f"{x:>8.4f} {m_a:>14.4f} {m_lo:>12.4f} {m_hi:>12.4f} "
-                f"{k_lo:>14.6e} {k_hi:>14.6e}"
+                f"{x:>8.4f} {m_a:>14.4f} "
+                f"{m_lo:>12.4f} {m_hi:>12.4f} {k_lo:>14.6e} {k_hi:>14.6e} {k:>14.6e} "
             )
 
     @staticmethod
