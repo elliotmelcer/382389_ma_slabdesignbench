@@ -3,6 +3,9 @@ Author: Elliot Melcer
 Testing the difference between simplified and full moment-curvature-calculations for sections C1_1 to C1_4
 under different prestress levels.
 
+
+Note: Running this file may take 30 minutes!
+
 Deflection calculation parameters
     loads=                  test_loads,
     system=                 SystemType.SIMPLE_BEAM,
@@ -12,95 +15,9 @@ Deflection calculation parameters
     constitutive_law=       "TENSTIFF_PARABOLIC",
     load_history_method=    "NONE",
 
-Note: Running this file may take 30 minutes!
 
-Results (DATE=?):
-
-C1_1 — Deflection (QP): simplification vs full MK
--------------------------------------------------------------------------------
-  Prestress [%] Simplified [mm]       Full [mm]       Diff [mm]        Diff [%]
--------------------------------------------------------------------------------
-              0          61.875          62.292           0.418            0.67
-             10          19.050          16.764          -2.286          -13.64
-             20           8.249           8.109          -0.140           -1.73
-             30          -0.379          -0.410          -0.031            7.60
-             40          -9.631          -9.713          -0.081            0.84
-             50         -19.763         -19.949          -0.186            0.93
--------------------------------------------------------------------------------
-Largest  diff : 10% prestress → -2.286 mm  (-13.64%)
-Smallest diff : 30% prestress → -0.031 mm  (+7.60%)
-
-C1_2 (C50) — Deflection (QP): simplification vs full MK
--------------------------------------------------------------------------------
-  Prestress [%] Simplified [mm]       Full [mm]       Diff [mm]        Diff [%]
--------------------------------------------------------------------------------
-              0          10.768           6.418          -4.350          -67.78
-             10           2.694           2.662          -0.032           -1.21
-             20          -0.011          -0.013          -0.002           12.89
-             30          -2.787          -2.791          -0.004            0.15
-             40          -5.659          -5.670          -0.011            0.19
-             50          -8.648          -8.671          -0.023            0.27
--------------------------------------------------------------------------------
-Largest  diff :  0% prestress → -4.350 mm  (-67.78%)
-Smallest diff : 20% prestress → -0.002 mm  (+12.89%)
-
-C1_2 (C80) — Deflection (QP): simplification vs full MK
--------------------------------------------------------------------------------
-  Prestress [%] Simplified [mm]       Full [mm]       Diff [mm]        Diff [%]
--------------------------------------------------------------------------------
-              0           7.532           5.215          -2.317          -44.42
-             10           2.347           2.326          -0.021           -0.90
-             20          -0.037          -0.039          -0.001            3.32
-             30          -2.433          -2.434          -0.002            0.07
-             40          -4.852          -4.856          -0.003            0.07
-             50          -7.303          -7.310          -0.006            0.09
--------------------------------------------------------------------------------
-Largest  diff :  0% prestress → -2.317 mm  (-44.42%)
-Smallest diff : 20% prestress → -0.001 mm  (+3.32%)
-
-C1_3 — Deflection (QP): simplification vs full MK
--------------------------------------------------------------------------------
-  Prestress [%] Simplified [mm]       Full [mm]       Diff [mm]        Diff [%]
--------------------------------------------------------------------------------
-              0           5.103           3.518          -1.585          -45.05
-             10           1.682           1.665          -0.018           -1.05
-             20           0.301           0.291          -0.011           -3.64
-             30          -1.096          -1.102          -0.006            0.58
-             40          -2.516          -2.523          -0.007            0.29
-             50          -3.964          -3.973          -0.009            0.24
--------------------------------------------------------------------------------
-Largest  diff :  0% prestress → -1.585 mm  (-45.05%)
-Smallest diff : 30% prestress → -0.006 mm  (+0.58%)
-
-C1_4 — Deflection (QP): simplification vs full MK
--------------------------------------------------------------------------------
-  Prestress [%] Simplified [mm]       Full [mm]       Diff [mm]        Diff [%]
--------------------------------------------------------------------------------
-              0           2.367           2.418           0.051            2.10
-             10           0.184           0.179          -0.005           -3.04
-             20          -2.015          -2.019          -0.004            0.21
-             30          -4.264          -4.272          -0.008            0.19
-             40          -6.577          -6.593          -0.016            0.24
-             50          -8.967          -8.994          -0.027            0.30
--------------------------------------------------------------------------------
-Largest  diff :  0% prestress → +0.051 mm  (+2.10%)
-Smallest diff : 20% prestress → -0.004 mm  (+0.21%)
-
-
-
-
-# ============================================================================================================
-
-  _   _  _____ __        __    ____     _   _____   _
- │ ╲ │ ││ ____│╲ ╲      ╱ ╱   │  _ ╲   ╱ ╲ │_   _│ ╱ ╲
- │  ╲│ ││  _│   ╲ ╲ ╱╲ ╱ ╱    │ │ │ │ ╱ _ ╲  │ │  ╱ _ ╲
- │ │╲  ││ │___   ╲ V  V ╱     │ │_│ │╱ ___ ╲ │ │ ╱ ___ ╲
- │_│ ╲_││_____│   ╲_╱╲_╱      │____╱╱_╱   ╲_╲│_│╱_╱   ╲_╲
-
-24.05.26
-# ============================================================================================================
-
-C:\Users\LJ\iCloudDrive\Documents\Studium\Master\Masterarbeit\Programmierung\382389_ma_benchmarking_suite_hp_shell\.venv\Scripts\python.exe C:\Users\LJ\iCloudDrive\Documents\Studium\Master\Masterarbeit\Programmierung\382389_ma_benchmarking_suite_hp_shell\_mains\tests\deflection\simplified_deflection_by_prestress_levels.py
+Results (24.05.26):
+===============================================================================
 
 C1_1 — Deflection (QP): simplification vs full MK
 -------------------------------------------------------------------------------
@@ -172,7 +89,6 @@ C1_4 — Deflection (QP): simplification vs full MK
 Largest  diff : 10% prestress → +0.096 mm  (+34.22%)
 Smallest diff :  0% prestress → -0.001 mm  (-0.03%)
 
-Process finished with exit code 0
 
 """
 from core.analysis_core.statics.constants import SystemType
