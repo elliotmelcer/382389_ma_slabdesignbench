@@ -12,9 +12,16 @@ from core.analysis_core.section_methods import (
 )
 from core.visualization_core.visualization import (
     plot_moment_curvature_with_reference,
-    MomentCurvatureLine, plot_moment_curvature_multiple, plot_moment_curvature_multiple_and_differences, TU_COLORS,
+    PlotLine, plot_moment_curvature_multiple, plot_moment_curvature_multiple_and_differences, TU_COLORS,
 )
 plt.rcParams["font.family"] = "STIXGeneral"
+
+
+"""
+Author: Elliot Melcer
+This file is used to compare the moment-curvature-diagrams calculated by INCA2 and SlabDesignBench 
+for multiple positions along the beam using local variable LOCATION
+"""
 
 # ── INCA reference data (M in kNm, curvature in mm/m)─────────────────────────
 # SETTINGS:  NAME OF CONCRETE MATERIAL
@@ -237,19 +244,19 @@ loutfi_curvatures = loutfi_results["curvatures"]
 
 
 # Lines ────────────────────────────────────────────────────────────────────────
-mk_line_inca_st     = MomentCurvatureLine(inca_st_moments, inca_st_curvatures,  name="INCA_STANDARD",       color=TU_COLORS["BLACK"],        linestyle="solid")
-mk_line_inca_np     = MomentCurvatureLine(inca_np_moments, inca_np_curvatures,  name="INCA_NONE-PARA",      color=TU_COLORS["BLUE"],       linestyle="solid")
-mk_line_inca_fp     = MomentCurvatureLine(inca_fp_moments, inca_fp_curvatures,  name="INCA_FCTM-PARA",      color=TU_COLORS["GREEN"],       linestyle="solid")
-mk_line_inca_tp     = MomentCurvatureLine(inca_tp_moments, inca_tp_curvatures,  name="INCA_TENS-PARA",      color=TU_COLORS["RED"],       linestyle="solid")
+mk_line_inca_st     = PlotLine(inca_st_moments, inca_st_curvatures, name="INCA_STANDARD", color=TU_COLORS["BLACK"], linestyle="solid")
+mk_line_inca_np     = PlotLine(inca_np_moments, inca_np_curvatures, name="INCA_NONE-PARA", color=TU_COLORS["BLUE"], linestyle="solid")
+mk_line_inca_fp     = PlotLine(inca_fp_moments, inca_fp_curvatures, name="INCA_FCTM-PARA", color=TU_COLORS["GREEN"], linestyle="solid")
+mk_line_inca_tp     = PlotLine(inca_tp_moments, inca_tp_curvatures, name="INCA_TENS-PARA", color=TU_COLORS["RED"], linestyle="solid")
 
-mk_loutfi           = MomentCurvatureLine(loutfi_moments, loutfi_curvatures,    name="LOUTFI",              color=TU_COLORS["ORANGE"],               linestyle="solid")
+mk_loutfi           = PlotLine(loutfi_moments, loutfi_curvatures, name="LOUTFI", color=TU_COLORS["ORANGE"], linestyle="solid")
 
-mk_line_np_python_b = MomentCurvatureLine.from_results(mk_np_results, name="Python_NONE-PARA", color=TU_COLORS["BLUE"], linestyle="solid")
-mk_line_np_python_o = MomentCurvatureLine.from_results(mk_np_results, name="Python_NONE-PARA", color=TU_COLORS["ORANGE"], linestyle="solid")
+mk_line_np_python_b = PlotLine.from_results(mk_np_results, name="Python_NONE-PARA", color=TU_COLORS["BLUE"], linestyle="solid")
+mk_line_np_python_o = PlotLine.from_results(mk_np_results, name="Python_NONE-PARA", color=TU_COLORS["ORANGE"], linestyle="solid")
 
 if LOCATION == 0.5:
-    mk_line_fp_python = MomentCurvatureLine.from_results(mk_fp_results, name="Python_FCTM-PARA", color=TU_COLORS["GREEN"], linestyle="solid")
-    mk_line_tp_python = MomentCurvatureLine.from_results(mk_tp_results, name="Python_TENS-PARA", color=TU_COLORS["RED"], linestyle="solid")
+    mk_line_fp_python = PlotLine.from_results(mk_fp_results, name="Python_FCTM-PARA", color=TU_COLORS["GREEN"], linestyle="solid")
+    mk_line_tp_python = PlotLine.from_results(mk_tp_results, name="Python_TENS-PARA", color=TU_COLORS["RED"], linestyle="solid")
 
 '# Plot──────────────────────────────────────────────────────────────────────────'
 FIGURES_DIR = os.path.join(os.path.dirname(__file__), "figures")
@@ -264,7 +271,7 @@ if LOCATION == 0.5:
     ]
 
     fig_1, ax_main1, ax_diffs1 = plot_moment_curvature_multiple_and_differences(list(reversed(lines_inca_comparison)), title="C.2 Comparison of INCA2 M-K-diagrams with different constitutive laws", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
-    fig_1.savefig(os.path.join(FIGURES_DIR,"comp_inca.pdf"), bbox_inches="tight")
+    # fig_1.savefig(os.path.join(FIGURES_DIR,"comp_inca.pdf"), bbox_inches="tight")
 
 # 2. Comparison of Python M-K-diagrams
 if LOCATION == 0.5:
@@ -274,7 +281,7 @@ if LOCATION == 0.5:
         mk_line_tp_python,
     ]
     fig_2, ax_2 = plot_moment_curvature_multiple(lines_python, title="C.2 Comparison of Python M-K-diagrams with different constitutive laws", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
-    fig_2.savefig(os.path.join(FIGURES_DIR, "comp_python.pdf"), bbox_inches="tight")
+    # fig_2.savefig(os.path.join(FIGURES_DIR, "comp_python.pdf"), bbox_inches="tight")
 
 # 3. Comparison of Python and INCA2 M-K-diagrams for NONE_PARABOLIC
 lines_inca_python_comparison = [
@@ -282,7 +289,7 @@ lines_inca_python_comparison = [
     mk_line_np_python_o,
 ]
 fig_3, ax_3 = plot_moment_curvature_multiple(lines_inca_python_comparison, title="C.2 Comparison of INCA2 and Python with NONE_PARABOLIC constitutive law", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
-fig_3.savefig(os.path.join(FIGURES_DIR,"comp_inca_python.pdf"), bbox_inches="tight")
+# fig_3.savefig(os.path.join(FIGURES_DIR,"comp_inca_python.pdf"), bbox_inches="tight")
 
 # Print to console──────────────────────────────────────────────────────────────
 print(f"M_u_sls   x = {LOCATION:.2f} m: {m_u_result['m_u']:.2f} kNm")
