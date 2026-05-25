@@ -1,7 +1,7 @@
 """
 Author: Elliot Melcer
-Test: MK-Diagram comparison For C.1_3 configuration
-      and prestress levels 0%, 10%, 20%, 30%, 40%, 50%.
+This file is used to produce a combined plot of full and simplified MK-Diagrams
+at prestress levels 0%, 10%, 20%, 30%, 40%, 50%.
 """
 import os
 from dataclasses import dataclass
@@ -143,10 +143,10 @@ ALL_CONFIGS = [
 PRESTRESS_LEVELS_PCT = [0., 10., 20., 30., 40., 50.]
 
 # ------------------------------------------------------------------------------
-# Position along beam (specify x along the beam.
-# recommended: x = 0 for support and x = 0.5 for midspan)
-# ------------------------------------------------------------------------------
-x_position = 0.375
+#  Position along beam (specify x along the beam.
+#  recommended: x = 0 for support and x = 0.5 for midspan)
+#  ------------------------------------------------------------------------------
+x_position = 0.5
 
 # ------------------------------------------------------------------------------
 # Run and plot
