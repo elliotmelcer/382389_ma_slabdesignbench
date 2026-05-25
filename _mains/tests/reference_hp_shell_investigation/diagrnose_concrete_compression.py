@@ -17,7 +17,7 @@ from structuralcodes import set_design_code
 set_design_code('ec2_2004')
 
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
-from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q85_pre_37
+from _mains.testing_files.testing_materials import concrete_c50_uls, ref_solidian_Q85_pre_37
 from _mains.testing_files.testing_hp_sections import hp_ref
 
 from core.analysis_core.section_methods import get_strain_at_point
@@ -32,7 +32,7 @@ def diagnose_concrete_compression():
     print("=" * 70)
 
     # Create section
-    hp_shell = HPShell(hp_ref, concrete_c50_uls, solidian_Q85_pre_37, reinf_area=85)
+    hp_shell = HPShell(hp_ref, concrete_c50_uls, ref_solidian_Q85_pre_37, reinf_area=85)
     section = hp_shell.section_at(0.5)
     analysis_section = deepcopy(section)
 
@@ -212,7 +212,7 @@ def check_section_area_vs_inca():
 
     # Approximate section area (integrating arc length * thickness)
     # More accurate: use the polygon area
-    hp_shell = HPShell(hp_ref, concrete_c50_uls, solidian_Q85_pre_37, reinf_area=85)
+    hp_shell = HPShell(hp_ref, concrete_c50_uls, ref_solidian_Q85_pre_37, reinf_area=85)
     section = hp_shell.section_at(0.5)
 
     for geo in section.geometry.geometries:

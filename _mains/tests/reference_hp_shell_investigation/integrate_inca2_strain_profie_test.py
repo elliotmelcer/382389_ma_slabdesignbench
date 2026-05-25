@@ -2,10 +2,10 @@ import numpy as np
 from structuralcodes.sections import GenericSection
 
 from _mains.testing_files.testing_hp_sections import hp_ref
-from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q85_pre_37
+from _mains.testing_files.testing_materials import concrete_c50_uls, ref_solidian_Q85_pre_37
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 
-hp_shell = HPShell(hp_ref, concrete_c50_uls, solidian_Q85_pre_37, reinf_area=85)
+hp_shell = HPShell(hp_ref, concrete_c50_uls, ref_solidian_Q85_pre_37, reinf_area=85)
 section = hp_shell.section_at(0.5)
 
 # Get section extents
@@ -122,7 +122,7 @@ print("\n--- Reinforcement force summary ---")
 print(f"Sum of bar forces = {sum_F_s/1e3:.2f} kN")
 
 print("Force under Prestress")
-N_reinf = 2 * hp_ref.nt * hp_shell.reinf_area * solidian_Q85_pre_37.initial_strain * solidian_Q85_pre_37.ftk
+N_reinf = 2 * hp_ref.nt * hp_shell.reinf_area * ref_solidian_Q85_pre_37.initial_strain * ref_solidian_Q85_pre_37.ftk
 print(f"N_reinf = {N_reinf:.2f}")
 
 def get_concrete_compression_force(

@@ -23,7 +23,7 @@ from structuralcodes import set_design_code
 set_design_code('ec2_2004')
 
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
-from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q85_pre_37
+from _mains.testing_files.testing_materials import concrete_c50_uls, ref_solidian_Q85_pre_37
 from _mains.testing_files.testing_hp_sections import hp_ref
 
 
@@ -36,7 +36,7 @@ def detailed_inca2_comparison():
     print("=" * 80)
 
     # Create section
-    hp_shell = HPShell(hp_ref, concrete_c50_uls, solidian_Q85_pre_37, reinf_area=85)
+    hp_shell = HPShell(hp_ref, concrete_c50_uls, ref_solidian_Q85_pre_37, reinf_area=85)
     section = hp_shell.section_at(0.5)
     analysis_section = deepcopy(section)
 
@@ -102,8 +102,8 @@ def detailed_inca2_comparison():
     point_geoms = section.geometry.point_geometries
 
     # Q85 prestress: 37% of eps_uk = 0.37 * 12.17‰ = 4.503‰
-    initial_strain = solidian_Q85_pre_37.initial_strain
-    Es = solidian_Q85_pre_37.Es
+    initial_strain = ref_solidian_Q85_pre_37.initial_strain
+    Es = ref_solidian_Q85_pre_37.Es
 
     print(f"         Initial strain = {initial_strain * 1000:.3f}‰")
     print(f"         Es = {Es:.0f} MPa")

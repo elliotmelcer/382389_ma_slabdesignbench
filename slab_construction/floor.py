@@ -49,11 +49,11 @@ class InsulationMaterial(Material):
     """
     Author: Elliot Melcer
     Instantiable Simple Material for insulation layers.
-    Note: E_dyn in MN/m²
+    Note: E_dyn in MN/m³
     """
     def __init__(self, density: float, E_dyn: float, name: str | None = "InsulationMaterial") -> None:
         super().__init__(density=density, name=name)
-        self.E_dyn = E_dyn # MN/m²
+        self.E_dyn = E_dyn # MN/m³
 
 class Floor:
     """

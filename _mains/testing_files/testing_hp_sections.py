@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 # from core.visualization_core.visualization import plot_cross_section
 from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q142_pre_50, \
     concrete_c80_uls, solidian_Q142, solidian_Q95_pre_50, solidian_Q95_pre_20, solidian_Q142_pre_60, concrete_c55_uls, \
-    solidian_Q85_pre_37, concrete_c30_uls, solidian_Q142_pre_75
+    ref_solidian_Q85_pre_37, concrete_c30_uls, solidian_Q142_pre_75
 from core.visualization_core.visualization import plot_cross_section
 from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
@@ -39,7 +39,7 @@ hp_shell_c1_2_c50_uls = HPShell(hp_c1_2,            concrete_c50_uls, solidian_Q
 hp_shell_c1_2_c80_uls = HPShell(hp_c1_2,            concrete_c80_uls, solidian_Q95_pre_50 ,  reinf_area =  50,   name = "C.1. Section 2.2")
 hp_shell_c1_3_uls     = HPShell(hp_c1_3,            concrete_c50_uls, solidian_Q142       ,  reinf_area = 300,   name = "C.1. Section 3")
 hp_shell_c1_4_uls     = HPShell(hp_c1_4,            concrete_c55_uls, solidian_Q142_pre_50,  reinf_area =  80,   name = "C.1. Section 4")
-hp_shell_ref          = HPShell(hp_ref ,            concrete_c50_uls, solidian_Q85_pre_37 ,  reinf_area =   8.5, name = "Reference HP-Shell")
+hp_shell_ref          = HPShell(hp_ref, concrete_c50_uls, ref_solidian_Q85_pre_37, reinf_area =   8.5, name ="Reference HP-Shell")
 hp_shell_kappa_0_m2 = HPShell(hp_kappa_0_m2 ,   concrete_c30_uls, solidian_Q142_pre_75 , reinf_area = 100.5,   name = "HP-Shell uses Fallback Method for kappa_0")
 
 # ULS Sections

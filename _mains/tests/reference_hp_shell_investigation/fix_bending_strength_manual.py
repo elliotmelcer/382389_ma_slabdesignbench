@@ -200,7 +200,7 @@ def test_manual_calculation():
     set_design_code('ec2_2004')
 
     from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
-    from _mains.testing_files.testing_materials import concrete_c50_uls, solidian_Q85_pre_37
+    from _mains.testing_files.testing_materials import concrete_c50_uls, ref_solidian_Q85_pre_37
     from _mains.testing_files.testing_hp_sections import hp_ref
 
     from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm_EC
@@ -211,7 +211,7 @@ def test_manual_calculation():
     print("=" * 70)
 
     # Create section
-    hp_shell = HPShell(hp_ref, concrete_c50_uls, solidian_Q85_pre_37, reinf_area=85)
+    hp_shell = HPShell(hp_ref, concrete_c50_uls, ref_solidian_Q85_pre_37, reinf_area=85)
     section = hp_shell.section_at(0.5)
 
     _, _, zmin, zmax = section.geometry.calculate_extents()

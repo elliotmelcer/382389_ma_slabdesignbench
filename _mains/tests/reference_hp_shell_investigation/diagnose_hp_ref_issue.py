@@ -27,7 +27,7 @@ from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 
 # Import testing materials
 from _mains.testing_files.testing_materials import (
-    concrete_c50_uls, solidian_Q85_pre_37
+    concrete_c50_uls, ref_solidian_Q85_pre_37
 )
 from _mains.testing_files.testing_hp_sections import hp_ref
 
@@ -47,7 +47,7 @@ def diagnose_hp_ref():
     print("=" * 70)
 
     # Create the hp_shell and section
-    hp_shell = HPShell(hp_ref, concrete_c50_uls, solidian_Q85_pre_37, reinf_area=85)
+    hp_shell = HPShell(hp_ref, concrete_c50_uls, ref_solidian_Q85_pre_37, reinf_area=85)
     section = hp_shell.section_at(0.5)
 
     # Get section extents

@@ -94,12 +94,12 @@ brittle_elastic_law_Q95 = Elastic(Es_Q95, eps_u=epsuk_Q95,  name = "ElasticLaw")
 
 # solidian GRID Q85/85-CCE-21 prestressed 37 %
 
-solidian_Q85_pre_37 = create_reinforcement(
+ref_solidian_Q85_pre_37 = create_reinforcement(
     fyk=fyk_Q85,
     Es=Es_Q85,
     ftk=ftk_Q85,
     epsuk=epsuk_Q85,
-    density=density_Q85,
+    density=1340,
     constitutive_law=brittle_elastic_law_Q85,
     initial_strain= 0.37 * epsuk_Q85,
     gamma_s=1.3,
@@ -198,8 +198,13 @@ solidian_Q142_pre_60 = create_reinforcement(
 )
 
 # -- Floor Materials --
-
+# Like in Ausbau.xlsx
 infill = InfillMaterial(density = 1000, name = "Infill")
 sound_insulation = InsulationMaterial(density = 24, E_dyn = 0.6, name = "Sound insulation")
 screed = ScreedMaterial(density = 2000, name = "Screed")
+
+# Line in Tabelle 7-2 in Loutfi (2023)
+ref_infill = InfillMaterial(density = 1000, name = "Infill")
+ref_sound_insulation = InsulationMaterial(density = 150, E_dyn = 30., name = "Sound insulation")
+ref_screed = ScreedMaterial(density = 2100, name = "Screed")
 
