@@ -20,14 +20,14 @@ passed: 25.02.2026
 
 print("Testing Calculation of Sound Reduction Index R_w")
 
-R_w_c1_1 = calculate_sound_reduction_index(test_slab_construction_c1_1,     0.01)
-R_w_c1_2 = calculate_sound_reduction_index(test_slab_construction_c1_2_c50, 0.01)
-R_w_c1_3 = calculate_sound_reduction_index(test_slab_construction_c1_3,     0.01)
-R_w_c1_4 = calculate_sound_reduction_index(test_slab_construction_c1_4,     0.01)
-R_w_ref  = calculate_sound_reduction_index(test_slab_construction_ref,      0.01)
+# R_w_c1_1 = calculate_sound_reduction_index(test_slab_construction_c1_1,     0.01)
+# R_w_c1_2 = calculate_sound_reduction_index(test_slab_construction_c1_2_c50, 0.01)
+# R_w_c1_3 = calculate_sound_reduction_index(test_slab_construction_c1_3,     0.01)
+# R_w_c1_4 = calculate_sound_reduction_index(test_slab_construction_c1_4,     0.01)
+R_w_ref  = calculate_sound_reduction_index(test_slab_construction_ref,      0.01, debug = True)
 
 # print(f"R_1_c1_1: {R_w_c1_1:.2f}")
 # print(f"R_1_c1_2: {R_w_c1_2:.2f}")
 # print(f"R_1_c1_3: {R_w_c1_3:.2f}")
 # print(f"R_1_c1_4: {R_w_c1_4:.2f}")
-print(f"R_1_c1_4: {R_w_ref:.2f}")
+print(f"R_1_c1_4: {R_w_ref:.4f}")

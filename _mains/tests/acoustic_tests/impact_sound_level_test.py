@@ -23,16 +23,16 @@ eg. C55/67: Ecm = 22000(63/10)**0.3 = 38214 N/mmÂ², in GH rounded to 38000 N/mmÂ
 passed: 20.02.2026
 """
 
-print("Testing Calculation of Sound Reduction Index R_w")
+print("Testing Calculation of Impact Sound Level L_nw")
 
-L_nw_c1_1 = calculate_standard_impact_sound_pressure_level(test_slab_construction_c1_1,     0.01)
-L_nw_c1_2 = calculate_standard_impact_sound_pressure_level(test_slab_construction_c1_2_c50, 0.01)
-L_nw_c1_3 = calculate_standard_impact_sound_pressure_level(test_slab_construction_c1_3,     0.01)
-L_nw_c1_4 = calculate_standard_impact_sound_pressure_level(test_slab_construction_c1_4,     0.01)
-L_nw_ref  = calculate_standard_impact_sound_pressure_level(test_slab_construction_ref,      0.01)
+# L_nw_c1_1 = calculate_standard_impact_sound_pressure_level(test_slab_construction_c1_1,     0.01)
+# L_nw_c1_2 = calculate_standard_impact_sound_pressure_level(test_slab_construction_c1_2_c50, 0.01)
+# L_nw_c1_3 = calculate_standard_impact_sound_pressure_level(test_slab_construction_c1_3,     0.01)
+# L_nw_c1_4 = calculate_standard_impact_sound_pressure_level(test_slab_construction_c1_4,     0.01)
+L_nw_ref  = calculate_standard_impact_sound_pressure_level(test_slab_construction_ref,      0.01, debug = True)
 
-print(f"L_nw_c1_1: {L_nw_c1_1:.2f}")
-print(f"L_nw_c1_2: {L_nw_c1_2:.2f}")
-print(f"L_nw_c1_3: {L_nw_c1_3:.2f}")
-print(f"L_nw_c1_4: {L_nw_c1_4:.2f}")
+# print(f"L_nw_c1_1: {L_nw_c1_1:.2f}")
+# print(f"L_nw_c1_2: {L_nw_c1_2:.2f}")
+# print(f"L_nw_c1_3: {L_nw_c1_3:.2f}")
+# print(f"L_nw_c1_4: {L_nw_c1_4:.2f}")
 print(f"L_nw_ref:  {L_nw_ref:.2f}")
