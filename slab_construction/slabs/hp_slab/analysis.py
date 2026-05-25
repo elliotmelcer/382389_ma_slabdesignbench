@@ -300,7 +300,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     gwp_reinf_factor = _req_param(params, "mat_reinf_gwp_crfp/conc")
 
     # Compute Material Quantities
-    concrete_m3 = mm3_to_m3(hp_shell.hp_geometry.volume())
+    concrete_m3 = mm3_to_m3(hp_shell.net_concrete_volume())
     reinforcement_m3 = mm3_to_m3(hp_shell.total_reinforcement_volume())
 
     # Prices in €/m3
