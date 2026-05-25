@@ -145,7 +145,7 @@ def plot_moment_curvature_with_reference(
     ref_moments = np.asarray(ref_moments, dtype=float)
 
     if len(ref_curvatures) != len(ref_moments):
-        raise ValueError("ref_curvatures and ref_moments must have the same length.")
+        raise ValueError("curvatures and moments must have the same length.")
 
     # Create figure/axes if not provided
     if ax is None:
