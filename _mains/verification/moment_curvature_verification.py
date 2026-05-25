@@ -20,7 +20,7 @@ plt.rcParams["font.family"] = "STIXGeneral"
 """
 Author: Elliot Melcer
 This file is used to compare the moment-curvature-diagrams calculated by INCA2 and SlabDesignBench 
-for multiple positions along the beam C.1_3 using local variable LOCATION
+for multiple positions along the beam C.2 using local variable LOCATION
 """
 
 # ── INCA reference data (M in kNm, curvature in mm/m)─────────────────────────
