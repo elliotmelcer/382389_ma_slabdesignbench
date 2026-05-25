@@ -116,6 +116,8 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             slab_construction,
             loads,
             system,
+            load_history_method="NONE",
+            m_k_simplification=0.15,
             combination = "QUASI_PERMANENT",
             debug = debug,
         )
@@ -217,6 +219,8 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
             slab_construction,
             loads,
             system,
+            load_history_method="NONE",
+            m_k_simplification=0.15,
             combination="FUNDAMENTAL",
             debug=debug,
         )
