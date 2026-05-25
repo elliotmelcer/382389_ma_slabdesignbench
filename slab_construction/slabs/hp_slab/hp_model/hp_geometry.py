@@ -326,7 +326,7 @@ class HPGeometry:
     def volume(self):
         """
         Adapted from: Jamila Loutfi
-        Calculates the concrete volume of an hp shell
+        Calculates the concrete volume of an hp shell in mm³
         Übernommen von Pauls Skript "volumen.gh"
         """
         y1 = self.B / 2
