@@ -60,3 +60,67 @@ class ConcreteCO2Registry:
         if concrete not in cls._cache:
             cls._register(concrete)
         return cls._cache[concrete]["cost"]
+
+
+# ---------------------------------------------------------------------------
+# Internal data table (source: Bewehrung.xlsx, internalised)
+# ---------------------------------------------------------------------------
+
+REINFORCEMENT_CO2_TABLE: dict[str, dict[str, float]] = {
+    # Author: Elliot Melcer
+    # Internal CO2 and cost registry for CFRP textile reinforcement materials.
+
+    "solidian GRID Q142/142-CCE-25": {
+        "gwp":  26.9,   # kg CO2-eq / kg
+        "cost": 49.0,   # € / kg
+    },
+
+    "solidian GRID Q85/85-CCE-21": {
+        "gwp":  23.3,   # kg CO2-eq / kg
+        "cost": 49.0,   # € / kg
+    },
+
+    # "solidian GRID Q85/85-CCE-21 (updated GWP)": {
+    #     "gwp":  12.8,   # kg CO2-eq / kg  ← updated EPD value
+    #     "cost": 49.0,   # € / kg
+    # },
+}
+
+
+# ---------------------------------------------------------------------------
+# Registry used for retrieving GWP / cost in analysis functions
+# ---------------------------------------------------------------------------
+
+class ReinforcementCO2Registry:
+    """Registry for CO2 and cost data of CFRP textile reinforcement materials."""
+
+    # Class-level cache (shared across all uses)
+    _cache: dict[str, dict[str, float]] = {}
+
+    @classmethod
+    def _register(cls, mat_id: str) -> None:
+        """Register a reinforcement material in the cache."""
+        try:
+            data = REINFORCEMENT_CO2_TABLE[mat_id]
+        except KeyError as exc:
+            available = list(REINFORCEMENT_CO2_TABLE.keys())
+            raise KeyError(
+                f"No CO2/cost data available for reinforcement '{mat_id}'. "
+                f"Available materials: {available}"
+            ) from exc
+
+        cls._cache[mat_id] = data
+
+    @classmethod
+    def gwp(cls, mat_id: str) -> float:
+        """Returns GWP in kg CO2-eq / kg."""
+        if mat_id not in cls._cache:
+            cls._register(mat_id)
+        return cls._cache[mat_id]["gwp"]
+
+    @classmethod
+    def cost(cls, mat_id: str) -> float:
+        """Returns cost in € / kg."""
+        if mat_id not in cls._cache:
+            cls._register(mat_id)
+        return cls._cache[mat_id]["cost"]
