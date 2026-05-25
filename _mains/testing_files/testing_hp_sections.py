@@ -63,6 +63,9 @@ hp_section_c2_uls_x_0_30 = hp_shell_c2_uls.section_at(0.30, name = "C.2. Section
 hp_section_c2_uls_x_0_40 = hp_shell_c2_uls.section_at(0.40, name = "C.2. Section at 0.40 * L")
 hp_section_c2_uls_x_0_50 = hp_shell_c2_uls.section_at(0.50, name = "C.2. Section at 0.50 * L")
 
+# Reference Section
+hp_section_ref_x_0_50 = hp_shell_ref.section_at(0.50, name = "Reference Section at 0.50 * L")
+
 
 if __name__ == "__main__":
     plot_cross_section(hp_section_c1_1_uls)
