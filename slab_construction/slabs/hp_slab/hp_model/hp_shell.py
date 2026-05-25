@@ -90,6 +90,15 @@ class HPShell:
         volume = total_tendon_length * self.reinf_area
         return volume
 
+    def net_concrete_volume(self) -> float:
+        """
+        Author Elliot Melcer
+        :return: Net concrete volume (total volume without reinforcement volume) in mm³
+        """
+        net_concrete_volume = self.hp_geometry.volume() - self.total_reinforcement_volume()
+
+        return net_concrete_volume
+
     def d_p(self) -> float:
         """
         Author: Elliot Melcer
