@@ -20,7 +20,7 @@ plt.rcParams["font.family"] = "STIXGeneral"
 """
 Author: Elliot Melcer
 This file is used to compare the moment-curvature-diagrams calculated by INCA2 and SlabDesignBench 
-for multiple positions along the beam using local variable LOCATION
+for multiple positions along the beam C.1_3 using local variable LOCATION
 """
 
 # ── INCA reference data (M in kNm, curvature in mm/m)─────────────────────────
@@ -289,6 +289,11 @@ lines_inca_python_comparison = [
     mk_line_np_python_o,
 ]
 fig_3, ax_3 = plot_moment_curvature_multiple(lines_inca_python_comparison, title="C.2 Comparison of INCA2 and Python with NONE_PARABOLIC constitutive law", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
+# fig_3.savefig(os.path.join(FIGURES_DIR,"comp_inca_python.pdf"), bbox_inches="tight")
+
+# 4. Loutfis M-K-diagrams vs. SlabDesignBench simplification = 0.15
+
+fig_4, ax_4 = plot_moment_curvature_multiple(lines_inca_python_comparison, title="C.2 Comparison of INCA2 and Python with NONE_PARABOLIC constitutive law", x=LOCATION, xlim = zoom_x, ylim = zoom_y)
 # fig_3.savefig(os.path.join(FIGURES_DIR,"comp_inca_python.pdf"), bbox_inches="tight")
 
 # Print to console──────────────────────────────────────────────────────────────
