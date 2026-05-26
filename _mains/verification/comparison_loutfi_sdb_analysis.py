@@ -33,7 +33,7 @@ def timed(label: str, enabled: bool = True):
 def analysis(
         slab_construction: SlabConstruction,
         live_loads: Loads,
-        defl_sls_case: str = "b",
+        defl_sls_case: str = "a",
         n: float = 0.0,
         timed_run: bool = False) -> None:
 
