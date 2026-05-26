@@ -569,12 +569,14 @@ def _simplified_moment_curvature_method(section: GenericSection,
         header = f"{'Point':<25} {'Moment [kNm]':>15} {'Curvature [1/m]':>18}"
         separator = "-" * len(header)
 
-        rows = [
-            ("Prestress",       moments[0], curvatures[0]*1000),
-            ("Cracking",        moments[1], curvatures[1]*1000),
-            ("End of Cracking", moments[2], curvatures[2]*1000),
-            ("Ultimate",        moments[3], curvatures[3]*1000),
-        ]
+        rows = [("Prestress", moments[0], curvatures[0] * 1000),
+                ("Cracking", moments[1], curvatures[1] * 1000)]
+
+        for i, (M, kappa) in enumerate(zip(M_extra_Nmm, kappa_extra * 1000)):
+            rows.append((f"Extra Point {i + 1}", M, kappa))
+
+        rows.append(("End of Cracking", M_eoc_Nmm, kappa_eoc * 1000))
+        rows.append(("Ultimate", M_u_Nmm, kappa_u * 1000))
 
         print(separator)
         print(header)
