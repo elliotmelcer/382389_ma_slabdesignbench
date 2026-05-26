@@ -1118,7 +1118,10 @@ def mirror_plot(
     figsize: tuple[float, float] = (12, 5),
     flip_y_axis: bool = False,
     coordinate_axes: bool = True,
-    show_x_numbers: bool = True,
+    show_x_numbers: bool = True,       # show/hide x-axis tick labels
+    show_x_ticks: bool = True,         # show/hide x-axis tick marks (independent of labels)
+    x_number_position: str = "bottom", # "bottom" or "top"
+    show_x_axis_label: bool = True,    # show/hide the "x" text at the arrow end
     show_legend: bool = True,
     x_number_pad: float = 8.0,
     axis_arrows: bool = True,
@@ -1224,24 +1227,23 @@ def mirror_plot(
     ax.xaxis.set_major_locator(plt.MultipleLocator(xmarker * x_scale))
     ax.yaxis.set_major_locator(plt.MultipleLocator(ymarker * y_scale))
 
-    if show_x_numbers:
-        ax.tick_params(
-            axis="x",
-            which="both",
-            bottom=True,
-            top=False,
-            labelbottom=True,
-            direction="out",
-            pad=x_number_pad,
-        )
-    else:
-        ax.tick_params(
-            axis="x",
-            which="both",
-            bottom=False,
-            top=False,
-            labelbottom=False,
-        )
+    # --- X-axis tick marks and labels (controlled independently) ---
+    # Resolve which sides carry ticks / labels based on x_number_position
+    tick_bottom = show_x_ticks and (x_number_position == "bottom")
+    tick_top    = show_x_ticks and (x_number_position == "top")
+    label_bottom = show_x_numbers and (x_number_position == "bottom")
+    label_top    = show_x_numbers and (x_number_position == "top")
+
+    ax.tick_params(
+        axis="x",
+        which="both",
+        bottom=tick_bottom,
+        top=tick_top,
+        labelbottom=label_bottom,
+        labeltop=label_top,
+        direction="out",
+        pad=x_number_pad,
+    )
 
     # --- Grid ---
     if show_vertical_grid or show_horizontal_grid:
@@ -1344,14 +1346,21 @@ def mirror_plot(
         fontweight=plt.rcParams["axes.titleweight"],
     )
 
-    # Axis Label
-    ax.text(
-        1.02,
-        0.95,
-        "x",
-        transform=ax.transAxes,
-        ha="right",
-        va="top",
-    )
+    # --- Axis label ---
+    if show_x_axis_label:
+        from matplotlib.transforms import blended_transform_factory
+        blend = blended_transform_factory(ax.transAxes, ax.transData)
+
+        x_label_va = "top" if x_number_position == "bottom" else "bottom"
+
+        ax.text(
+            1.01,
+            0.04,  # data y=0 → always on the x-axis line
+            "x_norm",
+            transform=blend,
+            ha="left",
+            va=x_label_va,
+            clip_on=False,
+        )
 
     return fig, ax
