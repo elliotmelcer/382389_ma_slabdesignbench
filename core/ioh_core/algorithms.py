@@ -53,3 +53,36 @@ class NloptDirectLocalSearch:
         # problem(x_best_int) #(Modified by: Elliot Melcer)
 
         return f_best, x_best_int
+
+class RandomSearch:
+    """
+    Author: Max Dombrowski
+    Very simple random search over integer index bounds.
+    """
+    def __init__(self, evaluations: int, seed: int | None = None):
+        self.name = "RANDOM_SEARCH"
+        self.info = "Very simple random search over integer index bounds"
+        self.evaluations = int(evaluations)
+        self.rng = np.random.default_rng(seed)
+
+    def __call__(self, problem):
+        lb = np.asarray(problem.bounds.lb, dtype=int)
+        ub = np.asarray(problem.bounds.ub, dtype=int)
+        dim = len(lb)
+
+        # safety
+        assert dim == problem.meta_data.n_variables
+
+        # sample uniformly over integer index ranges
+        best_y = None
+        best_x = None
+        for _ in range(self.evaluations):
+            x = self.rng.integers(low=lb, high=ub + 1)  # inclusive upper bound for indices
+            y = problem(x)  # IOH problem is callable; evaluates objective (+ constraints internally)
+            if (best_y is None) or (y < best_y):
+                best_y, best_x = y, x.copy()
+
+        # store for convenience
+        self.best_y_ = float(best_y)
+        self.best_x_ = [int(v) for v in best_x]
+        return self
