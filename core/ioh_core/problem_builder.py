@@ -1,6 +1,8 @@
 """
 Author: Max Dombrowski
 Modified by Elliot Melcer ("Addition by: Elliot Melcer" used to mark code)
+ - pass materials to analysis
+ - Let the slab module drop constraints that don't apply (i.e. hp_slab: defl_case_sls a/b cuts out unwanted checks from logging)
 """
 
 from pathlib import Path
@@ -151,9 +153,9 @@ def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
         # slab-specific analysis(params) must return {"y","y_p","violations":{...}, ...}
         ctx = EvalContext(decode, analysis_fn)  # builds a cache for that specific problem - no cross-instance reuse!
 
-        # --- IOH constraints: log *raw violations* from cache; default to HIDDEN/1/1 ---
+        # IOH constraints: log *raw violations* from cache; default to HIDDEN/1/1
         constraints = []
-        for name, conf in constraints_log.items(): #(Modified by: Elliot Melcer)
+        for name, conf in constraints_log.items(): #Modified by: Elliot Melcer
             if not conf.get("active", True):
                 continue
             # Build the 1-arg reader that pulls violations[name] from cache
@@ -206,7 +208,7 @@ def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
         p.bounds.lb = lb_idx
         p.bounds.ub = ub_idx
 
-        active_constraint_names = [name for name, conf in constraints_log.items() if conf.get("active", True)] #(Modified by: Elliot Melcer)
+        active_constraint_names = [name for name, conf in constraints_log.items() if conf.get("active", True)] # Modified by: Elliot Melcer
         ctx.ensure_constraints(active_constraint_names)
         ctx.ensure_params(var_names)
 
