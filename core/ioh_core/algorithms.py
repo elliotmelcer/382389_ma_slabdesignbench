@@ -2,14 +2,14 @@ import nlopt
 
 class NloptDirectLocalSearch:
     """
-    Author: Max Dombrowski
+    Adapted from: Max Dombrowski (Changes denoted by "Added by: Elliot Melcer")
     NLopt DIRECT wrapper around an IOHexperimenter problem.
     """
 
     def __init__(self, max_evaluations: int = 50):
         self.max_evaluations = int(max_evaluations)
         self.name = "NLOPT_DIRECT_L"
-        self.info = "locally biased variant of DIviding RECTangles (DIRECT) algorithm for global optimization"
+        self.info = "locally biased variant of DIviding RECTangles (DIRECT) algorithm for global optimization" #(Added by: Elliot Melcer)
 
     def __call__(self, problem):
         # Dimension & bounds from IOH
@@ -50,6 +50,6 @@ class NloptDirectLocalSearch:
         x_best_int = [int(round(xi)) for xi in x_best]
 
         # Keep IOH state consistent
-        # problem(x_best_int)
+        # problem(x_best_int) #(Modified by: Elliot Melcer)
 
         return f_best, x_best_int
