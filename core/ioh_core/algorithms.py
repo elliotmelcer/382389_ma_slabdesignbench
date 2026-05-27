@@ -61,10 +61,10 @@ class RandomSearch:
     Author: Max Dombrowski
     Very simple random search over integer index bounds.
     """
-    def __init__(self, evaluations: int, seed: int | None = None):
+    def __init__(self, max_evaluations: int, seed: int | None = None):
         self.name = "RANDOM_SEARCH"
         self.info = "Very simple random search over integer index bounds"
-        self.evaluations = int(evaluations)
+        self.evaluations = int(max_evaluations)
         self.rng = np.random.default_rng(seed)
 
     def __call__(self, problem):
