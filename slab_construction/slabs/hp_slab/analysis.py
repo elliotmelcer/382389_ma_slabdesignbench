@@ -24,6 +24,20 @@ from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 from slab_construction.slabs.hp_slab.hp_model.hp_slab import HPSlab
 
+def resolve_active_constraints(params: dict, constraints: dict) -> dict:
+    """
+    Filter `constraints` based on params before IOH registration.
+    Called once per problem build with the FIXED params of that problem.
+    """
+    out = dict(constraints)
+    case = (params.get("defl_sls_case") or "").strip().lower()
+    if case == "a":
+        out.pop("B1b_deflection_by_mcr_capacity", None)
+        out.pop("B2b_failure_announcement_by_mcr_capacity", None)
+    elif case == "b":
+        out.pop("B1a_deflection_by_wmax_capacity", None)
+        out.pop("B2a_failure_announcement_by_wmin_capacity", None)
+    return out
 
 def analysis(params: dict, constraints: dict, materials: dict, debug: bool = False) -> dict:
     """

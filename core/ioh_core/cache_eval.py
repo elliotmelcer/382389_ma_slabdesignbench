@@ -1,5 +1,7 @@
 """
 Author: Max Dombrowski
+Modifications by Elliot Melcer:
+ - changed search strings to match analysis.py in hp_slab
 """
 
 #----------------------------------------------------------------------------------------------------------#
@@ -58,7 +60,7 @@ class EvalContext:  # Define a "helper" class to run the analysis only once per 
         self.y_p = float(rec.get("y_p", 0.0))
 
         # publish constraint channels (raw, non-negative violations expected)
-        viol = rec.get("penalties_", {}) or {}
+        viol = rec.get("penalties_", {}) or {} # Modified by: Elliot Melcer
         for n in self._c_names:
             setattr(self, f"c__{n}", float(viol.get(n, 0.0)))
 
