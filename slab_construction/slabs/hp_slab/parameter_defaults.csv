@@ -21,7 +21,6 @@ mat_reinf_gwp_crfp/conc;catalog;0.1064| 10. | 15. | 20. | 25. | 30.;;;;0;5;0;fix
 mat_infill_id;catalog;generic_infill;;;;0;0;0;fixed;str;;
 mat_insu_id;catalog;lightweight_mineral_wool; ;;;0;0;0;fixed;str;;
 mat_screed_id;catalog;generic_screed; ;;;0;0;0;fixed;str;;
-reinf_d_mm;catalog;10.|12.|14.|16.|20.|24.|28.|32.;;;;0;7;3;var;float;;
 reinf_kap_t_percent;grid;;0;1;81;0;80;60;var;float;;
 reinf_a_tex_mm2;grid;;0.5;0.5;400;0;399;19;var;float;;
 insu_mod_damp;grid;;0.01;0.01;1;0;0;0;fixed;float;;
