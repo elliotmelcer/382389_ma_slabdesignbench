@@ -128,6 +128,19 @@ def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
             for name, c in info["constraints"].items()
         }
 
+        # Resolve fixed parameter values for this problem (Addition by: Elliot Melcer)
+        fixed_params = {}
+        for pname, pmeta in info["model"].items():
+            if pmeta.get("role") == "fixed":
+                idx = pmeta.get("fixed_idx", 0)
+                vals = pmeta.get("values", [])
+                if 0 <= idx < len(vals):
+                    fixed_params[pname] = vals[idx]
+
+        # Let the slab module drop constraints that don't apply given those fixed params(Addition by: Elliot Melcer)
+        if hasattr(slab_module, "resolve_active_constraints"):
+            constraints_log = slab_module.resolve_active_constraints(fixed_params, constraints_log)
+
         # create decode, constraint list -> cache logger to store results from slab-specific analysis function
         decode = make_decode(info["model"], var_names)  # create a decide(x_idx) for this problem
         # bind constraints for this problem:
@@ -140,7 +153,7 @@ def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
 
         # --- IOH constraints: log *raw violations* from cache; default to HIDDEN/1/1 ---
         constraints = []
-        for name, conf in info["constraints"].items():
+        for name, conf in constraints_log.items(): #(Modified by: Elliot Melcer)
             if not conf.get("active", True):
                 continue
             # Build the 1-arg reader that pulls violations[name] from cache
@@ -193,7 +206,7 @@ def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
         p.bounds.lb = lb_idx
         p.bounds.ub = ub_idx
 
-        active_constraint_names = [name for name, conf in info["constraints"].items() if conf.get("active", True)]
+        active_constraint_names = [name for name, conf in constraints_log.items() if conf.get("active", True)] #(Modified by: Elliot Melcer)
         ctx.ensure_constraints(active_constraint_names)
         ctx.ensure_params(var_names)
 
