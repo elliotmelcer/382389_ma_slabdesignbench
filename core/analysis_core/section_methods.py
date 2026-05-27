@@ -9,6 +9,10 @@ from structuralcodes.sections import GenericSection
 
 from core.analysis_core.material_methods import create_sls_concrete_EC, TensionStiffeningConcreteLawEC, create_uls_concrete_EC
 
+class InvalidSectionForMKError(ValueError):
+    """Raised when a section cannot produce a valid M-K diagram
+    (e.g., prestress too high → would crush before cracking)."""
+    pass
 
 def calculate_cracking_moment_sls_Nmm_EC(section, n: float = 0.0):
     """
@@ -134,6 +138,8 @@ def calculate_cracking_moment_sls_Nmm_EC(section, n: float = 0.0):
             else:
                 reason = "No equilibrium solution in valid curvature range"
 
+            print(f"[calc_cracking_moment_sls] valid=False  reason={reason!r}  "
+                  f"m_cr=-inf  n={n}")
             return {
                 'section': sls_sec,
                 'm_cr': float('-inf'),
@@ -180,12 +186,15 @@ def calculate_cracking_moment_sls_Nmm_EC(section, n: float = 0.0):
         # Verify solution is within physical limits (should be, but double-check)
         eps_top = eps_0_eq + chi_y_eq * zmax
         if eps_top < eps_cu1:
+            reason = f"Solution exceeds concrete crushing strain (eps_top={eps_top:.4f} < eps_cu1={eps_cu1:.4f})"
+            print(f"[calc_cracking_moment_sls] valid=False  reason={reason!r}  "
+                  f"m_cr=-inf  n={n}")
             return {
                 'section': sls_sec,
                 'm_cr': float('-inf'),
                 'strain_profile': strain_profile,
                 'valid': False,
-                'reason': f"Solution exceeds concrete crushing strain (eps_top={eps_top:.4f} < eps_cu1={eps_cu1:.4f})",
+                'reason': reason,
             }
 
         # --- Calculate Internal Forces ---
@@ -398,9 +407,15 @@ def _full_moment_curvature_method(section: GenericSection,
     eps_0, chi_u, _ = m_u_res["strain_profile"]
 
     # Get curvature at cracking
-    M_cr = calculate_cracking_moment_sls_Nmm_EC(section)["m_cr"]
+    M_cr_result = calculate_cracking_moment_sls_Nmm_EC(section)
+    if not M_cr_result.get("valid", True):
+        raise InvalidSectionForMKError(
+            f"Cannot build full M-K diagram: cracking moment invalid "
+            f"({M_cr_result.get('reason', 'unknown')})"
+        )
+    M_cr = M_cr_result["m_cr"]
     sp = section.section_calculator.calculate_strain_profile(0, M_cr, 0)
-    _, kappa_cr,_ = sp
+    _, kappa_cr, _ = sp
 
     # Standard-chi-Array + κ_cr deterministisch einfügen
     chi_default = np.linspace(1e-8, chi_u, 40)
@@ -494,6 +509,12 @@ def _simplified_moment_curvature_method(section: GenericSection,
 
     # Cracking Point
     M_cr_result = calculate_cracking_moment_sls_Nmm_EC(section, n=n)
+
+    if not M_cr_result.get("valid", True):
+        raise InvalidSectionForMKError(
+            f"Cannot build simplified M-K diagram: cracking moment invalid "
+            f"({M_cr_result.get('reason', 'unknown')})"
+        )
 
     M_cr_Nmm = M_cr_result["m_cr"]  # Nmm
     kappa_cr = M_cr_result["strain_profile"][1]  # 1/mm

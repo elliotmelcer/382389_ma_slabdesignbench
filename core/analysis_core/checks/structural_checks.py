@@ -5,7 +5,7 @@ from core.analysis_core.statics.deflection import DeflectionCalculator
 from core.analysis_core.statics.internal_forces import InternalForces
 from core.analysis_core.statics.loads import Loads
 from core.analysis_core.section_methods import calculate_bending_strength_uls_Nmm_EC, flipped_section, \
-    calculate_cracking_moment_sls_Nmm_EC
+    calculate_cracking_moment_sls_Nmm_EC, InvalidSectionForMKError
 from core.unit_core import Nmm_to_kNm
 from slab_construction.slab_construction import SlabConstruction
 
@@ -112,15 +112,20 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             debug: bool = False,
     ) -> float:
 
-        w_max_sls = DeflectionCalculator.calculate_deflection_mm_EC(
-            slab_construction,
-            loads,
-            system,
-            load_history_method="NONE",
-            m_k_simplification=0.15,
-            combination = "QUASI_PERMANENT",
-            debug = debug,
-        )
+        try:
+            w_max_sls = DeflectionCalculator.calculate_deflection_mm_EC(
+                slab_construction,
+                loads,
+                system,
+                load_history_method="NONE",
+                m_k_simplification=0.15,
+                combination="QUASI_PERMANENT",
+                debug=debug,
+            )
+        except InvalidSectionForMKError as e:
+            if debug:
+                print(f"[B1a] section infeasible for deflection calc: {e}")
+            return 99.0
 
         L = slab_construction.slab.L
 
@@ -215,15 +220,20 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
             debug: bool = False,
     ) -> float:
 
-        w_max_uls = DeflectionCalculator.calculate_deflection_mm_EC(
-            slab_construction,
-            loads,
-            system,
-            load_history_method="NONE",
-            m_k_simplification=0.15,
-            combination="FUNDAMENTAL",
-            debug=debug,
-        )
+        try:
+            w_max_uls = DeflectionCalculator.calculate_deflection_mm_EC(
+                slab_construction,
+                loads,
+                system,
+                load_history_method="NONE",
+                m_k_simplification=0.15,
+                combination="FUNDAMENTAL",
+                debug=debug,
+            )
+        except InvalidSectionForMKError as e:
+            if debug:
+                print(f"[B2a] section infeasible for deflection calc: {e}")
+            return 99.0
 
         L = slab_construction.slab.L
 
