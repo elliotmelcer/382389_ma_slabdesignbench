@@ -66,15 +66,16 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
         # Calculate resistance at the specific x-position where max moment occurs
         # x_position is normalized (0 at first support, 1 at second support, etc.)
         if moment == MomentType.MAX_POS_MOMENT:
-            MRd_kNm = -Nmm_to_kNm(
-                calculate_bending_strength_uls_Nmm_EC(slab.section_at(x_position), n).get("m_u")
-            )
+            res = calculate_bending_strength_uls_Nmm_EC(slab.section_at(x_position), n)
+            if not res.get("valid", True):
+                return 10.
+            MRd_kNm = -Nmm_to_kNm(res["m_u"])
         else:
             rotated_section = flipped_section(slab.section_at(x_position))
-            # plot_cross_section(rotated_section)
-            MRd_kNm = Nmm_to_kNm(
-                calculate_bending_strength_uls_Nmm_EC(rotated_section, n).get("m_u")
-            )
+            res = calculate_bending_strength_uls_Nmm_EC(rotated_section, n)
+            if not res.get("valid", True):
+                return 10.
+            MRd_kNm = Nmm_to_kNm(res["m_u"])
 
         # Calculate design moment based on system and moment type
         MEd_kNm = InternalForces.calculate_moment_kNm(

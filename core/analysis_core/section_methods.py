@@ -229,7 +229,18 @@ def calculate_bending_strength_sls_Nmm_EC(section: GenericSection, n: float = 0.
 
     analysis_sls_sec = deepcopy(sls_sec) # in reference to structuralcodes issue #303 https://github.com/fib-international/structuralcodes/issues/303
 
-    bending_strength_result = analysis_sls_sec.section_calculator.calculate_bending_strength(n = n)
+    try:
+        bending_strength_result = analysis_sls_sec.section_calculator.calculate_bending_strength(n=n)
+    except ValueError as e:
+        if "cannot be taken by section" in str(e):
+            return {
+                'section': analysis_sls_sec,
+                'm_u': None,
+                'strain_profile': None,
+                'valid': False,
+                'reason': str(e),
+            }
+        raise  # any other ValueError is a real bug, let it surface
 
     m_u = bending_strength_result.m_y
 
@@ -241,6 +252,8 @@ def calculate_bending_strength_sls_Nmm_EC(section: GenericSection, n: float = 0.
         'section': sls_sec,
         'm_u': m_u,
         'strain_profile': strain_profile,
+        'valid': True,
+        'reason': None,
     }
 
 def calculate_bending_strength_uls_Nmm_EC(section: GenericSection, n: float = 0.0) -> dict:
@@ -255,7 +268,18 @@ def calculate_bending_strength_uls_Nmm_EC(section: GenericSection, n: float = 0.
     # Safety Conversion to ULS Section in case SLS Section was passed
     analysis_section = uls_section_EC(section)
 
-    bending_strength_result = analysis_section.section_calculator.calculate_bending_strength(n=n)
+    try:
+        bending_strength_result = analysis_section.section_calculator.calculate_bending_strength(n=n)
+    except ValueError as e:
+        if "cannot be taken by section" in str(e):
+            return {
+                'section': analysis_section,
+                'm_u': None,
+                'strain_profile': None,
+                'valid': False,
+                'reason': str(e),
+            }
+        raise  # any other ValueError is a real bug, let it surface
 
     m_u = bending_strength_result.m_y
 
@@ -267,6 +291,8 @@ def calculate_bending_strength_uls_Nmm_EC(section: GenericSection, n: float = 0.
         'section': analysis_section,
         'm_u': m_u,
         'strain_profile': strain_profile,
+        'valid': True,
+        'reason': None,
     }
 
 
