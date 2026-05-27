@@ -3,6 +3,7 @@ Author: Max Dombrowski
 Modified by: Elliot Melcer
  - main modified to work with file structure
  - load_param_defaults: added lookup role
+ - loads constraint defaults when they are omitted from problem_list.csv
 """
 
 # src/slab_benchmark/core/import_specs.py
@@ -275,7 +276,7 @@ def make_decode(model: Dict[str, dict], var_names: List[str]):
 def load_constraint_defaults(path: str | Path) -> Dict[str, dict]:
     """
     Read constraints_default.csv and return:
-      { name: {kind, enforced, weight, exponent, active_default} }
+      { name: {kind, enforced, weight, exponent, active} } # modified by: Elliot Melcer
     """
     path = Path(path)
     spec: Dict[str, dict] = {}
@@ -287,7 +288,7 @@ def load_constraint_defaults(path: str | Path) -> Dict[str, dict]:
             "enforced": _enf(r["enforced"] or "SOFT"),
             "weight": _to_float(r["weight"], 1.0),
             "exponent": _to_float(r["exponent"], 1.0),
-            "active_default": _to_bool(r["active_default"], True),
+            "active": _to_bool(r["active_default"], True), # modified by: Elliot Melcer
         }
     return spec
 
@@ -326,7 +327,7 @@ def load_problems_combined(
             problem_ID,
             {
                 "model": {k: v.copy() for k, v in param_defaults.items()},
-                "constraints": {},
+                "constraints": {k: v.copy() for k, v in constr_defaults.items()}, # modified by: Elliot Melcer
                 "label": r["label"],
             },
         )
@@ -377,7 +378,7 @@ def load_problems_combined(
                     f"{problem_list_csv}: problem {problem_ID} refers to unknown constraint '{name}'."
                 )
             base = constr_defaults[name].copy()
-            base["active"] = _to_bool(r["active"], base["active_default"])
+            base["active"] = _to_bool(r["active"], base["active"]) # modified by: Elliot Melcer
             if r["enforced"]:
                 prev = base["enforced"].name if hasattr(base["enforced"], "name") else "SOFT"
                 base["enforced"] = _enf(r["enforced"], prev)
@@ -506,7 +507,7 @@ if __name__ == "__main__":
             f"- {name}: kind={spec['kind']}, "
             f"enforced={getattr(spec['enforced'], 'name', spec['enforced'])}, "
             f"weight={spec['weight']}, exponent={spec['exponent']}, "
-            f"active_default={spec['active_default']}"
+            f"active={spec['active']}" # modified by: Elliot Melcer
         )
 
     print("\n== Loading problems & overlays ==")
