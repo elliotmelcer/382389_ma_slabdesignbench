@@ -2,11 +2,25 @@ import os
 from pathlib import Path
 from ioh.iohcpp.logger import trigger as ltr
 import ioh
+import json
 
+"""
+Adapted from: Max Dombrowski
 
-def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int):
+This module provides a function run_experiment():
+ 1. applies an optimization algorithm to one or more problem bundles
+ 2. records per-evaluation data with an IOH Analyzer logger
+ 3. patches the generated IOHprofiler metadata files so they report the custom suite name SlabDesignBench.
+"""
+
+SUITE_NAME = "SlabDesignBench"
+
+def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int, name: str = ""):
     out_root = Path(os.getcwd()) / "logger_results"
     out_root.mkdir(parents=True, exist_ok=True)
+
+    # snapshot existing JSONs so we only patch the ones written this call
+    pre_existing = set(out_root.rglob("IOHprofiler_f*.json"))
 
     for problem_id, bundle in problem_bundle.items():
         problem = bundle["problem"]
@@ -18,12 +32,17 @@ def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int):
         eval_context.ensure_params(var_names)
         print("Logging root:", out_root.resolve(),"\n")
 
+        if name == "":
+            folder_name = "my_benchmarking_study"
+        else:
+            folder_name = name
+
         trigger_alw = [ltr.Each(1)]
         logger = ioh.logger.Analyzer(
             root=str(out_root),
-            folder_name="my-experiment",
+            folder_name=folder_name,
             algorithm_name=algorithm.name,
-            store_positions=False,
+            store_positions=True,
             triggers=trigger_alw,
         )
         logger.watch(eval_context, "y")
@@ -49,3 +68,13 @@ def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int):
 
         problem.detach_logger()
         logger.close()
+
+        # patch suite name into newly written JSONs
+        new_jsons = set(out_root.rglob("IOHprofiler_f*.json")) - pre_existing
+        for jf in new_jsons:
+            try:
+                data = json.loads(jf.read_text(encoding="utf-8"))
+                data["suite"] = SUITE_NAME
+                jf.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            except Exception as e:
+                print(f"[warn] could not patch suite name in {jf.name}: {e}")
