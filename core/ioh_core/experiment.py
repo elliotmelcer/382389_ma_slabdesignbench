@@ -1,4 +1,7 @@
 import os
+import shutil
+import zipfile
+from datetime import datetime
 from pathlib import Path
 from ioh.iohcpp.logger import trigger as ltr
 import ioh
@@ -11,16 +14,36 @@ This module provides a function run_experiment():
  1. applies an optimization algorithm to one or more problem bundles
  2. records per-evaluation data with an IOH Analyzer logger
  3. patches the generated IOHprofiler metadata files so they report the custom suite name SlabDesignBench.
+ 4. optionally zips the result folders created by this call.
 """
 
 SUITE_NAME = "SlabDesignBench"
 
-def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int, name: str = ""):
+
+def _zip_folders(folders: list[Path], zip_path: Path, base_dir: Path) -> None:
+    """Zip the given folders into zip_path, preserving paths relative to base_dir."""
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for folder in folders:
+            for file in folder.rglob("*"):
+                if file.is_file():
+                    zf.write(file, arcname=file.relative_to(base_dir))
+
+
+def run_experiment(
+    problem_bundle: dict[str, dict],
+    algorithm,
+    n_runs: int,
+    name: str = "",
+    zip_results: bool = True,
+    delete_after_zip: bool = False,
+):
     out_root = Path(os.getcwd()) / "logger_results"
     out_root.mkdir(parents=True, exist_ok=True)
 
     # snapshot existing JSONs so we only patch the ones written this call
     pre_existing = set(out_root.rglob("IOHprofiler_f*.json"))
+    # snapshot existing folders so we only zip the ones written this call
+    pre_existing_folders = {p.name for p in out_root.iterdir() if p.is_dir()}
 
     for problem_id, bundle in problem_bundle.items():
         problem = bundle["problem"]
@@ -30,7 +53,7 @@ def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int, name
 
         eval_context.ensure_constraints(constraint_names)
         eval_context.ensure_params(var_names)
-        print("Logging root:", out_root.resolve(),"\n")
+        print("Logging root:", out_root.resolve(), "\n")
 
         if name == "":
             folder_name = "my_benchmarking_study"
@@ -79,3 +102,23 @@ def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int, name
                 jf.write_text(json.dumps(data, indent=2), encoding="utf-8")
             except Exception as e:
                 print(f"[warn] could not patch suite name in {jf.name}: {e}")
+
+    # ---- zip the result folders created during this call ----
+    if zip_results:
+        new_folders = [
+            p for p in out_root.iterdir()
+            if p.is_dir() and p.name not in pre_existing_folders
+        ]
+        if new_folders:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            base = folder_name if name else "experiment"
+            zip_path = out_root / f"{base}_{timestamp}.zip"
+            _zip_folders(new_folders, zip_path, out_root)
+            print(f"\nZipped {len(new_folders)} folder(s) to: {zip_path}")
+
+            if delete_after_zip:
+                for folder in new_folders:
+                    shutil.rmtree(folder, ignore_errors=True)
+                print("Removed source folders after zipping.")
+        else:
+            print("\nNo new folders to zip.")
