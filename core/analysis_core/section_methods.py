@@ -138,8 +138,7 @@ def calculate_cracking_moment_sls_Nmm_EC(section, n: float = 0.0):
             else:
                 reason = "No equilibrium solution in valid curvature range"
 
-            print(f"[calc_cracking_moment_sls] valid=False  reason={reason!r}  "
-                  f"m_cr=-inf  n={n}")
+
             return {
                 'section': sls_sec,
                 'm_cr': float('-inf'),
@@ -187,8 +186,6 @@ def calculate_cracking_moment_sls_Nmm_EC(section, n: float = 0.0):
         eps_top = eps_0_eq + chi_y_eq * zmax
         if eps_top < eps_cu1:
             reason = f"Solution exceeds concrete crushing strain (eps_top={eps_top:.4f} < eps_cu1={eps_cu1:.4f})"
-            print(f"[calc_cracking_moment_sls] valid=False  reason={reason!r}  "
-                  f"m_cr=-inf  n={n}")
             return {
                 'section': sls_sec,
                 'm_cr': float('-inf'),
