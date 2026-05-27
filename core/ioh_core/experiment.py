@@ -42,6 +42,7 @@ def run_experiment(problem_bundle: dict[str, dict], algorithm, n_runs: int, name
             root=str(out_root),
             folder_name=folder_name,
             algorithm_name=algorithm.name,
+            algorithm_info=getattr(algorithm, "info", "No additional information provided"),
             store_positions=True,
             triggers=trigger_alw,
         )

@@ -1,6 +1,6 @@
 import nlopt
 
-class NloptDirectSearch:
+class NloptDirectLocalSearch:
     """
     Author: Max Dombrowski
     NLopt DIRECT wrapper around an IOHexperimenter problem.
@@ -8,7 +8,8 @@ class NloptDirectSearch:
 
     def __init__(self, max_evaluations: int = 50):
         self.max_evaluations = int(max_evaluations)
-        self.name = "NLOP_DIRECT"
+        self.name = "NLOPT_DIRECT_L"
+        self.info = "locally biased variant of DIviding RECTangles (DIRECT) algorithm for global optimization"
 
     def __call__(self, problem):
         # Dimension & bounds from IOH
