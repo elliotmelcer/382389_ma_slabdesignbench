@@ -1,4 +1,6 @@
 import nlopt
+import numpy as np
+
 
 class NloptDirectLocalSearch:
     """
