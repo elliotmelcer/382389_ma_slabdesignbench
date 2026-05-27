@@ -57,7 +57,7 @@ def _make_violation_reader(ctx, cname: str):
         # Never raise from here: IOH calls this from C++.
         try:
             r = ctx.get(x)
-            v = r.get("violations", {}).get(cname, 0.0)
+            v = r.get("penalties_", {}).get(cname, 0.0)
             v = float(v)
             # Ensure non-negative (contract: raw, non-negative violations)
             return v if v >= 0.0 and math.isfinite(v) else 0.0
