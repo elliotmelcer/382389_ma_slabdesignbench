@@ -61,7 +61,7 @@ class ReinforcementSpacingCheck(ConstructionCheck):
             print(f"s_min = {s_min}")
 
         if s_min == 0:
-            return 99.
+            return 10.
         else:
             utilization = s_req / s_min
 

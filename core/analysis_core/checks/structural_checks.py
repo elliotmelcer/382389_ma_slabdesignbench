@@ -125,7 +125,7 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
         except InvalidSectionForMKError as e:
             if debug:
                 print(f"[B1a] section infeasible for deflection calc: {e}")
-            return 99.0
+            return 10.
 
         L = slab_construction.slab.L
 
@@ -184,14 +184,14 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
 
         # Handle invalid cases (section crushes before cracking)
         if not m_cr_result['valid']:
-            return 99.
+            return 10.
 
         # Get cracking moment magnitude
         m_cr = abs(Nmm_to_kNm(m_cr_result["m_cr"]))
 
         # Avoid division by zero (shouldn't happen with valid result, but safety check)
         if m_cr < 1e-6:
-            return 99.
+            return 10.
 
         # Calculate utilization (compare magnitudes)
         utilization = abs(m_qp_kNm) / m_cr
@@ -233,7 +233,7 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
         except InvalidSectionForMKError as e:
             if debug:
                 print(f"[B2a] section infeasible for deflection calc: {e}")
-            return 99.0
+            return 10.
 
         L = slab_construction.slab.L
 
@@ -294,14 +294,14 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
 
         # Handle invalid cases (section crushes before cracking)
         if not m_cr_result['valid']:
-            return 99.
+            return 10.
 
         # Get cracking moment magnitude
         m_cr = abs(Nmm_to_kNm(m_cr_result["m_cr"]))
 
         # Avoid division by zero (shouldn't happen with valid result, but safety check)
         if m_cr < 1e-6:
-            return 99.
+            return 10.
 
         # Calculate utilization (compare magnitudes)
         utilization = m_cr / m_fund_kNm
