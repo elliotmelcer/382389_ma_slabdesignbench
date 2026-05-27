@@ -38,6 +38,10 @@ class MidlineConcreteCoverCheck(ConstructionCheck):
         # available clear concrete cover
         c_nom_c1 = hp_shell.c_1_clear_concrete_cover()
 
+        # infeasible design
+        if c_nom_c1 == 0:
+            return 10.
+
         utilization = c_nom_c1_req / c_nom_c1
 
         return utilization
