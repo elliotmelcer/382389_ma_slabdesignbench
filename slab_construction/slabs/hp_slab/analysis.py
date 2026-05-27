@@ -81,6 +81,9 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
     R_w_req_db = _req_param(params, "insu_rw_req_db")
     L_nw_max_db = _req_param(params, "insu_lnw_max_db")
 
+    # Beam Theory
+    f_beam_theory = _req_param(params, "f_beam_theory")
+
     # ======================================================================================================================
     # CREATE MATERIALS
     # ======================================================================================================================
@@ -279,12 +282,14 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
 
     beam_hL_Z2_util = BeamTheoryHgesLRatioCheck.calculate_utilization(
         slab_construction = slab_construction,
+        f_b=f_beam_theory,
     )
 
     # Z.3. Beam Theory B / L - Ratio
 
     beam_BL_Z3_util = BeamTheoryBLRatioCheck.calculate_utilization(
         slab_construction = slab_construction,
+        f_b=f_beam_theory,
     )
 
     # ======================================================================================================================
