@@ -83,12 +83,22 @@ def run_experiment(
         problem.attach_logger(logger)
 
         for run in range(n_runs):
-            algorithm(problem)
-            print(f"[{problem.meta_data.name} run {run + 1} - best found:{problem.state.current_best.y: .3f}")
-            best_x_overall = list(problem.state.current_best.x)
-            eval_context.reset()
             problem.reset()
-            _ = problem(best_x_overall)
+            eval_context.reset()
+
+            algorithm(problem)
+
+            best_y = problem.state.current_best.y
+            best_x = list(problem.state.current_best.x)
+
+            # Decode integer indices -> real parameter values (no extra eval, no logger row)
+            decoded = bundle["decode"](best_x)
+            best_vars = {n: decoded[n] for n in var_names}
+
+            print(f"[{problem.meta_data.name}] run {run + 1}/{n_runs}  "
+                  f"best y = {best_y:.3f}")
+            print(f"    x_idx = {best_x}")
+            print(f"    vars  = {best_vars}")
 
         problem.detach_logger()
         logger.close()
