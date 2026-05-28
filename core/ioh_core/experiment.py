@@ -45,73 +45,72 @@ def run_experiment(
     # snapshot existing folders so we only zip the ones written this call
     pre_existing_folders = {p.name for p in out_root.iterdir() if p.is_dir()}
 
-    for problem_id, bundle in problem_bundle.items():
-        problem = bundle["problem"]
-        eval_context = bundle["ctx"]
-        var_names = bundle["var_names"]
-        constraint_names = bundle["active_constraint_names"]
+    folder_name = name if name else "my_benchmarking_study"
+    print("Logging root:", out_root.resolve(), "\n")
 
-        eval_context.ensure_constraints(constraint_names)
-        eval_context.ensure_params(var_names)
-        print("Logging root:", out_root.resolve(), "\n")
+    # One logger for the whole call (all problems share it) # Modification by: Elliot Melcer
+    trigger_alw = [ltr.Each(1)]
+    logger = ioh.logger.Analyzer(
+        root=str(out_root),
+        folder_name=folder_name,
+        algorithm_name=algorithm.name,
+        algorithm_info=getattr(algorithm, "info", "No additional information provided"),
+        store_positions=True,
+        triggers=trigger_alw,
+    )
 
-        if name == "":
-            folder_name = "my_benchmarking_study"
-        else:
-            folder_name = name
+    try:
+        for problem_id, bundle in problem_bundle.items():
+            problem = bundle["problem"]
+            eval_context = bundle["ctx"]
+            var_names = bundle["var_names"]
+            constraint_names = bundle["active_constraint_names"]
+            decode = bundle["decode"]
 
-        trigger_alw = [ltr.Each(1)]
-        logger = ioh.logger.Analyzer(
-            root=str(out_root),
-            folder_name=folder_name,
-            algorithm_name=algorithm.name,
-            algorithm_info=getattr(algorithm, "info", "No additional information provided"),
-            store_positions=True,
-            triggers=trigger_alw,
-        )
-        logger.watch(eval_context, "y")
-        logger.watch(eval_context, "y_p")
-        logger.watch(eval_context, "misses")
-        logger.watch(eval_context, "hits")
+            eval_context.ensure_constraints(constraint_names)
+            eval_context.ensure_params(var_names)
 
-        for constr in constraint_names:
-            logger.watch(eval_context, f"c__{constr}")
+            # Each problem has its own EvalContext, so the watches must
+            # be (re)bound before this problem is attached. See note below.
+            logger.watch(eval_context, "y")
+            logger.watch(eval_context, "y_p")
+            logger.watch(eval_context, "misses")
+            logger.watch(eval_context, "hits")
+            for constr in constraint_names:
+                logger.watch(eval_context, f"c__{constr}")
+            for var in var_names:
+                logger.watch(eval_context, f"var__{var}")
 
-        for var in var_names:
-            logger.watch(eval_context, f"var__{var}")
+            problem.attach_logger(logger)
 
-        problem.attach_logger(logger)
+            for run in range(n_runs):
+                problem.reset()
+                eval_context.reset()
+                algorithm(problem)
 
-        for run in range(n_runs):
-            problem.reset()
-            eval_context.reset()
+                best_y = problem.state.current_best.y
+                best_x = list(problem.state.current_best.x)
+                best_vars = {n: decode(best_x)[n] for n in var_names}
+                print(f"[{problem.meta_data.name}] run {run + 1}/{n_runs}  "
+                      f"best y = {best_y:.3f}")
+                print(f"    x_idx = {best_x}")
+                print(f"    vars  = {best_vars}")
+                print("")
+                print("")
 
-            algorithm(problem)
-
-            best_y = problem.state.current_best.y
-            best_x = list(problem.state.current_best.x)
-
-            # Decode integer indices -> real parameter values (no extra eval, no logger row)
-            decoded = bundle["decode"](best_x)
-            best_vars = {n: decoded[n] for n in var_names}
-
-            print(f"[{problem.meta_data.name}] run {run + 1}/{n_runs}  "
-                  f"best y = {best_y:.3f}")
-            print(f"    x_idx = {best_x}")
-            print(f"    vars  = {best_vars}")
-
-        problem.detach_logger()
+            problem.detach_logger()
+    finally:
         logger.close()
 
-        # patch suite name into newly written JSONs
-        new_jsons = set(out_root.rglob("IOHprofiler_f*.json")) - pre_existing
-        for jf in new_jsons:
-            try:
-                data = json.loads(jf.read_text(encoding="utf-8"))
-                data["suite"] = SUITE_NAME
-                jf.write_text(json.dumps(data, indent=2), encoding="utf-8")
-            except Exception as e:
-                print(f"[warn] could not patch suite name in {jf.name}: {e}")
+    # patch suite name into newly written JSONs (once, after all problems)
+    new_jsons = set(out_root.rglob("IOHprofiler_f*.json")) - pre_existing
+    for jf in new_jsons:
+        try:
+            data = json.loads(jf.read_text(encoding="utf-8"))
+            data["suite"] = SUITE_NAME
+            jf.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        except Exception as e:
+            print(f"[warn] could not patch suite name in {jf.name}: {e}")
 
     # ---- zip the result folders created during this call ----
     if zip_results:
