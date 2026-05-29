@@ -13,6 +13,12 @@ from core.analysis_core.section_methods import calculate_cracking_moment_sls_Nmm
 from core.visualization_core.visualization import PlotLine, plot_moment_curvature_multiple
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 
+"""
+This is is used to show the difference in the moment-curvature-diagram for multiple hp-designs at midspan 
+ - for 10% and 60% prestress
+ - for different kappa_0 calculation methods 
+"""
+
 _SHELL_REGISTRY: dict[str, HPShell] = {
     'c1_1':     hp_shell_c1_1_uls,
     'c1_2_c50': hp_shell_c1_2_c50_uls,
