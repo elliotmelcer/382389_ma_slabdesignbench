@@ -441,7 +441,7 @@ def _full_moment_curvature_method(section: GenericSection,
     _, kappa_cr, _ = sp
 
     # Standard-chi-Array + κ_cr deterministisch einfügen
-    chi_default = np.linspace(1e-8, chi_u, 40)
+    chi_default = np.linspace(-1e-8, chi_u, 40)
     chi_with_crack = np.sort(np.concatenate([chi_default, [kappa_cr]]))[::-1]  # für negative Krümmungen umkehren
 
     # -----------------------------------
