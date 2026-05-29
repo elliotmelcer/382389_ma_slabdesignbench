@@ -833,11 +833,6 @@ def _calculate_kappa_0(
     kappa_0 calculation for prestressed sections, used by both
     the full and simplified M-κ paths in calculate_moment_curvature_sls().
 
-    Primary Method:
-        kappa_0 = (M_p · κ_cr) / (M_cr - M_p)
-        Requires valid M_cr. Source: [your reference].
-
-    Fallback Method (only if M_cr is invalid):
         kappa_0 = -intercept / slope  (linear fit on first two pre-yield points)
 
         Full path (mk_np_results provided):
@@ -864,71 +859,38 @@ def _calculate_kappa_0(
     if M_p_Nmm == 0:
         return 0.0
 
-    # -----------------------------------------------------------------------
-    # Primary Method
-    # -----------------------------------------------------------------------
-    # Use pre-computed M_cr if provided, otherwise compute it
-    if m_cr_result is None:
-        m_cr_result = calculate_cracking_moment_sls_Nmm_EC(sls_sec, n=n)
-
-    if m_cr_result.get('valid', True):
-        M_cr     = abs(m_cr_result['m_cr'])       # Nmm
-        kappa_cr = abs(m_cr_result['strain_profile'][1])  # 1/mm
-
-        if abs(M_cr - M_p_Nmm) > 1e-3:
-            kappa_0 = (M_p_Nmm * kappa_cr) / (M_cr - M_p_Nmm)
-
-            if debug:
-                print(f"[kappa_0] Method 1:"
-                      f"  M_p={M_p_Nmm/1e6:.3f} kNm"
-                      f"  M_cr={M_cr/1e6:.3f} kNm"
-                      f"  κ_cr={kappa_cr*1000:.6f} 1/m"
-                      f"  → κ₀={kappa_0*1000:.6f} 1/m")
-            return kappa_0
-        else:
-            if debug:
-                print(f"[kappa_0] Method 1: M_cr ≈ M_p, κ₀=0.0")
-            return 0.0
-
-    # -----------------------------------------------------------------------
-    # Fallback Method
-    # -----------------------------------------------------------------------
-    if debug:
-        reason = m_cr_result.get('reason', 'unknown')
-        print(f"[kappa_0] M_cr invalid ({reason}) → falling back to Method 2")
-
     if mk_results is not None:
+        # -----------------------------------------------------------------------
         # Full path: reuse first two points from already-computed curve
+        # -----------------------------------------------------------------------
         chi = mk_results.chi_y[:2]
         m   = mk_results.m_y[:2]
 
         if debug:
-            print(f"[kappa_0] Method 2 (full path): using existing M-κ points"
+            print(f"calculating kappa_0 using existing M-κ points"
                   f"  χ={chi}, M={[v/1e6 for v in m]} kNm")
 
     else:
-        # Simplified path: find chi_yield, replicate pre-yield linspace of curvatures,
-        # evaluate 2 points
-        calculator = sls_sec.section_calculator
-
-        strain_yield = calculator.find_equilibrium_fixed_pivot(
-            sls_sec.geometry, n, yielding=True
-        )
-        chi_yield = strain_yield[1]
+        # -----------------------------------------------------------------------
+        # simplified path: recreate the initial slope of full m-k-diagram
+        # -----------------------------------------------------------------------
+        # Get bending strength strain profile
+        m_u_res = calculate_bending_strength_sls_Nmm_EC(sls_sec, n=n)
+        eps_0, chi_u, _ = m_u_res["strain_profile"]
 
         # Replicate chi_first logic from calculate_moment_curvature() internals
-        chi_first  = 1e-8
-        chi_first *= -1.0 if chi_first * chi_yield < 0 else 1.0
+        chi_first = -1e-8
+        chi_first *= -1.0 if chi_first * chi_u < 0 else 1.0
 
         # First two points of the 40-point pre-yield linspace
-        chi_probe = np.linspace(chi_first, chi_yield, 40)[:2]
+        chi_probe = np.linspace(chi_first, chi_u, 40)[:2]
 
-        res = calculator.calculate_moment_curvature(n=n, chi=chi_probe)
+        res = sls_sec.section_calculator.calculate_moment_curvature(n=n, chi=chi_probe)
         chi = res.chi_y
         m   = res.m_y
 
         if debug:
-            print(f"[kappa_0] Method 2 (simplified path): chi_yield={chi_yield*1000:.6f} 1/m"
+            print(f"calculating kappa_0 by recreating initial full m-k-list"
                   f"  chi_probe={chi_probe*1000}"
                   f"  M={[v/1e6 for v in m]} kNm")
 
@@ -940,7 +902,7 @@ def _calculate_kappa_0(
         kappa_0 = 0.0
 
     if debug:
-        print(f"[kappa_0] Method 2: slope={slope:.4e}"
+        print(f"[kappa_0]: slope={slope:.4e}"
               f"  intercept={intercept:.4e}"
               f"  → κ₀={kappa_0*1000:.6f} 1/m")
 
