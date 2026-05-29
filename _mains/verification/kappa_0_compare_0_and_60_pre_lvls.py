@@ -16,7 +16,7 @@ from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 """
 This is is used to show the difference in the moment-curvature-diagram for multiple hp-designs at midspan 
  - for 10% and 60% prestress
- - for different kappa_0 calculation methods 
+ - for different kappa_0 calculation methods
 """
 
 _SHELL_REGISTRY: dict[str, HPShell] = {
