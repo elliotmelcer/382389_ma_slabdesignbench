@@ -171,9 +171,9 @@ class InternalForces:
         if not (0 <= x <= 2 * L):
             return 0
 
-        xi = L - x if x <= L else x - L
+        xi = x if x <= L else 2*L-x
 
-        return w * (xi ** 2 / 2 - 5 * L * xi / 8 + L ** 2 / 8)
+        return w * (3/8 * L * xi - xi ** 2 / 2 )
 
     @staticmethod
     def moment_cantilever(x: float, w: float, L: float) -> float:
