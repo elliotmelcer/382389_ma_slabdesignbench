@@ -689,11 +689,9 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool
 
 def plot_constitutive_law_reinforcement(reinforcement: Reinforcement, n: int = 100):
     """
-            Author: Elliot Melcer
-            Plot the reinforcement stress–strain constitutive law.
-
-            No flipping of axes is performed. Positive strain → positive stress.
-            """
+     Author: Elliot Melcer
+     Plot the reinforcement stress–strain constitutive law.
+     """
 
     import numpy as np
     import matplotlib.pyplot as plt
