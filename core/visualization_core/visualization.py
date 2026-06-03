@@ -710,10 +710,18 @@ def plot_constitutive_law_reinforcement(reinforcement: Reinforcement, n: int = 1
     #   Build strain domain for steel
     # ------------------------------------------------------------
     eps_y = reinforcement.epsyk  # yield strain
-    eps_u = reinforcement.epsuk  # ultimate strain
+    eps_u = reinforcement.epsud()  # ultimate strain
 
     # Positive strain range typical for reinforcement
-    eps = np.linspace(-eps_u, eps_u, n)
+    eps_post_neg = np.linspace(-eps_u, -eps_y, n, endpoint=False)
+    eps_yiel_yiel = np.linspace(-eps_y, eps_y, n, endpoint=False)
+    eps_post_pos = np.linspace(eps_y, eps_u, n)
+
+    eps = np.concatenate((
+        eps_post_neg,
+        eps_yiel_yiel,
+        eps_post_pos
+    ))
 
     # Compute stresses (in MPa)
     sig = law.get_stress(eps)
