@@ -86,6 +86,9 @@ html_title = "SlabDesignBench"
 toc_object_entries_show_parents = "hide"
 toc_object_entries = False
 
+# Modulprefix weglassen
+add_module_names = False
+
 # -- LaTeX / PDF-Ausgabe -----------------------------------------------------
 # Deine Docstrings enthalten Unicode (ε, κ, χ, ², ³, ‰, →, …). Das Standard-
 # 'pdflatex' scheitert daran. 'xelatex' verarbeitet Unicode nativ.
