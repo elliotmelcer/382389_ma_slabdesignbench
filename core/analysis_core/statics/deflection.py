@@ -117,10 +117,6 @@ class DeflectionCalculator:
                 **deflection_kwargs
             )
 
-        # elif load_history_method == "SECANT":
-        #     # deflection_m = DeflectionCalculator._secant_deflection_method()
-        #     deflection_mm = 0.0
-
         else:
             raise ValueError("load_history_method must be 'NONE' or 'FACTOR_EC'")
 
@@ -262,16 +258,6 @@ class DeflectionCalculator:
             DeflectionCalculator._print_simpson_debug(simpson_debug)
 
         return deflection_weighted_mm
-
-
-    # @staticmethod
-    # def _secant_deflection_method():
-    #     # 1. Calculate M-K-Line at Support and Midsection
-    #     # 2. Determine (M_real, kappa_real) at every point along the beam using rare combination
-    #     # 3. Linearly interpolate down to quasi permanent combination
-    #     #       - use prestress point or (0,0)
-    #     #       - mind max slope determined by fully cracked section
-    #     return None
 
     @staticmethod
     def _simpson_integration(
