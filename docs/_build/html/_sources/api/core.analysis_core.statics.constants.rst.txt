@@ -1,5 +1,5 @@
-core.analysis\_core.statics.constants
-=====================================
+constants.py
+============
 
 .. automodule:: core.analysis_core.statics.constants
    :members:

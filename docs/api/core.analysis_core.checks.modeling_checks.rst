@@ -1,5 +1,5 @@
-core.analysis\_core.checks.modeling\_checks
-===========================================
+modeling\_checks.py
+===================
 
 .. automodule:: core.analysis_core.checks.modeling_checks
    :members:

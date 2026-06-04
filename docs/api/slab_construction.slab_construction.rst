@@ -1,5 +1,5 @@
-slab\_construction.slab\_construction
-=====================================
+slab\_construction.py
+=====================
 
 .. automodule:: slab_construction.slab_construction
    :members:

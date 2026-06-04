@@ -30,7 +30,11 @@ extensions = [
     "sphinx.ext.viewcode",      # Link "[source]" zum Quelltext
     "sphinx.ext.intersphinx",   # Querverweise zu Python/NumPy-Doku (braucht Internet beim Build)
     "sphinx.ext.mathjax",       # Formel-Satz in HTML
+    "sphinxcontrib.bibtex",     # Quellen
 ]
+
+bibtex_bibfiles = ["refs.bib"]
+bibtex_default_style = "plain"
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]

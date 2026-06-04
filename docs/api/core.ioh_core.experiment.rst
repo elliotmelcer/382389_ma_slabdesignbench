@@ -1,5 +1,5 @@
-core.ioh\_core.experiment
-=========================
+experiment.py
+=============
 
 .. automodule:: core.ioh_core.experiment
    :members:

@@ -1,5 +1,5 @@
-core.analysis\_core.checks.acoustic\_checks
-===========================================
+acoustic\_checks.py
+===================
 
 .. automodule:: core.analysis_core.checks.acoustic_checks
    :members:

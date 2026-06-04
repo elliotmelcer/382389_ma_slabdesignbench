@@ -1,5 +1,5 @@
-core.analysis\_core.statics.internal\_forces
-============================================
+internal\_forces.py
+===================
 
 .. automodule:: core.analysis_core.statics.internal_forces
    :members:

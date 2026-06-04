@@ -1,5 +1,5 @@
-core.analysis\_core.statics.deflection
-======================================
+deflection.py
+=============
 
 .. automodule:: core.analysis_core.statics.deflection
    :members:

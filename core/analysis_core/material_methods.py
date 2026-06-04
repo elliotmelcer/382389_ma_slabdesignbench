@@ -1,3 +1,9 @@
+"""
+Material factory functions and custom constitutive law classes for SLS/ULS
+concrete and CFRP reinforcement, used in the structural benchmarking suite.
+
+Author: Elliot Melcer
+"""
 
 from typing import Union
 
@@ -10,20 +16,23 @@ from slab_construction.floor import InsulationMaterial, InfillMaterial, ScreedMa
 
 class CrackingConcreteLawEC(UserDefined):
     """
-    Author: Elliot Melcer
+    Concrete constitutive law that handles tensile cracking in moment-curvature
+    analysis.
 
-    A concrete constitutive law that handles tensile cracking correctly
-    in moment-curvature analysis according to Eurocode.
+    Overrides :meth:`get_ultimate_strain` of :class:`UserDefined` so that the
+    tensile strain limit is set to ``1e6`` (effectively infinite). This prevents
+    the concrete cracking inside ``get_balanced_failure_strain()`` from
+    producing the governing curvature; ``chi_ultimate`` is therefore
+    controlled by the two failure modes reinforcement fracture vs.
+    concrete crushing.
 
-    The class overrides get_ultimate_strain of UserDefined to allow for cracking:
-
-    get_ultimate_strain(yielding)
-        Called by get_balanced_failure_strain() to determine chi_ultimate.
-        Returns 1e6 as the positive (tensile) limit so that the concrete
-        self-pairing in the double loop never produces the governing
-        curvature.  chi_ultimate is therefore always governed by the
-        reinforcement-concrete pair (reinf fracture vs. concrete crushing),
-        which is physically correct.
+    Attributes
+    ----------
+    _eps_cu1 : float
+        Ultimate compressive strain (negative) [1].
+    _eps_c1 : float
+        Compressive strain at peak stress (negative), used when
+        ``yielding=True`` [1].
     """
 
     def __init__(
@@ -35,13 +44,20 @@ class CrackingConcreteLawEC(UserDefined):
             **kwargs,
     ) -> None:
         """
-        Args:
-            strains:  Strain array passed to UserDefined
-            stresses: Stress array passed to UserDefined
-            eps_ctm:  Cracking strain (positive).  Stress is zeroed above this.
-            eps_cu1:  Ultimate compressive strain (negative).
-            eps_c1:   Compressive strain at peak stress (negative), used when yielding=True.
-            **kwargs: Passed through to UserDefined (e.g. name, flag).
+        Parameters
+        ----------
+        strains : np.ndarray
+            Strain values passed to :class:`UserDefined` [1].
+        stresses : np.ndarray
+            Stress values passed to :class:`UserDefined` [N/mm²].
+        eps_cu1 : float
+            Ultimate compressive strain (negative, e.g. ``-0.0035``) [1].
+        eps_c1 : float
+            Compressive strain at peak stress (negative, e.g. ``-0.0020``),
+            used when ``yielding=True`` [1].
+        **kwargs
+            Additional keyword arguments forwarded to :class:`UserDefined`
+            (e.g. ``name``, ``flag``).
         """
         super().__init__(strains, stresses, **kwargs)
         self._eps_cu1 = eps_cu1  # negative, e.g. -0.0035
@@ -50,12 +66,24 @@ class CrackingConcreteLawEC(UserDefined):
     # ------------------------------------------------------------------
     def get_ultimate_strain(self, yielding: bool = False):
         """
-        Return (compressive_limit, 1e6).
+        Return the compressive and tensile strain limits.
 
-        The 1e6 tensile side is intentionally unreachable so that the
-        concrete self-pairing in get_balanced_failure_strain() never
-        produces the minimum curvature.  chi_ultimate ends up governed
-        by the reinforcement-concrete pair instead.
+        The concrete tensile limit is fixed at ``1e6`` to ensure it is never the
+        governing strain in ``get_balanced_failure_strain()``. The
+        compressive limit depends on whether the yielding state is requested.
+
+        Parameters
+        ----------
+        yielding : bool, optional
+            If ``True``, return the strain at peak stress (``eps_c1``) as
+            the compressive limit; otherwise return the ultimate compressive
+            strain (``eps_cu1``). Default is ``False``.
+
+        Returns
+        -------
+        tuple[float, float]
+            ``(compressive_limit, 1e6)`` where ``compressive_limit`` is
+            either ``eps_c1`` or ``eps_cu1`` depending on ``yielding`` [1].
         """
         if yielding:
             return self._eps_c1, 1e6
@@ -63,8 +91,20 @@ class CrackingConcreteLawEC(UserDefined):
 
 class TensionStiffeningConcreteLawEC(CrackingConcreteLawEC):
     """
-    Author: Elliot Melcer
-    A concrete constitutive law that handles tension stiffening
+    Concrete constitutive law that incorporates tension stiffening according
+    to Nayal and Rasheed :cite:`nayal_2006`.
+
+    Extends :class:`CrackingConcreteLawEC` by storing the two characteristic
+    tension-stiffening strain values (``eps_F_t`` and ``eps_S_t``) directly
+    on the instance for downstream access.
+
+    Attributes
+    ----------
+    eps_F_t : float
+        Final tension-stiffening strain (last entry of the strain array) [1].
+    eps_S_t : float
+        Secondary tension-stiffening strain (second-to-last entry of the
+        strain array) [1].
     """
 
     def __init__(
@@ -76,12 +116,20 @@ class TensionStiffeningConcreteLawEC(CrackingConcreteLawEC):
             **kwargs,
     ) -> None:
         """
-        Args:
-            strains:  Strain array passed to UserDefined
-            stresses: Stress array passed to UserDefined
-            eps_cu1:  Ultimate compressive strain (negative).
-            eps_c1:   Compressive strain at peak stress (negative), used when yielding=True.
-            **kwargs: Passed through to UserDefined (e.g. name, flag).
+        Parameters
+        ----------
+        strains : np.ndarray
+            Strain values defining the constitutive curve [1].
+        stresses : np.ndarray
+            Stress values corresponding to ``strains`` [N/mm²].
+        eps_cu1 : float
+            Ultimate compressive strain (negative) [1].
+        eps_c1 : float
+            Compressive strain at peak stress (negative), used when
+            ``yielding=True`` [1].
+        **kwargs
+            Additional keyword arguments forwarded to
+            :class:`CrackingConcreteLawEC` (e.g. ``name``, ``flag``).
         """
         super().__init__(strains, stresses, eps_cu1, eps_c1, **kwargs)
         self.eps_F_t = strains[-1]
@@ -89,11 +137,34 @@ class TensionStiffeningConcreteLawEC(CrackingConcreteLawEC):
 
 def create_sls_concrete_EC(conc: Union[Concrete, float, int], constitutive_law: str) -> Concrete:
     """
-    Creates an SLS Concrete object with new constitutive law according to Eurocode
-    Available constitutive law keywords: NONE_PARABOLIC, FCTM_PARABOLIC, TENSTIFF_PARABOLIC, ELASTIC_ELASTIC
-    :param conc: Concrete object or fck value
-    :param constitutive_law: constitutive law (by keyword)
-    :return:
+    Create an SLS :class:`Concrete` object with a Eurocode constitutive law.
+
+    Parameters
+    ----------
+    conc : Concrete or float or int
+        Either a :class:`Concrete` instance or a characteristic cylinder
+        strength ``fck`` [N/mm²].
+    constitutive_law : str
+        Keyword selecting the tension/compression law pair. Case- and
+        separator-insensitive. Available options:
+
+        - ``"NONE_PARABOLIC"`` — no tensile capacity; Sargin compression.
+        - ``"FCTM_PARABOLIC"`` — linear elastic tension up to ``fctm``;
+          Sargin compression.
+        - ``"TENSTIFF_PARABOLIC"`` — linear elastic tension up to ``fctm``
+          followed by tension stiffening per Naya (2006); Sargin compression.
+        - ``"ELASTIC_ELASTIC"`` — fully elastic in both tension and
+          compression (no cracking or crushing).
+
+    Returns
+    -------
+    Concrete
+        A :class:`Concrete` instance configured for SLS analysis.
+
+    Raises
+    ------
+    ValueError
+        If ``constitutive_law`` does not match any of the available keywords.
     """
     f_ck = conc.fck if isinstance(conc, Concrete) else float(conc)
     f_cube = get_cube_EC(f_ck)
@@ -132,12 +203,24 @@ def create_uls_concrete_EC(conc: Union[Concrete, float, int],
                            alpha_cc: float = 0.85,
                            gamma_c: float = 1.5) -> Concrete:
     """
-    Author: Elliot Melcer
-    Creates a ULS Concrete object with parabola-rectangle constitutive law according to Eurocode
-    :param conc: Concrete object or fck value
-    :param alpha_cc: alpha_cc
-    :param gamma_c: gamma_c
-    :return:
+    Create a ULS :class:`Concrete` object with a parabola-rectangle
+    constitutive law according to Eurocode.
+
+    Parameters
+    ----------
+    conc : Concrete or float or int
+        Either a :class:`Concrete` instance or a characteristic cylinder
+        strength ``fck`` [N/mm²].
+    alpha_cc : float, optional
+        Long-term reduction factor for compressive strength per EN 1992-1-1
+        cl. 3.1.6. Default is ``0.85`` [1].
+    gamma_c : float, optional
+        Partial safety factor for concrete. Default is ``1.5`` [1].
+
+    Returns
+    -------
+    Concrete
+        A :class:`Concrete` instance configured for ULS analysis.
     """
     f_ck = conc.fck if isinstance(conc, Concrete) else float(conc)
     f_cube = get_cube_EC(f_ck)
@@ -154,12 +237,31 @@ def create_uls_concrete_EC(conc: Union[Concrete, float, int],
 
 def fctm_parabolic_law_EC(concrete: Union[Concrete, float, int], n_c: int = 80, n_t: int = 20) -> CrackingConcreteLawEC:
     """
-    Author: Elliot Melcer
-    Creates a Non-Linear Constitutive Law with Linear Branch in Tension and Sargin Branch Under Compression
-    - Tension: linear elastic (0 → eps_ctm)
-    - Compression: Sargin (eps_cu1 → eps_c1)
+    Build a bilinear–Sargin constitutive law with linear tension and Sargin
+    compression according to Eurocode.
 
-    Returns a CrackingConcreteLawEC Object
+    The tension branch is linear elastic from zero to ``eps_ctm`` (the mean
+    cracking strain); above ``eps_ctm`` the stress drops to zero. The
+    compression branch follows the Sargin parabola from ``eps_cu1`` to
+    zero.
+
+    Parameters
+    ----------
+    concrete : Concrete or float or int
+        Either a :class:`Concrete` instance or a characteristic cylinder
+        strength ``fck`` [N/mm²].
+    n_c : int, optional
+        Number of discretization points on the compression branch.
+        Default is ``80``.
+    n_t : int, optional
+        Number of discretization points on the linear tension branch.
+        Default is ``20``.
+
+    Returns
+    -------
+    CrackingConcreteLawEC
+        A :class:`CrackingConcreteLawEC` instance with the assembled
+        strain/stress arrays.
     """
 
     if not isinstance(concrete, Concrete):
@@ -225,12 +327,31 @@ def fctm_parabolic_law_EC(concrete: Union[Concrete, float, int], n_c: int = 80, 
 
 def tenstiff_parabolic_law_EC(concrete: Union[Concrete, float, int], n_c: int = 80, n_t: int = 20) -> TensionStiffeningConcreteLawEC:
     """
-    Author: Elliot Melcer
-    Creates a Non-Linear Constitutive Law
-        Compression: Sargin Branch
-        Tension:  Linear Branch until fctm + Tension Stiffening according to Naya(2006)
+    Build a tension-stiffening constitutive law with Sargin compression
+    according to Eurocode and Naya (2006).
 
-    Returns a TensionStiffeningConcreteLawEC Object
+    The compression branch follows the Sargin parabola. The tension branch
+    is linear elastic up to ``fctm``, then descends through the Naya (2006)
+    tension-stiffening model defined by the fixed parameters
+    ``P_t = 0.8``, ``R_t = 0.45``, ``S_t = 4``, ``F_t = 10``.
+
+    Parameters
+    ----------
+    concrete : Concrete or float or int
+        Either a :class:`Concrete` instance or a characteristic cylinder
+        strength ``fck`` [N/mm²].
+    n_c : int, optional
+        Number of discretization points on the compression branch.
+        Default is ``80``.
+    n_t : int, optional
+        Number of discretization points on the linear tension branch.
+        Default is ``20``.
+
+    Returns
+    -------
+    TensionStiffeningConcreteLawEC
+        A :class:`TensionStiffeningConcreteLawEC` instance with the assembled
+        strain/stress arrays.
     """
 
     if not isinstance(concrete, Concrete):
@@ -314,8 +435,23 @@ def tenstiff_parabolic_law_EC(concrete: Union[Concrete, float, int], n_c: int = 
 
 def get_cube_EC(cylinder_strength) -> int:
     """
-    Author: Elliot Melcer
-    Return cube strength (MPa) from EN 206 concrete class table.
+    Return the cube compressive strength for a given cylinder strength per EN 206.
+
+    Parameters
+    ----------
+    cylinder_strength : float or int
+        Characteristic cylinder compressive strength ``fck`` [N/mm²].
+        Must be a key in the EN 206 concrete class table.
+
+    Returns
+    -------
+    int
+        Corresponding cube compressive strength ``fck,cube`` [N/mm²].
+
+    Raises
+    ------
+    ValueError
+        If ``cylinder_strength`` is not listed in the EN 206 table.
     """
     table = {
         12.: 15,
@@ -348,28 +484,51 @@ def get_cfrp_reinforcement_from_registry(
         gamma_s: float = 1.3
 ):
     """
-    Create a CFRP-Reinforcement object from materials registry.
+    Create a CFRP reinforcement object from a materials registry.
 
-    Args:
-        mat_id: Material identifier (e.g., "solidian GRID Q142/142-CCE-25")
-        materials: Materials registry dictionary
-        prestress_percent: Prestress level as percentage (0-100)
-        gamma_s: Partial safety factor for reinforcement
+    CFRP is treated as a brittle-elastic material (no yielding plateau);
+    the constitutive law is therefore a linear :class:`Elastic` law truncated
+    at the ultimate strain ``epsuk``.
 
-    Returns:
-        Reinforcement object
+    Parameters
+    ----------
+    mat_id : str
+        Material identifier key in the registry
+        (e.g. ``"solidian GRID Q142/142-CCE-25"``).
+    materials : dict
+        Materials registry dictionary, typically loaded from a CSV file.
+        Each entry must contain the keys ``type``, ``f_yk``, ``f_tk``,
+        ``E_tex``, ``eps_u``, and ``weight``.
+    prestress_percent : float, optional
+        Prestress level as a percentage of the ultimate strain (0–100).
+        ``0.0`` means no prestress; ``50.0`` means prestressed to 50 % of
+        ``epsuk``. Default is ``0.0`` [%].
+    gamma_s : float, optional
+        Partial safety factor for reinforcement. Default is ``1.3`` [1].
 
-    Raises:
-        KeyError: If mat_id not found in registry
-        ValueError: If material type is not 'reinforcement'
+    Returns
+    -------
+    Reinforcement
+        A :class:`Reinforcement` instance configured with the CFRP elastic
+        constitutive law and the computed initial strain.
 
-    Example:
-        materials = load_materials_registry("materials.csv")
-        rebar = get_reinforcement_from_registry(
-            "solidian GRID Q142/142-CCE-25",
-            materials,
-            prestress_percent=50.0
-        )
+    Raises
+    ------
+    KeyError
+        If ``mat_id`` is not found in ``materials``.
+    ValueError
+        If the material type is not ``"reinforcement"``, or if any required
+        property (``f_yk``, ``f_tk``, ``E_tex``, ``eps_u``, ``weight``)
+        is ``None``.
+
+    Examples
+    --------
+    >>> materials = load_materials_registry("materials.csv")
+    >>> rebar = get_cfrp_reinforcement_from_registry(
+    ...     "solidian GRID Q142/142-CCE-25",
+    ...     materials,
+    ...     prestress_percent=50.0,
+    ... )
     """
     if mat_id not in materials:
         raise KeyError(
@@ -428,22 +587,37 @@ def get_cfrp_reinforcement_from_registry(
 
 def get_floor_material_from_registry(mat_id: str, materials: dict):
     """
-    Create a FloorMaterial object from materials registry.
+    Create a floor material object from a materials registry.
 
-    Args:
-        mat_id: Material identifier
-        materials: Materials registry dictionary
+    Dispatches to :class:`InfillMaterial`, :class:`ScreedMaterial`, or
+    :class:`InsulationMaterial` depending on the ``type`` field in the
+    registry entry.
 
-    Returns:
-        FloorMaterial object
+    Parameters
+    ----------
+    mat_id : str
+        Material identifier key in the registry.
+    materials : dict
+        Materials registry dictionary. Each entry must contain ``type``
+        and ``weight``; insulation entries additionally require ``Edyn``.
 
-    Raises:
-        KeyError: If mat_id not found in registry
-        ValueError: If material type is not infill/insulation/screed
+    Returns
+    -------
+    InfillMaterial or ScreedMaterial or InsulationMaterial
+        The corresponding floor material instance.
 
-    Example:
-        materials = load_materials_registry("materials.csv")
-        infill = get_floor_material_from_registry("generic_infill", materials)
+    Raises
+    ------
+    KeyError
+        If ``mat_id`` is not found in ``materials``.
+    ValueError
+        If the material type is not one of ``"infill"``, ``"insulation"``,
+        or ``"screed"``; or if a required property is missing.
+
+    Examples
+    --------
+    >>> materials = load_materials_registry("materials.csv")
+    >>> infill = get_floor_material_from_registry("generic_infill", materials)
     """
     if mat_id not in materials:
         raise KeyError(
@@ -481,25 +655,41 @@ def get_floor_material_from_registry(mat_id: str, materials: dict):
 
 def get_material_properties(mat_id: str, materials: dict) -> dict:
     """
-    Get raw material properties dictionary from registry.
+    Return raw material properties from the registry.
 
-    Useful for accessing GWP, cost, and other properties not needed
-    for structural analysis but needed for objective function.
+    Useful for accessing non-structural properties (e.g. global warming
+    potential, cost) that are needed by the objective function but not by
+    the structural analysis routines.
 
-    Args:
-        mat_id: Material identifier
-        materials: Materials registry dictionary
+    Parameters
+    ----------
+    mat_id : str
+        Material identifier key in the registry.
+    materials : dict
+        Materials registry dictionary.
 
-    Returns:
-        Dictionary with material properties
+    Returns
+    -------
+    dict
+        Raw properties dictionary for ``mat_id`` as stored in the registry.
+        Typical keys include:
 
-    Raises:
-        KeyError: If mat_id not found in registry
+        - ``"type"`` — material category string.
+        - ``"gwp"`` — global warming potential [kg CO₂-eq].
+        - ``"cost"`` — unit cost [TODO: Einheit prüfen].
 
-    Example:
-        mat_props = get_material_properties("solidian GRID Q142/142-CCE-25", materials)
-        gwp = mat_props["gwp"]  # kg CO2-eq
-        cost = mat_props["cost"]  # €/unit
+    Raises
+    ------
+    KeyError
+        If ``mat_id`` is not found in ``materials``.
+
+    Examples
+    --------
+    >>> mat_props = get_material_properties(
+    ...     "solidian GRID Q142/142-CCE-25", materials
+    ... )
+    >>> gwp = mat_props["gwp"]
+    >>> cost = mat_props["cost"]
     """
     if mat_id not in materials:
         raise KeyError(
@@ -508,4 +698,3 @@ def get_material_properties(mat_id: str, materials: dict) -> dict:
         )
 
     return materials[mat_id]
-

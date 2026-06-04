@@ -12,7 +12,7 @@ geom_t_insulation_mm;grid;;12;1;29;0;28;0;fixed;float;;
 loads_custom;grid;"0; 0; 0; 0";0;0;1;0;0;0;fixed;float;;"Format: ""Load value; psi_0; psi_1; psi_2"""
 loads_category;catalog;A1 | A2 | A3 | B1 | B2 | B3 | C1 | C2 | C3 | C4 | C5 | C6 | D1 | D2 | D3 | E1 | E2 | E3;;;;0;17;4;fixed;str;;
 loads_N_kN;grid;;-200;10;41;0;40;20;fixed;float;;
-mat_conc_fck;catalog;12. | 16. | 20. | 25. | 30. | 35. | 40. | 45. | 50. | 55. | 60. | 70. | 80. | 90. | 100.; ;;;3;14;3;var;float;;
+mat_conc_fck;catalog;12. | 16. | 20. | 25. | 30. | 35. | 40. | 45. | 50. | 55. | 60. | 70. | 80. | 90. | 100.; ;;;3;14;3;fixed;float;;
 mat_conc_cost_eur_m3;catalog;70. | 72.5 | 75. | 80. | 85. | 90. | 100. | 110. | 120. | 130. | 140. | 150. | 160. | 170. | 180.;;;;;;;lookup;float;mat_conc_fck;
 mat_conc_gwp_kgco2e_m3;catalog;140. | 159. | 178. | 197. | 219. | 244. | 265. | 286. | 300. | 314. | 328. | 342. | 356. | 370. | 384.;;;;;;;lookup;float;mat_conc_fck;
 mat_reinf_id;catalog;solidian GRID Q85/85-CCE-21 | solidian GRID Q95/95-CCE-38 | solidian GRID Q142/142-CCE-25;;;;0;2;2;fixed;str;;

@@ -1,5 +1,5 @@
-core.ioh\_core.io\_util
-=======================
+io\_util.py
+===========
 
 .. automodule:: core.ioh_core.io_util
    :members:

@@ -1,5 +1,5 @@
-slab\_construction.slabs.hp\_slab.analysis
-==========================================
+analysis.py
+===========
 
 .. automodule:: slab_construction.slabs.hp_slab.analysis
    :members:

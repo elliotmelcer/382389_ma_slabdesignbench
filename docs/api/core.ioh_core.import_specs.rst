@@ -1,5 +1,5 @@
-core.ioh\_core.import\_specs
-============================
+import\_specs.py
+================
 
 .. automodule:: core.ioh_core.import_specs
    :members:
