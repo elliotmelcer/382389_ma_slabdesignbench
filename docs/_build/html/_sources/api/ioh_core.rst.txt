@@ -1,0 +1,34 @@
+ioh_core
+========
+
+Aufbau und Ausführung der IOH-Optimierungsprobleme.
+
+problem_builder
+---------------
+
+.. automodule:: core.ioh_core.problem_builder
+   :members:
+
+cache_eval
+----------
+
+.. automodule:: core.ioh_core.cache_eval
+   :members:
+
+import_specs
+------------
+
+.. automodule:: core.ioh_core.import_specs
+   :members:
+
+io_util
+-------
+
+.. automodule:: core.ioh_core.io_util
+   :members:
+
+experiment
+----------
+
+.. automodule:: core.ioh_core.experiment
+   :members:

@@ -1,3 +1,14 @@
+"""Moment-curvature and cross-section methods per Eurocode 2.
+
+Provides routines for computing the cracking moment, the SLS/ULS bending
+strength, and full as well as simplified moment-curvature (M-κ) diagrams,
+plus helpers for building SLS/ULS sections and querying section properties.
+
+Units: lengths in mm, forces in N, moments in Nmm.
+
+Author: Elliot Melcer
+"""
+
 from copy import deepcopy
 
 import numpy as np
@@ -10,31 +21,56 @@ from structuralcodes.sections import GenericSection
 from core.analysis_core.material_methods import create_sls_concrete_EC, TensionStiffeningConcreteLawEC, create_uls_concrete_EC
 
 class InvalidSectionForMKError(ValueError):
-    """Raised when a section cannot produce a valid M-K diagram
-    (e.g., prestress too high → would crush before cracking)."""
+    """Raised when a section cannot produce a valid M-κ diagram.
+
+    Typical cause: prestress too high, so the section would crush before
+    cracking.
+    """
     pass
 
 def calculate_cracking_moment_sls_Nmm_EC(section, n: float = 0.0):
-    """
-    Calculate the cracking moment for a section at SLS.
+    """Calculate the cracking moment of a section at SLS.
 
-    The function finds the strain profile where the bottom fiber reaches
-    the cracking strain eps_ctm = fctm / Ecm, while maintaining equilibrium
-    with the applied axial force n.
+    Finds the strain profile where the bottom fiber reaches the cracking
+    strain ``eps_ctm = fctm / Ecm`` while maintaining equilibrium with the
+    applied axial force ``n``. Includes physical strain-limit checks to
+    avoid spurious solutions where the concrete would crush before cracking.
 
-    IMPORTANT: This version includes physical strain limit checks to prevent
-    finding spurious solutions where concrete would crush before cracking.
+    Parameters
+    ----------
+    section : GenericSection
+        Section to analyze (should be a ULS section; an SLS section is
+        built internally).
+    n : float, optional
+        Applied axial force [N] (positive = tension, negative =
+        compression). Default: ``0.0``.
 
-    Args:
-        section: GenericSection object (should be ULS section)
-        n: Applied axial force (positive = tension, negative = compression)
+    Returns
+    -------
+    dict
+        Result with the keys:
 
-    Returns:
-        dict: Dictionary containing:
-            - m_cr: Cracking moment (Nmm), or float('-inf') if section crushes before cracking
-            - strain_profile: [eps_0, chi_y, chi_z] at cracking
-            - valid: True if physically valid solution found
-            - reason: Explanation if invalid
+        - ``section`` : GenericSection — the SLS section used.
+        - ``m_cr`` : float — cracking moment [Nmm], or ``float('-inf')``
+          if the section crushes before cracking.
+        - ``strain_profile`` : list — ``[eps_0, chi_y, chi_z]`` at cracking.
+        - ``valid`` : bool — ``True`` if a physically valid solution was found.
+        - ``reason`` : str or None — explanation if invalid, else ``None``.
+        - ``chi_min_physical`` : float — present only on the invalid branch;
+          the lower physical curvature bound [1/mm].
+        - ``eps_top`` : float — present only on the valid branch; top-fiber
+          strain [-] of the solution.
+
+    Raises
+    ------
+    ValueError
+        If no concrete geometry is found in the section.
+
+    Notes
+    -----
+    Strain profile convention: ``eps(z) = eps_0 + chi_y * z``. For sagging
+    bending ``chi_y`` is negative, so the crushing limit acts as a lower
+    bound on the curvature.
     """
 
     sls_sec = sls_section_EC(section, "FCTM_PARABOLIC")
@@ -214,12 +250,37 @@ def calculate_cracking_moment_sls_Nmm_EC(section, n: float = 0.0):
         raise
 
 def calculate_bending_strength_sls_Nmm_EC(section: GenericSection, n: float = 0.0) -> dict:
-    """
-    Author: Elliot Melcer
-    Returns a triplet of:
-        SLS Section
-        SLS Bending Strength in Nmm
-        Associated Strain Profile
+    """Calculate the SLS bending strength of a section.
+
+    Builds an SLS section, computes the bending strength for the given
+    axial force, and returns the result together with the associated
+    strain profile.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to analyze.
+    n : float, optional
+        Applied axial force [N] (positive = tension). Default: ``0.0``.
+
+    Returns
+    -------
+    dict
+        Result with the keys:
+
+        - ``section`` : GenericSection — the SLS section used.
+        - ``m_u`` : float or None — SLS bending strength [Nmm], or ``None``
+          if the moment cannot be taken by the section.
+        - ``strain_profile`` : list or None — ``[eps_0, chi_y, 0.0]`` at
+          ultimate, or ``None`` if invalid.
+        - ``valid`` : bool — ``True`` if a valid solution was found.
+        - ``reason`` : str or None — failure reason if invalid, else ``None``.
+
+    Raises
+    ------
+    ValueError
+        For any ValueError other than the section being unable to take the
+        moment (such errors are treated as real bugs and re-raised).
     """
 
     sls_sec = sls_section_EC(section, "NONE_PARABOLIC")
@@ -254,12 +315,37 @@ def calculate_bending_strength_sls_Nmm_EC(section: GenericSection, n: float = 0.
     }
 
 def calculate_bending_strength_uls_Nmm_EC(section: GenericSection, n: float = 0.0) -> dict:
-    """
-    Author: Elliot Melcer
-    Returns a triplet of:
-        ULS Section
-        ULS Bending Strength in Nmm
-        Associated Strain Profile
+    """Calculate the ULS bending strength of a section.
+
+    Converts the input to a ULS section (so an SLS section may safely be
+    passed), computes the bending strength for the given axial force, and
+    returns the result together with the associated strain profile.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to analyze (SLS or ULS; converted to ULS internally).
+    n : float, optional
+        Applied axial force [N] (positive = tension). Default: ``0.0``.
+
+    Returns
+    -------
+    dict
+        Result with the keys:
+
+        - ``section`` : GenericSection — the ULS section used.
+        - ``m_u`` : float or None — ULS bending strength [Nmm], or ``None``
+          if the moment cannot be taken by the section.
+        - ``strain_profile`` : list or None — ``[eps_0, chi_y, 0.0]`` at
+          ultimate, or ``None`` if invalid.
+        - ``valid`` : bool — ``True`` if a valid solution was found.
+        - ``reason`` : str or None — failure reason if invalid, else ``None``.
+
+    Raises
+    ------
+    ValueError
+        For any ValueError other than the section being unable to take the
+        moment (such errors are treated as real bugs and re-raised).
     """
 
     # Safety Conversion to ULS Section in case SLS Section was passed
@@ -298,19 +384,40 @@ def calculate_moment_curvature_sls_EC(section: GenericSection,
                                       constitutive_law: str = "TENSTIFF_PARABOLIC",
                                       simplification: bool | int | float = False,
                                       debug: bool = False) -> MomentCurvatureResults:
-    """
-    Author: Elliot Melcer
-    Returns the Results of a Moment-Curvature calculation for the given section.
+    """Compute the moment-curvature results for the given section.
 
-    For prestressed sections, adds initial state point (κ₀, M=0).
+    Dispatches to the full or the simplified M-κ method depending on
+    ``simplification`` and enforces a force-controlled (monotonically
+    increasing) result. For prestressed sections an initial state point
+    (κ₀, M=0) is added.
 
-    :param section:             GenericSection (ULS)
-    :param n:                   Axial force [N]
-    :param simplification:  Control simplified M-K-Diagram Calculation in _simplified_moment_curvature_method()
-    :param constitutive_law
-    :param debug:
+    Parameters
+    ----------
+    section : GenericSection
+        Section to analyse (ULS).
+    n : float, optional
+        Axial force [N]. Default: ``0.0``.
+    constitutive_law : str, optional
+        Keyword for the concrete constitutive law. Default:
+        ``"TENSTIFF_PARABOLIC"``.
+    simplification : bool or int or float, optional
+        Controls the simplified M-κ calculation in
+        :func:`_simplified_moment_curvature_method`. ``False`` uses the full
+        method; ``True`` or a positive number uses the simplified method.
+        Default: ``False``.
+    debug : bool, optional
+        Enables debug output. Default: ``False``.
 
-    :return: MomentCurvatureResults with complete M-κ curve
+    Returns
+    -------
+    MomentCurvatureResults
+        The complete, force-controlled M-κ curve.
+
+    Raises
+    ------
+    ValueError
+        If ``simplification`` is neither ``False``, ``True`` nor a positive
+        number.
     """
     sls_sec = sls_section_EC(section, constitutive_law)
 
@@ -337,17 +444,22 @@ def calculate_moment_curvature_sls_EC(section: GenericSection,
 
 
 def _ensure_force_controlled(results: MomentCurvatureResults) -> MomentCurvatureResults:
-    """
-    Author: Elliot Melcer
-    Ensures the moment-curvature-diagram is force controlled by
-    enforcing monotonically increasing moment magnitudes
+    """Enforce a force-controlled M-κ diagram with monotonic moment magnitude.
 
-    When |m[i+1]| < |m[i]|, collects all dip indices until the first j where
-    |m[j]| > |m[i]|, inserts an interpolated point (κ_new, m[i]) at i+1, and
-    removes the dip indices. If the moment never recovers, the tail is truncated.
+    Whenever ``|m[i+1]| < |m[i]|``, collects all dip indices until the first
+    ``j`` where ``|m[j]| > |m[i]|``, inserts an interpolated point
+    (κ_new, m[i]) at ``i+1``, and removes the dip indices. If the moment
+    never recovers, the tail is truncated.
 
-    :param results: MomentCurvatureResults object (modified in-place).
-    :return:        The same MomentCurvatureResults object with corrected arrays.
+    Parameters
+    ----------
+    results : MomentCurvatureResults
+        Moment-curvature results (modified in place).
+
+    Returns
+    -------
+    MomentCurvatureResults
+        The same object with corrected ``m_y`` and ``chi_y`` arrays.
     """
 
     # Work with a single list of (moment, curvature) pairs so the two arrays
@@ -407,17 +519,33 @@ def _ensure_force_controlled(results: MomentCurvatureResults) -> MomentCurvature
 def _full_moment_curvature_method(section: GenericSection,
                                    n: float = 0.0,
                                    debug: bool = False) -> MomentCurvatureResults:
-    """
-    Author: Elliot Melcer
-    Calculates the full moment-curvature-diagram for a given section and normal force.
-    Moments are calculated for a list of curvatures that includes the cracking curvature
-    using the calculate_moment_curvature()-method in StructuralCodes. If the section is
-    prestressed, the prestress curvature point is added.
-    
-    :param section: section to be analyzed
-    :param n:       normal force in N
-    :param debug:   optional debugging flag
-    :return:        MomentCurvatureResults-object
+    """Compute the full moment-curvature diagram for a section and axial force.
+
+    Moments are computed for a list of curvatures that includes the cracking
+    curvature, using ``calculate_moment_curvature()`` from structuralcodes.
+    The cracking point is inserted exactly to capture the cracking behavior
+    correctly. If the section is prestressed, the prestress curvature point
+    (κ₀, M=0) is added.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to analyze.
+    n : float, optional
+        Axial force [N]. Default: ``0.0``.
+    debug : bool, optional
+        Enables debug output. Default: ``False``.
+
+    Returns
+    -------
+    MomentCurvatureResults
+        The full M-κ results.
+
+    Raises
+    ------
+    InvalidSectionForMKError
+        If the cracking moment is invalid, so a full M-κ diagram cannot be
+        built.
     """
     # ------------------------------------
     # Build custom curvature list to be evaluated for moment-curvature-diagram
@@ -500,25 +628,54 @@ def _simplified_moment_curvature_method(section: GenericSection,
                                         simplification = None,
                                         n: float = 0.0,
                                         debug: bool = False) -> MomentCurvatureResults:
-    """
-    Author: Elliot Melcer
-    Calculates a simplified trilinear version of calculate_moment_curvature_sls().
-    Points:
-        Prestress Point:        kappa_0 = - M_int * K_cr / (M_cr - M_int)
-        Cracking Point
-        End of Cracking Point:  based on tension stiffening of concrete Ultimate Point
-    :param simplification: Optional simplification behavior:
-                           Input   Range      Explanation
-                           ------------------------------------------------------------------------------------------------
-                           False              Do not use this simplified method (handled higher up, should not reach this code)
-                           True               Use simplified method without extra points
-                           int     n>=1       Creates n evenly distributed points between kappa_cr and kappa_eoc
-                           float   0<n<1      Creates ONE additional point at kappa_cr + n * (kappa_eoc - kappa_cr)
+    """Compute a simplified trilinear moment-curvature diagram.
 
-    :param section:         section to be analyzed
-    :param n:               normal force in N
-    :param debug:           optional debugging flag
-    :return:                MomentCurvatureResults-object
+    Builds a simplified version of :func:`calculate_moment_curvature_sls_EC`
+    from the prestress point, the cracking point, the end-of-cracking point
+    (based on tension stiffening of the concrete), and the ultimate point.
+    Optionally adds extra points between the cracking and end-of-cracking
+    curvatures.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to analyse.
+    simplification : bool or int or float, optional
+        Controls extra points between ``kappa_cr`` and ``kappa_eoc``:
+
+        - ``False`` — this simplified method should not be called (handled
+          higher up); raises ``ValueError`` if reached.
+        - ``True`` — simplified method without extra points.
+        - int ``n >= 1`` — ``n`` evenly distributed points between
+          ``kappa_cr`` and ``kappa_eoc``.
+        - float ``0 < n < 1`` — one extra point at
+          ``kappa_cr + n * (kappa_eoc - kappa_cr)``.
+
+        Default: ``None``.
+    n : float, optional
+        Axial force [N]. Default: ``0.0``.
+    debug : bool, optional
+        Enables debug output. Default: ``False``.
+
+    Returns
+    -------
+    MomentCurvatureResults
+        The simplified M-κ results.
+
+    Raises
+    ------
+    Exception
+        If the concrete constitutive law is not
+        ``TensionStiffeningConcreteLawEC``.
+    InvalidSectionForMKError
+        If the cracking moment is invalid, so a simplified M-κ diagram
+        cannot be built.
+    ValueError
+        If ``simplification`` is ``False`` (method must not be reached), or
+        an int ``< 1``, or a float outside ``(0, 1)``.
+    TypeError
+        If ``simplification`` is not one of ``False``, ``True``, int ``>= 1``
+        or float in ``(0, 1)``.
     """
 
     # Concrete Properties
@@ -657,41 +814,64 @@ def _calculate_section_state_from_bottom_strain_sls(
         ITMAX: int = 100,
         debug: bool = False,
 ) -> dict:
-    """
-    Calculate the section state (forces and strain profile) given a prescribed
-    bottom fiber strain and axial force, maintaining force equilibrium.
+    """Compute the section state for a prescribed bottom-fibre strain.
 
-    Fixes the bottom fiber strain to eps_bot and finds chi_y via bisection
-    such that the integrated axial force equals n. My and Mz are outputs.
+    Fixes the bottom-fibre strain to ``eps_bot`` and finds ``chi_y`` via
+    bisection such that the integrated axial force equals ``n``. ``My`` and
+    ``Mz`` are outputs. Of all bracketed equilibria, the one with the
+    largest ``|My|`` is returned.
 
-    Strain profile convention (consistent with rest of codebase):
-        eps(z) = eps_0 + chi_y * z
-        eps_bot = eps_0 + chi_y * zmin  →  eps_0 = eps_bot - chi_y * zmin
+    Strain profile convention (consistent with the rest of the codebase):
+    ``eps(z) = eps_0 + chi_y * z`` and
+    ``eps_bot = eps_0 + chi_y * zmin``  →  ``eps_0 = eps_bot - chi_y * zmin``.
 
-    Args:
-        section_uls:            GenericSection (ULS section as input, SLS created internally)
-        eps_bot:            Prescribed bottom fiber strain [-] (+ve = tension)
-        n:                  Applied axial force [N] (+ve = tension, -ve = compression)
-        constitutive_law:   Constitutive Law (for available const. laws see material_methods.py)
-        chi_scan_range:     Half-range for initial curvature scan [1/mm] (default 1e-3)
-        num_scan_points:    Number of scan points for bracketing (default 100)
-        tolerance:          Force imbalance tolerance [N] for bisection (default 1e-2)
-        ITMAX:              Maximum bisection iterations (default 100)
-        debug:              If True, print intermediate values
+    Parameters
+    ----------
+    section_uls : GenericSection
+        ULS section as input (an SLS section is built internally).
+    eps_bot : float
+        Prescribed bottom-fibre strain [-] (positive = tension).
+    n : float, optional
+        Applied axial force [N] (positive = tension, negative =
+        compression). Default: ``0.0``.
+    constitutive_law : str, optional
+        Constitutive law keyword (see ``material_methods.py`` for available
+        laws). Default: ``"TENSTIFF_PARABOLIC"``.
+    chi_scan_range : float, optional
+        Half-range for the initial curvature scan [1/mm]. Default: ``1e-3``.
+    num_scan_points : int, optional
+        Number of scan points for bracketing. Default: ``100``.
+    tolerance : float, optional
+        Force-imbalance tolerance [N] for the bisection. Default: ``1e-2``.
+    ITMAX : int, optional
+        Maximum number of bisection iterations. Default: ``100``.
+    debug : bool, optional
+        If ``True``, print intermediate values. Default: ``False``.
 
-    Returns:
-        dict:
-            - 'valid':          bool   — True if equilibrium was found
-            - 'reason':         str    — failure reason if not valid
-            - 'chi_y':          float  — curvature [1/mm] (-ve = sagging)
-            - 'eps_0':          float  — axial strain at z=0 [-]
-            - 'eps_bot':        float  — bottom fiber strain (== input) [-]
-            - 'eps_top':        float  — top fiber strain [-]
-            - 'n':              float  — integrated axial force [N]
-            - 'm_y':            float  — integrated bending moment My [Nmm]
-            - 'm_z':            float  — integrated bending moment Mz [Nmm]
-            - 'strain_profile': list   — [eps_0, chi_y, 0.0]
-            - 'section':        GenericSection — the SLS section used
+    Returns
+    -------
+    dict or None
+        ``None`` if no equilibrium is bracketed in the scan range.
+        On the no-crossing branch, a dict with the keys:
+
+        - ``valid`` : bool — ``False``.
+        - ``reason`` : str — explanation, suggesting a larger
+          ``chi_scan_range``.
+
+        On success, a dict with the keys:
+
+        - ``valid`` : bool — ``True``.
+        - ``n`` : float — integrated axial force [N].
+        - ``m_y`` : float — integrated bending moment My [Nmm].
+        - ``m_z`` : float — integrated bending moment Mz [Nmm].
+        - ``strain_profile`` : list — ``[eps_0, chi_y, 0.0]``.
+        - ``section`` : GenericSection — the SLS section used.
+
+    Notes
+    -----
+    The debug branch reads ``chi_y`` and ``eps_top`` from the result, but
+    the returned success dict does not currently populate those keys; the
+    documented keys above reflect what the code actually returns.
     """
 
     # --- Build SLS section ---
@@ -786,16 +966,22 @@ def _calculate_section_state_from_bottom_strain_sls(
     return best_result
 
 def calculate_prestress_forces_Nmm(section: GenericSection) -> tuple[float, float]:
-    """
-    Author: Elliot Melcer
-    Calculate the prestressing forces.
+    """Calculate the prestressing moment and total prestress force.
 
-    For each prestressed reinforcement:
-    - F_p = A_s × ε_ini × E_s (prestressing force)
-    - M_p = Σ(F_p × z_s) (moment from prestressing forces about centroid)
+    For each prestressed reinforcement the prestressing force is
+    ``F_p = A_s * eps_ini * E_s`` and the prestressing moment is
+    ``M_p = F_p * z_s`` about the section centroid.
 
-    :param section: SLS section with prestressed reinforcement
-    :return: Prestressing moment [Nmm] (always positive) and total prestress force [N]
+    Parameters
+    ----------
+    section : GenericSection
+        SLS section with prestressed reinforcement.
+
+    Returns
+    -------
+    tuple of float
+        ``(M_p, N_p)`` where ``M_p`` is the prestressing moment [Nmm]
+        (always positive) and ``N_p`` is the total prestress force [N].
     """
     # Get section centroid
     cz = section.gross_properties.cz
@@ -844,26 +1030,37 @@ def _calculate_kappa_0(
     m_cr_result: dict | None = None,
     debug: bool = False,
 ) -> float:
-    """
-    kappa_0 calculation for prestressed sections, used by both
-    the full and simplified M-κ paths in calculate_moment_curvature_sls().
+    """Compute the initial curvature κ₀ for prestressed sections.
 
-        kappa_0 = -intercept / slope  (linear fit on first two pre-yield points)
+    Used by both the full and simplified M-κ paths in
+    :func:`calculate_moment_curvature_sls_EC`. Computes
+    ``kappa_0 = -intercept / slope`` from a linear fit on the first two
+    pre-yield points. If the section is not prestressed, returns ``0.0``.
 
-        Full path (mk_np_results provided):
-            Uses the first two points from the already-computed M-κ curve
-            (num_pre_yield=40), so spacing is consistent with the full calculation.
+    Full path (``mk_results`` provided): uses the first two points from the
+    already-computed M-κ curve, so spacing is consistent with the full
+    calculation. Simplified path (``mk_results=None``): replicates the first
+    two of the 40 curvatures from the full path and evaluates them.
 
-        Simplified path (mk_np_results=None):
-            1. find chi_yield
-            2. Replicate the first 40 curvatures from full path
-            3. evaluate the first two curvatures like in the full path
+    Parameters
+    ----------
+    sls_sec : GenericSection
+        Section to analyse (assumed SLS section).
+    n : float, optional
+        Axial force [N]. Default: ``0.0``.
+    mk_results : MomentCurvatureResults or None, optional
+        Pre-computed M-κ results from the full path; ``None`` for the
+        simplified path. Default: ``None``.
+    m_cr_result : dict or None, optional
+        Cracking-moment result; currently unused in the body. Default:
+        ``None``.
+    debug : bool, optional
+        Print intermediate values. Default: ``False``.
 
-    :param sls_sec:     GenericSection (assumed SLS section)
-    :param n:           Axial force [N]
-    :param mk_results:  Pre-computed M-κ results from full path (None for simplified path)
-    :param debug:       Print intermediate values
-    :return:            κ₀ [1/mm]
+    Returns
+    -------
+    float
+        Initial curvature κ₀ [1/mm].
     """
 
     # -----------------------------------------------------------------------
@@ -924,17 +1121,24 @@ def _calculate_kappa_0(
     return kappa_0
 
 def get_strain_at_point(strain_profile, y, z) -> float:
-    """
-    Author: Elliot Melcer
-    Calculate strain at point (y, z) given strain profile.
+    """Compute the strain at point (y, z) for a given strain profile.
 
-    Args:
-        strain_profile: [eps_0, chi_y, chi_z]
-        y: y-coordinate
-        z: z-coordinate
+    Evaluates ``eps_0 + chi_y * z + chi_z * y``.
 
-    Returns:
-        float: Strain at point (y, z)
+    Parameters
+    ----------
+    strain_profile : list
+        ``[eps_0, chi_y, chi_z]`` with axial strain [-] and curvatures
+        [1/mm].
+    y : float
+        y-coordinate [mm].
+    z : float
+        z-coordinate [mm].
+
+    Returns
+    -------
+    float
+        Strain at point (y, z) [-].
     """
     eps_0, chi_y, chi_z = strain_profile
     return eps_0 + chi_y * z + chi_z * y
@@ -943,11 +1147,20 @@ def sls_section_EC(
         section: GenericSection,
         constitutive_law: str,
 ) -> GenericSection:
-    """
-    Author: Elliot Melcer
-    Returns the section with sls constitutive law for concrete
-    :param section              GenericSection (SLS or ULS)
-    :param constitutive_law:    Keyword for constitutive law (for available keywords see create_sls_concrete())
+    """Return the section with an SLS constitutive law for the concrete.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to convert (SLS or ULS).
+    constitutive_law : str
+        Keyword for the constitutive law (see ``create_sls_concrete_EC()``
+        for available keywords).
+
+    Returns
+    -------
+    GenericSection
+        New section with the SLS concrete material; reinforcement unchanged.
     """
     # Get the geometry of the section
     geo = section.geometry
@@ -974,13 +1187,22 @@ def uls_section_EC(
         alpha_cc: float = 0.85,
         gamma_c: float = 1.5,
 ) -> GenericSection:
-    """
-    Author: Elliot Melcer
-    Returns the section with ULS constitutive law (parabola-rectangle) for concrete.
-    :param section:     GenericSection (SLS or ULS)
-    :param alpha_cc:    Effectiveness factor for concrete compressive strength (default: 0.85)
-    :param gamma_c:     Partial safety factor for concrete (default: 1.5)
-    :return:            GenericSection with ULS concrete
+    """Return the section with a ULS constitutive law (parabola-rectangle).
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to convert (SLS or ULS).
+    alpha_cc : float, optional
+        Effectiveness factor for the concrete compressive strength.
+        Default: ``0.85``.
+    gamma_c : float, optional
+        Partial safety factor for concrete. Default: ``1.5``.
+
+    Returns
+    -------
+    GenericSection
+        New section with the ULS concrete material; reinforcement unchanged.
     """
     # Get the geometry of the section
     geo = section.geometry
@@ -1003,11 +1225,21 @@ def uls_section_EC(
     return new_uls_section
 
 def flipped_section(section: GenericSection) -> GenericSection:
-    """
-    Author: Elliot Melcer
-    Returns the flipped section, to be used when calculating the bending strength at a support
-    :param section:
-    :return:
+    """Return the section rotated by 180°, for support bending strength.
+
+    Used when calculating the bending strength at a support, where the
+    section is effectively flipped.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to flip.
+
+    Returns
+    -------
+    GenericSection
+        The section rotated 180° about its centroid, named
+        ``"<name> (Support)"``.
     """
     geometry = section.geometry
 
@@ -1025,11 +1257,17 @@ def flipped_section(section: GenericSection) -> GenericSection:
     return rotated_section
 
 def get_concrete(section: GenericSection) -> Concrete:
-    """
-    Author: Elliot Melcer
-    Return the first concrete material found in the section geometry.
-    Raises:
-        ValueError: If no concrete material exists in the geometry.
+    """Return the first concrete material found in the section geometry.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to query.
+
+    Returns
+    -------
+    Concrete
+        The first concrete material in the geometry.
     """
     # For CompoundGeometry, get material from the first surface geometry
     geometry = section.geometry
@@ -1043,13 +1281,27 @@ def get_concrete(section: GenericSection) -> Concrete:
     return concrete
 
 def get_reinforcement(section: GenericSection) -> tuple[Reinforcement, float]:
-    """
-    Author: Elliot Melcer
-    Returns the first Reinforcement material found in the section geometry and the corresponding Reinforcement area
-    (assumption: all Reinforcement diameters are the same).
+    """Return the first reinforcement material and its area.
 
-    Raises:
-        ValueError: If no reinforcement material is found.
+    Assumes all reinforcement diameters are the same.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to query.
+
+    Returns
+    -------
+    tuple
+        ``(reinforcement, area)`` where ``reinforcement`` is the first
+        :class:`Reinforcement` material and ``area`` is the corresponding
+        bar area [mm²].
+
+    Raises
+    ------
+    ValueError
+        If the geometry contains no reinforcement points, or no
+        reinforcement material is found.
     """
 
     geometry = section.geometry
@@ -1069,9 +1321,17 @@ def get_reinforcement(section: GenericSection) -> tuple[Reinforcement, float]:
     raise ValueError("No reinforcement material found in section geometry.")
 
 def get_number_of_reinforcements(section: GenericSection) -> int:
-    """
-    Author: Elliot Melcer
-    Count the number of reinforcement point geometries in the section geometry.
+    """Count the reinforcement point geometries in the section geometry.
+
+    Parameters
+    ----------
+    section : GenericSection
+        Section to query.
+
+    Returns
+    -------
+    int
+        Number of reinforcement point geometries.
     """
     geom = section.geometry
     n = len(geom.point_geometries)

@@ -64,11 +64,11 @@ DEFLECTION RESULTS — QUASI-PERMANENT COMBINATION
 ╭───────────────────────┬────────────────────┬───────────────────╮
 │ load_history_method   │ constitutive_law   │   Deflection [mm] │
 ├───────────────────────┼────────────────────┼───────────────────┤
-│ NONE                  │ NONE_PARABOLIC     │             13.74 │
-│ NONE                  │ FCTM_PARABOLIC     │             10.83 │
-│ NONE                  │ TENSTIFF_PARABOLIC │               3.6 │
-│ NONE                  │ ELASTIC_ELASTIC    │              3.13 │
-│ FACTOR_EC             │ -                  │             10.49 │
+│ NONE                  │ NONE_PARABOLIC     │             13.72 │
+│ NONE                  │ FCTM_PARABOLIC     │             10.82 │
+│ NONE                  │ TENSTIFF_PARABOLIC │              3.63 │
+│ NONE                  │ ELASTIC_ELASTIC    │              3.14 │
+│ FACTOR_EC             │ -                  │             10.47 │
 ╰───────────────────────┴────────────────────┴───────────────────╯
 
   c1_4
@@ -127,7 +127,7 @@ for name, slab_construction in test_slabs.items():
             load_history_method = "NONE",
             m_k_simplification  = False,
             debug               = False,
-            extended_debug      = False,
+            extended_debug      = True,
         )
 
         results.append({

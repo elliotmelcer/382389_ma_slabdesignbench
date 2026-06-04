@@ -1,0 +1,28 @@
+{{- pkgname.split('.')[-1] | e | heading }}
+
+.. |pkg_icon| raw:: html
+
+   <img src="../_static/package_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;">
+
+.. |mod_icon| raw:: html
+
+   <img src="../_static/module_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;">
+
+.. rubric:: Package Contents
+
+{% for sp in subpackages %}
+* |pkg_icon| :doc:`{{ sp.split('.')[-1] }} <{{ sp }}>`
+{%- endfor %}
+{% for sm in submodules %}
+* |mod_icon| :doc:`{{ sm.split('.')[-1] }}.py <{{ sm }}>`
+{%- endfor %}
+
+.. toctree::
+   :hidden:
+
+{% for sp in subpackages %}
+   {{ sp }}
+{%- endfor %}
+{% for sm in submodules %}
+   {{ sm }}
+{%- endfor %}

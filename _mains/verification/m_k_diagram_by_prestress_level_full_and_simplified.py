@@ -146,7 +146,7 @@ PRESTRESS_LEVELS_PCT = [0., 10., 20., 30., 40., 50.]
 #  Position along beam (specify x along the beam.
 #  recommended: x = 0 for support and x = 0.5 for midspan)
 #  ------------------------------------------------------------------------------
-x_position = 0.5
+x_position = 0.0625
 
 # ------------------------------------------------------------------------------
 # Run and plot
@@ -202,7 +202,7 @@ for config in ALL_CONFIGS:
     elif x_position == 0.5:
         x_title = "midspan"
     else:
-        x_title = f" x_norm = {x_position:.2f}"
+        x_title = f" x_norm = {x_position:.3f}"
 
     fig, ax = plot_moment_curvature_multiple(
         line_list,

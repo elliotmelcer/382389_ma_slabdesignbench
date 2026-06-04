@@ -1,0 +1,16 @@
+{
+	"version": "0.3.22", 
+	"suite": "unknown_suite", 
+	"function_id": 10005, 
+	"function_name": "hp_slab_problem_1", 
+	"maximization": false, 
+	"algorithm": {"name": "NLOPT_DIRECT_L", "info": "locally biased variant of DIviding RECTangles (DIRECT) algorithm for global optimization"},
+	"attributes": ["evaluations", "raw_y", "y", "y_p", "misses", "hits", "c__A_bending_capacity", "c__B1a_deflection_by_wmax_capacity", "c__B2a_failure_announcement_by_wmin_capacity", "c__C1_concrete_cover_capacity", "c__C2_clear_spacing_capacity", "c__C3_shell_thickness_capacity", "c__D1_airborne_sound_insulation_capacity", "c__D2_impact_sound_insulation_capacity", "c__Z1_nt_dt_combination_capacity", "c__Z2_beam_theory_H_L_capacity", "c__Z3_beam_theory_B_L_capacity", "var__geom_t_mm", "var__geom_nt", "var__geom_dy_mm", "var__mat_conc_fck", "var__reinf_kap_t_percent", "var__reinf_a_tex_mm2"],
+	"scenarios": [
+		{"dimension": 6,
+		"path": "data_f10005_hp_slab_problem_1/IOHprofiler_f10005_DIM6.dat",
+		"runs": [
+			{"instance": 1, "evals": 2, "best": {"evals": 1, "y": 56060815.40356835, "x": [8, 14, 19, 8, 40, 200]}}
+		]}
+	]
+}
