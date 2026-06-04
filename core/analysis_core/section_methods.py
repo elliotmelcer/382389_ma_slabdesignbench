@@ -552,6 +552,21 @@ def _simplified_moment_curvature_method(section: GenericSection,
     Mk_res_eoc = section.section_calculator.calculate_moment_curvature(n = n, chi=[kappa_eoc])
     M_eoc_Nmm = Mk_res_eoc.m_y[0]
 
+    # Yielding Point (if reinforcement has yielding)
+    reinforcement,_ = get_reinforcement(section)
+    fyk = reinforcement.fyk
+    ftk = reinforcement.ftk
+    if not fyk == ftk:
+        strain = section.section_calculator.find_equilibrium_fixed_pivot(
+            section.geometry, n, yielding=True
+        )
+        kappa_yield = [strain[1]]
+        mkd_yield = section.section_calculator.calculate_moment_curvature(n=n, chi=[kappa_yield[0]])
+        M_yield_Nmm = [mkd_yield.m_y[0]]
+    else:
+        kappa_yield = []
+        M_yield_Nmm = []
+
     # Ultimate Point
     ultimate_result = calculate_bending_strength_sls_Nmm_EC(section)
     M_u_Nmm = ultimate_result["m_u"]
@@ -599,8 +614,8 @@ def _simplified_moment_curvature_method(section: GenericSection,
     moments_pre_crack    = np.array([0.0,     M_cr_Nmm])
     curvatures_pre_crack = np.array([kappa_0, kappa_cr])
 
-    moments_post_crack    = np.array([M_eoc_Nmm, M_u_Nmm])
-    curvatures_post_crack = np.array([kappa_eoc, kappa_u])
+    moments_post_crack = np.concatenate(([M_eoc_Nmm], M_yield_Nmm, [M_u_Nmm]))
+    curvatures_post_crack = np.concatenate(([kappa_eoc], kappa_yield, [kappa_u]))
 
     moments     = np.concatenate((moments_pre_crack,     M_extra_Nmm,    moments_post_crack))
     curvatures  = np.concatenate((curvatures_pre_crack,  kappa_extra,    curvatures_post_crack))
