@@ -3,7 +3,8 @@ Acoustic calculation methods for HP-shell slab constructions.
 
 Implements regression-based models for airborne sound reduction and
 impact sound pressure level, calibrated on HP-shell geometry and floor
-build-up parameters.
+build-up parameters by Eddin :cite:`eddin_2023`. Adapted from Loutfi's
+Grasshopper script :cite:`loutfi_2023`
 
 Adapted from: Jamila Loutfi, Ahmad Eiz Eddin
 """
