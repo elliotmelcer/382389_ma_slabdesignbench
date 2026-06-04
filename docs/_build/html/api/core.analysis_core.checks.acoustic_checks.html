@@ -308,7 +308,7 @@ check interface (utilization ≤ 1.0 = passing).</p>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Abstract base class for acoustic utilization checks.
 Author: Elliot Melcer</p>
-<p>All concrete subclasses must implement <a class="reference internal" href="#core.analysis_core.checks.acoustic_checks.AcousticCheck.calculate_utilization" title="core.analysis_core.checks.acoustic_checks.AcousticCheck.calculate_utilization"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_utilization()</span></code></a>,
+<p>All AcousticCheck subclasses must implement <a class="reference internal" href="#core.analysis_core.checks.acoustic_checks.AcousticCheck.calculate_utilization" title="core.analysis_core.checks.acoustic_checks.AcousticCheck.calculate_utilization"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_utilization()</span></code></a>,
 which returns a dimensionless utilization ratio where values ≤ 1.0
 indicate a passing design.</p>
 <dl class="py method">

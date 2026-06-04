@@ -298,16 +298,36 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.analysis_core.checks.construction_checks">
 <span id="construction-checks-py"></span><h1>construction_checks.py<a class="headerlink" href="#module-core.analysis_core.checks.construction_checks" title="Link to this heading">¶</a></h1>
+<p>Construction feasibility checks for HP-shell slab constructions
+Numbering according to Loutfi <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<p>Verifies that the chosen geometry and reinforcement layout are
+constructable: sufficient concrete cover, adequate bar spacing, and
+minimum shell thickness.</p>
+<p>Adapted from: Jamila Loutfi <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="core.analysis_core.checks.construction_checks.ConstructionCheck">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ConstructionCheck</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/construction_checks.html#ConstructionCheck"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.construction_checks.ConstructionCheck" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
-<p>Author: Elliot Melcer
-Abstract class for construction checks</p>
+<p>Abstract base class for construction feasibility checks.
+Author: Elliot Melcer</p>
+<p>All ConstructionCheck subclasses must implement <a class="reference internal" href="#core.analysis_core.checks.construction_checks.ConstructionCheck.calculate_utilization" title="core.analysis_core.checks.construction_checks.ConstructionCheck.calculate_utilization"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_utilization()</span></code></a>,
+which returns a dimensionless utilization ratio where values ≤ 1.0
+indicate a constructable design.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.construction_checks.ConstructionCheck.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/construction_checks.html#ConstructionCheck.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.construction_checks.ConstructionCheck.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the utilization ratio</p>
+<dd><p>Compute the construction utilization ratio for a slab construction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Utilization ratio [-]. Values ≤ 1.0 indicate a passing design.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -316,10 +336,28 @@ Abstract class for construction checks</p>
 <dt class="sig sig-object py" id="core.analysis_core.checks.construction_checks.MidlineConcreteCoverCheck">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MidlineConcreteCoverCheck</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/construction_checks.html#MidlineConcreteCoverCheck"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.construction_checks.MidlineConcreteCoverCheck" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.checks.construction_checks.ConstructionCheck" title="core.analysis_core.checks.construction_checks.ConstructionCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConstructionCheck</span></code></a></p>
+<p>Concrete cover check along the HP-shell midline (C.1).</p>
+<p>Verifies that the available clear concrete cover c_1 satisfies the
+minimum requirement c_nom,req = 3 · d_p, where d_p is the equivalent
+bar diameter of the outermost reinforcement layer.</p>
+<p>A utilization ≤ 1.0 means the concrete cover is sufficient. Infeasible
+designs (c_1 = 0) are penalized with a fixed utilization of 10.0.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.construction_checks.MidlineConcreteCoverCheck.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/construction_checks.html#MidlineConcreteCoverCheck.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.construction_checks.MidlineConcreteCoverCheck.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the utilization ratio</p>
+<dd><p>Compute the concrete cover utilization ratio c_nom,req / c_1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Utilization ratio c_nom,req / c_1 [-]. Returns <code class="docutils literal notranslate"><span class="pre">10.0</span></code> if the
+available cover is zero (infeasible design).</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -328,10 +366,31 @@ Abstract class for construction checks</p>
 <dt class="sig sig-object py" id="core.analysis_core.checks.construction_checks.ReinforcementSpacingCheck">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ReinforcementSpacingCheck</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/construction_checks.html#ReinforcementSpacingCheck"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.construction_checks.ReinforcementSpacingCheck" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.checks.construction_checks.ConstructionCheck" title="core.analysis_core.checks.construction_checks.ConstructionCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConstructionCheck</span></code></a></p>
+<p>Clear reinforcement spacing check along the HP-shell midline (C.2).</p>
+<p>Verifies that the minimum available spacing s_min between
+reinforcement bars satisfies s_req = 5.75 · d_p.</p>
+<p>A utilization ≤ 1.0 means the spacing is sufficient. Infeasible
+designs (s_min = 0) are penalized with a fixed utilization of 10.0.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.construction_checks.ReinforcementSpacingCheck.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_print</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/construction_checks.html#ReinforcementSpacingCheck.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.construction_checks.ReinforcementSpacingCheck.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the utilization ratio</p>
+<dd><p>Compute the reinforcement spacing utilization ratio s_req / s_min.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p></li>
+<li><p><strong>debug_print</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, prints the minimum available clear spacing to
+stdout. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Utilization ratio s_req / s_min [-]. Returns <code class="docutils literal notranslate"><span class="pre">10.0</span></code> if the
+minimum spacing is zero (infeasible design).</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -340,10 +399,26 @@ Abstract class for construction checks</p>
 <dt class="sig sig-object py" id="core.analysis_core.checks.construction_checks.MinimumHPShellThicknessCheck">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MinimumHPShellThicknessCheck</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/construction_checks.html#MinimumHPShellThicknessCheck"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.construction_checks.MinimumHPShellThicknessCheck" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.checks.construction_checks.ConstructionCheck" title="core.analysis_core.checks.construction_checks.ConstructionCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConstructionCheck</span></code></a></p>
+<p>Minimum HP-shell thickness check (C.3).</p>
+<p>Derives the required shell thickness from the combined C.1 and C.2
+requirements:</p>
+<p>A utilization ≤ 1.0 means the shell is thick enough to accommodate
+the reinforcement with the required cover and spacing.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.construction_checks.MinimumHPShellThicknessCheck.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/construction_checks.html#MinimumHPShellThicknessCheck.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.construction_checks.MinimumHPShellThicknessCheck.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the utilization ratio</p>
+<dd><p>Compute the shell thickness utilization ratio t_req / t.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Utilization ratio t_req / t [-].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

@@ -298,16 +298,40 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.analysis_core.checks.structural_checks">
 <span id="structural-checks-py"></span><h1>structural_checks.py<a class="headerlink" href="#module-core.analysis_core.checks.structural_checks" title="Link to this heading">¶</a></h1>
+<p>Structural utilization checks for HP-shell slab constructions.
+Numbering according to Loutfi <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<p>Covers ultimate limit state (ULS) bending strength and serviceability
+limit state (SLS) deflection and cracking checks per EN 1992-1-1:2004/NA(DE) <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../references.html#id17" title="Deutsches Institut für Normung e.V. DIN EN 1992-1-1 Eurocode 2: Bemessung Und Konstruktion von Stahlbeton- Und Spannbetontragwerken – Teil 1-1: Allgemeine Bemessungsregeln Und Regeln Für Den Hochbau. DIN Media GmbH, 2011.">5</a>]</span></p>
+<p>Adapted from: Jamila Loutfi <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.StructuralCheck">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">StructuralCheck</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#StructuralCheck"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.StructuralCheck" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
-<p>Author: Elliot Melcer
-Abstract class for structural checks</p>
+<p>Abstract base class for structural utilization checks.
+Author: Elliot Melcer</p>
+<p>All StructuralCheck subclasses must implement <a class="reference internal" href="#core.analysis_core.checks.structural_checks.StructuralCheck.calculate_utilization" title="core.analysis_core.checks.structural_checks.StructuralCheck.calculate_utilization"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calculate_utilization()</span></code></a>,
+which returns a dimensionless utilization ratio where values ≤ 1.0
+indicate a passing design.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.StructuralCheck.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads" title="core.analysis_core.statics.loads.Loads"><span class="pre">Loads</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">moment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#StructuralCheck.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.StructuralCheck.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the utilization ratio</p>
+<dd><p>Compute the structural utilization ratio for a slab construction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p></li>
+<li><p><strong>loads</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Loads</span></code>) – Applied loads object (uniformly distributed over all spans).</p></li>
+<li><p><strong>system</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Structural system identifier (see <code class="xref py py-class docutils literal notranslate"><span class="pre">SystemType</span></code>).</p></li>
+<li><p><strong>moment</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Moment type identifier (see <code class="xref py py-class docutils literal notranslate"><span class="pre">MomentType</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Utilization ratio [-]. Values ≤ 1.0 indicate a passing design.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -316,23 +340,40 @@ Abstract class for structural checks</p>
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.UltimateMomentCheckEC2004DE">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UltimateMomentCheckEC2004DE</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#UltimateMomentCheckEC2004DE"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.UltimateMomentCheckEC2004DE" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.checks.structural_checks.StructuralCheck" title="core.analysis_core.checks.structural_checks.StructuralCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuralCheck</span></code></a></p>
+<p>ULS bending strength check per EN 1992-1-1:2004/NA(DE) <span class="bibtex-citation" id="id4">[<a class="reference internal" href="../references.html#id17" title="Deutsches Institut für Normung e.V. DIN EN 1992-1-1 Eurocode 2: Bemessung Und Konstruktion von Stahlbeton- Und Spannbetontragwerken – Teil 1-1: Allgemeine Bemessungsregeln Und Regeln Für Den Hochbau. DIN Media GmbH, 2011.">5</a>]</span>.</p>
+<p>Computes the utilization ratio <a href="#id10"><span class="problematic" id="id11">|M_Ed|</span></a> / M_Rd at the cross-section
+position where the governing design moment occurs. For positive
+moments the section is used as-is; for negative moments the section
+is flipped before calling the strength calculation.</p>
+<p>Infeasible sections (no valid equilibrium) are penalized with a
+fixed utilization of <code class="docutils literal notranslate"><span class="pre">10.0</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.UltimateMomentCheckEC2004DE.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads" title="core.analysis_core.statics.loads.Loads"><span class="pre">Loads</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.SystemType" title="core.analysis_core.statics.constants.SystemType"><span class="pre">SystemType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SystemType.SIMPLE_BEAM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.MomentType" title="core.analysis_core.statics.constants.MomentType"><span class="pre">MomentType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">MomentType.MAX_POS_MOMENT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_print</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#UltimateMomentCheckEC2004DE.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.UltimateMomentCheckEC2004DE.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate utilization ratio for ultimate moment check</p>
+<dd><p>Compute the ULS bending utilization ratio <a href="#id12"><span class="problematic" id="id13">|M_Ed|</span></a> / M_Rd.
+Adapted from Loutfi <span class="bibtex-citation" id="id5">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>debug_print</strong></p></li>
-<li><p><strong>n</strong></p></li>
-<li><p><strong>slab_construction</strong> – Slab construction object</p></li>
-<li><p><strong>loads</strong> – LoadsEC object (only uniformly distributed loads over all spans)</p></li>
-<li><p><strong>system</strong> – System type (see Enum)</p></li>
-<li><p><strong>moment</strong> – Moment type (see Enum)</p></li>
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p></li>
+<li><p><strong>loads</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Loads</span></code>) – Applied loads object (uniformly distributed over all spans).</p></li>
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SystemType</span></code>, <em>optional</em>) – Structural system type. Default is
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">SystemType.SIMPLE_BEAM</span></code>.</p></li>
+<li><p><strong>moment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MomentType</span></code>, <em>optional</em>) – Governing moment type. Default is
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">MomentType.MAX_POS_MOMENT</span></code>.</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Applied normal force [N] (positive = tension). Default is
+<code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p></li>
+<li><p><strong>debug_print</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, prints intermediate values (system, moment type,
+x-position, M_Rd, M_Ed, utilization) to stdout.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Rückgabe<span class="colon">:</span></dt>
-<dd class="field-even"><p>Utilization ratio (MEd/MRd)</p>
+<dd class="field-even"><p>Utilization ratio <a href="#id14"><span class="problematic" id="id15">|M_Ed|</span></a> / M_Rd [-]. Returns <code class="docutils literal notranslate"><span class="pre">10.0</span></code> for
+infeasible sections.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -343,10 +384,41 @@ Abstract class for structural checks</p>
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.DeflectionLimitByDeflectionCheckEC2004DE">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DeflectionLimitByDeflectionCheckEC2004DE</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#DeflectionLimitByDeflectionCheckEC2004DE"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.DeflectionLimitByDeflectionCheckEC2004DE" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.checks.structural_checks.StructuralCheck" title="core.analysis_core.checks.structural_checks.StructuralCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuralCheck</span></code></a></p>
+<p>SLS deflection limit check by computed deflection (B.1a).</p>
+<p>Verifies that the maximum quasi-permanent deflection w does not
+exceed the span-based limit L / limit_factor. Negative deflections
+(upward camber) are treated as undesirable and penalized by
+returning <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">+</span> <span class="pre">|utilization|</span></code>.</p>
+<p>Infeasible sections that raise <code class="xref py py-exc docutils literal notranslate"><span class="pre">InvalidSectionForMKError</span></code> are
+penalized with a fixed utilization of <code class="docutils literal notranslate"><span class="pre">10.0</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.DeflectionLimitByDeflectionCheckEC2004DE.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads" title="core.analysis_core.statics.loads.Loads"><span class="pre">Loads</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.SystemType" title="core.analysis_core.statics.constants.SystemType"><span class="pre">SystemType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SystemType.SIMPLE_BEAM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">250.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#DeflectionLimitByDeflectionCheckEC2004DE.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.DeflectionLimitByDeflectionCheckEC2004DE.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the utilization ratio</p>
+<dd><p>Compute the SLS deflection utilization ratio w / (L / limit_factor).
+Adapted from Loutfi <span class="bibtex-citation" id="id6">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p></li>
+<li><p><strong>loads</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Loads</span></code>) – Applied loads object.</p></li>
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SystemType</span></code>, <em>optional</em>) – Structural system type. Default is
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">SystemType.SIMPLE_BEAM</span></code>.</p></li>
+<li><p><strong>limit_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Span fraction used to derive the deflection limit
+w_limit = L / limit_factor [-]. Default is <code class="docutils literal notranslate"><span class="pre">250.0</span></code>.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, passes debug flag to the deflection calculator
+and prints raw utilization, w_max, and L to stdout.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Utilization ratio w_max / w_limit [-]. Returns <code class="docutils literal notranslate"><span class="pre">10.0</span></code> for
+infeasible sections. Negative deflections are returned as
+<code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">+</span> <span class="pre">|utilization|</span></code>.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -355,19 +427,44 @@ Abstract class for structural checks</p>
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.DeflectionLimitByMcrCheckEC2004DE">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DeflectionLimitByMcrCheckEC2004DE</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#DeflectionLimitByMcrCheckEC2004DE"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.DeflectionLimitByMcrCheckEC2004DE" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.checks.structural_checks.StructuralCheck" title="core.analysis_core.checks.structural_checks.StructuralCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuralCheck</span></code></a></p>
+<p>SLS deflection limit check by cracking moment comparison (B.1b).</p>
+<p>Verifies that the quasi-permanent design moment M_qp does not exceed
+the cracking moment M_cr. A utilization &lt; 1.0 means the section
+remains uncracked; a utilization &gt; 1.0 means the section will crack
+under quasi-permanent loads.</p>
+<p>Sections that crush before cracking (over-prestressed) or produce an
+invalid cracking moment result are penalized with <code class="docutils literal notranslate"><span class="pre">10.0</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.DeflectionLimitByMcrCheckEC2004DE.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads" title="core.analysis_core.statics.loads.Loads"><span class="pre">Loads</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.SystemType" title="core.analysis_core.statics.constants.SystemType"><span class="pre">SystemType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SystemType.SIMPLE_BEAM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.MomentType" title="core.analysis_core.statics.constants.MomentType"><span class="pre">MomentType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">MomentType.MAX_POS_MOMENT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#DeflectionLimitByMcrCheckEC2004DE.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.DeflectionLimitByMcrCheckEC2004DE.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate the utilization ratio m_qp / m_cr.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>float: Utilization ratio.</dt><dd><ul class="simple">
-<li><p>&lt; 1.0: Section remains uncracked under quasi-permanent loads</p></li>
-<li><p>&gt; 1.0: Section will crack</p></li>
-<li><p>float(‚inf‘): Section crushes before cracking (over-prestressed)</p></li>
+<dd><p>Compute the SLS cracking utilization ratio <a href="#id16"><span class="problematic" id="id17">|M_qp|</span></a> / M_cr.
+Adapted from Loutfi <span class="bibtex-citation" id="id7">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p></li>
+<li><p><strong>loads</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Loads</span></code>) – Applied loads object.</p></li>
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SystemType</span></code>, <em>optional</em>) – Structural system type. Default is
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">SystemType.SIMPLE_BEAM</span></code>.</p></li>
+<li><p><strong>moment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MomentType</span></code>, <em>optional</em>) – Governing moment type. Default is
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">MomentType.MAX_POS_MOMENT</span></code>.</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Applied normal force [N] (positive = tension). Default is
+<code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, prints M_qp, M_cr validity, M_cr, and
+utilization to stdout. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
-</dl>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Utilization ratio <a href="#id18"><span class="problematic" id="id19">|M_qp|</span></a> / M_cr [-].</p>
+<ul class="simple">
+<li><p>&lt; 1.0: section remains uncracked under quasi-permanent loads.</p></li>
+<li><p>&gt; 1.0: section will crack.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code>: section crushes before cracking (invalid result).</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,10 +475,42 @@ Abstract class for structural checks</p>
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.FailureAnnouncementByDeflectionCheckEC2004DE">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FailureAnnouncementByDeflectionCheckEC2004DE</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#FailureAnnouncementByDeflectionCheckEC2004DE"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.FailureAnnouncementByDeflectionCheckEC2004DE" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.checks.structural_checks.StructuralCheck" title="core.analysis_core.checks.structural_checks.StructuralCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuralCheck</span></code></a></p>
+<p>Failure announcement check by deflection under fundamental loads (B.2a).</p>
+<p>Verifies that the deflection under the fundamental load combination
+w_uls exceeds the minimum ductility threshold w_min = L / min_factor,
+so that a sufficient warning is ensured.
+A utilization ≤ 1.0 means the deflection at failure is large enough.</p>
+<p>Negative deflections (upward camber under ULS loads) are treated as
+undesirable and penalized by returning <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">+</span> <span class="pre">|utilization|</span></code>.
+Infeasible sections are penalized with <code class="docutils literal notranslate"><span class="pre">10.0</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.FailureAnnouncementByDeflectionCheckEC2004DE.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads" title="core.analysis_core.statics.loads.Loads"><span class="pre">Loads</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.SystemType" title="core.analysis_core.statics.constants.SystemType"><span class="pre">SystemType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SystemType.SIMPLE_BEAM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">250.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#FailureAnnouncementByDeflectionCheckEC2004DE.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.FailureAnnouncementByDeflectionCheckEC2004DE.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the utilization ratio</p>
+<dd><p>Compute the failure announcement utilization ratio w_min / w_uls.
+Adapted from Loutfi <span class="bibtex-citation" id="id8">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p></li>
+<li><p><strong>loads</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Loads</span></code>) – Applied loads object.</p></li>
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SystemType</span></code>, <em>optional</em>) – Structural system type. Default is
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">SystemType.SIMPLE_BEAM</span></code>.</p></li>
+<li><p><strong>min_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Span fraction used to derive the minimum required deflection
+w_min = L / min_factor [-]. Default is <code class="docutils literal notranslate"><span class="pre">250.0</span></code>.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, passes debug flag to the deflection calculator
+and prints w_max, w_min, and utilization to stdout.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Utilization ratio w_min / w_uls [-]. Returns <code class="docutils literal notranslate"><span class="pre">10.0</span></code> for
+infeasible sections. Negative deflections are returned as
+<code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">+</span> <span class="pre">|utilization|</span></code>.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -390,19 +519,44 @@ Abstract class for structural checks</p>
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.FailureAnnouncementByMcrCheckEC2004DE">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FailureAnnouncementByMcrCheckEC2004DE</span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#FailureAnnouncementByMcrCheckEC2004DE"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.FailureAnnouncementByMcrCheckEC2004DE" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.checks.structural_checks.StructuralCheck" title="core.analysis_core.checks.structural_checks.StructuralCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuralCheck</span></code></a></p>
+<p>Failure announcement check by cracking moment under fundamental loads (B.2b).</p>
+<p>Verifies that the cracking moment M_cr exceeds the fundamental design
+moment M_fund, ensuring that the section cracks before reaching ULS
+(brittle failure without warning is avoided). A utilization ≤ 1.0
+means M_cr &lt; M_fund, i.e. the section cracks first.</p>
+<p>Sections that crush before cracking or produce an invalid cracking
+moment result are penalized with <code class="docutils literal notranslate"><span class="pre">10.0</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.checks.structural_checks.FailureAnnouncementByMcrCheckEC2004DE.calculate_utilization">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">calculate_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads" title="core.analysis_core.statics.loads.Loads"><span class="pre">Loads</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.SystemType" title="core.analysis_core.statics.constants.SystemType"><span class="pre">SystemType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SystemType.SIMPLE_BEAM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.MomentType" title="core.analysis_core.statics.constants.MomentType"><span class="pre">MomentType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">MomentType.MAX_POS_MOMENT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/checks/structural_checks.html#FailureAnnouncementByMcrCheckEC2004DE.calculate_utilization"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.checks.structural_checks.FailureAnnouncementByMcrCheckEC2004DE.calculate_utilization" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate the utilization ratio m_qp / m_cr.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>float: Utilization ratio.</dt><dd><ul class="simple">
-<li><p>&lt; 1.0 : Section remains uncracked under quasi-permanent loads</p></li>
-<li><p>&gt; 1.0 : Section will crack</p></li>
-<li><p>99.0  : Section crushes before cracking (over-prestressed)</p></li>
+<dd><p>Compute the failure announcement utilization ratio M_cr / M_fund.
+Adapted from Loutfi <span class="bibtex-citation" id="id9">[<a class="reference internal" href="../references.html#id47" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p></li>
+<li><p><strong>loads</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Loads</span></code>) – Applied loads object.</p></li>
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SystemType</span></code>, <em>optional</em>) – Structural system type. Default is
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">SystemType.SIMPLE_BEAM</span></code>.</p></li>
+<li><p><strong>moment</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MomentType</span></code>, <em>optional</em>) – Governing moment type. Default is
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">MomentType.MAX_POS_MOMENT</span></code>.</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Applied normal force [N] (positive = tension). Default is
+<code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, prints M_fund, M_cr validity, M_cr, and
+utilization to stdout. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
-</dl>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Utilization ratio M_cr / M_fund [-].</p>
+<ul class="simple">
+<li><p>&lt; 1.0: section cracks before reaching ULS</p></li>
+<li><p>&gt; 1.0: section reaches ULS without cracking</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code>: section crushes before cracking</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>

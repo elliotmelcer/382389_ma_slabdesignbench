@@ -1,3 +1,12 @@
+"""
+Structural utilization checks for HP-shell slab constructions.
+Numbering according to Loutfi :cite:`loutfi_2023`
+
+Covers ultimate limit state (ULS) bending strength and serviceability
+limit state (SLS) deflection and cracking checks per EN 1992-1-1:2004/NA(DE) :cite:`ec2`
+
+Adapted from: Jamila Loutfi :cite:`loutfi_2023`
+"""
 from abc import ABC, abstractmethod
 
 from core.analysis_core.statics.constants import SystemType, MomentType
@@ -9,16 +18,17 @@ from core.analysis_core.section_methods import calculate_bending_strength_uls_Nm
 from core.unit_core import Nmm_to_kNm
 from slab_construction.slab_construction import SlabConstruction
 
-"""
-STRUCTURAL CHECKS
-A.1, B.1a, B.1b, B.2a, B.2b adapted from Jamila Loutfi
-"""
 
 class StructuralCheck(ABC):
     """
+    Abstract base class for structural utilization checks.
     Author: Elliot Melcer
-    Abstract class for structural checks
+
+    All StructuralCheck subclasses must implement :meth:`calculate_utilization`,
+    which returns a dimensionless utilization ratio where values ≤ 1.0
+    indicate a passing design.
     """
+
     @staticmethod
     @abstractmethod
     def calculate_utilization(
@@ -26,13 +36,46 @@ class StructuralCheck(ABC):
             loads: Loads,
             system: str,
             moment: str) -> float:
-        """Returns the utilization ratio"""
+        """
+        Compute the structural utilization ratio for a slab construction.
+
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object (uniformly distributed over all spans).
+        system : str
+            Structural system identifier (see :class:`SystemType`).
+        moment : str
+            Moment type identifier (see :class:`MomentType`).
+
+        Returns
+        -------
+        float
+            Utilization ratio [-]. Values ≤ 1.0 indicate a passing design.
+        """
         raise NotImplementedError
+
 
 """ULTIMATE LIMIT STATE"""
 
+
 """A.1 Ultimate Moment Check"""
+
+
 class UltimateMomentCheckEC2004DE(StructuralCheck):
+    """
+    ULS bending strength check per EN 1992-1-1:2004/NA(DE) :cite:`ec2`.
+
+    Computes the utilization ratio |M_Ed| / M_Rd at the cross-section
+    position where the governing design moment occurs. For positive
+    moments the section is used as-is; for negative moments the section
+    is flipped before calling the strength calculation.
+
+    Infeasible sections (no valid equilibrium) are penalized with a
+    fixed utilization of ``10.0``.
+    """
 
     @staticmethod
     def calculate_utilization(
@@ -44,15 +87,34 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
             debug_print: bool = False
     ) -> float:
         """
-        Calculate utilization ratio for ultimate moment check
+        Compute the ULS bending utilization ratio |M_Ed| / M_Rd.
+        Adapted from Loutfi :cite:`loutfi_2023`
 
-        :param debug_print:
-        :param n:
-        :param slab_construction: Slab construction object
-        :param loads: LoadsEC object (only uniformly distributed loads over all spans)
-        :param system: System type (see Enum)
-        :param moment: Moment type (see Enum)
-        :return: Utilization ratio (MEd/MRd)
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object (uniformly distributed over all spans).
+        system : SystemType, optional
+            Structural system type. Default is
+            :attr:`SystemType.SIMPLE_BEAM`.
+        moment : MomentType, optional
+            Governing moment type. Default is
+            :attr:`MomentType.MAX_POS_MOMENT`.
+        n : float, optional
+            Applied normal force [N] (positive = tension). Default is
+            ``0.0``.
+        debug_print : bool, optional
+            If ``True``, prints intermediate values (system, moment type,
+            x-position, M_Rd, M_Ed, utilization) to stdout.
+            Default is ``False``.
+
+        Returns
+        -------
+        float
+            Utilization ratio |M_Ed| / M_Rd [-]. Returns ``10.0`` for
+            infeasible sections.
         """
         slab = slab_construction.slab
 
@@ -101,8 +163,22 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
 
 """SERVICEABILITY LIMIT STATE"""
 
+
 """B.1a Deflection Limit Check"""
+
+
 class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
+    """
+    SLS deflection limit check by computed deflection (B.1a).
+
+    Verifies that the maximum quasi-permanent deflection w does not
+    exceed the span-based limit L / limit_factor. Negative deflections
+    (upward camber) are treated as undesirable and penalized by
+    returning ``1 + |utilization|``.
+
+    Infeasible sections that raise :exc:`InvalidSectionForMKError` are
+    penalized with a fixed utilization of ``10.0``.
+    """
 
     @staticmethod
     def calculate_utilization(
@@ -112,7 +188,34 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             limit_factor: float = 250.0,
             debug: bool = False,
     ) -> float:
+        """
+        Compute the SLS deflection utilization ratio w / (L / limit_factor).
+        Adapted from Loutfi :cite:`loutfi_2023`
 
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType, optional
+            Structural system type. Default is
+            :attr:`SystemType.SIMPLE_BEAM`.
+        limit_factor : float, optional
+            Span fraction used to derive the deflection limit
+            w_limit = L / limit_factor [-]. Default is ``250.0``.
+        debug : bool, optional
+            If ``True``, passes debug flag to the deflection calculator
+            and prints raw utilization, w_max, and L to stdout.
+            Default is ``False``.
+
+        Returns
+        -------
+        float
+            Utilization ratio w_max / w_limit [-]. Returns ``10.0`` for
+            infeasible sections. Negative deflections are returned as
+            ``1 + |utilization|``.
+        """
         try:
             w_max_sls = DeflectionCalculator.calculate_deflection_mm_EC(
                 slab_construction,
@@ -147,8 +250,23 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
 
         return screened_utilization
 
+
 """B.1b Deflection Limit Check"""
+
+
 class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
+    """
+    SLS deflection limit check by cracking moment comparison (B.1b).
+
+    Verifies that the quasi-permanent design moment M_qp does not exceed
+    the cracking moment M_cr. A utilization < 1.0 means the section
+    remains uncracked; a utilization > 1.0 means the section will crack
+    under quasi-permanent loads.
+
+    Sections that crush before cracking (over-prestressed) or produce an
+    invalid cracking moment result are penalized with ``10.0``.
+    """
+
     @staticmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
@@ -159,15 +277,37 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
             debug: bool = False
     ) -> float:
         """
-        Calculate the utilization ratio m_qp / m_cr.
+        Compute the SLS cracking utilization ratio |M_qp| / M_cr.
+        Adapted from Loutfi :cite:`loutfi_2023`
 
-        Returns:
-            float: Utilization ratio.
-                   - < 1.0: Section remains uncracked under quasi-permanent loads
-                   - > 1.0: Section will crack
-                   - float('inf'): Section crushes before cracking (over-prestressed)
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType, optional
+            Structural system type. Default is
+            :attr:`SystemType.SIMPLE_BEAM`.
+        moment : MomentType, optional
+            Governing moment type. Default is
+            :attr:`MomentType.MAX_POS_MOMENT`.
+        n : float, optional
+            Applied normal force [N] (positive = tension). Default is
+            ``0.0``.
+        debug : bool, optional
+            If ``True``, prints M_qp, M_cr validity, M_cr, and
+            utilization to stdout. Default is ``False``.
+
+        Returns
+        -------
+        float
+            Utilization ratio |M_qp| / M_cr [-].
+
+            - < 1.0: section remains uncracked under quasi-permanent loads.
+            - > 1.0: section will crack.
+            - ``10.0``: section crushes before cracking (invalid result).
         """
-
         # Calculate quasi-permanent moment
         m_qp_kNm = InternalForces.calculate_moment_kNm(
             slab_construction,
@@ -210,8 +350,24 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
 
         return utilization
 
+
 """B.2a Failure Announcement"""
+
+
 class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
+    """
+    Failure announcement check by deflection under fundamental loads (B.2a).
+
+    Verifies that the deflection under the fundamental load combination
+    w_uls exceeds the minimum ductility threshold w_min = L / min_factor,
+    so that a sufficient warning is ensured.
+    A utilization ≤ 1.0 means the deflection at failure is large enough.
+
+    Negative deflections (upward camber under ULS loads) are treated as
+    undesirable and penalized by returning ``1 + |utilization|``.
+    Infeasible sections are penalized with ``10.0``.
+    """
+
     @staticmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
@@ -220,7 +376,34 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
             min_factor: float = 250.0,
             debug: bool = False,
     ) -> float:
+        """
+        Compute the failure announcement utilization ratio w_min / w_uls.
+        Adapted from Loutfi :cite:`loutfi_2023`
 
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType, optional
+            Structural system type. Default is
+            :attr:`SystemType.SIMPLE_BEAM`.
+        min_factor : float, optional
+            Span fraction used to derive the minimum required deflection
+            w_min = L / min_factor [-]. Default is ``250.0``.
+        debug : bool, optional
+            If ``True``, passes debug flag to the deflection calculator
+            and prints w_max, w_min, and utilization to stdout.
+            Default is ``False``.
+
+        Returns
+        -------
+        float
+            Utilization ratio w_min / w_uls [-]. Returns ``10.0`` for
+            infeasible sections. Negative deflections are returned as
+            ``1 + |utilization|``.
+        """
         try:
             w_max_uls = DeflectionCalculator.calculate_deflection_mm_EC(
                 slab_construction,
@@ -257,8 +440,23 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
 
         return screened_utilization
 
+
 """B.2b Failure Announcement"""
+
+
 class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
+    """
+    Failure announcement check by cracking moment under fundamental loads (B.2b).
+
+    Verifies that the cracking moment M_cr exceeds the fundamental design
+    moment M_fund, ensuring that the section cracks before reaching ULS
+    (brittle failure without warning is avoided). A utilization ≤ 1.0
+    means M_cr < M_fund, i.e. the section cracks first.
+
+    Sections that crush before cracking or produce an invalid cracking
+    moment result are penalized with ``10.0``.
+    """
+
     @staticmethod
     def calculate_utilization(
             slab_construction: SlabConstruction,
@@ -269,15 +467,37 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
             debug: bool = False
     ) -> float:
         """
-        Calculate the utilization ratio m_qp / m_cr.
+        Compute the failure announcement utilization ratio M_cr / M_fund.
+        Adapted from Loutfi :cite:`loutfi_2023`
 
-        Returns:
-            float: Utilization ratio.
-                   - < 1.0 : Section remains uncracked under quasi-permanent loads
-                   - > 1.0 : Section will crack
-                   - 99.0  : Section crushes before cracking (over-prestressed)
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType, optional
+            Structural system type. Default is
+            :attr:`SystemType.SIMPLE_BEAM`.
+        moment : MomentType, optional
+            Governing moment type. Default is
+            :attr:`MomentType.MAX_POS_MOMENT`.
+        n : float, optional
+            Applied normal force [N] (positive = tension). Default is
+            ``0.0``.
+        debug : bool, optional
+            If ``True``, prints M_fund, M_cr validity, M_cr, and
+            utilization to stdout. Default is ``False``.
+
+        Returns
+        -------
+        float
+            Utilization ratio M_cr / M_fund [-].
+
+            - < 1.0: section cracks before reaching ULS
+            - > 1.0: section reaches ULS without cracking
+            - ``10.0``: section crushes before cracking
         """
-
         # Calculate fundamental combination moment
         m_fund_kNm = InternalForces.calculate_moment_kNm(
             slab_construction,

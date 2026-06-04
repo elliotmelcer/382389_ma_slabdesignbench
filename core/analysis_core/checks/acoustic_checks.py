@@ -18,7 +18,7 @@ class AcousticCheck(ABC):
     Abstract base class for acoustic utilization checks.
     Author: Elliot Melcer
 
-    All concrete subclasses must implement :meth:`calculate_utilization`,
+    All AcousticCheck subclasses must implement :meth:`calculate_utilization`,
     which returns a dimensionless utilization ratio where values ≤ 1.0
     indicate a passing design.
     """

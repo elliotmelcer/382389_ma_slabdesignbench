@@ -20,7 +20,7 @@ class ConstructionCheck(ABC):
     Abstract base class for construction feasibility checks.
     Author: Elliot Melcer
 
-    All concrete subclasses must implement :meth:`calculate_utilization`,
+    All ConstructionCheck subclasses must implement :meth:`calculate_utilization`,
     which returns a dimensionless utilization ratio where values ≤ 1.0
     indicate a constructable design.
     """
