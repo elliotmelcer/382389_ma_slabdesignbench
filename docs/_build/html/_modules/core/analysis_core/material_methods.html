@@ -456,7 +456,7 @@
 <span class="sd">        - ``&quot;FCTM_PARABOLIC&quot;`` — linear elastic tension up to ``fctm``;</span>
 <span class="sd">          Sargin compression.</span>
 <span class="sd">        - ``&quot;TENSTIFF_PARABOLIC&quot;`` — linear elastic tension up to ``fctm``</span>
-<span class="sd">          followed by tension stiffening per Nayal :cite:`nayal_2006`; Sargin compression.</span>
+<span class="sd">          followed by tension stiffening per Nayal and Rasheed :cite:`nayal_2006`; Sargin compression.</span>
 <span class="sd">        - ``&quot;ELASTIC_ELASTIC&quot;`` — fully elastic in both tension and</span>
 <span class="sd">          compression (no cracking or crushing).</span>
 
@@ -641,12 +641,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">tenstiff_parabolic_law_EC</span><span class="p">(</span><span class="n">concrete</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Concrete</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">n_c</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span> <span class="n">n_t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TensionStiffeningConcreteLawEC</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Build a tension-stiffening constitutive law with Sargin compression</span>
-<span class="sd">    according to Eurocode 2 :cite:`ec2` and Nayal :cite:`nayal_2006`.</span>
+<span class="sd">    according to Eurocode 2 :cite:`ec2` + Nayal and Rasheed :cite:`nayal_2006`.</span>
 
 <span class="sd">    The compression branch follows the Sargin parabola. The tension branch</span>
-<span class="sd">    is linear elastic up to ``fctm``, then descends through the Nayal (2006)</span>
+<span class="sd">    is linear elastic up to ``fctm``, then descends through the</span>
 <span class="sd">    tension-stiffening model defined by the fixed parameters</span>
-<span class="sd">    ``P_t = 0.8``, ``R_t = 0.45``, ``S_t = 4``, ``F_t = 10``. This is an</span>
+<span class="sd">    ``P_t = 0.8``, ``R_t = 0.45``, ``S_t = 4``, ``F_t = 10`` from :cite:`nayal_2006`. This is an</span>
 <span class="sd">    assumption that is yet to be verified experimentally for CRFP concrete sections</span>
 
 <span class="sd">    Parameters</span>
@@ -709,7 +709,7 @@
     <span class="n">sig_t</span> <span class="o">=</span> <span class="n">Ecm</span> <span class="o">*</span> <span class="n">eps_t</span> <span class="c1"># dim = 1</span>
 
     <span class="c1"># -------------------------------</span>
-    <span class="c1"># Tension Stiffening Points according to Naya(2006)</span>
+    <span class="c1"># Tension Stiffening Factors according to Nayal and Rasheed :cite:`nayal_2006`</span>
     <span class="c1"># -------------------------------</span>
 
     <span class="c1"># Parameters</span>

@@ -298,19 +298,99 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.analysis_core.acoustic_methods">
 <span id="acoustic-methods-py"></span><h1>acoustic_methods.py<a class="headerlink" href="#module-core.analysis_core.acoustic_methods" title="Link to this heading">¶</a></h1>
+<p>Acoustic calculation methods for HP-shell slab constructions.</p>
+<p>Implements regression-based models for airborne sound reduction and
+impact sound pressure level, calibrated on HP-shell geometry and floor
+build-up parameters.</p>
+<p>Adapted from: Jamila Loutfi, Ahmad Eiz Eddin</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.acoustic_methods.calculate_sound_reduction_index">
 <span class="sig-name descname"><span class="pre">calculate_sound_reduction_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_att</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/acoustic_methods.html#calculate_sound_reduction_index"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.acoustic_methods.calculate_sound_reduction_index" title="Link to this definition">¶</a></dt>
-<dd><p>Adapted from: Jamila Loutfi + Ahmad Eiz Eddin
-Calculate sound reduction index for a slab construction.
-Note: Only considers DIRECT sound reduction index</p>
+<dd><p>Calculate the weighted sound reduction index R_w for a slab construction.</p>
+<p>Uses a regression model for the bare HP-shell (R_w,BG) combined with the
+floating-screed improvement ΔR per DIN 4109-34. Only direct sound
+transmission is considered; flanking paths are excluded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object containing HP-shell geometry, concrete
+properties, and floor layer stack.</p></li>
+<li><p><strong>mod_att</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Modal attenuation parameter of the HP-shell [-].</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, intermediate values are printed to stdout.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Weighted sound reduction index R_w [dB].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Regression model for R_w,BG:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[R_{w,BG} = 41.61 + 727.32 \cdot \text{mod\_{att}}
+           + 53.55 \cdot t_{\text{infill}}
+           + 1.51 \cdot B - 11.52 \cdot B \cdot t\]</div>
+</div>
+<p>Improvement ΔR is computed from the resonant frequency f_0 of the
+floating-screed system per DIN 4109-34, Eq. (1):</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[f_0 = 160 \sqrt{s \cdot \left(\frac{1}{m'_1} + \frac{1}{m'_2}\right)} \quad [Hz]\]</div>
+</div>
+<p>where s is the dynamic stiffness of the insulation layer [MN/m³],
+m_{1} is the combined area density of concrete slab and infill [kg/m²],
+and m_{2} is the screed area density [kg/m²].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.acoustic_methods.calculate_standard_impact_sound_pressure_level">
 <span class="sig-name descname"><span class="pre">calculate_standard_impact_sound_pressure_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mod_att</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/acoustic_methods.html#calculate_standard_impact_sound_pressure_level"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.acoustic_methods.calculate_standard_impact_sound_pressure_level" title="Link to this definition">¶</a></dt>
-<dd><p>Adapted From: Jamila Loutfi + Ahmad Eiz Eddin
-Calculate standard impact sound pressure level for a slab construction.</p>
+<dd><p>Calculate the weighted standard impact sound pressure level L_nw for a
+slab construction.</p>
+<p>Uses a regression model for the equivalent impact sound pressure level
+L_n,eq,0 of the bare HP-shell concrete layer, then applies the floating-
+screed reduction ΔL_w per DIN 4109-34, Eq. (3). Flanking sound
+transmission is not considered (K = 0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object containing HP-shell geometry, concrete
+properties, and floor layer stack.</p></li>
+<li><p><strong>mod_att</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Modal attenuation parameter of the HP-shell [-].</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, intermediate values are printed to stdout.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Weighted standard impact sound pressure level L_nw [dB].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Regression model for L_n,eq,0 (bare concrete layer):</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[L_{n,eq,0} = 259.59 - 107.55 \cdot t - 6606.69 \cdot \text{mod\_att}
+             - 1.068 \cdot B - 41.16 \cdot t_{\text{infill}}
+             - 6.35 \cdot H_y - 0.0043 \cdot E_{cm}
+             + 263.50 \cdot t \cdot t_{\text{infill}}
+             + 0.167 \cdot \text{mod\_att} \cdot E_{cm}\]</div>
+</div>
+<p>Floating-screed reduction per DIN 4109-34, Eq. (3):</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\Delta L_w = 13 \log_{10}(m_2) - 14.2 \log_{10}(s') + 20.8\]</div>
+</div>
+<p>where s‘ is the dynamic stiffness of the insulation layer [MN/m³] and
+m_2 is the screed area density [kg/m²].</p>
+<p>The correctional value for flanking sound transmission is set to K = 0
+(not considered in the current model).</p>
 </dd></dl>
 
 </section>
@@ -369,5 +449,6 @@ Calculate standard impact sound pressure level for a slab construction.</p>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="../_static/translations.js?v=9bf55d28"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>
