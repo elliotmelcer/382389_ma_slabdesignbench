@@ -1,5 +1,0 @@
-# Zusätzlich zu deinen Projekt-Abhängigkeiten in der .venv installieren:
-sphinx>=7.0
-furo
-# Alternatives Theme statt furo:
-# sphinx-rtd-theme

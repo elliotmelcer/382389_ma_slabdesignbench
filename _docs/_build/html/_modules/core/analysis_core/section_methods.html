@@ -1,0 +1,1708 @@
+<!doctype html>
+<html class="no-js" lang="de" data-content_root="../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Stichwortverzeichnis" href="../../../genindex.html"><link rel="search" title="Suche" href="../../../search.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>core.analysis_core.section_methods - SlabDesignBench</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">SlabDesignBench</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  <span class="sidebar-brand-text">SlabDesignBench</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Suche" name="q" aria-label="Suche">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">API-Referenz</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/core.html">core</a><input aria-label="Toggle navigation of core" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.analysis_core.html">analysis_core</a><input aria-label="Toggle navigation of analysis_core" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/core.analysis_core.checks.html">checks</a><input aria-label="Toggle navigation of checks" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/core.analysis_core.checks.acoustic_checks.html">acoustic_checks.py</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/core.analysis_core.checks.construction_checks.html">construction_checks.py</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/core.analysis_core.checks.modeling_checks.html">modeling_checks.py</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/core.analysis_core.checks.structural_checks.html">structural_checks.py</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/core.analysis_core.statics.html">statics</a><input aria-label="Toggle navigation of statics" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/core.analysis_core.statics.constants.html">constants.py</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/core.analysis_core.statics.deflection.html">deflection.py</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/core.analysis_core.statics.internal_forces.html">internal_forces.py</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/core.analysis_core.statics.loads.html">loads.py</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.analysis_core.acoustic_methods.html">acoustic_methods.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.analysis_core.material_methods.html">material_methods.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.analysis_core.section_methods.html">section_methods.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.ioh_core.html">ioh_core</a><input aria-label="Toggle navigation of ioh_core" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.algorithms.html">algorithms.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.cache_eval.html">cache_eval.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.experiment.html">experiment.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.import_specs.html">import_specs.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.io_util.html">io_util.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.problem_builder.html">problem_builder.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.visualization_core.visualization.html">visualization.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/slab_construction.html">slab_construction</a><input aria-label="Toggle navigation of slab_construction" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/slab_construction.slabs.html">slabs</a><input aria-label="Toggle navigation of slabs" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/slab_construction.slabs.flat_slab.html">flat_slab</a><input aria-label="Toggle navigation of flat_slab" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/slab_construction.slabs.hp_slab.html">hp_slab</a><input aria-label="Toggle navigation of hp_slab" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/slab_construction.slabs.hp_slab.hp_model.html">hp_model</a><input aria-label="Toggle navigation of hp_model" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html">hp_geometry.py</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html">hp_shell.py</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/slab_construction.slabs.hp_slab.hp_model.hp_slab.html">hp_slab.py</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/slab_construction.slabs.hp_slab.analysis.html">analysis.py</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/slab_construction.slabs.ribbed_slab.html">ribbed_slab</a><input aria-label="Toggle navigation of ribbed_slab" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/slab_construction.slabs.one_way_slab.html">one_way_slab.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/slab_construction.slabs.slab.html">slab.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/slab_construction.floor.html">floor.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/slab_construction.slab_construction.html">slab_construction.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references.html">Quellenverzeichnis</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Quellcode für core.analysis_core.section_methods</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Moment-curvature and cross-section methods per Eurocode 2.</span>
+
+<span class="sd">Provides routines for computing the cracking moment, the SLS/ULS bending</span>
+<span class="sd">strength, and full as well as simplified moment-curvature (M-κ) diagrams,</span>
+<span class="sd">plus helpers for building SLS/ULS sections and querying section properties.</span>
+
+<span class="sd">Units: lengths in mm, forces in N, moments in Nmm.</span>
+
+<span class="sd">Author: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.core._section_results</span><span class="w"> </span><span class="kn">import</span> <span class="n">MomentCurvatureResults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.geometry</span><span class="w"> </span><span class="kn">import</span>  <span class="n">CompoundGeometry</span><span class="p">,</span> <span class="n">SurfaceGeometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.materials.concrete</span><span class="w"> </span><span class="kn">import</span> <span class="n">Concrete</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.materials.reinforcement</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reinforcement</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.sections</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericSection</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">core.analysis_core.material_methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_sls_concrete_EC</span><span class="p">,</span> <span class="n">TensionStiffeningConcreteLawEC</span><span class="p">,</span> <span class="n">create_uls_concrete_EC</span>
+
+<div class="viewcode-block" id="InvalidSectionForMKError">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.InvalidSectionForMKError">[Doku]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InvalidSectionForMKError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a section cannot produce a valid M-κ diagram.</span>
+
+<span class="sd">    Typical cause: prestress too high, so the section would crush before</span>
+<span class="sd">    cracking.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="calculate_cracking_moment_sls_Nmm_EC">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.calculate_cracking_moment_sls_Nmm_EC">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_cracking_moment_sls_Nmm_EC</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the cracking moment of a section at SLS.</span>
+
+<span class="sd">    Finds the strain profile where the bottom fiber reaches the cracking</span>
+<span class="sd">    strain ``eps_ctm = fctm / Ecm`` while maintaining equilibrium with the</span>
+<span class="sd">    applied axial force ``n``. Includes physical strain-limit checks to</span>
+<span class="sd">    avoid spurious solutions where the concrete would crush before cracking.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to analyze (should be a ULS section; an SLS section is</span>
+<span class="sd">        built internally).</span>
+<span class="sd">    n : float, optional</span>
+<span class="sd">        Applied axial force [N] (positive = tension, negative =</span>
+<span class="sd">        compression). Default: ``0.0``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Result with the keys:</span>
+
+<span class="sd">        - ``section`` : GenericSection — the SLS section used.</span>
+<span class="sd">        - ``m_cr`` : float — cracking moment [Nmm], or ``float(&#39;-inf&#39;)``</span>
+<span class="sd">          if the section crushes before cracking.</span>
+<span class="sd">        - ``strain_profile`` : list — ``[eps_0, chi_y, chi_z]`` at cracking.</span>
+<span class="sd">        - ``valid`` : bool — ``True`` if a physically valid solution was found.</span>
+<span class="sd">        - ``reason`` : str or None — explanation if invalid, else ``None``.</span>
+<span class="sd">        - ``chi_min_physical`` : float — present only on the invalid branch;</span>
+<span class="sd">          the lower physical curvature bound [1/mm].</span>
+<span class="sd">        - ``eps_top`` : float — present only on the valid branch; top-fiber</span>
+<span class="sd">          strain [-] of the solution.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If no concrete geometry is found in the section.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Strain profile convention: ``eps(z) = eps_0 + chi_y * z``. For sagging</span>
+<span class="sd">    bending ``chi_y`` is negative, so the crushing limit acts as a lower</span>
+<span class="sd">    bound on the curvature.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sls_sec</span> <span class="o">=</span> <span class="n">sls_section_EC</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;FCTM_PARABOLIC&quot;</span><span class="p">)</span>
+    <span class="n">analysis_sls_sec</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">sls_sec</span><span class="p">)</span>
+
+    <span class="c1"># --- Concrete Properties ---</span>
+    <span class="n">conc</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">geo</span> <span class="ow">in</span> <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">geometries</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geo</span><span class="p">,</span> <span class="s1">&#39;concrete&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">geo</span><span class="o">.</span><span class="n">concrete</span><span class="p">:</span>
+            <span class="n">conc</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">material</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">conc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No concrete geometry found in section&quot;</span><span class="p">)</span>
+
+    <span class="n">Ecm</span> <span class="o">=</span> <span class="n">conc</span><span class="o">.</span><span class="n">Ecm</span>
+    <span class="n">fctm</span> <span class="o">=</span> <span class="n">conc</span><span class="o">.</span><span class="n">fctm</span>
+    <span class="n">eps_ctm</span> <span class="o">=</span> <span class="n">fctm</span> <span class="o">/</span> <span class="n">Ecm</span>  <span class="c1"># Cracking strain (positive, tension)</span>
+
+    <span class="c1"># Get ultimate compressive strain (negative)</span>
+    <span class="n">eps_cu1</span> <span class="o">=</span> <span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">conc</span><span class="o">.</span><span class="n">eps_cu1</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">conc</span><span class="p">,</span> <span class="s1">&#39;eps_cu1&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="o">-</span><span class="mf">0.0035</span>
+
+    <span class="c1"># --- Section Geometry ---</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">zmin</span><span class="p">,</span> <span class="n">zmax</span> <span class="o">=</span> <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">calculate_extents</span><span class="p">()</span>
+    <span class="n">section_depth</span> <span class="o">=</span> <span class="n">zmax</span> <span class="o">-</span> <span class="n">zmin</span>
+
+    <span class="c1"># --- Reinforcement Properties ---</span>
+    <span class="n">point_geometries</span> <span class="o">=</span> <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">point_geometries</span>
+
+    <span class="n">z_reinforcements</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">eps_ini_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">point_geometries</span><span class="p">:</span>
+        <span class="n">z_reinforcements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pg</span><span class="o">.</span><span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">eps_ini</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">initial_strain</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pg</span><span class="o">.</span><span class="n">material</span><span class="p">,</span> <span class="s1">&#39;initial_strain&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">eps_ini</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">eps_ini</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">eps_ini_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eps_ini</span><span class="p">)</span>
+
+    <span class="c1"># ============================================================</span>
+    <span class="c1"># CALCULATE PHYSICAL LIMITS ON CURVATURE</span>
+    <span class="c1"># ============================================================</span>
+    <span class="c1">#</span>
+    <span class="c1"># Strain profile: eps(z) = eps_0 + chi_y * z</span>
+    <span class="c1"># Cracking condition: eps(zmin) = eps_ctm</span>
+    <span class="c1">#   =&gt; eps_0 = eps_ctm - chi_y * zmin</span>
+    <span class="c1">#</span>
+    <span class="c1"># Top fiber strain: eps_top = eps_0 + chi_y * zmax</span>
+    <span class="c1">#                           = eps_ctm + chi_y * (zmax - zmin)</span>
+    <span class="c1">#</span>
+    <span class="c1"># Physical constraint: eps_top &gt;= eps_cu1 (no crushing)</span>
+    <span class="c1">#   =&gt; chi_y &gt;= (eps_cu1 - eps_ctm) / (zmax - zmin)</span>
+    <span class="c1">#</span>
+    <span class="c1"># Note: For sagging bending, chi_y is negative, so this is a LOWER BOUND</span>
+
+    <span class="n">chi_min_physical</span> <span class="o">=</span> <span class="p">(</span><span class="n">eps_cu1</span> <span class="o">-</span> <span class="n">eps_ctm</span><span class="p">)</span> <span class="o">/</span> <span class="n">section_depth</span>
+
+    <span class="c1"># ============================================================</span>
+    <span class="c1"># SET UP BISECTION WITH PHYSICAL CONSTRAINTS</span>
+    <span class="c1"># ============================================================</span>
+
+    <span class="n">calculator</span> <span class="o">=</span> <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">section_calculator</span>
+    <span class="n">integration_data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">calculator</span><span class="p">,</span> <span class="s1">&#39;integration_data&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">mesh_size</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">calculator</span><span class="p">,</span> <span class="s1">&#39;mesh_size&#39;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+
+    <span class="c1"># Initial search range - constrained by physical limit</span>
+    <span class="n">chi_min</span> <span class="o">=</span> <span class="n">chi_min_physical</span> <span class="o">*</span> <span class="mf">1.001</span>  <span class="c1"># Just inside the valid range (less negative)</span>
+    <span class="n">chi_max</span> <span class="o">=</span> <span class="mf">1e-3</span>  <span class="c1"># Small positive curvature (hogging)</span>
+
+    <span class="n">ITMAX</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">1e-2</span>  <span class="c1"># Force tolerance in N</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Evaluate at bounds</span>
+        <span class="n">eps_0_a</span> <span class="o">=</span> <span class="n">eps_ctm</span> <span class="o">-</span> <span class="n">chi_min</span> <span class="o">*</span> <span class="n">zmin</span>
+        <span class="n">N_a</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">integration_data</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">integrate_strain_response_on_geometry</span><span class="p">(</span>
+            <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">eps_0_a</span><span class="p">,</span> <span class="n">chi_min</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+            <span class="n">integration_data</span><span class="o">=</span><span class="n">integration_data</span><span class="p">,</span>
+            <span class="n">mesh_size</span><span class="o">=</span><span class="n">mesh_size</span>
+        <span class="p">)</span>
+        <span class="n">dn_a</span> <span class="o">=</span> <span class="n">N_a</span> <span class="o">-</span> <span class="n">n</span>
+
+        <span class="n">eps_0_b</span> <span class="o">=</span> <span class="n">eps_ctm</span> <span class="o">-</span> <span class="n">chi_max</span> <span class="o">*</span> <span class="n">zmin</span>
+        <span class="n">N_b</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">integrate_strain_response_on_geometry</span><span class="p">(</span>
+            <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">eps_0_b</span><span class="p">,</span> <span class="n">chi_max</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+            <span class="n">integration_data</span><span class="o">=</span><span class="n">integration_data</span><span class="p">,</span>
+            <span class="n">mesh_size</span><span class="o">=</span><span class="n">mesh_size</span>
+        <span class="p">)</span>
+        <span class="n">dn_b</span> <span class="o">=</span> <span class="n">N_b</span> <span class="o">-</span> <span class="n">n</span>
+
+        <span class="c1"># Check if solution exists within valid range</span>
+        <span class="k">if</span> <span class="n">dn_a</span> <span class="o">*</span> <span class="n">dn_b</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># No zero crossing in valid range</span>
+            <span class="c1"># This means the section cannot crack without crushing first</span>
+
+            <span class="c1"># Determine which side we&#39;re on</span>
+            <span class="k">if</span> <span class="n">dn_a</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">dn_b</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;Prestress too high - section would crush before cracking (N &gt; 0 throughout valid range)&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;No equilibrium solution in valid curvature range&quot;</span>
+
+
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="n">sls_sec</span><span class="p">,</span>
+                <span class="s1">&#39;m_cr&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;-inf&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;strain_profile&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">chi_min_physical</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="n">reason</span><span class="p">,</span>
+                <span class="s1">&#39;chi_min_physical&#39;</span><span class="p">:</span> <span class="n">chi_min_physical</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Bisection algorithm (within valid range)</span>
+        <span class="n">chi_c</span> <span class="o">=</span> <span class="n">chi_min</span>
+        <span class="n">dn_c</span> <span class="o">=</span> <span class="n">dn_a</span>
+
+        <span class="n">it</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dn_a</span> <span class="o">-</span> <span class="n">dn_b</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tolerance</span> <span class="ow">and</span> <span class="n">it</span> <span class="o">&lt;</span> <span class="n">ITMAX</span><span class="p">:</span>
+            <span class="n">chi_c</span> <span class="o">=</span> <span class="p">(</span><span class="n">chi_min</span> <span class="o">+</span> <span class="n">chi_max</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+            <span class="n">eps_0_c</span> <span class="o">=</span> <span class="n">eps_ctm</span> <span class="o">-</span> <span class="n">chi_c</span> <span class="o">*</span> <span class="n">zmin</span>
+
+            <span class="n">N_c</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">integrate_strain_response_on_geometry</span><span class="p">(</span>
+                <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">eps_0_c</span><span class="p">,</span> <span class="n">chi_c</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                <span class="n">integration_data</span><span class="o">=</span><span class="n">integration_data</span><span class="p">,</span>
+                <span class="n">mesh_size</span><span class="o">=</span><span class="n">mesh_size</span>
+            <span class="p">)</span>
+            <span class="n">dn_c</span> <span class="o">=</span> <span class="n">N_c</span> <span class="o">-</span> <span class="n">n</span>
+
+            <span class="k">if</span> <span class="n">dn_c</span> <span class="o">*</span> <span class="n">dn_a</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">chi_max</span> <span class="o">=</span> <span class="n">chi_c</span>
+                <span class="n">dn_b</span> <span class="o">=</span> <span class="n">dn_c</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">chi_min</span> <span class="o">=</span> <span class="n">chi_c</span>
+                <span class="n">dn_a</span> <span class="o">=</span> <span class="n">dn_c</span>
+
+            <span class="n">it</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">ITMAX</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Maximum iterations reached. Force imbalance: </span><span class="si">{</span><span class="n">dn_c</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> N&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Final solution</span>
+        <span class="n">chi_y_eq</span> <span class="o">=</span> <span class="n">chi_c</span>
+        <span class="n">eps_0_eq</span> <span class="o">=</span> <span class="n">eps_ctm</span> <span class="o">-</span> <span class="n">chi_y_eq</span> <span class="o">*</span> <span class="n">zmin</span>
+        <span class="n">strain_profile</span> <span class="o">=</span> <span class="p">[</span><span class="n">eps_0_eq</span><span class="p">,</span> <span class="n">chi_y_eq</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+
+        <span class="c1"># Verify solution is within physical limits (should be, but double-check)</span>
+        <span class="n">eps_top</span> <span class="o">=</span> <span class="n">eps_0_eq</span> <span class="o">+</span> <span class="n">chi_y_eq</span> <span class="o">*</span> <span class="n">zmax</span>
+        <span class="k">if</span> <span class="n">eps_top</span> <span class="o">&lt;</span> <span class="n">eps_cu1</span><span class="p">:</span>
+            <span class="n">reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Solution exceeds concrete crushing strain (eps_top=</span><span class="si">{</span><span class="n">eps_top</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> &lt; eps_cu1=</span><span class="si">{</span><span class="n">eps_cu1</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="n">sls_sec</span><span class="p">,</span>
+                <span class="s1">&#39;m_cr&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;-inf&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;strain_profile&#39;</span><span class="p">:</span> <span class="n">strain_profile</span><span class="p">,</span>
+                <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="n">reason</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># --- Calculate Internal Forces ---</span>
+        <span class="n">N_cr</span><span class="p">,</span> <span class="n">My_cr</span><span class="p">,</span> <span class="n">Mz_cr</span> <span class="o">=</span> <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">integrate_strain_profile</span><span class="p">(</span>
+            <span class="n">strain</span><span class="o">=</span><span class="n">strain_profile</span><span class="p">,</span>
+            <span class="n">integrate</span><span class="o">=</span><span class="s1">&#39;stress&#39;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="n">sls_sec</span><span class="p">,</span>
+            <span class="s1">&#39;m_cr&#39;</span><span class="p">:</span> <span class="n">My_cr</span><span class="p">,</span>
+            <span class="s1">&#39;strain_profile&#39;</span><span class="p">:</span> <span class="n">strain_profile</span><span class="p">,</span>
+            <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;eps_top&#39;</span><span class="p">:</span> <span class="n">eps_top</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in equilibrium calculation: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="calculate_bending_strength_sls_Nmm_EC">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.calculate_bending_strength_sls_Nmm_EC">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_bending_strength_sls_Nmm_EC</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the SLS bending strength of a section.</span>
+
+<span class="sd">    Builds an SLS section, computes the bending strength for the given</span>
+<span class="sd">    axial force, and returns the result together with the associated</span>
+<span class="sd">    strain profile.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to analyze.</span>
+<span class="sd">    n : float, optional</span>
+<span class="sd">        Applied axial force [N] (positive = tension). Default: ``0.0``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Result with the keys:</span>
+
+<span class="sd">        - ``section`` : GenericSection — the SLS section used.</span>
+<span class="sd">        - ``m_u`` : float or None — SLS bending strength [Nmm], or ``None``</span>
+<span class="sd">          if the moment cannot be taken by the section.</span>
+<span class="sd">        - ``strain_profile`` : list or None — ``[eps_0, chi_y, 0.0]`` at</span>
+<span class="sd">          ultimate, or ``None`` if invalid.</span>
+<span class="sd">        - ``valid`` : bool — ``True`` if a valid solution was found.</span>
+<span class="sd">        - ``reason`` : str or None — failure reason if invalid, else ``None``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        For any ValueError other than the section being unable to take the</span>
+<span class="sd">        moment (such errors are treated as real bugs and re-raised).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sls_sec</span> <span class="o">=</span> <span class="n">sls_section_EC</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;NONE_PARABOLIC&quot;</span><span class="p">)</span>
+
+    <span class="n">analysis_sls_sec</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">sls_sec</span><span class="p">)</span> <span class="c1"># in reference to structuralcodes issue #303 https://github.com/fib-international/structuralcodes/issues/303</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">bending_strength_result</span> <span class="o">=</span> <span class="n">analysis_sls_sec</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_bending_strength</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;cannot be taken by section&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="n">analysis_sls_sec</span><span class="p">,</span>
+                <span class="s1">&#39;m_u&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;strain_profile&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">raise</span>  <span class="c1"># any other ValueError is a real bug, let it surface</span>
+
+    <span class="n">m_u</span> <span class="o">=</span> <span class="n">bending_strength_result</span><span class="o">.</span><span class="n">m_y</span>
+
+    <span class="n">chi_y</span> <span class="o">=</span> <span class="n">bending_strength_result</span><span class="o">.</span><span class="n">chi_y</span>
+    <span class="n">eps_0</span> <span class="o">=</span> <span class="n">bending_strength_result</span><span class="o">.</span><span class="n">eps_a</span>
+    <span class="n">strain_profile</span> <span class="o">=</span> <span class="p">[</span><span class="n">eps_0</span><span class="p">,</span> <span class="n">chi_y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="n">sls_sec</span><span class="p">,</span>
+        <span class="s1">&#39;m_u&#39;</span><span class="p">:</span> <span class="n">m_u</span><span class="p">,</span>
+        <span class="s1">&#39;strain_profile&#39;</span><span class="p">:</span> <span class="n">strain_profile</span><span class="p">,</span>
+        <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="calculate_bending_strength_uls_Nmm_EC">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.calculate_bending_strength_uls_Nmm_EC">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_bending_strength_uls_Nmm_EC</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the ULS bending strength of a section.</span>
+
+<span class="sd">    Converts the input to a ULS section (so an SLS section may safely be</span>
+<span class="sd">    passed), computes the bending strength for the given axial force, and</span>
+<span class="sd">    returns the result together with the associated strain profile.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to analyze (SLS or ULS; converted to ULS internally).</span>
+<span class="sd">    n : float, optional</span>
+<span class="sd">        Applied axial force [N] (positive = tension). Default: ``0.0``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Result with the keys:</span>
+
+<span class="sd">        - ``section`` : GenericSection — the ULS section used.</span>
+<span class="sd">        - ``m_u`` : float or None — ULS bending strength [Nmm], or ``None``</span>
+<span class="sd">          if the moment cannot be taken by the section.</span>
+<span class="sd">        - ``strain_profile`` : list or None — ``[eps_0, chi_y, 0.0]`` at</span>
+<span class="sd">          ultimate, or ``None`` if invalid.</span>
+<span class="sd">        - ``valid`` : bool — ``True`` if a valid solution was found.</span>
+<span class="sd">        - ``reason`` : str or None — failure reason if invalid, else ``None``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        For any ValueError other than the section being unable to take the</span>
+<span class="sd">        moment (such errors are treated as real bugs and re-raised).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Safety Conversion to ULS Section in case SLS Section was passed</span>
+    <span class="n">analysis_section</span> <span class="o">=</span> <span class="n">uls_section_EC</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">bending_strength_result</span> <span class="o">=</span> <span class="n">analysis_section</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_bending_strength</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;cannot be taken by section&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="n">analysis_section</span><span class="p">,</span>
+                <span class="s1">&#39;m_u&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;strain_profile&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">raise</span>  <span class="c1"># any other ValueError is a real bug, let it surface</span>
+
+    <span class="n">m_u</span> <span class="o">=</span> <span class="n">bending_strength_result</span><span class="o">.</span><span class="n">m_y</span>
+
+    <span class="n">chi_y</span> <span class="o">=</span> <span class="n">bending_strength_result</span><span class="o">.</span><span class="n">chi_y</span>
+    <span class="n">eps_0</span> <span class="o">=</span> <span class="n">bending_strength_result</span><span class="o">.</span><span class="n">eps_a</span>
+    <span class="n">strain_profile</span> <span class="o">=</span> <span class="p">[</span><span class="n">eps_0</span><span class="p">,</span> <span class="n">chi_y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="n">analysis_section</span><span class="p">,</span>
+        <span class="s1">&#39;m_u&#39;</span><span class="p">:</span> <span class="n">m_u</span><span class="p">,</span>
+        <span class="s1">&#39;strain_profile&#39;</span><span class="p">:</span> <span class="n">strain_profile</span><span class="p">,</span>
+        <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_moment_curvature_sls_EC">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.calculate_moment_curvature_sls_EC">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_moment_curvature_sls_EC</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
+                                      <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                                      <span class="n">constitutive_law</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TENSTIFF_PARABOLIC&quot;</span><span class="p">,</span>
+                                      <span class="n">simplification</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                      <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MomentCurvatureResults</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the moment-curvature results for the given section.</span>
+
+<span class="sd">    Dispatches to the full or the simplified M-κ method depending on</span>
+<span class="sd">    ``simplification`` and enforces a force-controlled (monotonically</span>
+<span class="sd">    increasing) result. For prestressed sections an initial state point</span>
+<span class="sd">    (κ₀, M=0) is added.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to analyse (ULS).</span>
+<span class="sd">    n : float, optional</span>
+<span class="sd">        Axial force [N]. Default: ``0.0``.</span>
+<span class="sd">    constitutive_law : str, optional</span>
+<span class="sd">        Keyword for the concrete constitutive law. Default:</span>
+<span class="sd">        ``&quot;TENSTIFF_PARABOLIC&quot;``.</span>
+<span class="sd">    simplification : bool or int or float, optional</span>
+<span class="sd">        Controls the simplified M-κ calculation in</span>
+<span class="sd">        :func:`_simplified_moment_curvature_method`. ``False`` uses the full</span>
+<span class="sd">        method; ``True`` or a positive number uses the simplified method.</span>
+<span class="sd">        Default: ``False``.</span>
+<span class="sd">    debug : bool, optional</span>
+<span class="sd">        Enables debug output. Default: ``False``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    MomentCurvatureResults</span>
+<span class="sd">        The complete, force-controlled M-κ curve.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``simplification`` is neither ``False``, ``True`` nor a positive</span>
+<span class="sd">        number.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sls_sec</span> <span class="o">=</span> <span class="n">sls_section_EC</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">constitutive_law</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">simplification</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="c1"># Full M-K-Diagram</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">_full_moment_curvature_method</span><span class="p">(</span>
+            <span class="n">section</span><span class="o">=</span><span class="n">sls_sec</span><span class="p">,</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">simplification</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">simplification</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="n">simplification</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># Simplified M-K-Diagram</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">_simplified_moment_curvature_method</span><span class="p">(</span>
+            <span class="n">section</span><span class="o">=</span><span class="n">sls_sec</span><span class="p">,</span>
+            <span class="n">simplification</span><span class="o">=</span><span class="n">simplification</span><span class="p">,</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;simplification must be False, True, or a positive number, got </span><span class="si">{</span><span class="n">simplification</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">mon_incr_results</span> <span class="o">=</span> <span class="n">_ensure_force_controlled</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mon_incr_results</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ensure_force_controlled</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="n">MomentCurvatureResults</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MomentCurvatureResults</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enforce a force-controlled M-κ diagram with monotonic moment magnitude.</span>
+
+<span class="sd">    Whenever ``|m[i+1]| &lt; |m[i]|``, collects all dip indices until the first</span>
+<span class="sd">    ``j`` where ``|m[j]| &gt; |m[i]|``, inserts an interpolated point</span>
+<span class="sd">    (κ_new, m[i]) at ``i+1``, and removes the dip indices. If the moment</span>
+<span class="sd">    never recovers, the tail is truncated.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    results : MomentCurvatureResults</span>
+<span class="sd">        Moment-curvature results (modified in place).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    MomentCurvatureResults</span>
+<span class="sd">        The same object with corrected ``m_y`` and ``chi_y`` arrays.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Work with a single list of (moment, curvature) pairs so the two arrays</span>
+    <span class="c1"># can never be modified independently and get out of sync.</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">m_y</span><span class="p">,</span> <span class="n">results</span><span class="o">.</span><span class="n">chi_y</span><span class="p">))</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="c1"># ----------------------------------------------------------------</span>
+            <span class="c1"># Dip detected: advance j until the moment recovers past m[i].</span>
+            <span class="c1"># ----------------------------------------------------------------</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">m_peak</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># signed peak moment (negative)</span>
+
+            <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+                <span class="c1"># ------------------------------------------------------------</span>
+                <span class="c1"># Indices i+1 … j-2: set moment to m_peak, curvature unchanged.</span>
+                <span class="c1"># ------------------------------------------------------------</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">pairs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_peak</span><span class="p">,</span> <span class="n">pairs</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="c1"># ------------------------------------------------------------</span>
+                <span class="c1"># Index j-1: set moment to m_peak, interpolate curvature</span>
+                <span class="c1"># between the original values at j-1 and j at M = m_peak.</span>
+                <span class="c1"># ------------------------------------------------------------</span>
+                <span class="n">m_before</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">m_after</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">chi_before</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">chi_after</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_peak</span> <span class="o">-</span> <span class="n">m_before</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">m_after</span> <span class="o">-</span> <span class="n">m_before</span><span class="p">)</span>
+                <span class="n">pairs</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_peak</span><span class="p">,</span> <span class="n">chi_before</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">chi_after</span> <span class="o">-</span> <span class="n">chi_before</span><span class="p">))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># ------------------------------------------------------------</span>
+                <span class="c1"># Moment never recovers: set all remaining to m_peak,</span>
+                <span class="c1"># curvatures unchanged.</span>
+                <span class="c1"># ------------------------------------------------------------</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)):</span>
+                    <span class="n">pairs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_peak</span><span class="p">,</span> <span class="n">pairs</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Unzip pairs and write corrected arrays back to the results object</span>
+    <span class="n">moments</span><span class="p">,</span> <span class="n">curvatures</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">pairs</span><span class="p">)</span> <span class="k">if</span> <span class="n">pairs</span> <span class="k">else</span> <span class="p">([],</span> <span class="p">[])</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">m_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">moments</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">chi_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">curvatures</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_full_moment_curvature_method</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
+                                   <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                                   <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MomentCurvatureResults</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the full moment-curvature diagram for a section and axial force.</span>
+
+<span class="sd">    Moments are computed for a list of curvatures that includes the cracking</span>
+<span class="sd">    curvature, using ``calculate_moment_curvature()`` from structuralcodes.</span>
+<span class="sd">    The cracking point is inserted exactly to capture the cracking behavior</span>
+<span class="sd">    correctly. If the section is prestressed, the prestress curvature point</span>
+<span class="sd">    (κ₀, M=0) is added.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to analyze.</span>
+<span class="sd">    n : float, optional</span>
+<span class="sd">        Axial force [N]. Default: ``0.0``.</span>
+<span class="sd">    debug : bool, optional</span>
+<span class="sd">        Enables debug output. Default: ``False``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    MomentCurvatureResults</span>
+<span class="sd">        The full M-κ results.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    InvalidSectionForMKError</span>
+<span class="sd">        If the cracking moment is invalid, so a full M-κ diagram cannot be</span>
+<span class="sd">        built.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ------------------------------------</span>
+    <span class="c1"># Build custom curvature list to be evaluated for moment-curvature-diagram</span>
+    <span class="c1"># Must include exactly the point of cracking to accurately reflect correct</span>
+    <span class="c1"># cracking behavior</span>
+    <span class="c1"># ------------------------------------</span>
+
+    <span class="c1"># Get bending strength strain profile</span>
+    <span class="n">m_u_res</span> <span class="o">=</span> <span class="n">calculate_bending_strength_sls_Nmm_EC</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">eps_0</span><span class="p">,</span> <span class="n">chi_u</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">m_u_res</span><span class="p">[</span><span class="s2">&quot;strain_profile&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Get curvature at cracking</span>
+    <span class="n">M_cr_result</span> <span class="o">=</span> <span class="n">calculate_cracking_moment_sls_Nmm_EC</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">M_cr_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;valid&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InvalidSectionForMKError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot build full M-K diagram: cracking moment invalid &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">M_cr_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reason&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+    <span class="n">M_cr</span> <span class="o">=</span> <span class="n">M_cr_result</span><span class="p">[</span><span class="s2">&quot;m_cr&quot;</span><span class="p">]</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_strain_profile</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">M_cr</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">kappa_cr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sp</span>
+
+    <span class="c1"># Standard-chi-Array + κ_cr deterministisch einfügen</span>
+    <span class="n">chi_default</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">chi_u</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="n">chi_with_crack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">chi_default</span><span class="p">,</span> <span class="p">[</span><span class="n">kappa_cr</span><span class="p">]]))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># für negative Krümmungen umkehren</span>
+
+    <span class="c1"># -----------------------------------</span>
+    <span class="c1"># Get standard M-κ curve from library</span>
+    <span class="c1">#------------------------------------</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_moment_curvature</span><span class="p">(</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+        <span class="n">chi</span> <span class="o">=</span> <span class="n">chi_with_crack</span>
+    <span class="p">)</span>
+
+    <span class="c1"># FIX SIGNS - Library may return negative values</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">m_y</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">m_y</span><span class="p">)</span>  <span class="c1"># Make consistently negative</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">chi_y</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">chi_y</span><span class="p">)</span>  <span class="c1"># Make consistently negative</span>
+
+    <span class="c1"># Check for prestressed reinforcement</span>
+    <span class="n">has_prestress</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pg</span><span class="o">.</span><span class="n">material</span><span class="p">,</span> <span class="s1">&#39;initial_strain&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pg</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">initial_strain</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">has_prestress</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_prestress</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">results</span>  <span class="c1"># Not prestressed, return as-is</span>
+
+    <span class="c1"># -------------------------------------------------------</span>
+    <span class="c1"># Calculate initial state point (κ₀, M=0)</span>
+    <span class="c1"># -------------------------------------------------------</span>
+
+    <span class="n">kappa_0</span> <span class="o">=</span> <span class="n">_calculate_kappa_0</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">mk_results</span><span class="o">=</span><span class="n">results</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+
+    <span class="c1"># -------------------------------------------------------</span>
+    <span class="c1"># Stitch together moments and curvatures</span>
+    <span class="c1"># -------------------------------------------------------</span>
+
+    <span class="c1"># Add single initial state point at beginning</span>
+    <span class="n">moments_combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">],</span> <span class="n">results</span><span class="o">.</span><span class="n">m_y</span><span class="p">])</span>
+    <span class="n">curvatures_combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">kappa_0</span><span class="p">],</span> <span class="n">results</span><span class="o">.</span><span class="n">chi_y</span><span class="p">])</span>
+
+    <span class="c1"># Update results object</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">m_y</span> <span class="o">=</span> <span class="n">moments_combined</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">chi_y</span> <span class="o">=</span> <span class="n">curvatures_combined</span>
+
+    <span class="c1"># Update other arrays to match length (if they exist)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s1">&#39;eps_axial&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">results</span><span class="o">.</span><span class="n">eps_axial</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">eps_axial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">],</span> <span class="n">results</span><span class="o">.</span><span class="n">eps_axial</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[DEBUG] Prestressed M-κ curve:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Added initial state: (κ=</span><span class="si">{</span><span class="n">kappa_0</span><span class="si">:</span><span class="s2">.9f</span><span class="si">}</span><span class="s2"> 1/mm, M=0)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Library starts at: (κ=</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">chi_y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.9f</span><span class="si">}</span><span class="s2"> 1/mm, M=</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">m_y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kNm)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Total points: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moments_combined</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_simplified_moment_curvature_method</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
+                                        <span class="n">simplification</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                        <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                                        <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MomentCurvatureResults</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a simplified trilinear moment-curvature diagram.</span>
+
+<span class="sd">    Builds a simplified version of :func:`calculate_moment_curvature_sls_EC`</span>
+<span class="sd">    from the prestress point, the cracking point, the end-of-cracking point</span>
+<span class="sd">    (based on tension stiffening of the concrete), and the ultimate point.</span>
+<span class="sd">    Optionally adds extra points between the cracking and end-of-cracking</span>
+<span class="sd">    curvatures.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to analyse.</span>
+<span class="sd">    simplification : bool or int or float, optional</span>
+<span class="sd">        Controls extra points between ``kappa_cr`` and ``kappa_eoc``:</span>
+
+<span class="sd">        - ``False`` — this simplified method should not be called (handled</span>
+<span class="sd">          higher up); raises ``ValueError`` if reached.</span>
+<span class="sd">        - ``True`` — simplified method without extra points.</span>
+<span class="sd">        - int ``n &gt;= 1`` — ``n`` evenly distributed points between</span>
+<span class="sd">          ``kappa_cr`` and ``kappa_eoc``.</span>
+<span class="sd">        - float ``0 &lt; n &lt; 1`` — one extra point at</span>
+<span class="sd">          ``kappa_cr + n * (kappa_eoc - kappa_cr)``.</span>
+
+<span class="sd">        Default: ``None``.</span>
+<span class="sd">    n : float, optional</span>
+<span class="sd">        Axial force [N]. Default: ``0.0``.</span>
+<span class="sd">    debug : bool, optional</span>
+<span class="sd">        Enables debug output. Default: ``False``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    MomentCurvatureResults</span>
+<span class="sd">        The simplified M-κ results.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    Exception</span>
+<span class="sd">        If the concrete constitutive law is not</span>
+<span class="sd">        ``TensionStiffeningConcreteLawEC``.</span>
+<span class="sd">    InvalidSectionForMKError</span>
+<span class="sd">        If the cracking moment is invalid, so a simplified M-κ diagram</span>
+<span class="sd">        cannot be built.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``simplification`` is ``False`` (method must not be reached), or</span>
+<span class="sd">        an int ``&lt; 1``, or a float outside ``(0, 1)``.</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``simplification`` is not one of ``False``, ``True``, int ``&gt;= 1``</span>
+<span class="sd">        or float in ``(0, 1)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Concrete Properties</span>
+    <span class="n">concrete_sls</span> <span class="o">=</span> <span class="n">get_concrete</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+    <span class="n">law</span> <span class="o">=</span> <span class="n">concrete_sls</span><span class="o">.</span><span class="n">constitutive_law</span>
+    <span class="n">eps_F_t</span> <span class="o">=</span> <span class="n">law</span><span class="o">.</span><span class="n">eps_F_t</span>
+
+    <span class="c1"># Check Constitutive Law</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">law</span><span class="p">,</span> <span class="n">TensionStiffeningConcreteLawEC</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Simplified M-K-Line only implemented for TENSTIFF_PARABOLIC&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Cracking Point</span>
+    <span class="n">M_cr_result</span> <span class="o">=</span> <span class="n">calculate_cracking_moment_sls_Nmm_EC</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">M_cr_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;valid&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">InvalidSectionForMKError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot build simplified M-K diagram: cracking moment invalid &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">M_cr_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reason&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">M_cr_Nmm</span> <span class="o">=</span> <span class="n">M_cr_result</span><span class="p">[</span><span class="s2">&quot;m_cr&quot;</span><span class="p">]</span>  <span class="c1"># Nmm</span>
+    <span class="n">kappa_cr</span> <span class="o">=</span> <span class="n">M_cr_result</span><span class="p">[</span><span class="s2">&quot;strain_profile&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># 1/mm</span>
+
+    <span class="c1"># Prestress Point</span>
+    <span class="n">kappa_0</span> <span class="o">=</span> <span class="n">_calculate_kappa_0</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">m_cr_result</span><span class="o">=</span><span class="n">M_cr_result</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+
+    <span class="c1"># End of Cracking Point</span>
+    <span class="n">eoc_results</span> <span class="o">=</span> <span class="n">_calculate_section_state_from_bottom_strain_sls</span><span class="p">(</span><span class="n">section_uls</span> <span class="o">=</span> <span class="n">section</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="p">,</span> <span class="n">eps_bot</span><span class="o">=</span><span class="n">eps_F_t</span><span class="p">,</span> <span class="n">constitutive_law</span><span class="o">=</span><span class="s2">&quot;TENSTIFF_PARABOLIC&quot;</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">kappa_eoc</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">eoc_results</span><span class="p">[</span><span class="s2">&quot;strain_profile&quot;</span><span class="p">]</span>
+
+    <span class="n">Mk_res_eoc</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_moment_curvature</span><span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="p">,</span> <span class="n">chi</span><span class="o">=</span><span class="p">[</span><span class="n">kappa_eoc</span><span class="p">])</span>
+    <span class="n">M_eoc_Nmm</span> <span class="o">=</span> <span class="n">Mk_res_eoc</span><span class="o">.</span><span class="n">m_y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Yielding Point (if reinforcement has yielding)</span>
+    <span class="n">reinforcement</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">get_reinforcement</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+    <span class="n">fyk</span> <span class="o">=</span> <span class="n">reinforcement</span><span class="o">.</span><span class="n">fyk</span>
+    <span class="n">ftk</span> <span class="o">=</span> <span class="n">reinforcement</span><span class="o">.</span><span class="n">ftk</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fyk</span> <span class="o">==</span> <span class="n">ftk</span><span class="p">:</span>
+        <span class="n">strain</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">find_equilibrium_fixed_pivot</span><span class="p">(</span>
+            <span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">yielding</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">kappa_yield</span> <span class="o">=</span> <span class="p">[</span><span class="n">strain</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">mkd_yield</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_moment_curvature</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">chi</span><span class="o">=</span><span class="p">[</span><span class="n">kappa_yield</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="n">M_yield_Nmm</span> <span class="o">=</span> <span class="p">[</span><span class="n">mkd_yield</span><span class="o">.</span><span class="n">m_y</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">kappa_yield</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">M_yield_Nmm</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Ultimate Point</span>
+    <span class="n">ultimate_result</span> <span class="o">=</span> <span class="n">calculate_bending_strength_sls_Nmm_EC</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+    <span class="n">M_u_Nmm</span> <span class="o">=</span> <span class="n">ultimate_result</span><span class="p">[</span><span class="s2">&quot;m_u&quot;</span><span class="p">]</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">kappa_u</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">ultimate_result</span><span class="p">[</span><span class="s2">&quot;strain_profile&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Extra Points</span>
+    <span class="n">kappa_extra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+    <span class="k">if</span> <span class="n">simplification</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;simplification=False means this simplified method should not be called. &quot;</span>
+            <span class="s2">&quot;Handle this case higher up in the call chain.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">simplification</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># use simplified method, but without extra points</span>
+        <span class="k">pass</span>
+
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">simplification</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">simplification</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If simplification is an int, it must be &gt;= 1.&quot;</span><span class="p">)</span>
+        <span class="n">kappa_extra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">kappa_cr</span><span class="p">,</span> <span class="n">kappa_eoc</span><span class="p">,</span> <span class="n">simplification</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">simplification</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">simplification</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If simplification is a float, it must satisfy 0 &lt; simplification &lt; 1.&quot;</span><span class="p">)</span>
+        <span class="n">kappa_extra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">kappa_cr</span> <span class="o">+</span> <span class="n">simplification</span> <span class="o">*</span> <span class="p">(</span><span class="n">kappa_eoc</span> <span class="o">-</span> <span class="n">kappa_cr</span><span class="p">)])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;simplification must be one of: False, True, int &gt;= 1, or float with 0 &lt; value &lt; 1 &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">simplification</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Compute Extra Moments</span>
+    <span class="k">if</span> <span class="n">kappa_extra</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">Mk_res_extra</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_moment_curvature</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">chi</span><span class="o">=</span><span class="n">kappa_extra</span>
+        <span class="p">)</span>
+        <span class="n">M_extra_Nmm</span> <span class="o">=</span> <span class="n">Mk_res_extra</span><span class="o">.</span><span class="n">m_y</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">M_extra_Nmm</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Assemble Simplified M-K-Pairs</span>
+    <span class="n">moments_pre_crack</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span>     <span class="n">M_cr_Nmm</span><span class="p">])</span>
+    <span class="n">curvatures_pre_crack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">kappa_0</span><span class="p">,</span> <span class="n">kappa_cr</span><span class="p">])</span>
+
+    <span class="n">moments_post_crack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="n">M_eoc_Nmm</span><span class="p">],</span> <span class="n">M_yield_Nmm</span><span class="p">,</span> <span class="p">[</span><span class="n">M_u_Nmm</span><span class="p">]))</span>
+    <span class="n">curvatures_post_crack</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="n">kappa_eoc</span><span class="p">],</span> <span class="n">kappa_yield</span><span class="p">,</span> <span class="p">[</span><span class="n">kappa_u</span><span class="p">]))</span>
+
+    <span class="n">moments</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">moments_pre_crack</span><span class="p">,</span>     <span class="n">M_extra_Nmm</span><span class="p">,</span>    <span class="n">moments_post_crack</span><span class="p">))</span>
+    <span class="n">curvatures</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">curvatures_pre_crack</span><span class="p">,</span>  <span class="n">kappa_extra</span><span class="p">,</span>    <span class="n">curvatures_post_crack</span><span class="p">))</span>
+
+    <span class="n">mk_results</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_moment_curvature</span><span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="p">,</span> <span class="n">chi</span><span class="o">=</span><span class="p">[])</span>
+    <span class="n">mk_results</span><span class="o">.</span><span class="n">m_y</span><span class="o">=</span><span class="n">moments</span>
+    <span class="n">mk_results</span><span class="o">.</span><span class="n">chi_y</span><span class="o">=</span><span class="n">curvatures</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Point&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;Moment [kNm]&#39;</span><span class="si">:</span><span class="s2">&gt;15</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;Curvature [1/m]&#39;</span><span class="si">:</span><span class="s2">&gt;18</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">separator</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;Prestress&quot;</span><span class="p">,</span> <span class="n">moments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">curvatures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;Cracking&quot;</span><span class="p">,</span> <span class="n">moments</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">curvatures</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">kappa</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">M_extra_Nmm</span><span class="p">,</span> <span class="n">kappa_extra</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)):</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot;Extra Point </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">kappa</span><span class="p">))</span>
+
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;End of Cracking&quot;</span><span class="p">,</span> <span class="n">M_eoc_Nmm</span><span class="p">,</span> <span class="n">kappa_eoc</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Ultimate&quot;</span><span class="p">,</span> <span class="n">M_u_Nmm</span><span class="p">,</span> <span class="n">kappa_u</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">M</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">&gt;15.2f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">kappa</span><span class="si">:</span><span class="s2">&gt;18.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mk_results</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_section_state_from_bottom_strain_sls</span><span class="p">(</span>
+        <span class="n">section_uls</span><span class="p">,</span>
+        <span class="n">eps_bot</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">constitutive_law</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TENSTIFF_PARABOLIC&quot;</span><span class="p">,</span>
+        <span class="n">chi_scan_range</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+        <span class="n">num_scan_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span>
+        <span class="n">ITMAX</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the section state for a prescribed bottom-fibre strain.</span>
+
+<span class="sd">    Fixes the bottom-fibre strain to ``eps_bot`` and finds ``chi_y`` via</span>
+<span class="sd">    bisection such that the integrated axial force equals ``n``. ``My`` and</span>
+<span class="sd">    ``Mz`` are outputs. Of all bracketed equilibria, the one with the</span>
+<span class="sd">    largest ``|My|`` is returned.</span>
+
+<span class="sd">    Strain profile convention (consistent with the rest of the codebase):</span>
+<span class="sd">    ``eps(z) = eps_0 + chi_y * z`` and</span>
+<span class="sd">    ``eps_bot = eps_0 + chi_y * zmin``  →  ``eps_0 = eps_bot - chi_y * zmin``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section_uls : GenericSection</span>
+<span class="sd">        ULS section as input (an SLS section is built internally).</span>
+<span class="sd">    eps_bot : float</span>
+<span class="sd">        Prescribed bottom-fibre strain [-] (positive = tension).</span>
+<span class="sd">    n : float, optional</span>
+<span class="sd">        Applied axial force [N] (positive = tension, negative =</span>
+<span class="sd">        compression). Default: ``0.0``.</span>
+<span class="sd">    constitutive_law : str, optional</span>
+<span class="sd">        Constitutive law keyword (see ``material_methods.py`` for available</span>
+<span class="sd">        laws). Default: ``&quot;TENSTIFF_PARABOLIC&quot;``.</span>
+<span class="sd">    chi_scan_range : float, optional</span>
+<span class="sd">        Half-range for the initial curvature scan [1/mm]. Default: ``1e-3``.</span>
+<span class="sd">    num_scan_points : int, optional</span>
+<span class="sd">        Number of scan points for bracketing. Default: ``100``.</span>
+<span class="sd">    tolerance : float, optional</span>
+<span class="sd">        Force-imbalance tolerance [N] for the bisection. Default: ``1e-2``.</span>
+<span class="sd">    ITMAX : int, optional</span>
+<span class="sd">        Maximum number of bisection iterations. Default: ``100``.</span>
+<span class="sd">    debug : bool, optional</span>
+<span class="sd">        If ``True``, print intermediate values. Default: ``False``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or None</span>
+<span class="sd">        ``None`` if no equilibrium is bracketed in the scan range.</span>
+<span class="sd">        On the no-crossing branch, a dict with the keys:</span>
+
+<span class="sd">        - ``valid`` : bool — ``False``.</span>
+<span class="sd">        - ``reason`` : str — explanation, suggesting a larger</span>
+<span class="sd">          ``chi_scan_range``.</span>
+
+<span class="sd">        On success, a dict with the keys:</span>
+
+<span class="sd">        - ``valid`` : bool — ``True``.</span>
+<span class="sd">        - ``n`` : float — integrated axial force [N].</span>
+<span class="sd">        - ``m_y`` : float — integrated bending moment My [Nmm].</span>
+<span class="sd">        - ``m_z`` : float — integrated bending moment Mz [Nmm].</span>
+<span class="sd">        - ``strain_profile`` : list — ``[eps_0, chi_y, 0.0]``.</span>
+<span class="sd">        - ``section`` : GenericSection — the SLS section used.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The debug branch reads ``chi_y`` and ``eps_top`` from the result, but</span>
+<span class="sd">    the returned success dict does not currently populate those keys; the</span>
+<span class="sd">    documented keys above reflect what the code actually returns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># --- Build SLS section ---</span>
+    <span class="n">analysis_sec</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">sls_section_EC</span><span class="p">(</span><span class="n">section_uls</span><span class="p">,</span> <span class="n">constitutive_law</span><span class="p">))</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">zmin</span><span class="p">,</span> <span class="n">zmax</span> <span class="o">=</span> <span class="n">analysis_sec</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">calculate_extents</span><span class="p">()</span>
+
+    <span class="n">calculator</span> <span class="o">=</span> <span class="n">analysis_sec</span><span class="o">.</span><span class="n">section_calculator</span>
+    <span class="n">integration_data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">calculator</span><span class="p">,</span> <span class="s1">&#39;integration_data&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">mesh_size</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">calculator</span><span class="p">,</span> <span class="s1">&#39;mesh_size&#39;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[calculate_curvature_from_bottom_strain]&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  eps_bot = </span><span class="si">{</span><span class="n">eps_bot</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">‰  |  n = </span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> N&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  zmin = </span><span class="si">{</span><span class="n">zmin</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mm  |  zmax = </span><span class="si">{</span><span class="n">zmax</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mm&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- Helper: build strain profile from chi_y ---</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_strain_profile</span><span class="p">(</span><span class="n">chi_y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">eps_0</span> <span class="o">=</span> <span class="n">eps_bot</span> <span class="o">-</span> <span class="n">chi_y</span> <span class="o">*</span> <span class="n">zmin</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">eps_0</span><span class="p">,</span> <span class="n">chi_y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+
+    <span class="c1"># --- Helper: integrate and return (N, My, Mz) ---</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_forces</span><span class="p">(</span><span class="n">chi_y</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">get_strain_profile</span><span class="p">(</span><span class="n">chi_y</span><span class="p">)</span>
+        <span class="n">N</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mz</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">integrator</span><span class="o">.</span><span class="n">integrate_strain_response_on_geometry</span><span class="p">(</span>
+            <span class="n">analysis_sec</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+            <span class="n">sp</span><span class="p">,</span>
+            <span class="n">integration_data</span><span class="o">=</span><span class="n">integration_data</span><span class="p">,</span>
+            <span class="n">mesh_size</span><span class="o">=</span><span class="n">mesh_size</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">N</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="n">Mz</span>
+
+    <span class="c1"># --- Phase 1: Scan to bracket the zero of (N_int - n) ---</span>
+    <span class="n">chi_scan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">chi_scan_range</span><span class="p">,</span> <span class="n">chi_scan_range</span><span class="p">,</span> <span class="n">num_scan_points</span><span class="p">)</span>
+    <span class="n">dn_scan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">get_forces</span><span class="p">(</span><span class="n">chi</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">n</span> <span class="k">for</span> <span class="n">chi</span> <span class="ow">in</span> <span class="n">chi_scan</span><span class="p">])</span>
+
+    <span class="n">crossings</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dn_scan</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">dn_scan</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">dn_scan</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Scan found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">crossings</span><span class="p">)</span><span class="si">}</span><span class="s2"> zero crossing(s) of (N_int - n)&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">crossings</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;reason&#39;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No equilibrium found in scan range &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="o">-</span><span class="n">chi_scan_range</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">chi_scan_range</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">] 1/mm. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Try increasing chi_scan_range.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+    <span class="c1"># --- Phase 2: Bisect on each crossing, keep result with largest |My| ---</span>
+    <span class="n">best_result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">best_abs_my</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">crossings</span><span class="p">:</span>
+        <span class="n">chi_a</span><span class="p">,</span> <span class="n">chi_b</span> <span class="o">=</span> <span class="n">chi_scan</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">chi_scan</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">dn_a</span><span class="p">,</span> <span class="n">dn_b</span> <span class="o">=</span> <span class="n">dn_scan</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">dn_scan</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ITMAX</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dn_a</span> <span class="o">-</span> <span class="n">dn_b</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">chi_c</span> <span class="o">=</span> <span class="p">(</span><span class="n">chi_a</span> <span class="o">+</span> <span class="n">chi_b</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+            <span class="n">N_c</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_forces</span><span class="p">(</span><span class="n">chi_c</span><span class="p">)</span>
+            <span class="n">dn_c</span> <span class="o">=</span> <span class="n">N_c</span> <span class="o">-</span> <span class="n">n</span>
+            <span class="k">if</span> <span class="n">dn_c</span> <span class="o">*</span> <span class="n">dn_a</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">chi_b</span><span class="p">,</span> <span class="n">dn_b</span> <span class="o">=</span> <span class="n">chi_c</span><span class="p">,</span> <span class="n">dn_c</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">chi_a</span><span class="p">,</span> <span class="n">dn_a</span> <span class="o">=</span> <span class="n">chi_c</span><span class="p">,</span> <span class="n">dn_c</span>
+
+        <span class="n">chi_final</span> <span class="o">=</span> <span class="p">(</span><span class="n">chi_a</span> <span class="o">+</span> <span class="n">chi_b</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">N_final_N</span><span class="p">,</span> <span class="n">My_final_Nmm</span><span class="p">,</span> <span class="n">Mz_final_Nmm</span> <span class="o">=</span> <span class="n">get_forces</span><span class="p">(</span><span class="n">chi_final</span><span class="p">)</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">get_strain_profile</span><span class="p">(</span><span class="n">chi_final</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">My_final_Nmm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">best_abs_my</span><span class="p">:</span>
+            <span class="n">best_abs_my</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">My_final_Nmm</span><span class="p">)</span>
+            <span class="n">best_result</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="n">N_final_N</span><span class="p">,</span>
+                <span class="s1">&#39;m_y&#39;</span><span class="p">:</span> <span class="n">My_final_Nmm</span><span class="p">,</span>
+                <span class="s1">&#39;m_z&#39;</span><span class="p">:</span> <span class="n">Mz_final_Nmm</span><span class="p">,</span>
+                <span class="s1">&#39;strain_profile&#39;</span><span class="p">:</span> <span class="n">sp</span><span class="p">,</span>
+                <span class="s1">&#39;section&#39;</span><span class="p">:</span> <span class="n">analysis_sec</span><span class="p">,</span>
+            <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">debug</span> <span class="ow">and</span> <span class="n">best_result</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  → chi_y = </span><span class="si">{</span><span class="n">best_result</span><span class="p">[</span><span class="s1">&#39;chi_y&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2"> 1/mm&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  → eps_top = </span><span class="si">{</span><span class="n">best_result</span><span class="p">[</span><span class="s1">&#39;eps_top&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  → My = </span><span class="si">{</span><span class="n">best_result</span><span class="p">[</span><span class="s1">&#39;m_y&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kNm&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  → N residual = </span><span class="si">{</span><span class="n">best_result</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> N&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">best_result</span>
+
+<div class="viewcode-block" id="calculate_prestress_forces_Nmm">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.calculate_prestress_forces_Nmm">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_prestress_forces_Nmm</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the prestressing moment and total prestress force.</span>
+
+<span class="sd">    For each prestressed reinforcement the prestressing force is</span>
+<span class="sd">    ``F_p = A_s * eps_ini * E_s`` and the prestressing moment is</span>
+<span class="sd">    ``M_p = F_p * z_s`` about the section centroid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        SLS section with prestressed reinforcement.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of float</span>
+<span class="sd">        ``(M_p, N_p)`` where ``M_p`` is the prestressing moment [Nmm]</span>
+<span class="sd">        (always positive) and ``N_p`` is the total prestress force [N].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get section centroid</span>
+    <span class="n">cz</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">gross_properties</span><span class="o">.</span><span class="n">cz</span>
+
+    <span class="c1"># Initialize Forces</span>
+    <span class="n">M_p</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># [Nmm]</span>
+    <span class="n">N_p</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># [N]</span>
+
+    <span class="c1"># Get prestressed reinforcement point geometries</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="s1">&#39;point_geometries&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">:</span>
+            <span class="c1"># Get reinforcement material</span>
+            <span class="n">reinf</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">material</span>
+
+            <span class="c1"># Check if reinforcement is prestressed</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">reinf</span><span class="p">,</span> <span class="s1">&#39;initial_strain&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">reinf</span><span class="o">.</span><span class="n">initial_strain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">eps_ini</span> <span class="o">=</span> <span class="n">reinf</span><span class="o">.</span><span class="n">initial_strain</span>  <span class="c1"># Initial strain from prestress</span>
+
+                <span class="c1"># Skip if no prestress</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">eps_ini</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-10</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Reinforcement properties</span>
+                <span class="n">E_s</span> <span class="o">=</span> <span class="n">reinf</span><span class="o">.</span><span class="n">Es</span>  <span class="c1"># MPa</span>
+                <span class="n">A_s</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">area</span>  <span class="c1"># mm²</span>
+                <span class="n">z_s</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">point</span><span class="o">.</span><span class="n">y</span>  <span class="c1"># z-coordinate (mm)</span>
+
+                <span class="c1"># Prestressing force: F_p = A_s × eps_ini × E_s</span>
+                <span class="n">F_p</span> <span class="o">=</span> <span class="n">A_s</span> <span class="o">*</span> <span class="n">eps_ini</span> <span class="o">*</span> <span class="n">E_s</span>  <span class="c1"># N</span>
+
+                <span class="c1"># Moment arm from centroid</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">z_s</span> <span class="o">-</span> <span class="n">cz</span>  <span class="c1"># mm</span>
+
+                <span class="c1"># Add contribution to total prestressing moment</span>
+                <span class="n">M_p</span> <span class="o">+=</span> <span class="n">F_p</span> <span class="o">*</span> <span class="n">d</span>
+
+                <span class="c1"># Add contribution to total prestress normal force</span>
+                <span class="n">N_p</span> <span class="o">+=</span> <span class="n">F_p</span>
+
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">M_p</span><span class="p">),</span> <span class="n">N_p</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_kappa_0</span><span class="p">(</span>
+    <span class="n">sls_sec</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">mk_results</span><span class="p">:</span> <span class="n">MomentCurvatureResults</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">m_cr_result</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the initial curvature κ₀ for prestressed sections.</span>
+
+<span class="sd">    Used by both the full and simplified M-κ paths in</span>
+<span class="sd">    :func:`calculate_moment_curvature_sls_EC`. Computes</span>
+<span class="sd">    ``kappa_0 = -intercept / slope`` from a linear fit on the first two</span>
+<span class="sd">    pre-yield points. If the section is not prestressed, returns ``0.0``.</span>
+
+<span class="sd">    Full path (``mk_results`` provided): uses the first two points from the</span>
+<span class="sd">    already-computed M-κ curve, so spacing is consistent with the full</span>
+<span class="sd">    calculation. Simplified path (``mk_results=None``): replicates the first</span>
+<span class="sd">    two of the 40 curvatures from the full path and evaluates them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sls_sec : GenericSection</span>
+<span class="sd">        Section to analyse (assumed SLS section).</span>
+<span class="sd">    n : float, optional</span>
+<span class="sd">        Axial force [N]. Default: ``0.0``.</span>
+<span class="sd">    mk_results : MomentCurvatureResults or None, optional</span>
+<span class="sd">        Pre-computed M-κ results from the full path; ``None`` for the</span>
+<span class="sd">        simplified path. Default: ``None``.</span>
+<span class="sd">    m_cr_result : dict or None, optional</span>
+<span class="sd">        Cracking-moment result; currently unused in the body. Default:</span>
+<span class="sd">        ``None``.</span>
+<span class="sd">    debug : bool, optional</span>
+<span class="sd">        Print intermediate values. Default: ``False``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Initial curvature κ₀ [1/mm].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># -----------------------------------------------------------------------</span>
+    <span class="c1"># Check if Section is prestressed</span>
+    <span class="c1"># -----------------------------------------------------------------------</span>
+    <span class="n">M_p_Nmm</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">calculate_prestress_forces_Nmm</span><span class="p">(</span><span class="n">sls_sec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">M_p_Nmm</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">if</span> <span class="n">mk_results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># -----------------------------------------------------------------------</span>
+        <span class="c1"># Full path: reuse first two points from already-computed curve</span>
+        <span class="c1"># -----------------------------------------------------------------------</span>
+        <span class="n">chi</span> <span class="o">=</span> <span class="n">mk_results</span><span class="o">.</span><span class="n">chi_y</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">m</span>   <span class="o">=</span> <span class="n">mk_results</span><span class="o">.</span><span class="n">m_y</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;calculating kappa_0 using existing M-κ points&quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;  χ=</span><span class="si">{</span><span class="n">chi</span><span class="si">}</span><span class="s2">, M=</span><span class="si">{</span><span class="p">[</span><span class="n">v</span><span class="o">/</span><span class="mf">1e6</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">m</span><span class="p">]</span><span class="si">}</span><span class="s2"> kNm&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># -----------------------------------------------------------------------</span>
+        <span class="c1"># simplified path: recreate the initial slope of full m-k-diagram</span>
+        <span class="c1"># -----------------------------------------------------------------------</span>
+        <span class="c1"># Get bending strength strain profile</span>
+        <span class="n">m_u_res</span> <span class="o">=</span> <span class="n">calculate_bending_strength_sls_Nmm_EC</span><span class="p">(</span><span class="n">sls_sec</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">eps_0</span><span class="p">,</span> <span class="n">chi_u</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">m_u_res</span><span class="p">[</span><span class="s2">&quot;strain_profile&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Replicate chi_first logic from calculate_moment_curvature() internals</span>
+        <span class="n">chi_first</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1e-8</span>
+        <span class="n">chi_first</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">chi_first</span> <span class="o">*</span> <span class="n">chi_u</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">1.0</span>
+
+        <span class="c1"># First two points of the 40-point pre-yield linspace</span>
+        <span class="n">chi_probe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">chi_first</span><span class="p">,</span> <span class="n">chi_u</span><span class="p">,</span> <span class="mi">40</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">sls_sec</span><span class="o">.</span><span class="n">section_calculator</span><span class="o">.</span><span class="n">calculate_moment_curvature</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">chi</span><span class="o">=</span><span class="n">chi_probe</span><span class="p">)</span>
+        <span class="n">chi</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">chi_y</span>
+        <span class="n">m</span>   <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">m_y</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;calculating kappa_0 by recreating initial full m-k-list&quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;  chi_probe=</span><span class="si">{</span><span class="n">chi_probe</span><span class="o">*</span><span class="mi">1000</span><span class="si">}</span><span class="s2">&quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;  M=</span><span class="si">{</span><span class="p">[</span><span class="n">v</span><span class="o">/</span><span class="mf">1e6</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">m</span><span class="p">]</span><span class="si">}</span><span class="s2"> kNm&quot;</span><span class="p">)</span>
+
+    <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">chi</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">:</span>
+        <span class="n">kappa_0</span> <span class="o">=</span> <span class="o">-</span><span class="n">intercept</span> <span class="o">/</span> <span class="n">slope</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">kappa_0</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[kappa_0]: slope=</span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;  intercept=</span><span class="si">{</span><span class="n">intercept</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;  → κ₀=</span><span class="si">{</span><span class="n">kappa_0</span><span class="o">*</span><span class="mi">1000</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> 1/m&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">kappa_0</span>
+
+<div class="viewcode-block" id="get_strain_at_point">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.get_strain_at_point">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_strain_at_point</span><span class="p">(</span><span class="n">strain_profile</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the strain at point (y, z) for a given strain profile.</span>
+
+<span class="sd">    Evaluates ``eps_0 + chi_y * z + chi_z * y``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    strain_profile : list</span>
+<span class="sd">        ``[eps_0, chi_y, chi_z]`` with axial strain [-] and curvatures</span>
+<span class="sd">        [1/mm].</span>
+<span class="sd">    y : float</span>
+<span class="sd">        y-coordinate [mm].</span>
+<span class="sd">    z : float</span>
+<span class="sd">        z-coordinate [mm].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Strain at point (y, z) [-].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">eps_0</span><span class="p">,</span> <span class="n">chi_y</span><span class="p">,</span> <span class="n">chi_z</span> <span class="o">=</span> <span class="n">strain_profile</span>
+    <span class="k">return</span> <span class="n">eps_0</span> <span class="o">+</span> <span class="n">chi_y</span> <span class="o">*</span> <span class="n">z</span> <span class="o">+</span> <span class="n">chi_z</span> <span class="o">*</span> <span class="n">y</span></div>
+
+
+<div class="viewcode-block" id="sls_section_EC">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.sls_section_EC">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sls_section_EC</span><span class="p">(</span>
+        <span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
+        <span class="n">constitutive_law</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericSection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the section with an SLS constitutive law for the concrete.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to convert (SLS or ULS).</span>
+<span class="sd">    constitutive_law : str</span>
+<span class="sd">        Keyword for the constitutive law (see ``create_sls_concrete_EC()``</span>
+<span class="sd">        for available keywords).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    GenericSection</span>
+<span class="sd">        New section with the SLS concrete material; reinforcement unchanged.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the geometry of the section</span>
+    <span class="n">geo</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span>
+
+    <span class="c1"># Create SLS Concrete from Concrete Used in Section</span>
+    <span class="n">conc</span> <span class="o">=</span> <span class="n">get_concrete</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+    <span class="n">sls_conc</span> <span class="o">=</span> <span class="n">create_sls_concrete_EC</span><span class="p">(</span><span class="n">conc</span><span class="p">,</span> <span class="n">constitutive_law</span><span class="p">)</span>
+
+    <span class="c1"># Change Concrete Material</span>
+    <span class="n">processed_geoms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geo</span><span class="o">.</span><span class="n">geometries</span><span class="p">:</span>
+        <span class="n">processed_geoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">SurfaceGeometry</span><span class="o">.</span><span class="n">from_geometry</span><span class="p">(</span><span class="n">geo</span><span class="o">=</span><span class="n">g</span><span class="p">,</span> <span class="n">new_material</span><span class="o">=</span><span class="n">sls_conc</span><span class="p">)</span> <span class="c1"># change concrete material</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">geo</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">:</span>
+        <span class="n">processed_geoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span> <span class="c1"># keep same reinforcement material</span>
+
+    <span class="n">new_sls_section</span> <span class="o">=</span> <span class="n">GenericSection</span><span class="p">(</span><span class="n">CompoundGeometry</span><span class="p">(</span><span class="n">geometries</span><span class="o">=</span><span class="n">processed_geoms</span><span class="p">),</span> <span class="n">name</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_sls_section</span></div>
+
+
+<div class="viewcode-block" id="uls_section_EC">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.uls_section_EC">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">uls_section_EC</span><span class="p">(</span>
+        <span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
+        <span class="n">alpha_cc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.85</span><span class="p">,</span>
+        <span class="n">gamma_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericSection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the section with a ULS constitutive law (parabola-rectangle).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to convert (SLS or ULS).</span>
+<span class="sd">    alpha_cc : float, optional</span>
+<span class="sd">        Effectiveness factor for the concrete compressive strength.</span>
+<span class="sd">        Default: ``0.85``.</span>
+<span class="sd">    gamma_c : float, optional</span>
+<span class="sd">        Partial safety factor for concrete. Default: ``1.5``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    GenericSection</span>
+<span class="sd">        New section with the ULS concrete material; reinforcement unchanged.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the geometry of the section</span>
+    <span class="n">geo</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span>
+
+    <span class="c1"># Create SLS Concrete from Concrete Used in Section</span>
+    <span class="n">conc</span> <span class="o">=</span> <span class="n">get_concrete</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+    <span class="n">uls_conc</span> <span class="o">=</span> <span class="n">create_uls_concrete_EC</span><span class="p">(</span><span class="n">conc</span><span class="p">,</span> <span class="n">alpha_cc</span><span class="o">=</span><span class="n">alpha_cc</span><span class="p">,</span> <span class="n">gamma_c</span><span class="o">=</span><span class="n">gamma_c</span><span class="p">)</span>
+
+    <span class="c1"># Change Concrete Material</span>
+    <span class="n">processed_geoms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geo</span><span class="o">.</span><span class="n">geometries</span><span class="p">:</span>
+        <span class="n">processed_geoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">SurfaceGeometry</span><span class="o">.</span><span class="n">from_geometry</span><span class="p">(</span><span class="n">geo</span><span class="o">=</span><span class="n">g</span><span class="p">,</span> <span class="n">new_material</span><span class="o">=</span><span class="n">uls_conc</span><span class="p">)</span>  <span class="c1"># swap concrete</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">geo</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">:</span>
+        <span class="n">processed_geoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pg</span><span class="p">)</span>  <span class="c1"># keep reinforcement unchanged</span>
+
+    <span class="n">new_uls_section</span> <span class="o">=</span> <span class="n">GenericSection</span><span class="p">(</span><span class="n">CompoundGeometry</span><span class="p">(</span><span class="n">geometries</span><span class="o">=</span><span class="n">processed_geoms</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_uls_section</span></div>
+
+
+<div class="viewcode-block" id="flipped_section">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.flipped_section">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flipped_section</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericSection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the section rotated by 180°, for support bending strength.</span>
+
+<span class="sd">    Used when calculating the bending strength at a support, where the</span>
+<span class="sd">    section is effectively flipped.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to flip.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    GenericSection</span>
+<span class="sd">        The section rotated 180° about its centroid, named</span>
+<span class="sd">        ``&quot;&lt;name&gt; (Support)&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span>
+
+    <span class="n">gross_props</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">gross_properties</span>
+
+    <span class="n">centroid</span> <span class="o">=</span> <span class="p">(</span><span class="n">gross_props</span><span class="o">.</span><span class="n">cy</span><span class="p">,</span> <span class="n">gross_props</span><span class="o">.</span><span class="n">cz</span><span class="p">)</span>
+
+    <span class="n">flipped_support_section_geometry</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span>
+        <span class="n">angle</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span>
+        <span class="n">point</span><span class="o">=</span><span class="n">centroid</span><span class="p">,</span>
+        <span class="n">use_radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">rotated_section</span> <span class="o">=</span> <span class="n">GenericSection</span><span class="p">(</span><span class="n">flipped_support_section_geometry</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (Support)&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rotated_section</span></div>
+
+
+<div class="viewcode-block" id="get_concrete">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.get_concrete">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_concrete</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Concrete</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first concrete material found in the section geometry.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to query.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Concrete</span>
+<span class="sd">        The first concrete material in the geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># For CompoundGeometry, get material from the first surface geometry</span>
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="s1">&#39;geometries&#39;</span><span class="p">):</span>
+        <span class="c1"># CompoundGeometry - get concrete from first surface</span>
+        <span class="n">concrete</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">geometries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">material</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Simple SurfaceGeometry</span>
+        <span class="n">concrete</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">material</span>
+
+    <span class="k">return</span> <span class="n">concrete</span></div>
+
+
+<div class="viewcode-block" id="get_reinforcement">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.get_reinforcement">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_reinforcement</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Reinforcement</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first reinforcement material and its area.</span>
+
+<span class="sd">    Assumes all reinforcement diameters are the same.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to query.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        ``(reinforcement, area)`` where ``reinforcement`` is the first</span>
+<span class="sd">        :class:`Reinforcement` material and ``area`` is the corresponding</span>
+<span class="sd">        bar area [mm²].</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the geometry contains no reinforcement points, or no</span>
+<span class="sd">        reinforcement material is found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span>
+
+    <span class="c1"># simple surface / not compound? then nothing to check</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="s2">&quot;geometries&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Geometry does not contain reinforcement points.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># compound → scan point geometries</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="s2">&quot;point_geometries&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">geo</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">:</span>
+            <span class="n">mat</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">geo</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="p">(</span><span class="n">geo</span><span class="o">.</span><span class="n">diameter</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">Reinforcement</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">mat</span><span class="p">,</span> <span class="n">area</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No reinforcement material found in section geometry.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_number_of_reinforcements">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.get_number_of_reinforcements">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_reinforcements</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Count the reinforcement point geometries in the section geometry.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    section : GenericSection</span>
+<span class="sd">        Section to query.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        Number of reinforcement point geometries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">n</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Elliot Melcer
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=5a7626eb"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../../_static/translations.js?v=9bf55d28"></script>
+    </body>
+</html>
