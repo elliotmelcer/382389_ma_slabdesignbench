@@ -290,7 +290,13 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.analysis_core.statics.internal_forces</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Internal forces utility class for uniform distributed load on standard</span>
+<span class="sd">structural systems.</span>
+
+<span class="sd">Author: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.slab_construction</span><span class="w"> </span><span class="kn">import</span> <span class="n">SlabConstruction</span>
@@ -303,15 +309,11 @@
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.internal_forces.html#core.analysis_core.statics.internal_forces.InternalForces">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InternalForces</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
+<span class="sd">    Utility class (not instantiable) for computing internal forces on standard</span>
+<span class="sd">    structural systems under uniformly distributed load.</span>
 
-<span class="sd">    Utility class (not instantiable) providing methods to compute internal forces</span>
-<span class="sd">    for various structural systems under uniform distributed load.</span>
-
-<span class="sd">    Position system:</span>
-<span class="sd">    - x = 0 at first (outer) support</span>
-<span class="sd">    - x = 1 at next support</span>
-<span class="sd">    - x = 2 at next support, etc.</span>
+<span class="sd">    Position convention: x is normalized, with x = 0 at the first (outer)</span>
+<span class="sd">    support and x = 1 at the next support (x = 2 at the one after, etc.).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="InternalForces.validate_x_position">
@@ -319,13 +321,21 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_x_position</span><span class="p">(</span><span class="n">system</span><span class="p">:</span> <span class="n">SystemType</span><span class="p">,</span> <span class="n">x_position</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validate that x-position is within valid bounds for the given system</span>
+<span class="sd">        Validate that an x-position is within the valid range for a given system.</span>
 
-<span class="sd">        :param system: Structural system type</span>
-<span class="sd">        :param x_position: Position to validate</span>
-<span class="sd">        :raises ValueError: If x_position is out of bounds for the system</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        system : SystemType</span>
+<span class="sd">            Structural system type.</span>
+<span class="sd">        x_position : float</span>
+<span class="sd">            Normalized position to validate [-].</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``system`` is not in :data:`MAX_X_POSITIONS`, or if</span>
+<span class="sd">            ``x_position`` is outside ``[0, max_x]`` for that system.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="n">system</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MAX_X_POSITIONS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Invalid system &#39;</span><span class="si">{</span><span class="n">system</span><span class="si">}</span><span class="s2">&#39;. Must be one of: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">MAX_X_POSITIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -345,13 +355,29 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_moment_data</span><span class="p">(</span><span class="n">system</span><span class="p">:</span> <span class="n">SystemType</span><span class="p">,</span> <span class="n">moment_type</span><span class="p">:</span> <span class="n">MomentType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get moment coefficient and x-position from lookup table</span>
+<span class="sd">        Return the moment coefficient and governing x-position from the lookup table.</span>
 
-<span class="sd">        :param system: Structural system type</span>
-<span class="sd">        :param moment_type: Type of moment (MAX_POS_MOMENT or MAX_NEG_MOMENT)</span>
-<span class="sd">        :return: Dictionary with &#39;coefficient&#39; and &#39;x_position&#39;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        system : SystemType</span>
+<span class="sd">            Structural system type.</span>
+<span class="sd">        moment_type : MomentType</span>
+<span class="sd">            Governing moment type (``MAX_POS_MOMENT`` or ``MAX_NEG_MOMENT``).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary with keys:</span>
+
+<span class="sd">            - ``&quot;coefficient&quot;`` — moment coefficient α such that M = α · w · L² [-].</span>
+<span class="sd">            - ``&quot;x_position&quot;`` — normalized position where the governing moment</span>
+<span class="sd">              occurs [-].</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``system`` or ``moment_type`` is not found in :data:`MOMENT_DATA`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># Validate inputs</span>
         <span class="k">if</span> <span class="n">system</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MOMENT_DATA</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -378,26 +404,61 @@
             <span class="n">moment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MomentType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate moment at a specific position OR maximum moment for a given type in kNm</span>
+<span class="sd">        Calculate the bending moment at a specific position or the governing</span>
+<span class="sd">        maximum moment for a system under uniformly distributed load.</span>
 
-<span class="sd">        Must provide EITHER x_norm OR moment_type</span>
+<span class="sd">        Exactly one of ``x_norm`` or ``moment`` must be provided.</span>
 
-<span class="sd">        :param slab_construction: Slab construction object</span>
-<span class="sd">        :param loads: LoadsEC object</span>
-<span class="sd">        :param system: Structural system type</span>
-<span class="sd">        :param combination: Load combination type</span>
-<span class="sd">        :param x_norm: Position along beam (normalized: 0 at first support, 1 at second, etc.)</span>
-<span class="sd">                  Use this for M(x) calculation at arbitrary position.</span>
-<span class="sd">        :param moment: Type of moment (MAX_POS_MOMENT or MAX_NEG_MOMENT)</span>
-<span class="sd">                           Use this for maximum moment calculation.</span>
-<span class="sd">        :return: Moment [kNm]</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        slab_construction : SlabConstruction</span>
+<span class="sd">            Full slab construction object (provides span and dead loads).</span>
+<span class="sd">        loads : Loads</span>
+<span class="sd">            Loads object (provides live loads and combination factors).</span>
+<span class="sd">        system : SystemType, optional</span>
+<span class="sd">            Structural system type. Default is :attr:`SystemType.SIMPLE_BEAM`.</span>
+<span class="sd">        combination : str, optional</span>
+<span class="sd">            Load combination name. Default is ``&quot;FUNDAMENTAL&quot;``.</span>
+<span class="sd">        x_norm : float, optional</span>
+<span class="sd">            Normalized position along the beam (0 at first support, 1 at</span>
+<span class="sd">            second support, etc.) [-]. Use this to compute M(x) at an</span>
+<span class="sd">            arbitrary position via the analytical moment function.</span>
+<span class="sd">            Requires the system to have an entry in :data:`MOMENT_FUNCTIONS`.</span>
+<span class="sd">        moment : MomentType, optional</span>
+<span class="sd">            Governing moment type. Use this to look up the maximum moment</span>
+<span class="sd">            via the coefficient table. Mutually exclusive with ``x_norm``.</span>
 
-<span class="sd">        Examples:</span>
-<span class="sd">            # Get moment at specific position (requires implemented function)</span>
-<span class="sd">            M = calculate_moment(slab, loads, system=SystemType.SIMPLE_BEAM, x=0.3)</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Bending moment [kNm]. Sign follows the moment function convention</span>
+<span class="sd">            (positive = sagging for ``x_norm``; sign from coefficient table</span>
+<span class="sd">            for ``moment``).</span>
 
-<span class="sd">            # Get maximum positive moment (works for all systems via coefficient)</span>
-<span class="sd">            M_max = calculate_moment(slab, loads, system=SystemType.THREE_SPAN, moment_type=MomentType.MAX_POS_MOMENT)</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If both or neither of ``x_norm`` and ``moment`` are provided, or</span>
+<span class="sd">            if the moment coefficient is 0.0 (moment type not applicable for</span>
+<span class="sd">            this system).</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            If ``x_norm`` is provided but no moment function is implemented</span>
+<span class="sd">            for ``system``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Moment at a specific position (requires implemented moment function):</span>
+
+<span class="sd">        &gt;&gt;&gt; M = InternalForces.calculate_moment_kNm(</span>
+<span class="sd">        ...     slab, loads, system=SystemType.SIMPLE_BEAM, x_norm=0.3</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">        Maximum positive moment via coefficient table:</span>
+
+<span class="sd">        &gt;&gt;&gt; M_max = InternalForces.calculate_moment_kNm(</span>
+<span class="sd">        ...     slab, loads, system=SystemType.THREE_SPAN,</span>
+<span class="sd">        ...     moment=MomentType.MAX_POS_MOMENT</span>
+<span class="sd">        ... )</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Validate that exactly one of x or moment_type is provided</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">x_norm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">moment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
@@ -455,12 +516,21 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">moment_simple_beam</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">L</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate moment at position x for a simple beam.</span>
+<span class="sd">        Compute the bending moment at position x for a simply supported beam.</span>
 
-<span class="sd">        :param x: Position along beam [m]</span>
-<span class="sd">        :param w: Uniformly distributed load [kN/m]</span>
-<span class="sd">        :param L: Span length [m]</span>
-<span class="sd">        :return: Moment at x [kNm]</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Position along the beam [m].</span>
+<span class="sd">        w : float</span>
+<span class="sd">            Uniformly distributed load [kN/m].</span>
+<span class="sd">        L : float</span>
+<span class="sd">            Span length [m].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Bending moment M(x) [kNm] (positive = sagging).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">w</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">L</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span></div>
 
@@ -470,11 +540,23 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">moment_two_span</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">L</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate moment at position x for a two span beam with constant spans</span>
-<span class="sd">        :param x: Position along beam [m]</span>
-<span class="sd">        :param w: Uniformly distributed load [kN/m]</span>
-<span class="sd">        :param L: Span length [m]</span>
-<span class="sd">        :return: Moment at x [kNm]</span>
+<span class="sd">        Compute the bending moment at position x for a two-span continuous beam</span>
+<span class="sd">        with equal spans under uniform load.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Position along the beam [m], measured from the first outer support.</span>
+<span class="sd">            Valid range: 0 ≤ x ≤ 2L.</span>
+<span class="sd">        w : float</span>
+<span class="sd">            Uniformly distributed load [kN/m].</span>
+<span class="sd">        L : float</span>
+<span class="sd">            Length of one span [m].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Bending moment M(x) [kNm]. Returns ``0`` outside the valid range.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">L</span><span class="p">):</span>
             <span class="k">return</span> <span class="mi">0</span>
@@ -489,21 +571,33 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">moment_cantilever</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">L</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate moment at position x for a cantilever beam.</span>
+<span class="sd">        Compute the bending moment at position x for a cantilever beam.</span>
 
-<span class="sd">        :param x: Position along beam [m] (0 at fixed support, L at free end)</span>
-<span class="sd">        :param w: Uniformly distributed load [kN/m]</span>
-<span class="sd">        :param L: Span length [m]</span>
-<span class="sd">        :return: Moment at x [kNm]</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Position along the beam [m] (0 at fixed support, L at free end).</span>
+<span class="sd">        w : float</span>
+<span class="sd">            Uniformly distributed load [kN/m].</span>
+<span class="sd">        L : float</span>
+<span class="sd">            Span length [m].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Bending moment M(x) [kNm] (negative = hogging).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="o">-</span><span class="n">w</span> <span class="o">*</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span></div>
 </div>
 
 
+
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Moment functions M(x) for systems where full distribution is implemented</span>
-<span class="sd">Signature: (x_m: float, w: float, L: float) -&gt; float</span>
-<span class="sd">where x_m is position in meters, w is line load in kN/m, L is span in meters</span>
+<span class="sd">Moment functions M(x) for systems where the full distribution is implemented.</span>
+
+<span class="sd">Signature: ``(x_m: float, w: float, L: float) -&gt; float``</span>
+<span class="sd">where ``x_m`` is position in meters, ``w`` is line load in kN/m, and</span>
+<span class="sd">``L`` is the span length in meters.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="n">MOMENT_FUNCTIONS</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SystemType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">SystemType</span><span class="o">.</span><span class="n">SIMPLE_BEAM</span><span class="p">:</span> <span class="n">InternalForces</span><span class="o">.</span><span class="n">moment_simple_beam</span><span class="p">,</span>

@@ -1,6 +1,12 @@
 """
+Deflection calculation for SlabConstructions using Simpson's rule and the
+virtual work method.
+
+Curvature distributions are derived from position-dependent M-κ curves
+computed at support and midspan, with parabolic spatial interpolation
+between the two reference sections.
+
 Author: Elliot Melcer
-Deflection calculations
 """
 
 import numpy as np
@@ -19,10 +25,16 @@ from core.unit_core import mm_to_m
 
 class DeflectionCalculator:
     """
-    Calculate deflections using Simpson's rule and virtual work method.
-    Uses position-dependent M-κ curves (calculated at support and midspan).
+    Deflection calculator using Simpson's rule and the virtual work method.
 
-    Position convention: x is normalized (0 at first support, 1 at second support, etc.)
+    Curvature κ(x) is obtained by parabolically interpolating the M-κ
+    diagrams computed at the support (x = 0) and midspan (x = 0.5), then
+    looking up κ at the applied moment at each Simpson integration point.
+    By symmetry, only the half-span [0, 0.5] is integrated and the result
+    is doubled.
+
+    Position convention: x is normalized (0 at first support,
+    1 at second support, etc.).
     """
 
     @staticmethod
@@ -40,32 +52,70 @@ class DeflectionCalculator:
             extended_debug: bool = False
     ) -> float:
         """
-        Calculate maximum deflection using Simpson's rule and virtual work method.
-        Uses position-dependent M-κ curves.
+        Calculate the maximum midspan deflection per EN 1992-1-1 :cite:`ec2`.
 
-        :param load_history_method:
-                    Input       Explanation
-                    ------------------------------------------------------------------------------------------------
-                    "NONE"      no load history considered, direct method used with parameter combination
-                    "FACTOR_EC"    load history considered according to Eurocode 2, Chapter 7.4.3, Equation (7.18)
-                    # "SECANT"    load history considered according to Kreller (1989)*, Chapter 4.2.4
-                    #
-                    # *Title: "Zum nichtlinearen Trag- und Verformungsverhalten von Stahlbetonstabtragwerken unter Last- und Zwangeinwirkung"
+        Dispatches to :meth:`_direct_deflection_method` (``load_history_method="NONE"``)
+        or :meth:`_factor_deflection_method` (``load_history_method="FACTOR_EC"``).
+        Currently only :attr:`SystemType.SIMPLE_BEAM` is supported.
 
-        :param m_k_simplification:  Control simplified M-K-Diagram Calculation
-                                    For available inputs see _simplified_moment_curvature_method() in section_methods.py
-        :param constitutive_law:    Control Concrete Material Behavior in SLS
-                                    for available inputs see sls_concrete() in material_methods.py
-        :param slab_construction:   Slab construction object
-        :param loads:               Loads object
-        :param system:              Structural system type
-        :param combination:         Load combination (Ignored when load_history_method='FACTOR_EC')
-        :param n_intervals:         Number of intervals for Simpson's rule (must be even)
-        :param N_axial_N:           Axial force [N] (positive = tension)
-        :param debug:               Enable debug output
-        :param extended_debug:      Enable extended debug output
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType, optional
+            Structural system type. Currently only
+            :attr:`SystemType.SIMPLE_BEAM` is implemented.
+            Default is :attr:`SystemType.SIMPLE_BEAM`.
+        combination : str, optional
+            EN 1990 load combination used for the direct method. Ignored
+            when ``load_history_method="FACTOR_EC"``. One of
+            ``"FUNDAMENTAL"``, ``"QUASI_PERMANENT"``, ``"FREQUENT"``,
+            ``"RARE"``. Default is ``"QUASI_PERMANENT"``.
+        n_intervals : int, optional
+            Number of Simpson integration intervals (must be even).
+            Default is ``40``.
+        N_axial_N : float, optional
+            Applied normal force [N] (positive = tension). Default is ``0.0``.
+        constitutive_law : str, optional
+            Concrete constitutive law keyword passed to
+            :func:`calculate_moment_curvature_sls_EC`. Used only for the
+            direct method; see ``create_sls_concrete_EC`` for valid keywords.
+            Default is ``"TENSTIFF_PARABOLIC"``.
+        load_history_method : str, optional
+            Load history strategy:
 
-        :return: Maximum deflection [mm] Note: positive: sagging, negative: hogging
+            - ``"NONE"`` — no load history; direct M-κ integration under
+              ``combination``.
+            - ``"FACTOR_EC"`` — EN 1992-1-1 cl. 7.4.3, Eq. (7.18): weighted
+              interpolation between fully cracked and fully uncracked κ using
+              the distribution coefficient ζ.
+
+            Default is ``"NONE"``.
+        m_k_simplification : bool or float, optional
+            Controls simplified M-κ diagram calculation. Passed directly to
+            :func:`calculate_moment_curvature_sls_EC`. Default is ``False``.
+        debug : bool, optional
+            If ``True``, prints intermediate values (cracking moments, ζ
+            arrays) to stdout. Default is ``False``.
+        extended_debug : bool, optional
+            If ``True``, prints full Simpson and κ-interpolation tables in
+            addition to the standard debug output. Default is ``False``.
+
+        Returns
+        -------
+        float
+            Maximum midspan deflection [mm].
+            Positive = sagging (downward), negative = hogging (upward).
+
+        Raises
+        ------
+        NotImplementedError
+            If ``system`` is not :attr:`SystemType.SIMPLE_BEAM`.
+        ValueError
+            If ``n_intervals`` is odd, or if ``combination`` or
+            ``load_history_method`` is not a recognized keyword.
         """
         # --------------------------
         # Normalize Input
@@ -135,6 +185,40 @@ class DeflectionCalculator:
             debug: bool,
             extended_debug: bool
     ) -> float:
+        """
+        Compute deflection by direct κ(x) integration for a single load combination.
+
+        Curvatures are looked up from the interpolated M-κ diagram at each
+        Simpson point; no load history weighting is applied.
+
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType
+            Structural system type.
+        combination : str
+            Normalized EN 1990 load combination name.
+        n_intervals : int
+            Number of Simpson integration intervals (must be even).
+        N_axial_N : float
+            Applied normal force [N] (positive = tension).
+        constitutive_law : str
+            Concrete constitutive law keyword.
+        m_k_simplification : bool or float
+            Simplification control for :func:`calculate_moment_curvature_sls_EC`.
+        debug : bool
+            Unused in this method; passed through for interface consistency.
+        extended_debug : bool
+            If ``True``, prints κ-interpolation and Simpson tables to stdout.
+
+        Returns
+        -------
+        float
+            Maximum midspan deflection [mm].
+        """
         # --------------------------
         # Setup
         # --------------------------
@@ -181,7 +265,39 @@ class DeflectionCalculator:
             debug: bool,
             extended_debug: bool
     ) -> float:
+        """
+        Compute deflection according to DIN EN 1992-1-1 cl. 7.4.3 :cite:`ec2`
 
+        Curvatures for the fully cracked (``NONE_PARABOLIC``) and fully
+        uncracked (``ELASTIC_ELASTIC``) states are computed separately and
+        combined via the distribution coefficient ζ per EC2 Eq. (7.18) :cite:`ec2`.
+        The quasi-permanent combination is used for integration; the rare
+        combination determines the cracking state for ζ.
+
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType
+            Structural system type.
+        n_intervals : int
+            Number of Simpson integration intervals (must be even).
+        N_axial_N : float
+            Applied normal force [N] (positive = tension).
+        m_k_simplification : bool or float
+            Simplification control for :func:`calculate_moment_curvature_sls_EC`.
+        debug : bool
+            If ``True``, prints M_cr and ζ arrays to console.
+        extended_debug : bool
+            If ``True``, prints full κ-interpolation, ζ, and Simpson tables.
+
+        Returns
+        -------
+        float
+            Maximum midspan deflection [mm].
+        """
         # --------------------------
         # Setup
         # --------------------------
@@ -267,10 +383,32 @@ class DeflectionCalculator:
             kappa_array: list[float],
     ) -> tuple[float, dict[str, list]]:
         """
-        Integrate δ = ∫ M_v(x)·κ(x) dx over the half-span using Simpson's rule,
-        then double by symmetry.
-        :return: (deflection_mm, debug_info) where debug_info holds per-point
-                 arrays aligned with the Simpson points.
+        Integrate midspan deflection over the half-span using Simpson's rule
+        and the virtual work principle, then double the result by symmetry.
+
+        where M_v(x) is the virtual bending moment for a unit point load at
+        midspan of a simply supported beam.
+
+        Parameters
+        ----------
+        span_m : float
+            Total beam span L [m].
+        n_intervals : int
+            Number of Simpson intervals (must be even).
+        M_applied_array_kNm : list[float]
+            Applied bending moment at each Simpson point [kNm].
+            Length must be ``n_intervals + 1``.
+        kappa_array : list[float]
+            Curvature at each Simpson point [1/m].
+            Length must be ``n_intervals + 1``.
+
+        Returns
+        -------
+        tuple[float, dict[str, list]]
+            - ``deflection_mm`` — maximum midspan deflection [mm].
+            - ``debug_info`` — dict with per-point arrays:
+              ``x_positions``, ``weights``, ``M_real_kNm``, ``M_virtual``,
+              ``kappa``, ``increment``, ``cum_sum``.
         """
         # Setup integration points (half span due to symmetry)
         delta_x_norm = 0.5 / n_intervals  # normalized
@@ -281,7 +419,7 @@ class DeflectionCalculator:
         integral_sum = 0.0
 
         # Store detailed Simpson Point Information
-        # Per-station debug arrays
+        # Per-point debug arrays
         weight_list: list[float] = []
         m_virtual_list: list[float] = []
         increment_list: list[float] = []
@@ -364,19 +502,45 @@ class DeflectionCalculator:
             beta: float = 0.5,
     ) -> tuple[list[float], dict[str, list[float]]]:
         """
-        Distribution coefficient ζ along the half-span per EC2 (7.19) under rare combination:
-            ζ = 1 - β · (M_cr / M)²   if M > M_cr
-            ζ = 0                     otherwise
+        Compute the EN 1992-1-1 distribution coefficient ζ along the half-span :cite:`ec2`.
 
-        M_cr is parabolically interpolated between the support and midspan
-        sections. Used by EC2 (7.18) to weight cracked vs uncracked curvature:
-            κ = ζ · κ_cracked + (1 - ζ) · κ_uncracked
+        ζ weights the contributions of the fully cracked and fully uncracked
+        curvatures per EC2 Eq. (7.18) :cite:`ec2`:
 
-        :param x_positions: Normalized Simpson stations along half-span (0 → 0.5)
-        :param beta: Load-duration factor (0.5 short-term, 1.0 sustained/cyclic)
-        :return: (zeta_array, debug_info) where debug_info holds the per-station
-                 interpolated cracking moment and the applied moment, both as
-                 lists aligned with x_positions.
+
+        The cracking state is evaluated under the rare combination per
+        EC2 Eq. (7.19) :cite:`ec2`:
+
+        M_cr is parabolically interpolated between the cracking moments at
+        the support and midspan sections.
+
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType
+            Structural system type.
+        N_axial_N : float
+            Applied normal force [N] (positive = tension).
+        x_positions : np.ndarray
+            Normalized Simpson points along the half-span [0, 0.5] [-].
+        beta : float, optional
+            Load duration factor (0.5 for short-term, 1.0 for sustained or
+            cyclic loading) [-]. Default is ``0.5``.
+
+        Returns
+        -------
+        tuple[list[float], dict[str, list[float]]]
+            - ``zeta_array`` — ζ values at each point [-].
+            - ``debug_info`` — dict with per-point lists aligned with
+              ``x_positions``:
+
+              - ``"x_positions"`` — normalized positions [-].
+              - ``"m_cr_interp_kNm"`` — interpolated cracking moment [kNm].
+              - ``"m_rare_kNm"`` — rare combination moment [kNm].
+              - ``"m_qp_kNm"`` — quasi-permanent combination moment [kNm].
         """
         slab = slab_construction.slab
 
@@ -394,7 +558,7 @@ class DeflectionCalculator:
         m_qp_list_kNm: list[float] = []
 
         for x_norm in x_positions:
-            # Cracking moment at this station
+            # Cracking moment at this point
             m_cr_kNm = DeflectionCalculator._parabolic_interpolate(
                 m_cr_support_kNm,
                 m_cr_mid_kNm,
@@ -465,11 +629,21 @@ class DeflectionCalculator:
             zeta_array: list[float]
     ) -> list[float]:
         """
-        Returns a list of zeta weighted kappas according to EC2 Eq. (7.18)
-        :param kappa_array_fully_cracked:   list of curvatures for a fully cracked structure
-        :param kappa_array_fully_uncracked: list of curvatures for a fully uncracked structure
-        :param zeta_array:                  list of factors for weighting cracked and uncracked curvatures
-        :return:
+        Compute ζ-weighted curvatures per EN 1992-1-1 Eq. (7.18) :cite:`ec2`.
+
+        Parameters
+        ----------
+        kappa_array_fully_cracked : list[float]
+            Curvatures for the fully cracked state at each point [1/m].
+        kappa_array_fully_uncracked : list[float]
+            Curvatures for the fully uncracked state at each point [1/m].
+        zeta_array : list[float]
+            Distribution coefficients ζ at each point [-].
+
+        Returns
+        -------
+        list[float]
+            Weighted curvatures κ at each point [1/m].
         """
         kappa_weighted_array = []
 
@@ -492,8 +666,36 @@ class DeflectionCalculator:
             m_k_simplification,
     ) -> tuple[list[float], dict[str, list]]:
         """
-        Compute κ(x) at each Simpson point by parabolically interpolating the M-κ curve
-        between support and midspan, then looking up κ at the applied moment.
+        Compute κ(x) at each Simpson point by parabolically interpolating
+        the M-κ curve between support and midspan at x, then looking up κ at the
+        applied moment at x.
+
+        Parameters
+        ----------
+        slab_construction : SlabConstruction
+            Full slab construction object.
+        loads : Loads
+            Applied loads object.
+        system : SystemType
+            Structural system type.
+        combination : str
+            Normalized EN 1990 load combination name.
+        n_intervals : int
+            Number of Simpson intervals (must be even).
+        N_axial_N : float
+            Applied normal force [N] (positive = tension).
+        constitutive_law : str
+            Concrete constitutive law keyword.
+        m_k_simplification : bool or float
+            Simplification control for :func:`calculate_moment_curvature_sls_EC`.
+
+        Returns
+        -------
+        tuple[list[float], dict[str, list]]
+            - ``kappas`` — curvature κ at each Simpson point [1/m].
+            - ``debug_info`` — dict with M-κ diagram arrays at support and
+              midspan, applied moments, interpolation bounds, and κ values,
+              all aligned with the Simpson points.
         """
         # Slab
         slab = slab_construction.slab
@@ -624,10 +826,23 @@ class DeflectionCalculator:
     @staticmethod
     def _interpolation_bounds(x, xs, ys):
         """
-        Return (x_lo, x_hi, y_lo, y_hi) such that:
-        x_lo <= x <= x_hi and y values come from same indices.
+        Return the bracketing index pair ``(x_lo, x_hi, y_lo, y_hi)`` for a
+        sorted array such that ``x_lo ≤ x ≤ x_hi``.
+        Used for kappa interpolation within M-κ curve
 
-        xs must be sorted.
+        Parameters
+        ----------
+        x : float
+            Query value.
+        xs : array-like
+            Sorted x-values (strictly monotone increasing).
+        ys : array-like
+            y-values aligned with ``xs``.
+
+        Returns
+        -------
+        tuple[float, float, float, float]
+            ``(x_lo, x_hi, y_lo, y_hi)`` — the bracketing x- and y-values.
         """
         xs = np.asarray(xs)
         ys = np.asarray(ys)
@@ -646,12 +861,22 @@ class DeflectionCalculator:
             x_norm: Union[float, np.ndarray]
     ) -> Union[float, np.ndarray]:
         """
-        Performs parabolic interpolation between y_0 and y_1 at x_norm
-        Source: Loutfi 2022
-        :param y_0:     Function value at x_0
-        :param y_1:     Function value at x_1
-        :param x_norm:  Normalized x value
-        :return:
+        Parabolically interpolate between two reference values y_0 and y_1
+        according to Loutfi :cite:`loutfi_2023`
+
+        Parameters
+        ----------
+        y_0 : float or np.ndarray
+            Function value at the reference point x = 0 (support).
+        y_1 : float or np.ndarray
+            Function value at the reference point x = 0.5 (midspan / vertex).
+        x_norm : float or np.ndarray
+            Normalized position(s) in [0, 0.5] [-].
+
+        Returns
+        -------
+        float or np.ndarray
+            Interpolated value(s) at ``x_norm``.
         """
         factor = (y_1- y_0)  / 0.5 ** 2
         y_interp = -factor * (x_norm - 0.5) ** 2 + y_1
@@ -661,10 +886,17 @@ class DeflectionCalculator:
     @staticmethod
     def _simpson_weights(n: int) -> np.ndarray:
         """
-        Calculate Simpson's rule weights: [1, 4, 2, 4, 2, ..., 4, 1]
+        Generate the Simpson's rule weight vector ``[1, 4, 2, 4, 2, …, 4, 1]``.
 
-        :param n: Number of intervals (must be even)
-        :return: Array of weights
+        Parameters
+        ----------
+        n : int
+            Number of integration intervals (must be even).
+
+        Returns
+        -------
+        np.ndarray
+            Weight array of length ``n + 1``.
         """
         weights = np.ones(n + 1)
         weights[1:-1:2] = 4  # Odd indices
@@ -674,10 +906,21 @@ class DeflectionCalculator:
     @staticmethod
     def _virtual_moment(x_norm: float, span_m: float) -> float:
         """
-        Calculate virtual moment for unit load at midspan of simple beam.
+        Compute the virtual bending moment for a unit point load at midspan
+        of a simply supported beam. Used for virtual work method to find deflection
+        at midspan for a simply supported beam.
 
-        :param x_norm: Normalized position along beam (0 at first support, 0.5 at midspan)
-        :param span_m: Span length [m]
-        :return: Virtual moment [m] (moment arm for unit load)
+        Parameters
+        ----------
+        x_norm : float
+            Normalized position along the half-span (0 at support, 0.5 at
+            midspan) [-].
+        span_m : float
+            Total span length L [m].
+
+        Returns
+        -------
+        float
+            Virtual bending moment M_v [m] (moment arm for a unit load [kN]).
         """
         return x_norm * span_m / 2

@@ -298,30 +298,87 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.analysis_core.statics.loads">
 <span id="loads-py"></span><h1>loads.py<a class="headerlink" href="#module-core.analysis_core.statics.loads" title="Link to this heading">¶</a></h1>
+<p>Load classes for Eurocode-based structural analysis of HP-shell slabs.</p>
+<p>Provides an abstract <a class="reference internal" href="#core.analysis_core.statics.loads.Loads" title="core.analysis_core.statics.loads.Loads"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loads</span></code></a> base and the instantiable <a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC" title="core.analysis_core.statics.loads.LoadsEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadsEC</span></code></a>
+implementation for EN 1990 / EN 1991 load combinations with the German
+National Annex (NA/DE). <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id17" title="Deutsches Institut für Normung e.V. DIN EN 1991-1-1 Eurocode 1: Einwirkungen Auf Tragwerke – Teil 1-1: Allgemeine Einwirkungen Auf Tragwerke – Wichten, Eigengewicht Und Nutzlasten Im Hochbau – Nationaler Anhang. DIN Media GmbH, 2010.">7</a>]</span></p>
+<p>Author: Elliot Melcer</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.Loads">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Loads</span></span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#Loads"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.Loads" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Abstract base class for load objects.</p>
+<p>Defines the interface that all load implementations must satisfy so
+that structural analysis routines can remain independent of the
+underlying load model.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.Loads.combinations_enum">
 <span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">combinations_enum</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><span class="pre">Enum</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#core.analysis_core.statics.loads.Loads.combinations_enum" title="Link to this definition">¶</a></dt>
-<dd><p>Subclasses must return their Combinations enum class.</p>
+<dd><p>Return the <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a> class that lists valid load combination names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Enum class whose members name the supported combinations.</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">type[Enum]</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.Loads.live_loads">
 <span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">live_loads</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span><a class="headerlink" href="#core.analysis_core.statics.loads.Loads.live_loads" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the array of characteristic live load intensities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Characteristic live load values Q_k [kN/m²].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.Loads.combined_line_load_kN_m">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">combined_line_load_kN_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#Loads.combined_line_load_kN_m"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.Loads.combined_line_load_kN_m" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the combined line load for a given load combination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object providing geometry and dead loads.</p></li>
+<li><p><strong>combination</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Load combination name (validated against <a class="reference internal" href="#core.analysis_core.statics.loads.Loads.combinations_enum" title="core.analysis_core.statics.loads.Loads.combinations_enum"><code class="xref py py-attr docutils literal notranslate"><span class="pre">combinations_enum</span></code></a>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Combined line load [kN/m].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.Loads.check_valid_combination">
 <span class="sig-name descname"><span class="pre">check_valid_combination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">combination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#Loads.check_valid_combination"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.Loads.check_valid_combination" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Validate and normalize a load combination string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>combination</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Raw combination name (case- and separator-insensitive).</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Normalized combination name matching a member of
+<a class="reference internal" href="#core.analysis_core.statics.loads.Loads.combinations_enum" title="core.analysis_core.statics.loads.Loads.combinations_enum"><code class="xref py py-attr docutils literal notranslate"><span class="pre">combinations_enum</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the normalized name is not a member of <a class="reference internal" href="#core.analysis_core.statics.loads.Loads.combinations_enum" title="core.analysis_core.statics.loads.Loads.combinations_enum"><code class="xref py py-attr docutils literal notranslate"><span class="pre">combinations_enum</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -329,13 +386,93 @@
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LoadsEC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">live_loads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_0_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_1_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_2_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.statics.loads.Loads" title="core.analysis_core.statics.loads.Loads"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loads</span></code></a></p>
-<p>Author: Elliot Melcer
-Class for instantiating a load object based on Eurocode 0 and 1</p>
-<p>Note: only uniformly distributed loads over ALL spans</p>
+<p>Load object for EN 1990 / EN 1991 combinations with German National Annex <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../references.html#id17" title="Deutsches Institut für Normung e.V. DIN EN 1991-1-1 Eurocode 1: Einwirkungen Auf Tragwerke – Teil 1-1: Allgemeine Einwirkungen Auf Tragwerke – Wichten, Eigengewicht Und Nutzlasten Im Hochbau – Nationaler Anhang. DIN Media GmbH, 2010.">7</a>]</span></p>
+<p>Supports uniformly distributed loads applied over all spans. Multiple
+live load components (e.g. imposed + partitions) can be passed as arrays;
+the leading variable action always occupies index 0.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.Qk">
+<span class="sig-name descname"><span class="pre">Qk</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.Qk" title="Link to this definition">¶</a></dt>
+<dd><p>Characteristic live load intensities [kN/m²].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.psi_0_values">
+<span class="sig-name descname"><span class="pre">psi_0_values</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.psi_0_values" title="Link to this definition">¶</a></dt>
+<dd><p>Combination factors ψ₀ for each live load component [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.psi_1_values">
+<span class="sig-name descname"><span class="pre">psi_1_values</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.psi_1_values" title="Link to this definition">¶</a></dt>
+<dd><p>Combination factors ψ₁ for each live load component [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.psi_2_values">
+<span class="sig-name descname"><span class="pre">psi_2_values</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.psi_2_values" title="Link to this definition">¶</a></dt>
+<dd><p>Combination factors ψ₂ for each live load component [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.gamma_g">
+<span class="sig-name descname"><span class="pre">gamma_g</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.gamma_g" title="Link to this definition">¶</a></dt>
+<dd><p>Partial safety factor for permanent actions [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.gamma_q">
+<span class="sig-name descname"><span class="pre">gamma_q</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.gamma_q" title="Link to this definition">¶</a></dt>
+<dd><p>Partial safety factor for variable actions [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.PSI_TABLE_EC0_2004_DE">
+<span class="sig-name descname"><span class="pre">PSI_TABLE_EC0_2004_DE</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.PSI_TABLE_EC0_2004_DE" title="Link to this definition">¶</a></dt>
+<dd><p>Class-level lookup table mapping usage category codes (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;A1&quot;</span></code>)
+to their ψ-factors and Q_k values per EN 1990:2002/NA(DE) <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../references.html#id16" title="Deutsches Institut für Normung e.V. DIN EN 1990 Eurocode 0: Grundlagen Der Tragwerksplanung – Nationaler Anhang, National Festgelegte Parameter. DIN Media GmbH, 2010.">6</a>]</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.Combinations">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Combinations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC.Combinations"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.Combinations" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Supported EN 1990 load combination types.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.Combinations.FUNDAMENTAL">
 <span class="sig-name descname"><span class="pre">FUNDAMENTAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FUNDAMENTAL'</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.Combinations.FUNDAMENTAL" title="Link to this definition">¶</a></dt>
@@ -361,38 +498,80 @@ Class for instantiating a load object based on Eurocode 0 and 1</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.combinations_enum">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">combinations_enum</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><span class="pre">Enum</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.combinations_enum" title="Link to this definition">¶</a></dt>
-<dd><p>Subclasses must return their Combinations enum class.</p>
+<dd><p>Return the <a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC.Combinations" title="core.analysis_core.statics.loads.LoadsEC.Combinations"><code class="xref py py-class docutils literal notranslate"><span class="pre">Combinations</span></code></a> enum for <a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC" title="core.analysis_core.statics.loads.LoadsEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadsEC</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC.Combinations" title="core.analysis_core.statics.loads.LoadsEC.Combinations"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadsEC.Combinations</span></code></a>.</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">type[Enum]</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.PSI_TABLE_EC0_2004_DE">
-<span class="sig-name descname"><span class="pre">PSI_TABLE_EC0_2004_DE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'A':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">1.0,</span> <span class="pre">2:</span> <span class="pre">1.5,</span> <span class="pre">3:</span> <span class="pre">2.0},</span> <span class="pre">'psi':</span> <span class="pre">(0.7,</span> <span class="pre">0.5,</span> <span class="pre">0.3)},</span> <span class="pre">'B':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">2.0,</span> <span class="pre">2:</span> <span class="pre">3.0,</span> <span class="pre">3:</span> <span class="pre">5.0},</span> <span class="pre">'psi':</span> <span class="pre">(0.7,</span> <span class="pre">0.5,</span> <span class="pre">0.3)},</span> <span class="pre">'C':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">3.0,</span> <span class="pre">2:</span> <span class="pre">4.0,</span> <span class="pre">3:</span> <span class="pre">5.0,</span> <span class="pre">4:</span> <span class="pre">5.0,</span> <span class="pre">5:</span> <span class="pre">5.0,</span> <span class="pre">6:</span> <span class="pre">7.5},</span> <span class="pre">'psi':</span> <span class="pre">(0.7,</span> <span class="pre">0.7,</span> <span class="pre">0.6)},</span> <span class="pre">'D':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">2.0,</span> <span class="pre">2:</span> <span class="pre">5.0,</span> <span class="pre">3:</span> <span class="pre">5.0},</span> <span class="pre">'psi':</span> <span class="pre">(0.7,</span> <span class="pre">0.7,</span> <span class="pre">0.6)},</span> <span class="pre">'E':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">5.0,</span> <span class="pre">2:</span> <span class="pre">6.0,</span> <span class="pre">3:</span> <span class="pre">7.5},</span> <span class="pre">'psi':</span> <span class="pre">(1.0,</span> <span class="pre">0.9,</span> <span class="pre">0.8)}}</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.PSI_TABLE_EC0_2004_DE" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">PSI_TABLE_EC0_2004_DE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'A':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">1.0,</span> <span class="pre">2:</span> <span class="pre">1.5,</span> <span class="pre">3:</span> <span class="pre">2.0},</span> <span class="pre">'psi':</span> <span class="pre">(0.7,</span> <span class="pre">0.5,</span> <span class="pre">0.3)},</span> <span class="pre">'B':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">2.0,</span> <span class="pre">2:</span> <span class="pre">3.0,</span> <span class="pre">3:</span> <span class="pre">5.0},</span> <span class="pre">'psi':</span> <span class="pre">(0.7,</span> <span class="pre">0.5,</span> <span class="pre">0.3)},</span> <span class="pre">'C':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">3.0,</span> <span class="pre">2:</span> <span class="pre">4.0,</span> <span class="pre">3:</span> <span class="pre">5.0,</span> <span class="pre">4:</span> <span class="pre">5.0,</span> <span class="pre">5:</span> <span class="pre">5.0,</span> <span class="pre">6:</span> <span class="pre">7.5},</span> <span class="pre">'psi':</span> <span class="pre">(0.7,</span> <span class="pre">0.7,</span> <span class="pre">0.6)},</span> <span class="pre">'D':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">2.0,</span> <span class="pre">2:</span> <span class="pre">5.0,</span> <span class="pre">3:</span> <span class="pre">5.0},</span> <span class="pre">'psi':</span> <span class="pre">(0.7,</span> <span class="pre">0.7,</span> <span class="pre">0.6)},</span> <span class="pre">'E':</span> <span class="pre">{'Qk':</span> <span class="pre">{1:</span> <span class="pre">5.0,</span> <span class="pre">2:</span> <span class="pre">6.0,</span> <span class="pre">3:</span> <span class="pre">7.5},</span> <span class="pre">'psi':</span> <span class="pre">(1.0,</span> <span class="pre">0.9,</span> <span class="pre">0.8)}}</span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.live_loads">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">live_loads</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.live_loads" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the characteristic live load array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Q_k values [kN/m²].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.from_categories_EC0_NA_DE">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_categories_EC0_NA_DE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC.from_categories_EC0_NA_DE"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.from_categories_EC0_NA_DE" title="Link to this definition">¶</a></dt>
-<dd><p>Create a LoadsEC Object from Categories in Eurocode 0 - German National Annex</p>
+<dd><p>Construct a <a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC" title="core.analysis_core.statics.loads.LoadsEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadsEC</span></code></a> instance from EN 1990 usage category codes
+per the German National Annex <span class="bibtex-citation" id="id4">[<a class="reference internal" href="../references.html#id16" title="Deutsches Institut für Normung e.V. DIN EN 1990 Eurocode 0: Grundlagen Der Tragwerksplanung – Nationaler Anhang, National Festgelegte Parameter. DIN Media GmbH, 2010.">6</a>]</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>categories</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code>) – One or more category codes (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;A1&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">[&quot;B2&quot;,</span> <span class="pre">&quot;C3&quot;]</span></code>).
+The first entry is treated as the leading variable action.</p></li>
+<li><p><strong>gamma_g</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Partial safety factor for permanent actions. Default is <code class="docutils literal notranslate"><span class="pre">1.35</span></code> [-].</p></li>
+<li><p><strong>gamma_q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Partial safety factor for variable actions. Default is <code class="docutils literal notranslate"><span class="pre">1.5</span></code> [-].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new <a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC" title="core.analysis_core.statics.loads.LoadsEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadsEC</span></code></a> instance with Q_k and ψ-factor arrays
+populated from the lookup table.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC" title="core.analysis_core.statics.loads.LoadsEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadsEC</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.combined_line_load_kN_m">
 <span class="sig-name descname"><span class="pre">combined_line_load_kN_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">combination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FUNDAMENTAL'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC.combined_line_load_kN_m"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.combined_line_load_kN_m" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates a line load [kN/m] from area loads for the given load combination</p>
+<dd><p>Compute the combined line load for a given EN 1990 <span class="bibtex-citation" id="id5">[<a class="reference internal" href="../references.html#id16" title="Deutsches Institut für Normung e.V. DIN EN 1990 Eurocode 0: Grundlagen Der Tragwerksplanung – Nationaler Anhang, National Festgelegte Parameter. DIN Media GmbH, 2010.">6</a>]</span> load combination.</p>
+<p>Converts the area load of the governing combination to a line load
+by multiplying by the slab width.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameter<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slab_construction</strong> – SlabConstruction-Objekt</p></li>
-<li><p><strong>combination</strong> – Lastkombination („FUNDAMENTAL“, „RARE“, „FREQUENT“, „QUASI_PERMANENT“)</p></li>
+<li><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object (provides slab width and dead loads).</p></li>
+<li><p><strong>combination</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Load combination name. One of <code class="docutils literal notranslate"><span class="pre">&quot;FUNDAMENTAL&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;RARE&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;FREQUENT&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;QUASI_PERMANENT&quot;</span></code>. Default is
+<code class="docutils literal notranslate"><span class="pre">&quot;FUNDAMENTAL&quot;</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Rückgabe<span class="colon">:</span></dt>
-<dd class="field-even"><p>Linienlast in kN/m</p>
+<dd class="field-even"><p>Combined line load w [kN/m].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -400,29 +579,69 @@ Class for instantiating a load object based on Eurocode 0 and 1</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.fundamental_combination_kN_m2_EC0">
 <span class="sig-name descname"><span class="pre">fundamental_combination_kN_m2_EC0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC.fundamental_combination_kN_m2_EC0"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.fundamental_combination_kN_m2_EC0" title="Link to this definition">¶</a></dt>
-<dd><p>Ultimate Limit State (ULS) - fundamental combination
-EC0 6.10: Σ(j≥1) γ_G,j*G_k,j „+“ γ_p*P „+“ γ_Q,1*Q_k,1 „+“ Σ(i&gt;1) γ_Q,i*ψ_0,i*Q_k,i</p>
+<dd><p>Compute the ULS fundamental combination area load per EN 1990 Eq. (6.10) <span class="bibtex-citation" id="id6">[<a class="reference internal" href="../references.html#id16" title="Deutsches Institut für Normung e.V. DIN EN 1990 Eurocode 0: Grundlagen Der Tragwerksplanung – Nationaler Anhang, National Festgelegte Parameter. DIN Media GmbH, 2010.">6</a>]</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Design area load q_d [kN/m²].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.rare_combination_kN_m2_EC0">
 <span class="sig-name descname"><span class="pre">rare_combination_kN_m2_EC0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC.rare_combination_kN_m2_EC0"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.rare_combination_kN_m2_EC0" title="Link to this definition">¶</a></dt>
-<dd><p>Serviceability Limit State (SLS) – rare combination
-EC0 6.14b: Σ(j≥1) G_k,j „+“ P „+“ Q_k_1 + Σ(i&gt;1) ψ_0,i*Q_k,i</p>
+<dd><p>Compute the SLS rare (characteristic) combination area load per EN 1990 Eq. (6.14b) <span class="bibtex-citation" id="id7">[<a class="reference internal" href="../references.html#id16" title="Deutsches Institut für Normung e.V. DIN EN 1990 Eurocode 0: Grundlagen Der Tragwerksplanung – Nationaler Anhang, National Festgelegte Parameter. DIN Media GmbH, 2010.">6</a>]</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Characteristic area load q [kN/m²].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.frequent_combination_kN_m2_EC0">
 <span class="sig-name descname"><span class="pre">frequent_combination_kN_m2_EC0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC.frequent_combination_kN_m2_EC0"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.frequent_combination_kN_m2_EC0" title="Link to this definition">¶</a></dt>
-<dd><p>Serviceability Limit State (SLS) – frequent combination
-EC0 6.15b: Σ(j≥1) G_k,j „+“ P „+“ ψ_1,1*Q_k,1 „+“ Σ(i&gt;1) ψ_2,i*Q_k,i</p>
+<dd><p>Compute the SLS frequent combination area load per EN 1990 Eq. (6.15b) <span class="bibtex-citation" id="id8">[<a class="reference internal" href="../references.html#id16" title="Deutsches Institut für Normung e.V. DIN EN 1990 Eurocode 0: Grundlagen Der Tragwerksplanung – Nationaler Anhang, National Festgelegte Parameter. DIN Media GmbH, 2010.">6</a>]</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Frequent area load q [kN/m²].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.quasi_permanent_combination_kN_m2_EC0">
 <span class="sig-name descname"><span class="pre">quasi_permanent_combination_kN_m2_EC0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><span class="pre">SlabConstruction</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC.quasi_permanent_combination_kN_m2_EC0"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.quasi_permanent_combination_kN_m2_EC0" title="Link to this definition">¶</a></dt>
-<dd><p>Serviceability Limit State (SLS) – quasi-permanent combination
-EC0 6.16b: Σ(j≥1) G_k,j „+“ P „+“ Σ(i≥1) ψ_2,i*Q_k,i</p>
+<dd><p>Compute the SLS quasi-permanent combination area load per EN 1990 Eq. (6.16b) <span class="bibtex-citation" id="id9">[<a class="reference internal" href="../references.html#id16" title="Deutsches Institut für Normung e.V. DIN EN 1990 Eurocode 0: Grundlagen Der Tragwerksplanung – Nationaler Anhang, National Festgelegte Parameter. DIN Media GmbH, 2010.">6</a>]</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slab_construction</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code>) – Full slab construction object.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Quasi-permanent area load q [kN/m²].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

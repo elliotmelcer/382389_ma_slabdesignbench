@@ -290,12 +290,20 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.analysis_core.statics.loads</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">ABC</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Load classes for Eurocode-based structural analysis of HP-shell slabs.</span>
+
+<span class="sd">Provides an abstract :class:`Loads` base and the instantiable :class:`LoadsEC`</span>
+<span class="sd">implementation for EN 1990 / EN 1991 load combinations with the German</span>
+<span class="sd">National Annex (NA/DE). :cite:`ec1`</span>
+
+<span class="sd">Author: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">ABC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">unicodedata</span><span class="w"> </span><span class="kn">import</span> <span class="n">category</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">core.unit_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">mm_to_m</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.slab_construction</span><span class="w"> </span><span class="kn">import</span> <span class="n">SlabConstruction</span>
@@ -305,28 +313,84 @@
 <div class="viewcode-block" id="Loads">
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Loads</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for load objects.</span>
+
+<span class="sd">    Defines the interface that all load implementations must satisfy so</span>
+<span class="sd">    that structural analysis routines can remain independent of the</span>
+<span class="sd">    underlying load model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">combinations_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Enum</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Subclasses must return their Combinations enum class.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the :class:`~enum.Enum` class that lists valid load combination names.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type[Enum]</span>
+<span class="sd">            Enum class whose members name the supported combinations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">live_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the array of characteristic live load intensities.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Characteristic live load values Q_k [kN/m²].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
 <div class="viewcode-block" id="Loads.combined_line_load_kN_m">
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads.combined_line_load_kN_m">[Doku]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">combined_line_load_kN_m</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">,</span> <span class="n">combination</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the combined line load for a given load combination.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        slab_construction : SlabConstruction</span>
+<span class="sd">            Full slab construction object providing geometry and dead loads.</span>
+<span class="sd">        combination : str</span>
+<span class="sd">            Load combination name (validated against :attr:`combinations_enum`).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Combined line load [kN/m].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Loads.check_valid_combination">
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.Loads.check_valid_combination">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_valid_combination</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">combination</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate and normalize a load combination string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        combination : str</span>
+<span class="sd">            Raw combination name (case- and separator-insensitive).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Normalized combination name matching a member of</span>
+<span class="sd">            :attr:`combinations_enum`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the normalized name is not a member of :attr:`combinations_enum`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">normalised</span> <span class="o">=</span> <span class="n">combination</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
         <span class="n">valid</span> <span class="o">=</span> <span class="p">{</span><span class="n">member</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinations_enum</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">normalised</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">:</span>
@@ -339,21 +403,41 @@
 
 
 
-
 <div class="viewcode-block" id="LoadsEC">
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.LoadsEC">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LoadsEC</span><span class="p">(</span><span class="n">Loads</span><span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Class for instantiating a load object based on Eurocode 0 and 1</span>
+<span class="sd">    Load object for EN 1990 / EN 1991 combinations with German National Annex :cite:`ec1`</span>
 
-<span class="sd">    Note: only uniformly distributed loads over ALL spans</span>
+<span class="sd">    Supports uniformly distributed loads applied over all spans. Multiple</span>
+<span class="sd">    live load components (e.g. imposed + partitions) can be passed as arrays;</span>
+<span class="sd">    the leading variable action always occupies index 0.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Qk : np.ndarray</span>
+<span class="sd">        Characteristic live load intensities [kN/m²].</span>
+<span class="sd">    psi_0_values : np.ndarray</span>
+<span class="sd">        Combination factors ψ₀ for each live load component [-].</span>
+<span class="sd">    psi_1_values : np.ndarray</span>
+<span class="sd">        Combination factors ψ₁ for each live load component [-].</span>
+<span class="sd">    psi_2_values : np.ndarray</span>
+<span class="sd">        Combination factors ψ₂ for each live load component [-].</span>
+<span class="sd">    gamma_g : float</span>
+<span class="sd">        Partial safety factor for permanent actions [-].</span>
+<span class="sd">    gamma_q : float</span>
+<span class="sd">        Partial safety factor for variable actions [-].</span>
+
+<span class="sd">    PSI_TABLE_EC0_2004_DE : dict</span>
+<span class="sd">        Class-level lookup table mapping usage category codes (e.g. ``&quot;A1&quot;``)</span>
+<span class="sd">        to their ψ-factors and Q_k values per EN 1990:2002/NA(DE) :cite:`ec0`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LoadsEC.Combinations">
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.LoadsEC.Combinations">[Doku]</a>
     <span class="k">class</span><span class="w"> </span><span class="nc">Combinations</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Supported EN 1990 load combination types.&quot;&quot;&quot;</span>
+
         <span class="n">FUNDAMENTAL</span> <span class="o">=</span> <span class="s2">&quot;FUNDAMENTAL&quot;</span>
         <span class="n">RARE</span> <span class="o">=</span> <span class="s2">&quot;RARE&quot;</span>
         <span class="n">FREQUENT</span> <span class="o">=</span> <span class="s2">&quot;FREQUENT&quot;</span>
@@ -362,6 +446,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">combinations_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Enum</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the :class:`Combinations` enum for :class:`LoadsEC`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        type[Enum]</span>
+<span class="sd">            :class:`LoadsEC.Combinations`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">LoadsEC</span><span class="o">.</span><span class="n">Combinations</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -373,6 +465,23 @@
         <span class="n">gamma_g</span> <span class="o">=</span> <span class="mf">1.35</span><span class="p">,</span>
         <span class="n">gamma_q</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        live_loads : array-like</span>
+<span class="sd">            Characteristic live load intensities Q_k [kN/m²], one entry</span>
+<span class="sd">            per load component.</span>
+<span class="sd">        psi_0_values : array-like</span>
+<span class="sd">            Combination factors ψ₀ aligned with ``live_loads`` [-].</span>
+<span class="sd">        psi_1_values : array-like</span>
+<span class="sd">            Combination factors ψ₁ aligned with ``live_loads`` [-].</span>
+<span class="sd">        psi_2_values : array-like</span>
+<span class="sd">            Combination factors ψ₂ aligned with ``live_loads`` [-].</span>
+<span class="sd">        gamma_g : float, optional</span>
+<span class="sd">            Partial safety factor for permanent actions. Default is ``1.35`` [-].</span>
+<span class="sd">        gamma_q : float, optional</span>
+<span class="sd">            Partial safety factor for variable actions. Default is ``1.5`` [-].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Qk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">live_loads</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">psi_0_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">psi_0_values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">psi_1_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">psi_1_values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -393,14 +502,37 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">live_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the characteristic live load array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Q_k values [kN/m²].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Qk</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_parse_category</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_category</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Translates a given category into the corresponding Load and combination values from the PSI_TABLE</span>
-<span class="sd">        :param _category:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parse a usage category code and return its Q_k and ψ-factors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        _category : str</span>
+<span class="sd">            Category code in the form ``&quot;&lt;letter&gt;&lt;number&gt;&quot;``</span>
+<span class="sd">            (e.g. ``&quot;A1&quot;``, ``&quot;C3&quot;``), case-insensitive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float, float, float]</span>
+<span class="sd">            ``(Q_k, psi_0, psi_1, psi_2)`` for the given category [kN/m², -, -, -].</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the letter or subcategory number is not in</span>
+<span class="sd">            :attr:`PSI_TABLE_EC0_2004_DE`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">_category</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">letter</span><span class="p">,</span> <span class="n">number</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
@@ -417,7 +549,24 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_categories_EC0_NA_DE</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">categories</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">gamma_g</span><span class="o">=</span><span class="mf">1.35</span><span class="p">,</span> <span class="n">gamma_q</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a LoadsEC Object from Categories in Eurocode 0 - German National Annex</span>
+<span class="sd">        Construct a :class:`LoadsEC` instance from EN 1990 usage category codes</span>
+<span class="sd">        per the German National Annex :cite:`ec0`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        categories : str or list[str]</span>
+<span class="sd">            One or more category codes (e.g. ``&quot;A1&quot;``, ``[&quot;B2&quot;, &quot;C3&quot;]``).</span>
+<span class="sd">            The first entry is treated as the leading variable action.</span>
+<span class="sd">        gamma_g : float, optional</span>
+<span class="sd">            Partial safety factor for permanent actions. Default is ``1.35`` [-].</span>
+<span class="sd">        gamma_q : float, optional</span>
+<span class="sd">            Partial safety factor for variable actions. Default is ``1.5`` [-].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        LoadsEC</span>
+<span class="sd">            A new :class:`LoadsEC` instance with Q_k and ψ-factor arrays</span>
+<span class="sd">            populated from the lookup table.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Normalize Input</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -437,7 +586,12 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Checks the dimension compatibility of the input.</span>
+<span class="sd">        Verify that all load and ψ-factor arrays have the same length.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If any ψ-factor array length differs from that of :attr:`Qk`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Qk</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">psi_0_values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">psi_1_values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">psi_2_values</span><span class="p">]:</span>
@@ -448,11 +602,24 @@
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.LoadsEC.combined_line_load_kN_m">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">combined_line_load_kN_m</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">,</span> <span class="n">combination</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FUNDAMENTAL&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates a line load [kN/m] from area loads for the given load combination</span>
+<span class="sd">        Compute the combined line load for a given EN 1990 :cite:`ec0` load combination.</span>
 
-<span class="sd">        :param slab_construction: SlabConstruction-Objekt</span>
-<span class="sd">        :param combination: Lastkombination (&quot;FUNDAMENTAL&quot;, &quot;RARE&quot;, &quot;FREQUENT&quot;, &quot;QUASI_PERMANENT&quot;)</span>
-<span class="sd">        :return: Linienlast in kN/m</span>
+<span class="sd">        Converts the area load of the governing combination to a line load</span>
+<span class="sd">        by multiplying by the slab width.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        slab_construction : SlabConstruction</span>
+<span class="sd">            Full slab construction object (provides slab width and dead loads).</span>
+<span class="sd">        combination : str, optional</span>
+<span class="sd">            Load combination name. One of ``&quot;FUNDAMENTAL&quot;``, ``&quot;RARE&quot;``,</span>
+<span class="sd">            ``&quot;FREQUENT&quot;``, ``&quot;QUASI_PERMANENT&quot;``. Default is</span>
+<span class="sd">            ``&quot;FUNDAMENTAL&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Combined line load w [kN/m].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">width_m</span> <span class="o">=</span> <span class="n">mm_to_m</span><span class="p">(</span><span class="n">slab_construction</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
         <span class="n">combination</span> <span class="o">=</span> <span class="n">combination</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
@@ -473,8 +640,17 @@
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.LoadsEC.fundamental_combination_kN_m2_EC0">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fundamental_combination_kN_m2_EC0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Ultimate Limit State (ULS) - fundamental combination</span>
-<span class="sd">        EC0 6.10: Σ(j≥1) γ_G,j*G_k,j &quot;+&quot; γ_p*P &quot;+&quot; γ_Q,1*Q_k,1 &quot;+&quot; Σ(i&gt;1) γ_Q,i*ψ_0,i*Q_k,i</span>
+<span class="sd">        Compute the ULS fundamental combination area load per EN 1990 Eq. (6.10) :cite:`ec0`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        slab_construction : SlabConstruction</span>
+<span class="sd">            Full slab construction object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Design area load q_d [kN/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">Gd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma_g</span> <span class="o">*</span> <span class="p">(</span><span class="n">slab_construction</span><span class="o">.</span><span class="n">structural_dead_load_kN_m2</span><span class="p">()</span>
                              <span class="o">+</span> <span class="n">slab_construction</span><span class="o">.</span><span class="n">non_structural_dead_load_kN_m2</span><span class="p">())</span>
@@ -493,10 +669,18 @@
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.LoadsEC.rare_combination_kN_m2_EC0">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rare_combination_kN_m2_EC0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serviceability Limit State (SLS) – rare combination</span>
-<span class="sd">        EC0 6.14b: Σ(j≥1) G_k,j &quot;+&quot; P &quot;+&quot; Q_k_1 + Σ(i&gt;1) ψ_0,i*Q_k,i</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Compute the SLS rare (characteristic) combination area load per EN 1990 Eq. (6.14b) :cite:`ec0`.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        slab_construction : SlabConstruction</span>
+<span class="sd">            Full slab construction object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Characteristic area load q [kN/m²].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Set up psi values for frequent combination</span>
         <span class="c1"># Only the accompanying actions are multiplied by psi_0</span>
         <span class="n">psi_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">psi_0_values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -511,10 +695,18 @@
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.LoadsEC.frequent_combination_kN_m2_EC0">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">frequent_combination_kN_m2_EC0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serviceability Limit State (SLS) – frequent combination</span>
-<span class="sd">        EC0 6.15b: Σ(j≥1) G_k,j &quot;+&quot; P &quot;+&quot; ψ_1,1*Q_k,1 &quot;+&quot; Σ(i&gt;1) ψ_2,i*Q_k,i</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Compute the SLS frequent combination area load per EN 1990 Eq. (6.15b) :cite:`ec0`.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        slab_construction : SlabConstruction</span>
+<span class="sd">            Full slab construction object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Frequent area load q [kN/m²].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Set up psi values for frequent combination</span>
         <span class="c1"># Leading variable action multiplied by psi_1, all accompanying actions multiplied by psi_2</span>
         <span class="n">psi_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">psi_2_values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -529,8 +721,18 @@
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.loads.html#core.analysis_core.statics.loads.LoadsEC.quasi_permanent_combination_kN_m2_EC0">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">quasi_permanent_combination_kN_m2_EC0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serviceability Limit State (SLS) – quasi-permanent combination</span>
-<span class="sd">        EC0 6.16b: Σ(j≥1) G_k,j &quot;+&quot; P &quot;+&quot; Σ(i≥1) ψ_2,i*Q_k,i</span>
+<span class="sd">        Compute the SLS quasi-permanent combination area load per EN 1990 Eq. (6.16b) :cite:`ec0`.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        slab_construction : SlabConstruction</span>
+<span class="sd">            Full slab construction object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Quasi-permanent area load q [kN/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">slab_construction</span><span class="o">.</span><span class="n">structural_dead_load_kN_m2</span><span class="p">()</span>
                 <span class="o">+</span> <span class="n">slab_construction</span><span class="o">.</span><span class="n">non_structural_dead_load_kN_m2</span><span class="p">()</span>

@@ -1,6 +1,8 @@
 checks
 ======
 
+.. include:: ../_descriptions/core.analysis_core.checks.rst
+
 .. |pkg_icon| raw:: html
 
    <img src="../_static/package_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;">

@@ -1,10 +1,14 @@
+"""
+Enumerations and lookup tables for structural system types, moment types,
+and moment coefficients used in the internal forces module.
+"""
 from typing import Dict
 from enum import Enum
 
-"""
-Enum Class for types of systems
-"""
+
 class SystemType(str, Enum):
+    """Enumeration of supported structural system types."""
+
     CANTILEVER = "CANTILEVER"
     SIMPLE_BEAM = "SIMPLE_BEAM"
     TWO_SPAN = "TWO_SPAN"
@@ -12,15 +16,16 @@ class SystemType(str, Enum):
     FOUR_SPAN = "FOUR_SPAN"
     FIVE_SPAN = "FIVE_SPAN"
 
-"""
-Enum Class for available types moments
-"""
+
 class MomentType(str, Enum):
+    """Enumeration of governing moment types."""
+
     MAX_POS_MOMENT = "MAX_POS_MOMENT"
     MAX_NEG_MOMENT = "MAX_NEG_MOMENT"
 
+
 """
-Maximum valid x-position for each system type
+Maximum valid x-position for each system type.
 x = 0 at first support, x = 1 at second support, etc.
 
   |-> x
@@ -41,10 +46,15 @@ MAX_X_POSITIONS: Dict[str, float] = {
 
 
 """
- Lookup table for moment coefficients and x-positions
- M = coefficient * w * L^2
- x_position: location where max moment occurs
+Lookup table for moment coefficients and governing x-positions 
+according to :cite:`schneider_2016` and/or Stab2D-calculations
+
+M = coefficient · w · L²
+
+Keys: system name → moment type → {coefficient, x_position}.
+x_position-values for multi-span systems are derived from Stab2D-NL analyses.
 """
+
 MOMENT_DATA: Dict[str, Dict[str, Dict[str, float]]] = {
     "CANTILEVER": {
         "MAX_POS_MOMENT": {
@@ -107,5 +117,3 @@ MOMENT_DATA: Dict[str, Dict[str, Dict[str, float]]] = {
         },
     },
 }
-
-

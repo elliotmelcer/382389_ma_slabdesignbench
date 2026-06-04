@@ -1,6 +1,8 @@
 analysis\_core
 ==============
 
+.. include:: ../_descriptions/core.analysis_core.rst
+
 .. |pkg_icon| raw:: html
 
    <img src="../_static/package_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;">

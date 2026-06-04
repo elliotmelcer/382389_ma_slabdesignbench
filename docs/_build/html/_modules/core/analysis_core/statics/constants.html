@@ -290,15 +290,19 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.analysis_core.statics.constants</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Enumerations and lookup tables for structural system types, moment types,</span>
+<span class="sd">and moment coefficients used in the internal forces module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Enum Class for types of systems</span>
-<span class="sd">&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="SystemType">
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.SystemType">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SystemType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of supported structural system types.&quot;&quot;&quot;</span>
+
     <span class="n">CANTILEVER</span> <span class="o">=</span> <span class="s2">&quot;CANTILEVER&quot;</span>
     <span class="n">SIMPLE_BEAM</span> <span class="o">=</span> <span class="s2">&quot;SIMPLE_BEAM&quot;</span>
     <span class="n">TWO_SPAN</span> <span class="o">=</span> <span class="s2">&quot;TWO_SPAN&quot;</span>
@@ -307,18 +311,19 @@
     <span class="n">FIVE_SPAN</span> <span class="o">=</span> <span class="s2">&quot;FIVE_SPAN&quot;</span></div>
 
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Enum Class for available types moments</span>
-<span class="sd">&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="MomentType">
 <a class="viewcode-back" href="../../../../api/core.analysis_core.statics.constants.html#core.analysis_core.statics.constants.MomentType">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MomentType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of governing moment types.&quot;&quot;&quot;</span>
+
     <span class="n">MAX_POS_MOMENT</span> <span class="o">=</span> <span class="s2">&quot;MAX_POS_MOMENT&quot;</span>
     <span class="n">MAX_NEG_MOMENT</span> <span class="o">=</span> <span class="s2">&quot;MAX_NEG_MOMENT&quot;</span></div>
 
 
+
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Maximum valid x-position for each system type</span>
+<span class="sd">Maximum valid x-position for each system type.</span>
 <span class="sd">x = 0 at first support, x = 1 at second support, etc.</span>
 
 <span class="sd">  |-&gt; x</span>
@@ -339,10 +344,15 @@
 
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd"> Lookup table for moment coefficients and x-positions</span>
-<span class="sd"> M = coefficient * w * L^2</span>
-<span class="sd"> x_position: location where max moment occurs</span>
+<span class="sd">Lookup table for moment coefficients and governing x-positions </span>
+<span class="sd">according to :cite:`schneider_2016` and/or Stab2D-calculations</span>
+
+<span class="sd">M = coefficient · w · L²</span>
+
+<span class="sd">Keys: system name → moment type → {coefficient, x_position}.</span>
+<span class="sd">x_position-values for multi-span systems are derived from Stab2D-NL analyses.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="n">MOMENT_DATA</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;CANTILEVER&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;MAX_POS_MOMENT&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -405,8 +415,6 @@
         <span class="p">},</span>
     <span class="p">},</span>
 <span class="p">}</span>
-
-
 </pre></div>
         </article>
       </div>

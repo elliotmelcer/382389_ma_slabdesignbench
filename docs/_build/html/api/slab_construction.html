@@ -298,6 +298,12 @@
         <article role="main" id="furo-main-content">
           <section id="slab-construction">
 <h1>slab_construction<a class="headerlink" href="#slab-construction" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">slab_construction</span></code> contains the structural models of the slab systems.
+It defines a modular, extensible class hierarchy — <code class="docutils literal notranslate"><span class="pre">Slab</span></code>, <code class="docutils literal notranslate"><span class="pre">OneWaySlab</span></code>,
+<code class="docutils literal notranslate"><span class="pre">TwoWaySlab</span></code> — that standardizes how different slab types expose their
+geometry and cross-sections. The <code class="docutils literal notranslate"><span class="pre">hp_slab</span></code> subpackage contains the first
+fully implemented slab type, including objective function and constraints for
+the HP-shell optimization problem.</p>
 <p class="rubric">Package Contents</p>
 <ul class="simple">
 <li><p><img src="../_static/package_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;"> <a class="reference internal" href="slab_construction.slabs.html"><span class="doc">slabs</span></a></p></li>

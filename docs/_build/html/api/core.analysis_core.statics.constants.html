@@ -298,10 +298,13 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.analysis_core.statics.constants">
 <span id="constants-py"></span><h1>constants.py<a class="headerlink" href="#module-core.analysis_core.statics.constants" title="Link to this heading">¶</a></h1>
+<p>Enumerations and lookup tables for structural system types, moment types,
+and moment coefficients used in the internal forces module.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="core.analysis_core.statics.constants.SystemType">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SystemType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/constants.html#SystemType"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.constants.SystemType" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Enumeration of supported structural system types.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.analysis_core.statics.constants.SystemType.CANTILEVER">
 <span class="sig-name descname"><span class="pre">CANTILEVER</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CANTILEVER'</span></span><a class="headerlink" href="#core.analysis_core.statics.constants.SystemType.CANTILEVER" title="Link to this definition">¶</a></dt>
@@ -338,6 +341,7 @@
 <dt class="sig sig-object py" id="core.analysis_core.statics.constants.MomentType">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MomentType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/constants.html#MomentType"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.constants.MomentType" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Enumeration of governing moment types.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="core.analysis_core.statics.constants.MomentType.MAX_POS_MOMENT">
 <span class="sig-name descname"><span class="pre">MAX_POS_MOMENT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MAX_POS_MOMENT'</span></span><a class="headerlink" href="#core.analysis_core.statics.constants.MomentType.MAX_POS_MOMENT" title="Link to this definition">¶</a></dt>
@@ -353,9 +357,11 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="core.analysis_core.statics.constants.MAX_X_POSITIONS">
 <span class="sig-name descname"><span class="pre">MAX_X_POSITIONS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'CANTILEVER':</span> <span class="pre">1.0,</span> <span class="pre">'FIVE_SPAN':</span> <span class="pre">5.0,</span> <span class="pre">'FOUR_SPAN':</span> <span class="pre">4.0,</span> <span class="pre">'SIMPLE_BEAM':</span> <span class="pre">1.0,</span> <span class="pre">'THREE_SPAN':</span> <span class="pre">3.0,</span> <span class="pre">'TWO_SPAN':</span> <span class="pre">2.0}</span></span><a class="headerlink" href="#core.analysis_core.statics.constants.MAX_X_POSITIONS" title="Link to this definition">¶</a></dt>
-<dd><p>Lookup table for moment coefficients and x-positions
-M = coefficient * w * L^2
-x_position: location where max moment occurs</p>
+<dd><p>Lookup table for moment coefficients and governing x-positions
+according to <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id76" title="Klaus-Jürgen Schneider and Andrej Albert. Bautabellen für Ingenieure: mit Berechnungshinweisen und Beispielen. Bundesanzeiger Verlag, 22. auflage edition, 2016. ISBN 978-3-8462-0660-7.">5</a>]</span> and/or Stab2D-calculations</p>
+<p>M = coefficient · w · L²</p>
+<p>Keys: system name → moment type → {coefficient, x_position}.
+x_position-values for multi-span systems are derived from Stab2D-NL analyses.</p>
 </dd></dl>
 
 </section>

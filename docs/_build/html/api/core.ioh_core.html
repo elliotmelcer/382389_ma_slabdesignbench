@@ -298,6 +298,11 @@
         <article role="main" id="furo-main-content">
           <section id="ioh-core">
 <h1>ioh_core<a class="headerlink" href="#ioh-core" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">ioh_core</span></code> is the interface between the optimization problems defined in
+<code class="docutils literal notranslate"><span class="pre">slab_construction</span></code> and the IOHexperimenter benchmarking framework. It handles
+problem construction from CSV definitions, caches repeated function evaluations
+for efficiency, and exposes a single entry point <code class="docutils literal notranslate"><span class="pre">run_experiment()</span></code> for
+executing complete benchmarking studies.</p>
 <p class="rubric">Package Contents</p>
 <ul class="simple">
 <li><p><img src="../_static/module_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;"> <a class="reference internal" href="core.ioh_core.algorithms.html"><span class="doc">algorithms.py</span></a></p></li>
