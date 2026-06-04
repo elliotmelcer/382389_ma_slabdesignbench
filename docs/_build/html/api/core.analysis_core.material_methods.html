@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Stichwortverzeichnis" href="../genindex.html"><link rel="search" title="Suche" href="../search.html"><link rel="next" title="core.analysis_core.section_methods" href="core.analysis_core.section_methods.html"><link rel="prev" title="core.analysis_core.acoustic_methods" href="core.analysis_core.acoustic_methods.html">
+<link rel="index" title="Stichwortverzeichnis" href="../genindex.html"><link rel="search" title="Suche" href="../search.html"><link rel="next" title="section_methods.py" href="core.analysis_core.section_methods.html"><link rel="prev" title="acoustic_methods.py" href="core.analysis_core.acoustic_methods.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>core.analysis_core.material_methods - SlabDesignBench</title>
+        <title>material_methods.py - SlabDesignBench</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -257,6 +257,7 @@
 <li class="toctree-l2"><a class="reference internal" href="slab_construction.slab_construction.html">slab_construction.py</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">Quellenverzeichnis</a></li>
 </ul>
 
 </div>
@@ -296,32 +297,66 @@
         </div>
         <article role="main" id="furo-main-content">
           <section id="module-core.analysis_core.material_methods">
-<span id="core-analysis-core-material-methods"></span><h1>core.analysis_core.material_methods<a class="headerlink" href="#module-core.analysis_core.material_methods" title="Link to this heading">¶</a></h1>
+<span id="material-methods-py"></span><h1>material_methods.py<a class="headerlink" href="#module-core.analysis_core.material_methods" title="Link to this heading">¶</a></h1>
+<p>Material factory functions and custom constitutive law classes for SLS/ULS
+concrete and CFRP reinforcement, used in the structural benchmarking suite.</p>
+<p>Author: Elliot Melcer</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.CrackingConcreteLawEC">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">CrackingConcreteLawEC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_cu1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_c1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#CrackingConcreteLawEC"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.CrackingConcreteLawEC" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserDefined</span></code></p>
-<p>Author: Elliot Melcer</p>
-<p>A concrete constitutive law that handles tensile cracking correctly
-in moment-curvature analysis according to Eurocode.</p>
-<p>The class overrides get_ultimate_strain of UserDefined to allow for cracking:</p>
-<dl class="simple">
-<dt>get_ultimate_strain(yielding)</dt><dd><p>Called by get_balanced_failure_strain() to determine chi_ultimate.
-Returns 1e6 as the positive (tensile) limit so that the concrete
-self-pairing in the double loop never produces the governing
-curvature.  chi_ultimate is therefore always governed by the
-reinforcement-concrete pair (reinf fracture vs. concrete crushing),
-which is physically correct.</p>
+<p>Concrete constitutive law that handles tensile cracking in moment-curvature
+analysis.</p>
+<p>Overrides <a class="reference internal" href="#core.analysis_core.material_methods.CrackingConcreteLawEC.get_ultimate_strain" title="core.analysis_core.material_methods.CrackingConcreteLawEC.get_ultimate_strain"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_ultimate_strain()</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">UserDefined</span></code> so that the
+tensile strain limit is set to <code class="docutils literal notranslate"><span class="pre">1e6</span></code> (effectively infinite). This prevents
+the concrete cracking inside <code class="docutils literal notranslate"><span class="pre">get_balanced_failure_strain()</span></code> from
+producing the governing curvature; <code class="docutils literal notranslate"><span class="pre">chi_ultimate</span></code> is therefore
+controlled by the two failure modes reinforcement fracture vs.
+concrete crushing.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.material_methods.CrackingConcreteLawEC._eps_cu1">
+<span class="sig-name descname"><span class="pre">_eps_cu1</span></span><a class="headerlink" href="#core.analysis_core.material_methods.CrackingConcreteLawEC._eps_cu1" title="Link to this definition">¶</a></dt>
+<dd><p>Ultimate compressive strain (negative) [1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.material_methods.CrackingConcreteLawEC._eps_c1">
+<span class="sig-name descname"><span class="pre">_eps_c1</span></span><a class="headerlink" href="#core.analysis_core.material_methods.CrackingConcreteLawEC._eps_c1" title="Link to this definition">¶</a></dt>
+<dd><p>Compressive strain at peak stress (negative), used when
+<code class="docutils literal notranslate"><span class="pre">yielding=True</span></code> [1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.CrackingConcreteLawEC.get_ultimate_strain">
 <span class="sig-name descname"><span class="pre">get_ultimate_strain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yielding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#CrackingConcreteLawEC.get_ultimate_strain"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.CrackingConcreteLawEC.get_ultimate_strain" title="Link to this definition">¶</a></dt>
-<dd><p>Return (compressive_limit, 1e6).</p>
-<p>The 1e6 tensile side is intentionally unreachable so that the
-concrete self-pairing in get_balanced_failure_strain() never
-produces the minimum curvature.  chi_ultimate ends up governed
-by the reinforcement-concrete pair instead.</p>
+<dd><p>Return the compressive and tensile strain limits.</p>
+<p>The concrete tensile limit is fixed at <code class="docutils literal notranslate"><span class="pre">1e6</span></code> to ensure it is never the
+governing strain in <code class="docutils literal notranslate"><span class="pre">get_balanced_failure_strain()</span></code>. The
+compressive limit depends on whether the yielding state is requested.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>yielding</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return the strain at peak stress (<code class="docutils literal notranslate"><span class="pre">eps_c1</span></code>) as
+the compressive limit; otherwise return the ultimate compressive
+strain (<code class="docutils literal notranslate"><span class="pre">eps_cu1</span></code>). Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(compressive_limit,</span> <span class="pre">1e6)</span></code> where <code class="docutils literal notranslate"><span class="pre">compressive_limit</span></code> is
+either <code class="docutils literal notranslate"><span class="pre">eps_c1</span></code> or <code class="docutils literal notranslate"><span class="pre">eps_cu1</span></code> depending on <code class="docutils literal notranslate"><span class="pre">yielding</span></code> [1].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -330,125 +365,299 @@ by the reinforcement-concrete pair instead.</p>
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.TensionStiffeningConcreteLawEC">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">TensionStiffeningConcreteLawEC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stresses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_cu1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_c1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#TensionStiffeningConcreteLawEC"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.TensionStiffeningConcreteLawEC" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#core.analysis_core.material_methods.CrackingConcreteLawEC" title="core.analysis_core.material_methods.CrackingConcreteLawEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">CrackingConcreteLawEC</span></code></a></p>
-<p>Author: Elliot Melcer
-A concrete constitutive law that handles tension stiffening</p>
+<p>Concrete constitutive law that incorporates tension stiffening according
+to Nayal and Rasheed <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id54" title="Rim Nayal and Hayder A. Rasheed. Tension Stiffening Model for Concrete Beams Reinforced with Steel and FRP Bars. Journal of Materials in Civil Engineering, 18(6):831–841, 2006. doi:10.1061/(ASCE)0899-1561(2006)18:6(831).">44</a>]</span>.</p>
+<p>Extends <a class="reference internal" href="#core.analysis_core.material_methods.CrackingConcreteLawEC" title="core.analysis_core.material_methods.CrackingConcreteLawEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">CrackingConcreteLawEC</span></code></a> by storing the two characteristic
+tension-stiffening strain values (<code class="docutils literal notranslate"><span class="pre">eps_F_t</span></code> and <code class="docutils literal notranslate"><span class="pre">eps_S_t</span></code>) directly
+on the instance for downstream access.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.material_methods.TensionStiffeningConcreteLawEC.eps_F_t">
+<span class="sig-name descname"><span class="pre">eps_F_t</span></span><a class="headerlink" href="#core.analysis_core.material_methods.TensionStiffeningConcreteLawEC.eps_F_t" title="Link to this definition">¶</a></dt>
+<dd><p>Final tension-stiffening strain (last entry of the strain array) [1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.material_methods.TensionStiffeningConcreteLawEC.eps_S_t">
+<span class="sig-name descname"><span class="pre">eps_S_t</span></span><a class="headerlink" href="#core.analysis_core.material_methods.TensionStiffeningConcreteLawEC.eps_S_t" title="Link to this definition">¶</a></dt>
+<dd><p>Secondary tension-stiffening strain (second-to-last entry of the
+strain array) [1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.create_sls_concrete_EC">
 <span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">create_sls_concrete_EC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Concrete</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">constitutive_law</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Concrete</span></span></span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#create_sls_concrete_EC"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.create_sls_concrete_EC" title="Link to this definition">¶</a></dt>
-<dd><p>Creates an SLS Concrete object with new constitutive law according to Eurocode
-Available constitutive law keywords: NONE_PARABOLIC, FCTM_PARABOLIC, TENSTIFF_PARABOLIC, ELASTIC_ELASTIC
-:param conc: Concrete object or fck value
-:param constitutive_law: constitutive law (by keyword)
-:return:</p>
+<dd><p>Create an SLS <code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> object with a Eurocode constitutive law.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Either a <code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> instance or a characteristic cylinder
+strength <code class="docutils literal notranslate"><span class="pre">fck</span></code> [N/mm²].</p></li>
+<li><p><strong>constitutive_law</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – <p>Keyword selecting the tension/compression law pair. Case- and
+separator-insensitive. Available options:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;NONE_PARABOLIC&quot;</span></code> — no tensile capacity; Sargin compression.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;FCTM_PARABOLIC&quot;</span></code> — linear elastic tension up to <code class="docutils literal notranslate"><span class="pre">fctm</span></code>;
+Sargin compression.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;TENSTIFF_PARABOLIC&quot;</span></code> — linear elastic tension up to <code class="docutils literal notranslate"><span class="pre">fctm</span></code>
+followed by tension stiffening per Naya (2006); Sargin compression.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;ELASTIC_ELASTIC&quot;</span></code> — fully elastic in both tension and
+compression (no cracking or crushing).</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> instance configured for SLS analysis.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">constitutive_law</span></code> does not match any of the available keywords.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.create_uls_concrete_EC">
 <span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">create_uls_concrete_EC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Concrete</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_cc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.85</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Concrete</span></span></span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#create_uls_concrete_EC"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.create_uls_concrete_EC" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Creates a ULS Concrete object with parabola-rectangle constitutive law according to Eurocode
-:param conc: Concrete object or fck value
-:param alpha_cc: alpha_cc
-:param gamma_c: gamma_c
-:return:</p>
+<dd><p>Create a ULS <code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> object with a parabola-rectangle
+constitutive law according to Eurocode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Either a <code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> instance or a characteristic cylinder
+strength <code class="docutils literal notranslate"><span class="pre">fck</span></code> [N/mm²].</p></li>
+<li><p><strong>alpha_cc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Long-term reduction factor for compressive strength per EN 1992-1-1
+cl. 3.1.6. Default is <code class="docutils literal notranslate"><span class="pre">0.85</span></code> [1].</p></li>
+<li><p><strong>gamma_c</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Partial safety factor for concrete. Default is <code class="docutils literal notranslate"><span class="pre">1.5</span></code> [1].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> instance configured for ULS analysis.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.fctm_parabolic_law_EC">
 <span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">fctm_parabolic_law_EC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">concrete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Concrete</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#core.analysis_core.material_methods.CrackingConcreteLawEC" title="core.analysis_core.material_methods.CrackingConcreteLawEC"><span class="pre">CrackingConcreteLawEC</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#fctm_parabolic_law_EC"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.fctm_parabolic_law_EC" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Creates a Non-Linear Constitutive Law with Linear Branch in Tension and Sargin Branch Under Compression
-- Tension: linear elastic (0 → eps_ctm)
-- Compression: Sargin (eps_cu1 → eps_c1)</p>
-<p>Returns a CrackingConcreteLawEC Object</p>
+<dd><p>Build a bilinear–Sargin constitutive law with linear tension and Sargin
+compression according to Eurocode.</p>
+<p>The tension branch is linear elastic from zero to <code class="docutils literal notranslate"><span class="pre">eps_ctm</span></code> (the mean
+cracking strain); above <code class="docutils literal notranslate"><span class="pre">eps_ctm</span></code> the stress drops to zero. The
+compression branch follows the Sargin parabola from <code class="docutils literal notranslate"><span class="pre">eps_cu1</span></code> to
+zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>concrete</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Either a <code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> instance or a characteristic cylinder
+strength <code class="docutils literal notranslate"><span class="pre">fck</span></code> [N/mm²].</p></li>
+<li><p><strong>n_c</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Number of discretization points on the compression branch.
+Default is <code class="docutils literal notranslate"><span class="pre">80</span></code>.</p></li>
+<li><p><strong>n_t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Number of discretization points on the linear tension branch.
+Default is <code class="docutils literal notranslate"><span class="pre">20</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#core.analysis_core.material_methods.CrackingConcreteLawEC" title="core.analysis_core.material_methods.CrackingConcreteLawEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">CrackingConcreteLawEC</span></code></a> instance with the assembled
+strain/stress arrays.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#core.analysis_core.material_methods.CrackingConcreteLawEC" title="core.analysis_core.material_methods.CrackingConcreteLawEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">CrackingConcreteLawEC</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.tenstiff_parabolic_law_EC">
 <span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">tenstiff_parabolic_law_EC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">concrete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Concrete</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#core.analysis_core.material_methods.TensionStiffeningConcreteLawEC" title="core.analysis_core.material_methods.TensionStiffeningConcreteLawEC"><span class="pre">TensionStiffeningConcreteLawEC</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#tenstiff_parabolic_law_EC"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.tenstiff_parabolic_law_EC" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Creates a Non-Linear Constitutive Law</p>
-<blockquote>
-<div><p>Compression: Sargin Branch
-Tension:  Linear Branch until fctm + Tension Stiffening according to Naya(2006)</p>
-</div></blockquote>
-<p>Returns a TensionStiffeningConcreteLawEC Object</p>
+<dd><p>Build a tension-stiffening constitutive law with Sargin compression
+according to Eurocode and Naya (2006).</p>
+<p>The compression branch follows the Sargin parabola. The tension branch
+is linear elastic up to <code class="docutils literal notranslate"><span class="pre">fctm</span></code>, then descends through the Naya (2006)
+tension-stiffening model defined by the fixed parameters
+<code class="docutils literal notranslate"><span class="pre">P_t</span> <span class="pre">=</span> <span class="pre">0.8</span></code>, <code class="docutils literal notranslate"><span class="pre">R_t</span> <span class="pre">=</span> <span class="pre">0.45</span></code>, <code class="docutils literal notranslate"><span class="pre">S_t</span> <span class="pre">=</span> <span class="pre">4</span></code>, <code class="docutils literal notranslate"><span class="pre">F_t</span> <span class="pre">=</span> <span class="pre">10</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>concrete</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Either a <code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code> instance or a characteristic cylinder
+strength <code class="docutils literal notranslate"><span class="pre">fck</span></code> [N/mm²].</p></li>
+<li><p><strong>n_c</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Number of discretization points on the compression branch.
+Default is <code class="docutils literal notranslate"><span class="pre">80</span></code>.</p></li>
+<li><p><strong>n_t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Number of discretization points on the linear tension branch.
+Default is <code class="docutils literal notranslate"><span class="pre">20</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#core.analysis_core.material_methods.TensionStiffeningConcreteLawEC" title="core.analysis_core.material_methods.TensionStiffeningConcreteLawEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">TensionStiffeningConcreteLawEC</span></code></a> instance with the assembled
+strain/stress arrays.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#core.analysis_core.material_methods.TensionStiffeningConcreteLawEC" title="core.analysis_core.material_methods.TensionStiffeningConcreteLawEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">TensionStiffeningConcreteLawEC</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.get_cube_EC">
 <span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">get_cube_EC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cylinder_strength</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#get_cube_EC"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.get_cube_EC" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Return cube strength (MPa) from EN 206 concrete class table.</p>
+<dd><p>Return the cube compressive strength for a given cylinder strength per EN 206.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cylinder_strength</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Characteristic cylinder compressive strength <code class="docutils literal notranslate"><span class="pre">fck</span></code> [N/mm²].
+Must be a key in the EN 206 concrete class table.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Corresponding cube compressive strength <code class="docutils literal notranslate"><span class="pre">fck,cube</span></code> [N/mm²].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">cylinder_strength</span></code> is not listed in the EN 206 table.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.get_cfrp_reinforcement_from_registry">
 <span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">get_cfrp_reinforcement_from_registry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">materials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prestress_percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#get_cfrp_reinforcement_from_registry"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.get_cfrp_reinforcement_from_registry" title="Link to this definition">¶</a></dt>
-<dd><p>Create a CFRP-Reinforcement object from materials registry.</p>
-<dl>
-<dt>Args:</dt><dd><p>mat_id: Material identifier (e.g., „solidian GRID Q142/142-CCE-25“)
-materials: Materials registry dictionary
-prestress_percent: Prestress level as percentage (0-100)
-gamma_s: Partial safety factor for reinforcement</p>
+<dd><p>Create a CFRP reinforcement object from a materials registry.</p>
+<p>CFRP is treated as a brittle-elastic material (no yielding plateau);
+the constitutive law is therefore a linear <code class="xref py py-class docutils literal notranslate"><span class="pre">Elastic</span></code> law truncated
+at the ultimate strain <code class="docutils literal notranslate"><span class="pre">epsuk</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Material identifier key in the registry
+(e.g. <code class="docutils literal notranslate"><span class="pre">&quot;solidian</span> <span class="pre">GRID</span> <span class="pre">Q142/142-CCE-25&quot;</span></code>).</p></li>
+<li><p><strong>materials</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Materials registry dictionary, typically loaded from a CSV file.
+Each entry must contain the keys <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">f_yk</span></code>, <code class="docutils literal notranslate"><span class="pre">f_tk</span></code>,
+<code class="docutils literal notranslate"><span class="pre">E_tex</span></code>, <code class="docutils literal notranslate"><span class="pre">eps_u</span></code>, and <code class="docutils literal notranslate"><span class="pre">weight</span></code>.</p></li>
+<li><p><strong>prestress_percent</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Prestress level as a percentage of the ultimate strain (0–100).
+<code class="docutils literal notranslate"><span class="pre">0.0</span></code> means no prestress; <code class="docutils literal notranslate"><span class="pre">50.0</span></code> means prestressed to 50 % of
+<code class="docutils literal notranslate"><span class="pre">epsuk</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">0.0</span></code> [%].</p></li>
+<li><p><strong>gamma_s</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Partial safety factor for reinforcement. Default is <code class="docutils literal notranslate"><span class="pre">1.3</span></code> [1].</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>Reinforcement object</p>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Reinforcement</span></code> instance configured with the CFRP elastic
+constitutive law and the computed initial strain.</p>
 </dd>
-<dt>Raises:</dt><dd><p>KeyError: If mat_id not found in registry
-ValueError: If material type is not ‚reinforcement‘</p>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Reinforcement</span></code></p>
 </dd>
-<dt>Example:</dt><dd><p>materials = load_materials_registry(„materials.csv“)
-rebar = get_reinforcement_from_registry(</p>
-<blockquote>
-<div><p>„solidian GRID Q142/142-CCE-25“,
-materials,
-prestress_percent=50.0</p>
-</div></blockquote>
-<p>)</p>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">mat_id</span></code> is not found in <code class="docutils literal notranslate"><span class="pre">materials</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the material type is not <code class="docutils literal notranslate"><span class="pre">&quot;reinforcement&quot;</span></code>, or if any required
+    property (<code class="docutils literal notranslate"><span class="pre">f_yk</span></code>, <code class="docutils literal notranslate"><span class="pre">f_tk</span></code>, <code class="docutils literal notranslate"><span class="pre">E_tex</span></code>, <code class="docutils literal notranslate"><span class="pre">eps_u</span></code>, <code class="docutils literal notranslate"><span class="pre">weight</span></code>)
+    is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">materials</span> <span class="o">=</span> <span class="n">load_materials_registry</span><span class="p">(</span><span class="s2">&quot;materials.csv&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rebar</span> <span class="o">=</span> <span class="n">get_cfrp_reinforcement_from_registry</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;solidian GRID Q142/142-CCE-25&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">materials</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">prestress_percent</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.get_floor_material_from_registry">
 <span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">get_floor_material_from_registry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">materials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#get_floor_material_from_registry"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.get_floor_material_from_registry" title="Link to this definition">¶</a></dt>
-<dd><p>Create a FloorMaterial object from materials registry.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>mat_id: Material identifier
-materials: Materials registry dictionary</p>
+<dd><p>Create a floor material object from a materials registry.</p>
+<p>Dispatches to <code class="xref py py-class docutils literal notranslate"><span class="pre">InfillMaterial</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ScreedMaterial</span></code>, or
+<code class="xref py py-class docutils literal notranslate"><span class="pre">InsulationMaterial</span></code> depending on the <code class="docutils literal notranslate"><span class="pre">type</span></code> field in the
+registry entry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Material identifier key in the registry.</p></li>
+<li><p><strong>materials</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Materials registry dictionary. Each entry must contain <code class="docutils literal notranslate"><span class="pre">type</span></code>
+and <code class="docutils literal notranslate"><span class="pre">weight</span></code>; insulation entries additionally require <code class="docutils literal notranslate"><span class="pre">Edyn</span></code>.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>FloorMaterial object</p>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>The corresponding floor material instance.</p>
 </dd>
-<dt>Raises:</dt><dd><p>KeyError: If mat_id not found in registry
-ValueError: If material type is not infill/insulation/screed</p>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">InfillMaterial</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">ScreedMaterial</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">InsulationMaterial</span></code></p>
 </dd>
-<dt>Example:</dt><dd><p>materials = load_materials_registry(„materials.csv“)
-infill = get_floor_material_from_registry(„generic_infill“, materials)</p>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">mat_id</span></code> is not found in <code class="docutils literal notranslate"><span class="pre">materials</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the material type is not one of <code class="docutils literal notranslate"><span class="pre">&quot;infill&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;insulation&quot;</span></code>,
+    or <code class="docutils literal notranslate"><span class="pre">&quot;screed&quot;</span></code>; or if a required property is missing.</p></li>
+</ul>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">materials</span> <span class="o">=</span> <span class="n">load_materials_registry</span><span class="p">(</span><span class="s2">&quot;materials.csv&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">infill</span> <span class="o">=</span> <span class="n">get_floor_material_from_registry</span><span class="p">(</span><span class="s2">&quot;generic_infill&quot;</span><span class="p">,</span> <span class="n">materials</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.material_methods.get_material_properties">
 <span class="sig-prename descclassname"><span class="pre">core.analysis_core.material_methods.</span></span><span class="sig-name descname"><span class="pre">get_material_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">materials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/material_methods.html#get_material_properties"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.material_methods.get_material_properties" title="Link to this definition">¶</a></dt>
-<dd><p>Get raw material properties dictionary from registry.</p>
-<p>Useful for accessing GWP, cost, and other properties not needed
-for structural analysis but needed for objective function.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>mat_id: Material identifier
-materials: Materials registry dictionary</p>
+<dd><p>Return raw material properties from the registry.</p>
+<p>Useful for accessing non-structural properties (e.g. global warming
+potential, cost) that are needed by the objective function but not by
+the structural analysis routines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mat_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Material identifier key in the registry.</p></li>
+<li><p><strong>materials</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Materials registry dictionary.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>Dictionary with material properties</p>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Raw properties dictionary for <code class="docutils literal notranslate"><span class="pre">mat_id</span></code> as stored in the registry.
+Typical keys include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;type&quot;</span></code> — material category string.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;gwp&quot;</span></code> — global warming potential [kg CO₂-eq].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cost&quot;</span></code> — unit cost [TODO: Einheit prüfen].</p></li>
+</ul>
+</p>
 </dd>
-<dt>Raises:</dt><dd><p>KeyError: If mat_id not found in registry</p>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
 </dd>
-<dt>Example:</dt><dd><p>mat_props = get_material_properties(„solidian GRID Q142/142-CCE-25“, materials)
-gwp = mat_props[„gwp“]  # kg CO2-eq
-cost = mat_props[„cost“]  # €/unit</p>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">mat_id</span></code> is not found in <code class="docutils literal notranslate"><span class="pre">materials</span></code>.</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mat_props</span> <span class="o">=</span> <span class="n">get_material_properties</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;solidian GRID Q142/142-CCE-25&quot;</span><span class="p">,</span> <span class="n">materials</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gwp</span> <span class="o">=</span> <span class="n">mat_props</span><span class="p">[</span><span class="s2">&quot;gwp&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span> <span class="o">=</span> <span class="n">mat_props</span><span class="p">[</span><span class="s2">&quot;cost&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -463,7 +672,7 @@ cost = mat_props[„cost“]  # €/unit</p>
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">core.analysis_core.section_methods</div>
+                <div class="title">section_methods.py</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -474,7 +683,7 @@ cost = mat_props[„cost“]  # €/unit</p>
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">core.analysis_core.acoustic_methods</div>
+                <div class="title">acoustic_methods.py</div>
                 
               </div>
             </a>

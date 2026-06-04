@@ -1,5 +1,5 @@
-core.analysis\_core.checks.structural\_checks
-=============================================
+structural\_checks.py
+=====================
 
 .. automodule:: core.analysis_core.checks.structural_checks
    :members:

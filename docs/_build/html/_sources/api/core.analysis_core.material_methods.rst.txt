@@ -1,5 +1,5 @@
-core.analysis\_core.material\_methods
-=====================================
+material\_methods.py
+====================
 
 .. automodule:: core.analysis_core.material_methods
    :members:

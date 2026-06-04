@@ -1,5 +1,5 @@
-core.ioh\_core.algorithms
-=========================
+algorithms.py
+=============
 
 .. automodule:: core.ioh_core.algorithms
    :members:

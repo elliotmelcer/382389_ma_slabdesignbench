@@ -1,5 +1,5 @@
-core.ioh\_core.problem\_builder
-===============================
+problem\_builder.py
+===================
 
 .. automodule:: core.ioh_core.problem_builder
    :members:

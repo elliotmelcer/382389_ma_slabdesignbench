@@ -1,5 +1,5 @@
-core.analysis\_core.acoustic\_methods
-=====================================
+acoustic\_methods.py
+====================
 
 .. automodule:: core.analysis_core.acoustic_methods
    :members:

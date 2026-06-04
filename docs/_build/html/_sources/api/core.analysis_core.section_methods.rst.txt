@@ -1,5 +1,5 @@
-core.analysis\_core.section\_methods
-====================================
+section\_methods.py
+===================
 
 .. automodule:: core.analysis_core.section_methods
    :members:

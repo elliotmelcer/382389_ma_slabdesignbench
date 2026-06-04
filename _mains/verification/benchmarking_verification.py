@@ -25,7 +25,7 @@ the validation chapter of Melcer [2026] need to be placed in the hp_slab-package
 # Settings — edit the mode for the run (don't forget the correct .csv-files)
 # ==============================================================================================
 
-MODE = "multi_instance"  # Options: "single_alg", "multi_instance", "multi_run" or "multi_alg"
+MODE = "multi_alg"  # Options: "single_alg", "multi_instance", "multi_run" or "multi_alg"
 
 # ==============================================================================================
 # Runners

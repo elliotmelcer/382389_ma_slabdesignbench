@@ -1,5 +1,5 @@
-core.visualization\_core.visualization
-======================================
+visualization.py
+================
 
 .. automodule:: core.visualization_core.visualization
    :members:

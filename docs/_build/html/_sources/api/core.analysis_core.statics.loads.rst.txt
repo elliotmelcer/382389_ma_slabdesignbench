@@ -1,5 +1,5 @@
-core.analysis\_core.statics.loads
-=================================
+loads.py
+========
 
 .. automodule:: core.analysis_core.statics.loads
    :members:

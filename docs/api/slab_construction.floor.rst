@@ -1,5 +1,5 @@
-slab\_construction.floor
-========================
+floor.py
+========
 
 .. automodule:: slab_construction.floor
    :members:
