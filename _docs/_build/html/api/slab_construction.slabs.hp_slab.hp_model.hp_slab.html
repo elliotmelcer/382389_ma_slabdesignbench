@@ -298,57 +298,128 @@
         <article role="main" id="furo-main-content">
           <section id="module-slab_construction.slabs.hp_slab.hp_model.hp_slab">
 <span id="hp-slab-py"></span><h1>hp_slab.py<a class="headerlink" href="#module-slab_construction.slabs.hp_slab.hp_model.hp_slab" title="Link to this heading">¶</a></h1>
+<p>HP-slab class combining an HP shell with infill material.</p>
+<p>Extends <code class="xref py py-class docutils literal notranslate"><span class="pre">OneWaySlab</span></code> with HP-shell-specific load and volume
+calculations.</p>
+<p>Author: Elliot Melcer</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HPSlab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hp_shell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell" title="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell"><span class="pre">HPShell</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">infill_material</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.floor.html#slab_construction.floor.InfillMaterial" title="slab_construction.floor.InfillMaterial"><span class="pre">InfillMaterial</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_slab.html#HPSlab"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="slab_construction.slabs.one_way_slab.html#slab_construction.slabs.one_way_slab.OneWaySlab" title="slab_construction.slabs.one_way_slab.OneWaySlab"><code class="xref py py-class docutils literal notranslate"><span class="pre">OneWaySlab</span></code></a></p>
+<p>Hyperbolic paraboloid slab consisting of an HP shell and infill material.</p>
+<p>Extends <code class="xref py py-class docutils literal notranslate"><span class="pre">OneWaySlab</span></code> and exposes the span L and width B from
+the underlying <code class="xref py py-class docutils literal notranslate"><span class="pre">HPShell</span></code> geometry.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.hp_shell">
+<span class="sig-name descname"><span class="pre">hp_shell</span></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.hp_shell" title="Link to this definition">¶</a></dt>
+<dd><p>HP shell object providing geometry and section methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">HPShell</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.infill_material">
+<span class="sig-name descname"><span class="pre">infill_material</span></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.infill_material" title="Link to this definition">¶</a></dt>
+<dd><p>Infill material used to level the top surface of the HP shell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">InfillMaterial</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.name" title="Link to this definition">¶</a></dt>
+<dd><p>Optional label for the slab instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.L">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">L</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.L" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Span length of the HP shell [mm].</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.B">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">B</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.B" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Width of the HP shell [mm].</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.minimum_infill_volume">
-<span class="sig-name descname"><span class="pre">minimum_infill_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_slab.html#HPSlab.minimum_infill_volume"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.minimum_infill_volume" title="Link to this definition">¶</a></dt>
-<dd><p>Adapted from: Jamila Loutfi
-Calculates the minimum infill volume to flatten out the top of a hp-shell</p>
-<p>Note: Volume in mm³</p>
+<span class="sig-name descname"><span class="pre">minimum_infill_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_slab.html#HPSlab.minimum_infill_volume"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.minimum_infill_volume" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the minimum infill volume required fill the void between the
+flat reference plane and the curved top surface of the shell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Minimum infill volume [mm³].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Adopted from: Jamila Loutfi.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.section_at">
 <span class="sig-name descname"><span class="pre">section_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GenericSection</span></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_slab.html#HPSlab.section_at"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.section_at" title="Link to this definition">¶</a></dt>
-<dd><p>This method returns the section of a one-way-slab at x.
-Note: Input domain must be normalized to the following model:
-# x = 0 at first support, x = 1 at second support, etc.
-#
-#   <a href="#id1"><span class="problematic" id="id2">|-&gt; x
-#   0      0.5      1      1.5      2
-#
-#   ====================================|</span></a>…
-#  /_            /_            /_#
-:param x:
-:return:</p>
+<dd><p>Return the structural cross-section at a normalized position.</p>
+<p>Delegates directly to <code class="xref py py-meth docutils literal notranslate"><span class="pre">HPShell.section_at()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Normalized longitudinal coordinate, x ∈ [0, 1] [-].</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – Label for the section. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cross-section at position _x · L.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.self_load">
 <span class="sig-name descname"><span class="pre">self_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_slab.html#HPSlab.self_load"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.self_load" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Returns the self-weight load of the concrete shell in [kN/m²]
-Note: self-weight of CFRP-reinforcement is negligible</p>
+<dd><p>Compute the self-weight area load of the concrete shell.</p>
+<p>The self-weight of the CFRP reinforcement is negligible and not
+included.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self-weight load of the concrete shell [kN/m²].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.infill_load">
 <span class="sig-name descname"><span class="pre">infill_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_slab.html#HPSlab.infill_load"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.infill_load" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Returns the load due to minimum infill on the slab in [kN/m²]</p>
+<dd><p>Compute the area load due to minimum infill on the slab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Infill area load [kN/m²].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

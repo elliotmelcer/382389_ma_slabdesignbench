@@ -290,7 +290,16 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für slab_construction.slabs.hp_slab.hp_model.hp_shell</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">HP-shell structural section class.</span>
+
+<span class="sd">Combines an :class:`HPGeometry` with concrete and reinforcement material</span>
+<span class="sd">objects to build position-dependent :class:`GenericSection` instances</span>
+<span class="sd">for moment-curvature and strength calculations.</span>
+
+<span class="sd">Author: Elliot Melcer (unless stated otherwise)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">pairwise</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
@@ -308,6 +317,26 @@
 <div class="viewcode-block" id="HPShell">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HPShell</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hyperbolic paraboloid shell combining geometry and material properties.</span>
+
+<span class="sd">    Builds :class:`~structuralcodes.sections.GenericSection` objects at</span>
+<span class="sd">    arbitrary longitudinal positions for use in section analysis routines.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hp_geometry : HPGeometry</span>
+<span class="sd">        HP-shell geometry object.</span>
+<span class="sd">    concrete : Concrete</span>
+<span class="sd">        Concrete material object.</span>
+<span class="sd">    reinforcement : Reinforcement</span>
+<span class="sd">        Reinforcement material object.</span>
+<span class="sd">    reinf_area : float</span>
+<span class="sd">        Cross-sectional area of a single reinforcement bar [mm²].</span>
+<span class="sd">    name : str or None</span>
+<span class="sd">        Optional label for the shell instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">hp_geometry</span><span class="p">:</span> <span class="n">HPGeometry</span><span class="p">,</span>
@@ -317,10 +346,18 @@
             <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Represents a hyperbolic paraboloid (hp) shell.</span>
-
-<span class="sd">        Note: reinf_area in [mm²]</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hp_geometry : HPGeometry</span>
+<span class="sd">            HP-shell geometry object.</span>
+<span class="sd">        concrete : Concrete</span>
+<span class="sd">            Concrete material object.</span>
+<span class="sd">        reinforcement : Reinforcement</span>
+<span class="sd">            Reinforcement material object (applied to all tendons).</span>
+<span class="sd">        reinf_area : float</span>
+<span class="sd">            Cross-sectional area of a single reinforcement bar [mm²].</span>
+<span class="sd">        name : str or None, optional</span>
+<span class="sd">            Optional label for the shell instance. Default is ``None``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hp_geometry</span> <span class="o">=</span> <span class="n">hp_geometry</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">concrete</span> <span class="o">=</span> <span class="n">concrete</span>
@@ -332,12 +369,38 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.section_at">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">section_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericSection</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns the section from a hp-shell at x * L with given material properties and reinforcement area</span>
+<span class="sd">        Build the structural cross-section at a normalized longitudinal position.</span>
 
-<span class="sd">        Note:</span>
-<span class="sd">            Reinforcement Area in mm²</span>
-<span class="sd">            x ∈ [0 ; 1] with 0.0 at first support, 1.0 at second support</span>
+<span class="sd">        The concrete cross-section polygon is taken from</span>
+<span class="sd">        :meth:`HPGeometry.polygon_section_at` and reinforcement bars are</span>
+<span class="sd">        placed at the tendon coordinates from</span>
+<span class="sd">        :meth:`HPGeometry.tendon_coords_at_x`. All 2 · nt tendons are</span>
+<span class="sd">        given equal area :attr:`reinf_area`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Normalized longitudinal coordinate, x ∈ [0, 1], with 0.0 at</span>
+<span class="sd">            the first support and 1.0 at the second support [-].</span>
+<span class="sd">        name : str or None, optional</span>
+<span class="sd">            Label for the returned section. Falls back to :attr:`self.name`</span>
+<span class="sd">            if ``None``. Default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        GenericSection</span>
+<span class="sd">            Section object at position x · L.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``x`` is outside [0.0, 1.0].</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Internally, x is shifted to the centred coordinate</span>
+<span class="sd">        x_internal = x − 0.5 ∈ [−0.5, 0.5] before passing to the</span>
+<span class="sd">        geometry methods.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># --- Input validation ---</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
@@ -379,8 +442,17 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.total_reinforcement_volume">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total_reinforcement_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns the total reinforcement volume of a hp-shell in mm³</span>
+<span class="sd">        Compute the total reinforcement volume of the HP shell.</span>
+
+<span class="sd">        Each tendon is modeled as a straight line segment with constant</span>
+<span class="sd">        cross-sectional area :attr:`reinf_area`; the volume is the product</span>
+<span class="sd">        of Euclidean tendon length and bar area, summed over all 2 · nt</span>
+<span class="sd">        tendons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Total reinforcement volume [mm³].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">total_tendon_length</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">),</span> <span class="p">(</span><span class="n">xe</span><span class="p">,</span> <span class="n">ye</span><span class="p">,</span> <span class="n">ze</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">tendons</span><span class="p">():</span>
@@ -394,8 +466,12 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.net_concrete_volume">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">net_concrete_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author Elliot Melcer</span>
-<span class="sd">        :return: Net concrete volume (total volume without reinforcement volume) in mm³</span>
+<span class="sd">        Compute the net concrete volume (gross volume minus reinforcement volume).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Net concrete volume [mm³].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">net_concrete_volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_reinforcement_volume</span><span class="p">()</span>
 
@@ -406,8 +482,14 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.d_p">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">d_p</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns the diameter of the reinforcement section in mm.</span>
+<span class="sd">        Compute the equivalent circular diameter of the reinforcement bar.</span>
+
+<span class="sd">        Derived from :attr:`reinf_area` assuming a circular cross-section:</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Equivalent bar diameter d_p [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d_reinf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">reinf_area</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 
@@ -418,9 +500,18 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.c_1_clear_concrete_cover">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">c_1_clear_concrete_cover</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns available clear concrete cover along the midline from the</span>
-<span class="sd">        outermost reinforcement to the edge at the HP-Shell Support</span>
+<span class="sd">        Compute the available clear concrete cover along the HP-shell midline</span>
+<span class="sd">        at the support cross-section.</span>
+<span class="sd">        Adopted from Loutfi :cite:`loutfi_2023`</span>
+
+<span class="sd">        The cover is measured as the arc length from the shell edge (y = −B/2)</span>
+<span class="sd">        to the outermost tendon position, minus the tendon half-diameter.</span>
+<span class="sd">        Returns ``0.0`` if the tendon overlaps the edge.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Clear concrete cover c_1 along the midline [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">B</span>
         <span class="n">d_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_p</span><span class="p">()</span>
@@ -445,8 +536,19 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.s_min_clear_reinf_spacing">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">s_min_clear_reinf_spacing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns the minimum available clear spacing between reinforcements along the hp_shell midline</span>
+<span class="sd">        Compute the minimum clear spacing between adjacent reinforcement bars</span>
+<span class="sd">        along the HP-shell midline.</span>
+<span class="sd">        Adopted from Loutfi :cite:`loutfi_2023`</span>
+
+<span class="sd">        Arc lengths are computed for all 2 · nt tendon positions (both the</span>
+<span class="sd">        regular and mirrored group). The clear spacing is the minimum</span>
+<span class="sd">        pairwise arc-length difference minus the bar diameter. Returns ``0.0``</span>
+<span class="sd">        if any two bars overlap.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Minimum clear reinforcement spacing s_min along the midline [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_p</span><span class="p">()</span>
         <span class="n">y_starts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">gt_y</span><span class="p">()</span>
@@ -471,13 +573,25 @@
 
 <div class="viewcode-block" id="HPShell.arc_length">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_shell.html#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.arc_length">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">arc_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">arc_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns the arclength from the neutral z-axis to the given y-coordinate.</span>
-<span class="sd">        Note: s_y is negative for y &lt; 0 and positive for y &gt; 0</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Compute the arc length from the neutral axis (y = 0) to a given</span>
+<span class="sd">        transverse coordinate y along the HP mid-surface parabola.</span>
+<span class="sd">        Adopted from Loutfi :cite:`loutfi_2023`</span>
 
+<span class="sd">        The sign of the returned value follows the sign of y (negative for</span>
+<span class="sd">        y &lt; 0, positive for y &gt; 0).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        y : float</span>
+<span class="sd">            Transverse coordinate [mm].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Signed arc length s(y) along the parabolic midline [mm].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">param_b</span><span class="p">()</span>
 
         <span class="n">s_y</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">y</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="mi">4</span> <span class="o">*</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">asinh</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>

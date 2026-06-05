@@ -290,7 +290,15 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für slab_construction.slabs.hp_slab.hp_model.hp_slab</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">HP-slab class combining an HP shell with infill material.</span>
+
+<span class="sd">Extends :class:`OneWaySlab` with HP-shell-specific load and volume</span>
+<span class="sd">calculations.</span>
+
+<span class="sd">Author: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.sections</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericSection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">core.unit_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">mm2_to_m2</span><span class="p">,</span> <span class="n">mm3_to_m3</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.floor</span><span class="w"> </span><span class="kn">import</span> <span class="n">InfillMaterial</span>
@@ -301,6 +309,22 @@
 <div class="viewcode-block" id="HPSlab">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_slab.html#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HPSlab</span><span class="p">(</span><span class="n">OneWaySlab</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hyperbolic paraboloid slab consisting of an HP shell and infill material.</span>
+
+<span class="sd">    Extends :class:`OneWaySlab` and exposes the span L and width B from</span>
+<span class="sd">    the underlying :class:`HPShell` geometry.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hp_shell : HPShell</span>
+<span class="sd">        HP shell object providing geometry and section methods.</span>
+<span class="sd">    infill_material : InfillMaterial</span>
+<span class="sd">        Infill material used to level the top surface of the HP shell.</span>
+<span class="sd">    name : str or None</span>
+<span class="sd">        Optional label for the slab instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">hp_shell</span><span class="p">:</span> <span class="n">HPShell</span><span class="p">,</span>
@@ -308,30 +332,44 @@
             <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Represents a hyperbolic paraboloid (hp) slab.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hp_shell : HPShell</span>
+<span class="sd">            HP shell object.</span>
+<span class="sd">        infill_material : InfillMaterial</span>
+<span class="sd">            Infill material for levelling the shell&#39;s top surface.</span>
+<span class="sd">        name : str or None, optional</span>
+<span class="sd">            Optional label. Default is ``None``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">hp_shell</span> <span class="o">=</span> <span class="n">hp_shell</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">infill_material</span> <span class="o">=</span> <span class="n">infill_material</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">L</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Span length of the HP shell [mm].&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_shell</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">L</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">B</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Width of the HP shell [mm].&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_shell</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">B</span>
 
 <div class="viewcode-block" id="HPSlab.minimum_infill_volume">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_slab.html#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.minimum_infill_volume">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">minimum_infill_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minimum_infill_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Calculates the minimum infill volume to flatten out the top of a hp-shell</span>
+<span class="sd">        Compute the minimum infill volume required fill the void between the</span>
+<span class="sd">        flat reference plane and the curved top surface of the shell.</span>
 
-<span class="sd">        Note: Volume in mm³</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Minimum infill volume [mm³].</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Adopted from: Jamila Loutfi.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mid_surface_volume</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_shell</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">Hy</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_shell</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">Hx</span><span class="p">))</span>
 
@@ -343,6 +381,23 @@
 <div class="viewcode-block" id="HPSlab.section_at">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_slab.html#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.section_at">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">section_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericSection</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the structural cross-section at a normalized position.</span>
+
+<span class="sd">        Delegates directly to :meth:`HPShell.section_at`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        _x : float</span>
+<span class="sd">            Normalized longitudinal coordinate, x ∈ [0, 1] [-].</span>
+<span class="sd">        name : str or None, optional</span>
+<span class="sd">            Label for the section. Default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        GenericSection</span>
+<span class="sd">            Cross-section at position _x · L.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_shell</span><span class="o">.</span><span class="n">section_at</span><span class="p">(</span><span class="n">_x</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
 
@@ -350,9 +405,15 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_slab.html#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.self_load">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">self_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns the self-weight load of the concrete shell in [kN/m²]</span>
-<span class="sd">        Note: self-weight of CFRP-reinforcement is negligible</span>
+<span class="sd">        Compute the self-weight area load of the concrete shell.</span>
+
+<span class="sd">        The self-weight of the CFRP reinforcement is negligible and not</span>
+<span class="sd">        included.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Self-weight load of the concrete shell [kN/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">concrete_volume_m3</span> <span class="o">=</span> <span class="n">mm3_to_m3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hp_shell</span><span class="o">.</span><span class="n">hp_geometry</span><span class="o">.</span><span class="n">volume</span><span class="p">())</span>  <span class="c1"># [m³]</span>
         <span class="n">gamma_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hp_shell</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">density</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">/</span> <span class="mi">1000</span>                <span class="c1"># [kN/m³]</span>
@@ -365,8 +426,12 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_slab.html#slab_construction.slabs.hp_slab.hp_model.hp_slab.HPSlab.infill_load">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">infill_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns the load due to minimum infill on the slab in [kN/m²]</span>
+<span class="sd">        Compute the area load due to minimum infill on the slab.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Infill area load [kN/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">infill_volume_m3</span> <span class="o">=</span> <span class="n">mm3_to_m3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minimum_infill_volume</span><span class="p">())</span>  <span class="c1"># [m³]</span>
         <span class="n">gamma_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">infill_material</span><span class="o">.</span><span class="n">density</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">/</span> <span class="mi">1000</span>          <span class="c1"># [kN/m³]</span>
@@ -374,7 +439,6 @@
 
         <span class="k">return</span> <span class="n">infill_volume_m3</span> <span class="o">*</span> <span class="n">gamma_c</span> <span class="o">/</span> <span class="n">net_area</span>                <span class="c1"># [kN/m²]</span></div>
 </div>
-
 
 </pre></div>
         </article>

@@ -298,64 +298,212 @@
         <article role="main" id="furo-main-content">
           <section id="module-slab_construction.slabs.hp_slab.hp_model.hp_shell">
 <span id="hp-shell-py"></span><h1>hp_shell.py<a class="headerlink" href="#module-slab_construction.slabs.hp_slab.hp_model.hp_shell" title="Link to this heading">¶</a></h1>
+<p>HP-shell structural section class.</p>
+<p>Combines an <code class="xref py py-class docutils literal notranslate"><span class="pre">HPGeometry</span></code> with concrete and reinforcement material
+objects to build position-dependent <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code> instances
+for moment-curvature and strength calculations.</p>
+<p>Author: Elliot Melcer (unless stated otherwise)</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">HPShell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hp_geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry" title="slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry"><span class="pre">HPGeometry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">concrete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Concrete</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reinforcement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Reinforcement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reinf_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.section_at">
-<span class="sig-name descname"><span class="pre">section_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GenericSection</span></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell.section_at"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.section_at" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Returns the section from a hp-shell at x * L with given material properties and reinforcement area</p>
-<dl class="simple">
-<dt>Note:</dt><dd><p>Reinforcement Area in mm²
-x ∈ [0 ; 1] with 0.0 at first support, 1.0 at second support</p>
+<p>Hyperbolic paraboloid shell combining geometry and material properties.</p>
+<p>Builds <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code> objects at
+arbitrary longitudinal positions for use in section analysis routines.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.hp_geometry">
+<span class="sig-name descname"><span class="pre">hp_geometry</span></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.hp_geometry" title="Link to this definition">¶</a></dt>
+<dd><p>HP-shell geometry object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">HPGeometry</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.concrete">
+<span class="sig-name descname"><span class="pre">concrete</span></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.concrete" title="Link to this definition">¶</a></dt>
+<dd><p>Concrete material object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Concrete</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinforcement">
+<span class="sig-name descname"><span class="pre">reinforcement</span></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinforcement" title="Link to this definition">¶</a></dt>
+<dd><p>Reinforcement material object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Reinforcement</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinf_area">
+<span class="sig-name descname"><span class="pre">reinf_area</span></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinf_area" title="Link to this definition">¶</a></dt>
+<dd><p>Cross-sectional area of a single reinforcement bar [mm²].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.name" title="Link to this definition">¶</a></dt>
+<dd><p>Optional label for the shell instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.section_at">
+<span class="sig-name descname"><span class="pre">section_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GenericSection</span></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell.section_at"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.section_at" title="Link to this definition">¶</a></dt>
+<dd><p>Build the structural cross-section at a normalized longitudinal position.</p>
+<p>The concrete cross-section polygon is taken from
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">HPGeometry.polygon_section_at()</span></code> and reinforcement bars are
+placed at the tendon coordinates from
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">HPGeometry.tendon_coords_at_x()</span></code>. All 2 · nt tendons are
+given equal area <a class="reference internal" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinf_area" title="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinf_area"><code class="xref py py-attr docutils literal notranslate"><span class="pre">reinf_area</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Normalized longitudinal coordinate, x ∈ [0, 1], with 0.0 at
+the first support and 1.0 at the second support [-].</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – Label for the returned section. Falls back to <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.name</span></code>
+if <code class="docutils literal notranslate"><span class="pre">None</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Section object at position x · L.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">x</span></code> is outside [0.0, 1.0].</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Internally, x is shifted to the centred coordinate
+x_internal = x − 0.5 ∈ [−0.5, 0.5] before passing to the
+geometry methods.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.total_reinforcement_volume">
 <span class="sig-name descname"><span class="pre">total_reinforcement_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell.total_reinforcement_volume"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.total_reinforcement_volume" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Returns the total reinforcement volume of a hp-shell in mm³</p>
+<dd><p>Compute the total reinforcement volume of the HP shell.</p>
+<p>Each tendon is modeled as a straight line segment with constant
+cross-sectional area <a class="reference internal" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinf_area" title="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinf_area"><code class="xref py py-attr docutils literal notranslate"><span class="pre">reinf_area</span></code></a>; the volume is the product
+of Euclidean tendon length and bar area, summed over all 2 · nt
+tendons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Total reinforcement volume [mm³].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.net_concrete_volume">
 <span class="sig-name descname"><span class="pre">net_concrete_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell.net_concrete_volume"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.net_concrete_volume" title="Link to this definition">¶</a></dt>
-<dd><p>Author Elliot Melcer
-:return: Net concrete volume (total volume without reinforcement volume) in mm³</p>
+<dd><p>Compute the net concrete volume (gross volume minus reinforcement volume).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Net concrete volume [mm³].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.d_p">
 <span class="sig-name descname"><span class="pre">d_p</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell.d_p"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.d_p" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Returns the diameter of the reinforcement section in mm.</p>
+<dd><p>Compute the equivalent circular diameter of the reinforcement bar.</p>
+<p>Derived from <a class="reference internal" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinf_area" title="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.reinf_area"><code class="xref py py-attr docutils literal notranslate"><span class="pre">reinf_area</span></code></a> assuming a circular cross-section:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Equivalent bar diameter d_p [mm].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.c_1_clear_concrete_cover">
 <span class="sig-name descname"><span class="pre">c_1_clear_concrete_cover</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell.c_1_clear_concrete_cover"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.c_1_clear_concrete_cover" title="Link to this definition">¶</a></dt>
-<dd><p>Adapted from: Jamila Loutfi
-Returns available clear concrete cover along the midline from the
-outermost reinforcement to the edge at the HP-Shell Support</p>
+<dd><p>Compute the available clear concrete cover along the HP-shell midline
+at the support cross-section.
+Adopted from Loutfi <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id48" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<p>The cover is measured as the arc length from the shell edge (y = −B/2)
+to the outermost tendon position, minus the tendon half-diameter.
+Returns <code class="docutils literal notranslate"><span class="pre">0.0</span></code> if the tendon overlaps the edge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Clear concrete cover c_1 along the midline [mm].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.s_min_clear_reinf_spacing">
 <span class="sig-name descname"><span class="pre">s_min_clear_reinf_spacing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell.s_min_clear_reinf_spacing"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.s_min_clear_reinf_spacing" title="Link to this definition">¶</a></dt>
-<dd><p>Adapted from: Jamila Loutfi
-Returns the minimum available clear spacing between reinforcements along the hp_shell midline</p>
+<dd><p>Compute the minimum clear spacing between adjacent reinforcement bars
+along the HP-shell midline.
+Adopted from Loutfi <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../references.html#id48" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<p>Arc lengths are computed for all 2 · nt tendon positions (both the
+regular and mirrored group). The clear spacing is the minimum
+pairwise arc-length difference minus the bar diameter. Returns <code class="docutils literal notranslate"><span class="pre">0.0</span></code>
+if any two bars overlap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Minimum clear reinforcement spacing s_min along the midline [mm].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.arc_length">
 <span class="sig-name descname"><span class="pre">arc_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_shell.html#HPShell.arc_length"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_shell.HPShell.arc_length" title="Link to this definition">¶</a></dt>
-<dd><p>Adapted from: Jamila Loutfi
-Returns the arclength from the neutral z-axis to the given y-coordinate.
-Note: s_y is negative for y &lt; 0 and positive for y &gt; 0</p>
+<dd><p>Compute the arc length from the neutral axis (y = 0) to a given
+transverse coordinate y along the HP mid-surface parabola.
+Adopted from Loutfi <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../references.html#id48" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span></p>
+<p>The sign of the returned value follows the sign of y (negative for
+y &lt; 0, positive for y &gt; 0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Transverse coordinate [mm].</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Signed arc length s(y) along the parabolic midline [mm].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

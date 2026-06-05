@@ -1,9 +1,47 @@
+"""
+Geometry class for hyperbolic paraboloid (HP) shells.
+
+Provides parametric computation of HP-shell geometry including tendon
+coordinates, cross-section polygons, and concrete volume.
+
+Adapted from: Jamila Loutfi :cite:`loutfi_2023`
+
+Translated into Python by: Elliot Melcer
+"""
 import numpy as np
 from numpy import sqrt
 from shapely import LineString, Polygon
 
 
 class HPGeometry:
+    """
+    Parametric representation of an HP-shell geometry.
+
+    The shell is described by its plan dimensions B (width) and L (span),
+    rise heights H_x and H_y in the two principal directions, shell
+    thickness t, and tendon layout parameters dy and nt.
+
+    The coordinate system is centred at the shell midpoint:
+    x ∈ [−L/2, L/2], y ∈ [−B/2, B/2], z upward.
+
+    Attributes
+    ----------
+    B : float
+        Shell width [mm].
+    L : float
+        Shell span [mm].
+    Hx : float
+        Rise in the x-direction (hog along span) [mm].
+    Hy : float
+        Rise in the y-direction (sag across width) [mm].
+    t : float
+        Shell thickness [mm].
+    dy : float
+        Distance from the outermost tendon to the shell edge [mm].
+    nt : int
+        Number of tendons per tendon group; total tendon count is 2 · nt [-].
+    """
+
     def __init__(
             self,
             B: float,
@@ -15,25 +53,22 @@ class HPGeometry:
             nt: int,
     ):
         """
-        Author: Elliot Melcer
-        Represents a hyperbolic paraboloid (hp) shell.
-
         Parameters
         ----------
         B : float
-            Width of the shell in mm
+            Shell width [mm].
         L : float
-            Length of the shell in mm
+            Shell span [mm].
         Hx : float
-            Rise (sag) in the x-direction in mm
+            Rise in the x-direction [mm].
         Hy : float
-            Rise (sag) in the y-direction in mm
+            Rise in the y-direction [mm].
         t : float
-            Thickness of the shell in mm
+            Shell thickness [mm].
         dy : float
-            Distance of the outermost tendon to the edge of the shell in mm
-        nt: int
-            Number of tendons per tendon group, total number of tendons: 2 * nt
+            Distance from the outermost tendon to the shell edge [mm].
+        nt : int
+            Number of tendons per tendon group [-].
         """
         self.B = float(B)
         self.L = float(L)
@@ -43,59 +78,105 @@ class HPGeometry:
         self.dy = float(dy)
         self.nt = nt
 
-    def param_a(self):
+    def param_a(self) -> float:
         """
+        Compute the HP-surface shape parameter a.
         Adapted from: Jamila Loutfi
-        returns geometry parameter a
+
+        Returns
+        -------
+        float
+            Shape parameter a [mm^{1/2}].
         """
         a = self.L / (2 * sqrt(self.Hx))
         return a
 
     def param_b(self) -> float:
         """
+        Compute the HP-surface shape parameter b.
         Adapted from: Jamila Loutfi
-        returns geometry parameter b
+
+        Returns
+        -------
+        float
+            Shape parameter b [mm^{1/2}].
         """
         b = self.B / (2 * sqrt(self.Hy))
         return b
 
     def _z(self, x: float, y: float) -> float:
         """
+        Compute the z-coordinate of the HP mid-surface at (x, y).
         Adapted from: Jamila Loutfi
-        returns z coordinate at given x and y coordinates of midline of shell
+
+        Parameters
+        ----------
+        x : float
+            Longitudinal coordinate (centred at shell mid-point) [mm].
+        y : float
+            Transverse coordinate (centred at shell mid-point) [mm].
+
+        Returns
+        -------
+        float
+            Mid-surface elevation z [mm].
         """
         z = y ** 2 / self.param_b() ** 2 - x ** 2 / self.param_a() ** 2
         return z
 
-    def x_p(self):
+    def x_p(self) -> float:
         """
+        Compute the x-coordinate of the four HP corner points.
         Adapted from: Jamila Loutfi
-        Returns the x-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid
+
+        Returns
+        -------
+        float
+            x-coordinate of corner points [mm].
         """
         x_p = self.L/2 * (1 + sqrt(self.Hy)/sqrt(self.Hx))
         return x_p
 
-    def y_p(self):
+    def y_p(self) -> float:
         """
+        Compute the y-coordinate of the four HP corner points.
         Adapted from: Jamila Loutfi
-        Returns the y-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid
+
+        Returns
+        -------
+        float
+            y-coordinate of corner points [mm].
         """
         y_p = self.B/2 * (1 + sqrt(self.Hx)/sqrt(self.Hy))
         return y_p
 
-    def z_p(self):
+    def z_p(self) -> float:
         """
+        Compute the z-coordinate of the four HP corner points.
         Adapted from: Jamila Loutfi
-        Returns the y-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid
+
+        Returns
+        -------
+        float
+            z-coordinate of corner points [mm].
         """
         z_p = (sqrt(self.Hx)+sqrt(self.Hy))**2
         return z_p
 
-    def dy_real(self):
+    def dy_real(self) -> float:
         """
+        Return the effective edge-tendon offset dy.
         Adapted from: Jamila Loutfi
-        If nt = 1, calculate dy with alpha = 0.5
-        else use the given dy
+
+        For ``nt = 1`` the single tendon is placed at the geometric midpoint
+        of the tendon group (α = 0.5) and dy is back-calculated from that
+        position. For ``nt > 1`` the user-specified :attr:`dy` is returned
+        unchanged.
+
+        Returns
+        -------
+        float
+            Effective edge-tendon offset [mm].
         """
         alpha_nt_1 = 0.5
 
@@ -105,18 +186,35 @@ class HPGeometry:
         else:
             return self.dy
 
-    def alpha_edge(self):
+    def alpha_edge(self) -> float:
         """
+        Compute the normalized α-coordinate of the outermost tendon near
+        the shell edge.
         Adapted from: Jamila Loutfi
-        Returns the alpha coordinate value of the outermost tendon near the edge of the shell
+
+        α is the parametric coordinate along the tendon group direction,
+        with α = 0 at one edge and α = 1 at the opposite edge.
+
+        Returns
+        -------
+        float
+            α-coordinate of the outermost edge tendon [-].
         """
         alpha_edge = 1/2 * ( (-self.B/2 + self.dy)/self.y_p() + (self.L/2)/self.x_p() + 1)
         return alpha_edge
 
-    def alpha_edge_bar(self):
+    def alpha_edge_bar(self) -> float:
         """
+        Compute the complementary α-coordinate of the outermost tendon.
         Adapted from: Jamila Loutfi
-        Returns the complementary alpha coordinate value of the outermost tendon near the edge of the shell
+
+        Defined as 1 − α_edge, clamped to 0.5 if α_edge > 0.5 (symmetric
+        layout).
+
+        Returns
+        -------
+        float
+            Complementary α-coordinate [-].
         """
         alpha_edge_bar = 1-self.alpha_edge()
 
@@ -124,18 +222,32 @@ class HPGeometry:
             alpha_edge_bar = 0.5
         return alpha_edge_bar
 
-    def delta_alpha(self):
+    def delta_alpha(self) -> float:
         """
+        Compute the uniform α-spacing between adjacent tendons in one group.
         Adapted from: Jamila Loutfi
-        Returns the distance between the tendons as alpha value
+
+        Returns
+        -------
+        float
+            α-spacing between tendons [-].
         """
         delta_alpha = (self.alpha_edge_bar() - self.alpha_edge()) / (self.nt - 1)
         return delta_alpha
 
     def alpha_list(self) -> list[float]:
         """
+        Return the α-coordinates of all tendons in one tendon group.
         Adapted from: Jamila Loutfi
-        Returns a list of alpha coordinates for all tendons in a tendon group
+
+        For ``nt = 1`` the single tendon is placed at α = 0.5 and
+        Δα = 0. For ``nt > 1`` tendons are distributed uniformly from
+        :meth:`alpha_edge` to :meth:`alpha_edge_bar`.
+
+        Returns
+        -------
+        list[float]
+            α-coordinates for the nt tendons in one group [-].
         """
         _alpha = self.alpha_edge() # local alpha variable that is subject to change if nt = 1
 
@@ -156,8 +268,16 @@ class HPGeometry:
 
     def gt_x(self) -> tuple[list[float], list[float]]:
         """
+        Return the start and end x-coordinates for all tendons in one group.
         Adapted from: Jamila Loutfi
-        Returns a tuple of start and end x coordinates for a tendon group
+
+        All tendons span the full length, so x_start = −L/2 and
+        x_end = +L/2 for each tendon.
+
+        Returns
+        -------
+        tuple[list[float], list[float]]
+            ``(gt_x_start, gt_x_end)`` — lists of length nt [mm].
         """
         gt_x_start = [-self.L/2] * self.nt
         gt_x_end = [self.L/2] * self.nt
@@ -165,8 +285,16 @@ class HPGeometry:
 
     def gt_y(self) -> tuple[list[float], list[float]]:
         """
+        Return the start and end y-coordinates for all tendons in one group.
         Adapted from: Jamila Loutfi
-        Returns a tuple of start and end y coordinates for a tendon group
+
+        y-coordinates are computed from the α-parametrization and the
+        corner point y_p.
+
+        Returns
+        -------
+        tuple[list[float], list[float]]
+            ``(gt_y_start, gt_y_end)`` — lists of length nt [mm].
         """
         gt_x_start, gt_x_end = self.gt_x()
         x_start, x_end = gt_x_start[0], gt_x_end[0]
@@ -185,15 +313,21 @@ class HPGeometry:
 
     def gt_z(self) -> tuple[list[float], list[float]]:
         """
+        Return the start and end z-coordinates for all tendons in one group.
         Adapted from: Jamila Loutfi
-        Returns a tuple of start and end z coordinates for a tendon group
+
+        z-coordinates follow the HP mid-surface parametrized by α.
+
+        Returns
+        -------
+        tuple[list[float], list[float]]
+            ``(gt_z_start, gt_z_end)`` — lists of length nt [mm].
         """
         gt_x_start, gt_x_end = self.gt_x()
         x_start, x_end = gt_x_start[0], gt_x_end[0]
 
         gt_z_start = []
         gt_z_end = []
-
 
         for alpha in self.alpha_list():
             z_st = (4 * alpha * x_start / self.x_p() - 2 * x_start / self.x_p() + 4 * alpha**2 - 4 * alpha + 1) * self.z_p()
@@ -206,8 +340,17 @@ class HPGeometry:
 
     def tendons(self) -> list[tuple[tuple[float, float, float], tuple[float, float, float]]]:
         """
+        Return all tendons as start/end 3-D coordinate pairs.
         Author: Elliot Melcer
-        Returns tendons as a list of tuples containing the start and end coordinates as tuples
+
+        The list contains the regular tendon group followed by the y-mirrored
+        group, giving 2 · nt tendons in total.
+
+        Returns
+        -------
+        list[tuple[tuple[float, float, float], tuple[float, float, float]]]
+            Each entry is ``((x_start, y_start, z_start), (x_end, y_end, z_end))``
+            [mm].
         """
         gt_x_start, gt_x_end = self.gt_x()
         gt_y_start, gt_y_end  = self.gt_y()
@@ -231,8 +374,21 @@ class HPGeometry:
 
     def tendon_coords_at_x(self, x: float) -> list[tuple[float, float]]:
         """
+        Return tendon (y, z) coordinates in the cross-section plane at a
+        given longitudinal coordinate x via linear interpolation.
+        Adapted from: Jamila Loutfi
         Author: Elliot Melcer
-        Returns tendon coordinates in cross-section plane at given coordinate x through linear interpolation
+
+        Parameters
+        ----------
+        x : float
+            Normalized longitudinal coordinate, x ∈ [−0.5, 0.5] [-].
+
+        Returns
+        -------
+        list[tuple[float, float]]
+            ``(y, z)`` coordinates for all 2 · nt tendons in the
+            cross-section plane [mm].
         """
         tendon_list = self.tendons()
 
@@ -250,21 +406,20 @@ class HPGeometry:
 
     def midline(self, x: float, n: int) -> LineString:
         """
+        Return the HP mid-surface polyline in the cross-section plane at x.
         Author: Elliot Melcer
-        Returns a Shapely LineString representing the mid-surface
-        polyline at coordinate x using n points.
 
         Parameters
         ----------
         x : float
-            Longitudinal coordinate (centered at x = 0)
+            Longitudinal coordinate, centred at x = 0 [mm].
         n : int
-            Number of points along the polyline
+            Number of sample points along the polyline [-].
 
         Returns
         -------
         LineString
-            Shapely LineString of (y, z) coordinates
+            Shapely :class:`~shapely.LineString` of (y, z) coordinates [mm].
         """
 
         # Half-span in y at this x
@@ -281,10 +436,25 @@ class HPGeometry:
 
     def polygon_section_at(self, x: float, n: int) -> Polygon:
         """
+        Return the cross-section polygon at a normalized longitudinal position x.
         Author: Elliot Melcer
-        Returns a shapely Polygon representing the cross-section at a given Factor x ∈ [-0,5 ; 0.5]
-        (0.00 at middle of span). The polygon thickness t is applied perpendicular
-        to the mid-surface. nt points are generated on the bottom and top edges.
+
+        The shell thickness t is applied perpendicular to the mid-surface.
+        Bottom and top edges are each sampled at n points; the polygon is
+        ordered bottom left-to-right, then top right-to-left.
+
+        Parameters
+        ----------
+        x : float
+            Normalized longitudinal coordinate, x ∈ [−0.5, 0.5] [-].
+        n : int
+            Number of sample points per edge [-].
+
+        Returns
+        -------
+        Polygon
+            Shapely :class:`~shapely.Polygon` representing the shell
+            cross-section [mm].
         """
         # Compute local half-span in y for this x
         b = self.param_b()
@@ -322,12 +492,20 @@ class HPGeometry:
 
         return Polygon(poly_points)
 
-
-    def volume(self):
+    def volume(self) -> float:
         """
-        Adapted from: Jamila Loutfi
-        Calculates the concrete volume of an hp shell in mm³
-        Übernommen von Pauls Skript "volumen.gh"
+        Compute the concrete volume of the HP shell.
+        Adapted from Loutfi's Grasshopper script ``volumen.gh``.
+
+        The volume is calculated as the arc-length-corrected product of the
+        curved surface area and the shell thickness t, using the closed-form
+        integral of the HP parabolic arclength in both directions.
+
+        Returns
+        -------
+        float
+            Concrete volume of the HP shell [mm³].
+
         """
         y1 = self.B / 2
         y2 = -self.B / 2

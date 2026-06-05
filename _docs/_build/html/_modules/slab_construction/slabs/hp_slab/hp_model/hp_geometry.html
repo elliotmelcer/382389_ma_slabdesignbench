@@ -290,7 +290,17 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für slab_construction.slabs.hp_slab.hp_model.hp_geometry</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Geometry class for hyperbolic paraboloid (HP) shells.</span>
+
+<span class="sd">Provides parametric computation of HP-shell geometry including tendon</span>
+<span class="sd">coordinates, cross-section polygons, and concrete volume.</span>
+
+<span class="sd">Adapted from: Jamila Loutfi :cite:`loutfi_2023`</span>
+
+<span class="sd">Translated into Python by: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sqrt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Polygon</span>
 
@@ -298,6 +308,34 @@
 <div class="viewcode-block" id="HPGeometry">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HPGeometry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parametric representation of an HP-shell geometry.</span>
+
+<span class="sd">    The shell is described by its plan dimensions B (width) and L (span),</span>
+<span class="sd">    rise heights H_x and H_y in the two principal directions, shell</span>
+<span class="sd">    thickness t, and tendon layout parameters dy and nt.</span>
+
+<span class="sd">    The coordinate system is centred at the shell midpoint:</span>
+<span class="sd">    x ∈ [−L/2, L/2], y ∈ [−B/2, B/2], z upward.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    B : float</span>
+<span class="sd">        Shell width [mm].</span>
+<span class="sd">    L : float</span>
+<span class="sd">        Shell span [mm].</span>
+<span class="sd">    Hx : float</span>
+<span class="sd">        Rise in the x-direction (hog along span) [mm].</span>
+<span class="sd">    Hy : float</span>
+<span class="sd">        Rise in the y-direction (sag across width) [mm].</span>
+<span class="sd">    t : float</span>
+<span class="sd">        Shell thickness [mm].</span>
+<span class="sd">    dy : float</span>
+<span class="sd">        Distance from the outermost tendon to the shell edge [mm].</span>
+<span class="sd">    nt : int</span>
+<span class="sd">        Number of tendons per tendon group; total tendon count is 2 · nt [-].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">B</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -309,25 +347,22 @@
             <span class="n">nt</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Represents a hyperbolic paraboloid (hp) shell.</span>
-
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        B : float</span>
-<span class="sd">            Width of the shell in mm</span>
+<span class="sd">            Shell width [mm].</span>
 <span class="sd">        L : float</span>
-<span class="sd">            Length of the shell in mm</span>
+<span class="sd">            Shell span [mm].</span>
 <span class="sd">        Hx : float</span>
-<span class="sd">            Rise (sag) in the x-direction in mm</span>
+<span class="sd">            Rise in the x-direction [mm].</span>
 <span class="sd">        Hy : float</span>
-<span class="sd">            Rise (sag) in the y-direction in mm</span>
+<span class="sd">            Rise in the y-direction [mm].</span>
 <span class="sd">        t : float</span>
-<span class="sd">            Thickness of the shell in mm</span>
+<span class="sd">            Shell thickness [mm].</span>
 <span class="sd">        dy : float</span>
-<span class="sd">            Distance of the outermost tendon to the edge of the shell in mm</span>
-<span class="sd">        nt: int</span>
-<span class="sd">            Number of tendons per tendon group, total number of tendons: 2 * nt</span>
+<span class="sd">            Distance from the outermost tendon to the shell edge [mm].</span>
+<span class="sd">        nt : int</span>
+<span class="sd">            Number of tendons per tendon group [-].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
@@ -339,10 +374,15 @@
 
 <div class="viewcode-block" id="HPGeometry.param_a">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.param_a">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">param_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">param_a</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the HP-surface shape parameter a.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        returns geometry parameter a</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Shape parameter a [mm^{1/2}].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hx</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">a</span></div>
@@ -352,8 +392,13 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.param_b">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">param_b</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the HP-surface shape parameter b.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        returns geometry parameter b</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Shape parameter b [mm^{1/2}].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hy</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">b</span></div>
@@ -361,18 +406,35 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the z-coordinate of the HP mid-surface at (x, y).</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        returns z coordinate at given x and y coordinates of midline of shell</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Longitudinal coordinate (centred at shell mid-point) [mm].</span>
+<span class="sd">        y : float</span>
+<span class="sd">            Transverse coordinate (centred at shell mid-point) [mm].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Mid-surface elevation z [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_b</span><span class="p">()</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_a</span><span class="p">()</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="k">return</span> <span class="n">z</span>
 
 <div class="viewcode-block" id="HPGeometry.x_p">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.x_p">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">x_p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x_p</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the x-coordinate of the four HP corner points.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns the x-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            x-coordinate of corner points [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hy</span><span class="p">)</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hx</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">x_p</span></div>
@@ -380,10 +442,15 @@
 
 <div class="viewcode-block" id="HPGeometry.y_p">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.y_p">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">y_p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y_p</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the y-coordinate of the four HP corner points.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns the y-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            y-coordinate of corner points [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">y_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="o">/</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hx</span><span class="p">)</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hy</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">y_p</span></div>
@@ -391,10 +458,15 @@
 
 <div class="viewcode-block" id="HPGeometry.z_p">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.z_p">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">z_p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z_p</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the z-coordinate of the four HP corner points.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns the y-coordinate of the 4 Corner Points defining the Hyperbolic Paraboloid</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            z-coordinate of corner points [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">z_p</span> <span class="o">=</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hx</span><span class="p">)</span><span class="o">+</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hy</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
         <span class="k">return</span> <span class="n">z_p</span></div>
@@ -402,11 +474,20 @@
 
 <div class="viewcode-block" id="HPGeometry.dy_real">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.dy_real">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">dy_real</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dy_real</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the effective edge-tendon offset dy.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        If nt = 1, calculate dy with alpha = 0.5</span>
-<span class="sd">        else use the given dy</span>
+
+<span class="sd">        For ``nt = 1`` the single tendon is placed at the geometric midpoint</span>
+<span class="sd">        of the tendon group (α = 0.5) and dy is back-calculated from that</span>
+<span class="sd">        position. For ``nt &gt; 1`` the user-specified :attr:`dy` is returned</span>
+<span class="sd">        unchanged.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Effective edge-tendon offset [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">alpha_nt_1</span> <span class="o">=</span> <span class="mf">0.5</span>
 
@@ -419,10 +500,19 @@
 
 <div class="viewcode-block" id="HPGeometry.alpha_edge">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.alpha_edge">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">alpha_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">alpha_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the normalized α-coordinate of the outermost tendon near</span>
+<span class="sd">        the shell edge.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns the alpha coordinate value of the outermost tendon near the edge of the shell</span>
+
+<span class="sd">        α is the parametric coordinate along the tendon group direction,</span>
+<span class="sd">        with α = 0 at one edge and α = 1 at the opposite edge.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            α-coordinate of the outermost edge tendon [-].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">alpha_edge</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span> <span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">y_p</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">x_p</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">alpha_edge</span></div>
@@ -430,10 +520,18 @@
 
 <div class="viewcode-block" id="HPGeometry.alpha_edge_bar">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.alpha_edge_bar">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">alpha_edge_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">alpha_edge_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the complementary α-coordinate of the outermost tendon.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns the complementary alpha coordinate value of the outermost tendon near the edge of the shell</span>
+
+<span class="sd">        Defined as 1 − α_edge, clamped to 0.5 if α_edge &gt; 0.5 (symmetric</span>
+<span class="sd">        layout).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Complementary α-coordinate [-].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">alpha_edge_bar</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha_edge</span><span class="p">()</span>
 
@@ -444,10 +542,15 @@
 
 <div class="viewcode-block" id="HPGeometry.delta_alpha">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.delta_alpha">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">delta_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delta_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the uniform α-spacing between adjacent tendons in one group.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns the distance between the tendons as alpha value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            α-spacing between tendons [-].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">delta_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha_edge_bar</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_edge</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">delta_alpha</span></div>
@@ -457,8 +560,17 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.alpha_list">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">alpha_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the α-coordinates of all tendons in one tendon group.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns a list of alpha coordinates for all tendons in a tendon group</span>
+
+<span class="sd">        For ``nt = 1`` the single tendon is placed at α = 0.5 and</span>
+<span class="sd">        Δα = 0. For ``nt &gt; 1`` tendons are distributed uniformly from</span>
+<span class="sd">        :meth:`alpha_edge` to :meth:`alpha_edge_bar`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[float]</span>
+<span class="sd">            α-coordinates for the nt tendons in one group [-].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_edge</span><span class="p">()</span> <span class="c1"># local alpha variable that is subject to change if nt = 1</span>
 
@@ -482,8 +594,16 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.gt_x">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">gt_x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start and end x-coordinates for all tendons in one group.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns a tuple of start and end x coordinates for a tendon group</span>
+
+<span class="sd">        All tendons span the full length, so x_start = −L/2 and</span>
+<span class="sd">        x_end = +L/2 for each tendon.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[list[float], list[float]]</span>
+<span class="sd">            ``(gt_x_start, gt_x_end)`` — lists of length nt [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gt_x_start</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nt</span>
         <span class="n">gt_x_end</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nt</span>
@@ -494,8 +614,16 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.gt_y">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">gt_y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start and end y-coordinates for all tendons in one group.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns a tuple of start and end y coordinates for a tendon group</span>
+
+<span class="sd">        y-coordinates are computed from the α-parametrization and the</span>
+<span class="sd">        corner point y_p.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[list[float], list[float]]</span>
+<span class="sd">            ``(gt_y_start, gt_y_end)`` — lists of length nt [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gt_x_start</span><span class="p">,</span> <span class="n">gt_x_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt_x</span><span class="p">()</span>
         <span class="n">x_start</span><span class="p">,</span> <span class="n">x_end</span> <span class="o">=</span> <span class="n">gt_x_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gt_x_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -517,15 +645,21 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.gt_z">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">gt_z</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the start and end z-coordinates for all tendons in one group.</span>
 <span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Returns a tuple of start and end z coordinates for a tendon group</span>
+
+<span class="sd">        z-coordinates follow the HP mid-surface parametrized by α.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[list[float], list[float]]</span>
+<span class="sd">            ``(gt_z_start, gt_z_end)`` — lists of length nt [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gt_x_start</span><span class="p">,</span> <span class="n">gt_x_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt_x</span><span class="p">()</span>
         <span class="n">x_start</span><span class="p">,</span> <span class="n">x_end</span> <span class="o">=</span> <span class="n">gt_x_start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gt_x_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">gt_z_start</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">gt_z_end</span> <span class="o">=</span> <span class="p">[]</span>
-
 
         <span class="k">for</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_list</span><span class="p">():</span>
             <span class="n">z_st</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">x_start</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_p</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x_start</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_p</span><span class="p">()</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">alpha</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_p</span><span class="p">()</span>
@@ -541,8 +675,17 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.tendons">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">tendons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all tendons as start/end 3-D coordinate pairs.</span>
 <span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns tendons as a list of tuples containing the start and end coordinates as tuples</span>
+
+<span class="sd">        The list contains the regular tendon group followed by the y-mirrored</span>
+<span class="sd">        group, giving 2 · nt tendons in total.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[tuple[tuple[float, float, float], tuple[float, float, float]]]</span>
+<span class="sd">            Each entry is ``((x_start, y_start, z_start), (x_end, y_end, z_end))``</span>
+<span class="sd">            [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">gt_x_start</span><span class="p">,</span> <span class="n">gt_x_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt_x</span><span class="p">()</span>
         <span class="n">gt_y_start</span><span class="p">,</span> <span class="n">gt_y_end</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt_y</span><span class="p">()</span>
@@ -569,8 +712,21 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.tendon_coords_at_x">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">tendon_coords_at_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return tendon (y, z) coordinates in the cross-section plane at a</span>
+<span class="sd">        given longitudinal coordinate x via linear interpolation.</span>
+<span class="sd">        Adapted from: Jamila Loutfi</span>
 <span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns tendon coordinates in cross-section plane at given coordinate x through linear interpolation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Normalized longitudinal coordinate, x ∈ [−0.5, 0.5] [-].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[tuple[float, float]]</span>
+<span class="sd">            ``(y, z)`` coordinates for all 2 · nt tendons in the</span>
+<span class="sd">            cross-section plane [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tendon_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tendons</span><span class="p">()</span>
 
@@ -591,21 +747,20 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.midline">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">midline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LineString</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the HP mid-surface polyline in the cross-section plane at x.</span>
 <span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns a Shapely LineString representing the mid-surface</span>
-<span class="sd">        polyline at coordinate x using n points.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        x : float</span>
-<span class="sd">            Longitudinal coordinate (centered at x = 0)</span>
+<span class="sd">            Longitudinal coordinate, centred at x = 0 [mm].</span>
 <span class="sd">        n : int</span>
-<span class="sd">            Number of points along the polyline</span>
+<span class="sd">            Number of sample points along the polyline [-].</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        LineString</span>
-<span class="sd">            Shapely LineString of (y, z) coordinates</span>
+<span class="sd">            Shapely :class:`~shapely.LineString` of (y, z) coordinates [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Half-span in y at this x</span>
@@ -625,10 +780,25 @@
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.polygon_section_at">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">polygon_section_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polygon</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the cross-section polygon at a normalized longitudinal position x.</span>
 <span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns a shapely Polygon representing the cross-section at a given Factor x ∈ [-0,5 ; 0.5]</span>
-<span class="sd">        (0.00 at middle of span). The polygon thickness t is applied perpendicular</span>
-<span class="sd">        to the mid-surface. nt points are generated on the bottom and top edges.</span>
+
+<span class="sd">        The shell thickness t is applied perpendicular to the mid-surface.</span>
+<span class="sd">        Bottom and top edges are each sampled at n points; the polygon is</span>
+<span class="sd">        ordered bottom left-to-right, then top right-to-left.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Normalized longitudinal coordinate, x ∈ [−0.5, 0.5] [-].</span>
+<span class="sd">        n : int</span>
+<span class="sd">            Number of sample points per edge [-].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Polygon</span>
+<span class="sd">            Shapely :class:`~shapely.Polygon` representing the shell</span>
+<span class="sd">            cross-section [mm].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Compute local half-span in y for this x</span>
         <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_b</span><span class="p">()</span>
@@ -667,14 +837,22 @@
         <span class="k">return</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">poly_points</span><span class="p">)</span></div>
 
 
-
 <div class="viewcode-block" id="HPGeometry.volume">
 <a class="viewcode-back" href="../../../../../api/slab_construction.slabs.hp_slab.hp_model.hp_geometry.html#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry.volume">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adapted from: Jamila Loutfi</span>
-<span class="sd">        Calculates the concrete volume of an hp shell in mm³</span>
-<span class="sd">        Übernommen von Pauls Skript &quot;volumen.gh&quot;</span>
+<span class="sd">        Compute the concrete volume of the HP shell.</span>
+<span class="sd">        Adapted from Loutfi&#39;s Grasshopper script ``volumen.gh``.</span>
+
+<span class="sd">        The volume is calculated as the arc-length-corrected product of the</span>
+<span class="sd">        curved surface area and the shell thickness t, using the closed-form</span>
+<span class="sd">        integral of the HP parabolic arclength in both directions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Concrete volume of the HP shell [mm³].</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">y2</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">/</span> <span class="mi">2</span>

@@ -1,3 +1,12 @@
+"""
+HP-shell structural section class.
+
+Combines an :class:`HPGeometry` with concrete and reinforcement material
+objects to build position-dependent :class:`GenericSection` instances
+for moment-curvature and strength calculations.
+
+Author: Elliot Melcer (unless stated otherwise)
+"""
 import math
 from itertools import pairwise
 from typing import Optional
@@ -14,6 +23,26 @@ from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
 
 
 class HPShell:
+    """
+    Hyperbolic paraboloid shell combining geometry and material properties.
+
+    Builds :class:`~structuralcodes.sections.GenericSection` objects at
+    arbitrary longitudinal positions for use in section analysis routines.
+
+    Attributes
+    ----------
+    hp_geometry : HPGeometry
+        HP-shell geometry object.
+    concrete : Concrete
+        Concrete material object.
+    reinforcement : Reinforcement
+        Reinforcement material object.
+    reinf_area : float
+        Cross-sectional area of a single reinforcement bar [mm²].
+    name : str or None
+        Optional label for the shell instance.
+    """
+
     def __init__(
             self,
             hp_geometry: HPGeometry,
@@ -23,10 +52,18 @@ class HPShell:
             name: Optional[str] = None,
     ):
         """
-        Author: Elliot Melcer
-        Represents a hyperbolic paraboloid (hp) shell.
-
-        Note: reinf_area in [mm²]
+        Parameters
+        ----------
+        hp_geometry : HPGeometry
+            HP-shell geometry object.
+        concrete : Concrete
+            Concrete material object.
+        reinforcement : Reinforcement
+            Reinforcement material object (applied to all tendons).
+        reinf_area : float
+            Cross-sectional area of a single reinforcement bar [mm²].
+        name : str or None, optional
+            Optional label for the shell instance. Default is ``None``.
         """
         self.hp_geometry = hp_geometry
         self.concrete = concrete
@@ -36,12 +73,38 @@ class HPShell:
 
     def section_at(self, x: float, name: Optional[str] = None) -> GenericSection:
         """
-        Author: Elliot Melcer
-        Returns the section from a hp-shell at x * L with given material properties and reinforcement area
+        Build the structural cross-section at a normalized longitudinal position.
 
-        Note:
-            Reinforcement Area in mm²
-            x ∈ [0 ; 1] with 0.0 at first support, 1.0 at second support
+        The concrete cross-section polygon is taken from
+        :meth:`HPGeometry.polygon_section_at` and reinforcement bars are
+        placed at the tendon coordinates from
+        :meth:`HPGeometry.tendon_coords_at_x`. All 2 · nt tendons are
+        given equal area :attr:`reinf_area`.
+
+        Parameters
+        ----------
+        x : float
+            Normalized longitudinal coordinate, x ∈ [0, 1], with 0.0 at
+            the first support and 1.0 at the second support [-].
+        name : str or None, optional
+            Label for the returned section. Falls back to :attr:`self.name`
+            if ``None``. Default is ``None``.
+
+        Returns
+        -------
+        GenericSection
+            Section object at position x · L.
+
+        Raises
+        ------
+        ValueError
+            If ``x`` is outside [0.0, 1.0].
+
+        Notes
+        -----
+        Internally, x is shifted to the centred coordinate
+        x_internal = x − 0.5 ∈ [−0.5, 0.5] before passing to the
+        geometry methods.
         """
         # --- Input validation ---
         if not 0.0 <= x <= 1.0:
@@ -80,8 +143,17 @@ class HPShell:
 
     def total_reinforcement_volume(self) -> float:
         """
-        Author: Elliot Melcer
-        Returns the total reinforcement volume of a hp-shell in mm³
+        Compute the total reinforcement volume of the HP shell.
+
+        Each tendon is modeled as a straight line segment with constant
+        cross-sectional area :attr:`reinf_area`; the volume is the product
+        of Euclidean tendon length and bar area, summed over all 2 · nt
+        tendons.
+
+        Returns
+        -------
+        float
+            Total reinforcement volume [mm³].
         """
         total_tendon_length = 0.0
         for (xs, ys, zs), (xe, ye, ze) in self.hp_geometry.tendons():
@@ -92,8 +164,12 @@ class HPShell:
 
     def net_concrete_volume(self) -> float:
         """
-        Author Elliot Melcer
-        :return: Net concrete volume (total volume without reinforcement volume) in mm³
+        Compute the net concrete volume (gross volume minus reinforcement volume).
+
+        Returns
+        -------
+        float
+            Net concrete volume [mm³].
         """
         net_concrete_volume = self.hp_geometry.volume() - self.total_reinforcement_volume()
 
@@ -101,8 +177,14 @@ class HPShell:
 
     def d_p(self) -> float:
         """
-        Author: Elliot Melcer
-        Returns the diameter of the reinforcement section in mm.
+        Compute the equivalent circular diameter of the reinforcement bar.
+
+        Derived from :attr:`reinf_area` assuming a circular cross-section:
+
+        Returns
+        -------
+        float
+            Equivalent bar diameter d_p [mm].
         """
         d_reinf = np.sqrt(4 * self.reinf_area / np.pi)
 
@@ -110,9 +192,18 @@ class HPShell:
 
     def c_1_clear_concrete_cover(self) -> float:
         """
-        Adapted from: Jamila Loutfi
-        Returns available clear concrete cover along the midline from the
-        outermost reinforcement to the edge at the HP-Shell Support
+        Compute the available clear concrete cover along the HP-shell midline
+        at the support cross-section.
+        Adopted from Loutfi :cite:`loutfi_2023`
+
+        The cover is measured as the arc length from the shell edge (y = −B/2)
+        to the outermost tendon position, minus the tendon half-diameter.
+        Returns ``0.0`` if the tendon overlaps the edge.
+
+        Returns
+        -------
+        float
+            Clear concrete cover c_1 along the midline [mm].
         """
         B = self.hp_geometry.B
         d_p = self.d_p()
@@ -134,8 +225,19 @@ class HPShell:
 
     def s_min_clear_reinf_spacing(self) -> float:
         """
-        Adapted from: Jamila Loutfi
-        Returns the minimum available clear spacing between reinforcements along the hp_shell midline
+        Compute the minimum clear spacing between adjacent reinforcement bars
+        along the HP-shell midline.
+        Adopted from Loutfi :cite:`loutfi_2023`
+
+        Arc lengths are computed for all 2 · nt tendon positions (both the
+        regular and mirrored group). The clear spacing is the minimum
+        pairwise arc-length difference minus the bar diameter. Returns ``0.0``
+        if any two bars overlap.
+
+        Returns
+        -------
+        float
+            Minimum clear reinforcement spacing s_min along the midline [mm].
         """
         d_p = self.d_p()
         y_starts, _ = self.hp_geometry.gt_y()
@@ -157,13 +259,25 @@ class HPShell:
 
         return s_min_clear
 
-    def arc_length(self, y:float) -> float:
+    def arc_length(self, y: float) -> float:
         """
-        Adapted from: Jamila Loutfi
-        Returns the arclength from the neutral z-axis to the given y-coordinate.
-        Note: s_y is negative for y < 0 and positive for y > 0
-        """
+        Compute the arc length from the neutral axis (y = 0) to a given
+        transverse coordinate y along the HP mid-surface parabola.
+        Adopted from Loutfi :cite:`loutfi_2023`
 
+        The sign of the returned value follows the sign of y (negative for
+        y < 0, positive for y > 0).
+
+        Parameters
+        ----------
+        y : float
+            Transverse coordinate [mm].
+
+        Returns
+        -------
+        float
+            Signed arc length s(y) along the parabolic midline [mm].
+        """
         b = self.hp_geometry.param_b()
 
         s_y = 1 / 4 * (2 * y * math.sqrt(((4 * y ** 2) / b ** 4) + 1) + b ** 2 * math.asinh((2 * y) / b ** 2))
