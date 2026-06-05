@@ -221,7 +221,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../api/core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../api/core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../api/core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -394,7 +395,7 @@
 <span class="sd">            :func:`calculate_moment_curvature_sls_EC`. Default is ``False``.</span>
 <span class="sd">        debug : bool, optional</span>
 <span class="sd">            If ``True``, prints intermediate values (cracking moments, ζ</span>
-<span class="sd">            arrays) to stdout. Default is ``False``.</span>
+<span class="sd">            arrays) to console. Default is ``False``.</span>
 <span class="sd">        extended_debug : bool, optional</span>
 <span class="sd">            If ``True``, prints full Simpson and κ-interpolation tables in</span>
 <span class="sd">            addition to the standard debug output. Default is ``False``.</span>
@@ -469,6 +470,8 @@
         <span class="k">return</span> <span class="n">deflection_mm</span></div>
 
 
+<div class="viewcode-block" id="DeflectionCalculator._direct_deflection_method">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._direct_deflection_method">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_direct_deflection_method</span><span class="p">(</span>
             <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">,</span>
@@ -509,7 +512,7 @@
 <span class="sd">        debug : bool</span>
 <span class="sd">            Unused in this method; passed through for interface consistency.</span>
 <span class="sd">        extended_debug : bool</span>
-<span class="sd">            If ``True``, prints κ-interpolation and Simpson tables to stdout.</span>
+<span class="sd">            If ``True``, prints κ-interpolation and Simpson tables to console.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -549,8 +552,11 @@
             <span class="n">DeflectionCalculator</span><span class="o">.</span><span class="n">_print_kappa_interp_debug</span><span class="p">(</span><span class="n">kappa_debug</span><span class="p">)</span>
             <span class="n">DeflectionCalculator</span><span class="o">.</span><span class="n">_print_simpson_debug</span><span class="p">(</span><span class="n">simpson_debug</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">deflection_mm</span>
+        <span class="k">return</span> <span class="n">deflection_mm</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._factor_deflection_method">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._factor_deflection_method">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_factor_deflection_method</span><span class="p">(</span>
             <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">,</span>
@@ -670,8 +676,11 @@
             <span class="n">DeflectionCalculator</span><span class="o">.</span><span class="n">_print_zeta_debug</span><span class="p">(</span><span class="n">zeta_array</span><span class="p">,</span> <span class="n">zeta_debug</span><span class="p">)</span>
             <span class="n">DeflectionCalculator</span><span class="o">.</span><span class="n">_print_simpson_debug</span><span class="p">(</span><span class="n">simpson_debug</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">deflection_weighted_mm</span>
+        <span class="k">return</span> <span class="n">deflection_weighted_mm</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._simpson_integration">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._simpson_integration">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_simpson_integration</span><span class="p">(</span>
             <span class="n">span_m</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -764,8 +773,11 @@
             <span class="s2">&quot;cum_sum&quot;</span><span class="p">:</span> <span class="n">cum_sum_list</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">deflection_mm</span><span class="p">,</span> <span class="n">debug_info</span>
+        <span class="k">return</span> <span class="n">deflection_mm</span><span class="p">,</span> <span class="n">debug_info</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._print_simpson_debug">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._print_simpson_debug">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_print_simpson_debug</span><span class="p">(</span><span class="n">simpson_debug</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">header</span> <span class="o">=</span> <span class="p">(</span>
@@ -787,8 +799,11 @@
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">&gt;4</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">w</span><span class="si">:</span><span class="s2">&gt;8.1f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_r</span><span class="si">:</span><span class="s2">&gt;12.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_v</span><span class="si">:</span><span class="s2">&gt;12.6f</span><span class="si">}</span><span class="s2"> &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&gt;14.6e</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">incr</span><span class="si">:</span><span class="s2">&gt;14.6e</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">cs</span><span class="si">:</span><span class="s2">&gt;14.6e</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
+            <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._calculate_zeta_array">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._calculate_zeta_array">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_zeta_array</span><span class="p">(</span>
             <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">,</span>
@@ -899,8 +914,11 @@
             <span class="s2">&quot;m_qp_kNm&quot;</span><span class="p">:</span> <span class="n">m_qp_list_kNm</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">zeta_array</span><span class="p">,</span> <span class="n">debug_info</span>
+        <span class="k">return</span> <span class="n">zeta_array</span><span class="p">,</span> <span class="n">debug_info</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._print_zeta_debug">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._print_zeta_debug">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_print_zeta_debug</span><span class="p">(</span><span class="n">zeta_array</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">zeta_debug</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">header</span> <span class="o">=</span> <span class="p">(</span>
@@ -917,8 +935,11 @@
                 <span class="n">zeta_debug</span><span class="p">[</span><span class="s2">&quot;m_cr_interp_kNm&quot;</span><span class="p">],</span>
                 <span class="n">zeta_array</span><span class="p">,</span>
         <span class="p">)):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">&gt;4</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_rare</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_qp</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_cr</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">z</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">&gt;4</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_rare</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_qp</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_cr</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">z</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._calculate_weighted_kappa">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._calculate_weighted_kappa">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_weighted_kappa</span><span class="p">(</span>
             <span class="n">kappa_array_fully_cracked</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -949,8 +970,11 @@
             <span class="n">kappa_weighted</span> <span class="o">=</span> <span class="n">zeta</span> <span class="o">*</span> <span class="n">k_cr</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">zeta</span><span class="p">)</span> <span class="o">*</span> <span class="n">k_uncr</span>
             <span class="n">kappa_weighted_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kappa_weighted</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">kappa_weighted_array</span>
+        <span class="k">return</span> <span class="n">kappa_weighted_array</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._get_interpolated_kappa_array">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._get_interpolated_kappa_array">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_interpolated_kappa_array</span><span class="p">(</span>
             <span class="n">slab_construction</span><span class="p">:</span> <span class="n">SlabConstruction</span><span class="p">,</span>
@@ -1080,8 +1104,11 @@
             <span class="s2">&quot;kappa&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">kappas</span><span class="p">)</span>
         <span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">kappas</span><span class="p">,</span> <span class="n">debug_info</span>
+        <span class="k">return</span> <span class="n">kappas</span><span class="p">,</span> <span class="n">debug_info</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._print_kappa_interp_debug">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._print_kappa_interp_debug">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_print_kappa_interp_debug</span><span class="p">(</span><span class="n">kappa_debug</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[DEBUG] Moment-Curvature-Diagram-Lists at Support and Midspan&quot;</span><span class="p">)</span>
@@ -1118,8 +1145,11 @@
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_a</span><span class="si">:</span><span class="s2">&gt;14.4f</span><span class="si">}</span><span class="s2"> &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">m_lo</span><span class="si">:</span><span class="s2">&gt;12.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">m_hi</span><span class="si">:</span><span class="s2">&gt;12.4f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">k_lo</span><span class="si">:</span><span class="s2">&gt;14.6e</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">k_hi</span><span class="si">:</span><span class="s2">&gt;14.6e</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&gt;14.6e</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="p">)</span>
+            <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._interpolation_bounds">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._interpolation_bounds">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_interpolation_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1149,8 +1179,11 @@
         <span class="n">i_lo</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">i_hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">xs</span><span class="p">[</span><span class="n">i_lo</span><span class="p">],</span> <span class="n">xs</span><span class="p">[</span><span class="n">i_hi</span><span class="p">],</span> <span class="n">ys</span><span class="p">[</span><span class="n">i_lo</span><span class="p">],</span> <span class="n">ys</span><span class="p">[</span><span class="n">i_hi</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">xs</span><span class="p">[</span><span class="n">i_lo</span><span class="p">],</span> <span class="n">xs</span><span class="p">[</span><span class="n">i_hi</span><span class="p">],</span> <span class="n">ys</span><span class="p">[</span><span class="n">i_lo</span><span class="p">],</span> <span class="n">ys</span><span class="p">[</span><span class="n">i_hi</span><span class="p">]</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._parabolic_interpolate">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._parabolic_interpolate">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_parabolic_interpolate</span><span class="p">(</span>
             <span class="n">y_0</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
@@ -1178,8 +1211,11 @@
         <span class="n">factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_1</span><span class="o">-</span> <span class="n">y_0</span><span class="p">)</span>  <span class="o">/</span> <span class="mf">0.5</span> <span class="o">**</span> <span class="mi">2</span>
         <span class="n">y_interp</span> <span class="o">=</span> <span class="o">-</span><span class="n">factor</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_norm</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y_1</span>
 
-        <span class="k">return</span> <span class="n">y_interp</span>
+        <span class="k">return</span> <span class="n">y_interp</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._simpson_weights">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._simpson_weights">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_simpson_weights</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1198,8 +1234,11 @@
         <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">weights</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># Odd indices</span>
         <span class="n">weights</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># Even indices (except first and last)</span>
-        <span class="k">return</span> <span class="n">weights</span>
+        <span class="k">return</span> <span class="n">weights</span></div>
 
+
+<div class="viewcode-block" id="DeflectionCalculator._virtual_moment">
+<a class="viewcode-back" href="../../../../api/core.analysis_core.statics.deflection.html#core.analysis_core.statics.deflection.DeflectionCalculator._virtual_moment">[Doku]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_virtual_moment</span><span class="p">(</span><span class="n">x_norm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">span_m</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1221,6 +1260,7 @@
 <span class="sd">            Virtual bending moment M_v [m] (moment arm for a unit load [kN]).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">x_norm</span> <span class="o">*</span> <span class="n">span_m</span> <span class="o">/</span> <span class="mi">2</span></div>
+</div>
 
 </pre></div>
         </article>

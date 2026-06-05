@@ -221,7 +221,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -290,7 +291,15 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für slab_construction.floor</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Floor layer and floor construction classes for slab construction modeling.</span>
+
+<span class="sd">All thicknesses are in [mm] to remain consistent with the structuralcodes</span>
+<span class="sd">unit system (N, mm).</span>
+
+<span class="sd">Author: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.core.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Material</span>
 
@@ -300,90 +309,167 @@
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FloorLayer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Basic Class to model floor layers</span>
-<span class="sd">    Note: Thickness in [mm] to keep in line with all other dimensions in structuralcodes</span>
+<span class="sd">    A single floor layer defined by its material and thickness.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    material : Material</span>
+<span class="sd">        Material object for this layer.</span>
+<span class="sd">    thickness : float</span>
+<span class="sd">        Layer thickness [mm].</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">material</span><span class="p">:</span> <span class="n">Material</span>
     <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span>
 
 <div class="viewcode-block" id="FloorLayer.area_density_kg_m2">
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.FloorLayer.area_density_kg_m2">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">area_density_kg_m2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">area_density_kg_m2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Returns area density for a FloorLayer of uniform thickness</span>
+<span class="sd">        Compute the area density of the layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Area density [kg/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">density_kg_m3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">density</span>
         <span class="k">return</span> <span class="n">density_kg_m3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">/</span> <span class="mi">1000</span></div>
 </div>
 
 
+
 <div class="viewcode-block" id="FloorMaterial">
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.FloorMaterial">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FloorMaterial</span><span class="p">(</span><span class="n">Material</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Instantiable Simple Material for generic floor layers.</span>
+<span class="sd">    Generic floor layer material.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    density : float</span>
+<span class="sd">        Material density [kg/m³].</span>
+<span class="sd">    name : str or None, optional</span>
+<span class="sd">        Material name. Default is ``&quot;FloorMaterial&quot;``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;FloorMaterial&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="ScreedMaterial">
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.ScreedMaterial">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScreedMaterial</span><span class="p">(</span><span class="n">Material</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Instantiable Material for screed layers.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">    Screed layer material.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    density : float</span>
+<span class="sd">        Material density [kg/m³].</span>
+<span class="sd">    name : str or None, optional</span>
+<span class="sd">        Material name. Default is ``&quot;ScreedMaterial&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;ScreedMaterial&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="InfillMaterial">
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.InfillMaterial">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InfillMaterial</span><span class="p">(</span><span class="n">Material</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Instantiable Material for infill layers.</span>
+<span class="sd">    Infill layer material.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    density : float</span>
+<span class="sd">        Material density [kg/m³].</span>
+<span class="sd">    name : str or None, optional</span>
+<span class="sd">        Material name. Default is ``&quot;InfillMaterial&quot;``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;InfillMaterial&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="InsulationMaterial">
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.InsulationMaterial">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InsulationMaterial</span><span class="p">(</span><span class="n">Material</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Instantiable Simple Material for insulation layers.</span>
-<span class="sd">    Note: E_dyn in MN/m³</span>
+<span class="sd">    Sound insulation layer material.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    E_dyn : float</span>
+<span class="sd">        Dynamic modulus of elasticity used for resonant frequency</span>
+<span class="sd">        calculations [MN/m³].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    density : float</span>
+<span class="sd">        Material density [kg/m³].</span>
+<span class="sd">    E_dyn : float</span>
+<span class="sd">        Dynamic stiffness [MN/m³].</span>
+<span class="sd">    name : str or None, optional</span>
+<span class="sd">        Material name. Default is ``&quot;InsulationMaterial&quot;``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">E_dyn</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;InsulationMaterial&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">E_dyn</span> <span class="o">=</span> <span class="n">E_dyn</span> <span class="c1"># MN/m³</span></div>
+
 
 
 <div class="viewcode-block" id="Floor">
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.Floor">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Floor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Class to model a floor construction made up of floor layers</span>
+<span class="sd">    Floor construction composed of ordered :class:`FloorLayer` objects.</span>
+
+<span class="sd">    Layers are stored in the order they are added. At most one layer per</span>
+<span class="sd">    material type is permitted.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layers : list[FloorLayer]</span>
+<span class="sd">        Ordered list of floor layers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FloorLayer</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layers : list[FloorLayer] or None, optional</span>
+<span class="sd">            Initial list of floor layers. Default is ``None`` (empty floor).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FloorLayer</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span> <span class="k">if</span> <span class="n">layers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="Floor.add_layer">
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.Floor.add_layer">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material</span><span class="p">:</span> <span class="n">Material</span><span class="p">,</span> <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adds a layer to the floor construction.</span>
-<span class="sd">        Note: Thickness in [mm] to keep in line with all other dimensions in structuralcodes</span>
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If thickness is not positive.</span>
-<span class="sd">            ValueError: If a layer with the same material type already exists in the floor.</span>
+<span class="sd">        Add a layer to the floor construction.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        material : Material</span>
+<span class="sd">            Material for the new layer.</span>
+<span class="sd">        thickness : float</span>
+<span class="sd">            Layer thickness [mm]. Must be positive.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``thickness`` is not positive, or if a layer with the same</span>
+<span class="sd">            material type already exists in the floor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">thickness</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Thickness must be positive&quot;</span><span class="p">)</span>
@@ -402,7 +488,12 @@
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.Floor.dead_load">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dead_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the total dead load of the floor layers [kN/m²].</span>
+<span class="sd">        Compute the total dead load of all floor layers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Total floor dead load [kN/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">floor_dead_load</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
             <span class="n">layer</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">density</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span> <span class="o">*</span> <span class="mf">1e-5</span>
@@ -416,15 +507,25 @@
 <a class="viewcode-back" href="../../api/slab_construction.floor.html#slab_construction.floor.Floor.get_layer_by_type">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_by_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">material_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloorLayer</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the FloorLayer whose material is an instance of *material_type*.</span>
+<span class="sd">        Return the floor layer whose material is an instance of</span>
+<span class="sd">        ``material_type``.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            material_type: A Material subclass, e.g. InsulationMaterial,</span>
-<span class="sd">                           ScreedMaterial, InfillMaterial, FloorMaterial.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        material_type : type</span>
+<span class="sd">            A :class:`Material` subclass, e.g. :class:`InsulationMaterial`,</span>
+<span class="sd">            :class:`ScreedMaterial`, :class:`InfillMaterial`,</span>
+<span class="sd">            :class:`FloorMaterial`.</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            KeyError: If no layer with the requested material type exists.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        FloorLayer</span>
+<span class="sd">            The matching floor layer.</span>
 
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no layer with the requested material type exists.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">material</span><span class="p">,</span> <span class="n">material_type</span><span class="p">):</span>

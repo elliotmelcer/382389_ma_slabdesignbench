@@ -221,7 +221,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../api/core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -290,7 +291,12 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für slab_construction.slab_construction</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">core.unit_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">mm2_to_m2</span><span class="p">,</span> <span class="n">mm3_to_m3</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SlabConstruction class combining a load-bearing slab with floor finishing layers.</span>
+
+<span class="sd">Author: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">core.unit_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">mm2_to_m2</span><span class="p">,</span> <span class="n">mm3_to_m3</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.floor</span><span class="w"> </span><span class="kn">import</span> <span class="n">Floor</span><span class="p">,</span> <span class="n">InfillMaterial</span><span class="p">,</span> <span class="n">InsulationMaterial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.slabs.hp_slab.hp_model.hp_slab</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPSlab</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.slabs.slab</span><span class="w"> </span><span class="kn">import</span> <span class="n">Slab</span>
@@ -300,10 +306,35 @@
 <a class="viewcode-back" href="../../api/slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SlabConstruction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Class to model a complete slab construction including load bearing structure and floor finishing</span>
+<span class="sd">    Complete slab construction consisting of a load-bearing slab and floor</span>
+<span class="sd">    finishing layers.</span>
+
+<span class="sd">    Validates that the infill material used by the slab and the infill layer</span>
+<span class="sd">    in the floor reference the same object on instantiation.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    slab : Slab</span>
+<span class="sd">        Load-bearing slab (e.g. :class:`HPSlab`).</span>
+<span class="sd">    floor : Floor</span>
+<span class="sd">        Floor finishing layer stack.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slab</span><span class="p">:</span> <span class="n">Slab</span><span class="p">,</span> <span class="n">floor</span><span class="p">:</span> <span class="n">Floor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        slab : Slab</span>
+<span class="sd">            Load-bearing slab object.</span>
+<span class="sd">        floor : Floor</span>
+<span class="sd">            Floor finishing layer stack.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the floor contains an infill layer whose material is not the</span>
+<span class="sd">            same object as the slab&#39;s infill material (identity check).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">slab</span> <span class="o">=</span> <span class="n">slab</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">floor</span> <span class="o">=</span> <span class="n">floor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_infill_compatibility</span><span class="p">()</span>
@@ -312,7 +343,12 @@
 <a class="viewcode-back" href="../../api/slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction.structural_dead_load_kN_m2">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">structural_dead_load_kN_m2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Total structural dead load of the slab construction [kN/m²].</span>
+<span class="sd">        Compute the structural dead load of the slab.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Structural dead load [kN/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">self_load</span><span class="p">()</span>
@@ -323,7 +359,12 @@
 <a class="viewcode-back" href="../../api/slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction.non_structural_dead_load_kN_m2">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">non_structural_dead_load_kN_m2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Total non-structural dead load of the slab construction [kN/m²].</span>
+<span class="sd">        Compute the non-structural dead load (infill + floor finishing).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Non-structural dead load [kN/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">infill_load</span><span class="p">()</span>
@@ -335,21 +376,26 @@
 <a class="viewcode-back" href="../../api/slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction.assert_infill_compatibility">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">assert_infill_compatibility</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Asserts that the slab&#39;s infill material is the same object as the floor&#39;s</span>
-<span class="sd">        infill layer material, if an infill layer is present in the floor.</span>
+<span class="sd">        Assert that the slab and floor share the same infill material object.</span>
 
-<span class="sd">        Note: This is only relevant if slab construction is instantiated manually.</span>
-<span class="sd">        One must make sure to use the same infill object for both the slab and the floor layer</span>
+<span class="sd">        Only relevant when :class:`SlabConstruction` is instantiated manually.</span>
+<span class="sd">        The same :class:`InfillMaterial` instance must be passed to both the</span>
+<span class="sd">        slab and the floor layer to avoid inconsistent density or name values.</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If an infill layer exists in the floor but its material</span>
-<span class="sd">                        is not the same object as the slab&#39;s infill material.</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an infill layer exists in the floor but its material is not the</span>
+<span class="sd">            same object (``is`` check) as the slab&#39;s infill material.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">floor_infill_layers</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">layer</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor</span><span class="o">.</span><span class="n">layers</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">material</span><span class="p">,</span> <span class="n">InfillMaterial</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">floor_infill_layers</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">slab</span><span class="o">.</span><span class="n">infill_load</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
 
         <span class="n">floor_infill</span> <span class="o">=</span> <span class="n">floor_infill_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">material</span>
@@ -366,10 +412,19 @@
 
 <div class="viewcode-block" id="SlabConstruction.infill_area_density_kg_m2">
 <a class="viewcode-back" href="../../api/slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction.infill_area_density_kg_m2">[Doku]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">infill_area_density_kg_m2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">infill_area_density_kg_m2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the area density of the infill in [kg/m²]</span>
-<span class="sd">        Handles HPShell special case with minimum infill to achieve flat top</span>
+<span class="sd">        Compute the total infill area density.</span>
+
+<span class="sd">        For :class:`HPSlab`, the area density includes the minimum infill</span>
+<span class="sd">        volume required to flatten the curved shell top surface plus any</span>
+<span class="sd">        additional floor infill layer thickness. For other slab types only</span>
+<span class="sd">        the floor layer contribution is used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Total infill area density [kg/m²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">infill_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor</span><span class="o">.</span><span class="n">get_layer_by_type</span><span class="p">(</span><span class="n">InfillMaterial</span><span class="p">)</span>
 
@@ -405,10 +460,40 @@
 <a class="viewcode-back" href="../../api/slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction.get_parameters">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a dictionary containing all slab construction parameters</span>
-<span class="sd">        organized by category: Geometry, Concrete, and Reinforcement.</span>
+<span class="sd">        Return a dictionary of all slab construction parameters organized by</span>
+<span class="sd">        category.</span>
 
-<span class="sd">        Note: This method assumes the slab is an HPSlab with an HPShell.</span>
+<span class="sd">        Currently only implemented for :class:`HPSlab` with an</span>
+<span class="sd">        :class:`HPShell`. For other slab types the geometry, concrete, and</span>
+<span class="sd">        reinforcement sub-dicts will be empty.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Nested dictionary with the following structure:</span>
+
+<span class="sd">            - ``&quot;geometry&quot;`` — dict with keys:</span>
+
+<span class="sd">              - ``&quot;span_L&quot;`` — span length [mm].</span>
+<span class="sd">              - ``&quot;width_B&quot;`` — width [mm].</span>
+<span class="sd">              - ``&quot;height&quot;`` — total rise H_ges = H_x + H_y [mm].</span>
+<span class="sd">              - ``&quot;Hx_Hges&quot;`` — rise ratio H_x / H_ges [-].</span>
+<span class="sd">              - ``&quot;thickness&quot;`` — shell thickness t [mm].</span>
+<span class="sd">              - ``&quot;nt&quot;`` — number of tendons per group [-].</span>
+<span class="sd">              - ``&quot;dy&quot;`` — edge-tendon offset [mm].</span>
+<span class="sd">              - ``&quot;thickness_infill&quot;`` — infill layer thickness [mm].</span>
+<span class="sd">              - ``&quot;thickness_screed&quot;`` — screed layer thickness [mm].</span>
+<span class="sd">              - ``&quot;thickness_insulation&quot;`` — insulation layer thickness [mm].</span>
+
+<span class="sd">            - ``&quot;concrete&quot;`` — dict with keys:</span>
+
+<span class="sd">              - ``&quot;fck&quot;`` — characteristic cylinder strength [N/mm²].</span>
+
+<span class="sd">            - ``&quot;reinforcement&quot;`` — dict with keys:</span>
+
+<span class="sd">              - ``&quot;name&quot;`` — reinforcement material name.</span>
+<span class="sd">              - ``&quot;initial_strain_percentage&quot;`` — prestress level [%].</span>
+<span class="sd">              - ``&quot;cross_sectional_area&quot;`` — bar area [mm²].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.slabs.hp_slab.hp_model.hp_slab</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPSlab</span>
 
@@ -491,6 +576,12 @@
 <div class="viewcode-block" id="SlabConstruction.print_parameters">
 <a class="viewcode-back" href="../../api/slab_construction.slab_construction.html#slab_construction.slab_construction.SlabConstruction.print_parameters">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">print_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print all slab construction parameters to console.</span>
+
+<span class="sd">        Calls :meth:`get_parameters` and formats the result by category</span>
+<span class="sd">        (geometry, concrete, reinforcement).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">()</span>
 
         <span class="c1"># Print results</span>

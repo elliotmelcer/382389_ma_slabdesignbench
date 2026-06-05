@@ -98,7 +98,7 @@ class DeflectionCalculator:
             :func:`calculate_moment_curvature_sls_EC`. Default is ``False``.
         debug : bool, optional
             If ``True``, prints intermediate values (cracking moments, ζ
-            arrays) to stdout. Default is ``False``.
+            arrays) to console. Default is ``False``.
         extended_debug : bool, optional
             If ``True``, prints full Simpson and κ-interpolation tables in
             addition to the standard debug output. Default is ``False``.
@@ -212,7 +212,7 @@ class DeflectionCalculator:
         debug : bool
             Unused in this method; passed through for interface consistency.
         extended_debug : bool
-            If ``True``, prints κ-interpolation and Simpson tables to stdout.
+            If ``True``, prints κ-interpolation and Simpson tables to console.
 
         Returns
         -------

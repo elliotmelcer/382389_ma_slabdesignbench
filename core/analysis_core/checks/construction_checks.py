@@ -120,7 +120,7 @@ class ReinforcementSpacingCheck(ConstructionCheck):
             Full slab construction object.
         debug_print : bool, optional
             If ``True``, prints the minimum available clear spacing to
-            stdout. Default is ``False``.
+            console. Default is ``False``.
 
         Returns
         -------

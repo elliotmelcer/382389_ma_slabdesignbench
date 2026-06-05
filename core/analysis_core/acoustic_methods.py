@@ -34,7 +34,7 @@ def calculate_sound_reduction_index(
     mod_att : float
         Modal attenuation parameter of the HP-shell [-].
     debug : bool, optional
-        If ``True``, intermediate values are printed to stdout.
+        If ``True``, intermediate values are printed to console.
         Default is ``False``.
 
     Returns
@@ -129,7 +129,7 @@ def calculate_standard_impact_sound_pressure_level(
     mod_att : float
         Modal attenuation parameter of the HP-shell [-].
     debug : bool, optional
-        If ``True``, intermediate values are printed to stdout.
+        If ``True``, intermediate values are printed to console.
         Default is ``False``.
 
     Returns

@@ -1018,7 +1018,7 @@ def plot_constitutive_law_concrete(concrete: Concrete, n: int = 100, debug: bool
     n : int, optional
         Number of sample points per branch [-]. Default is ``100``.
     debug : bool, optional
-        If ``True``, prints the strain and stress arrays to stdout.
+        If ``True``, prints the strain and stress arrays to console.
         Default is ``False``.
     show_markers : bool, optional
         If ``True``, adds circle markers at each sample point.

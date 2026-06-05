@@ -221,7 +221,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -400,6 +401,8 @@
 <span class="c1"># Geometry</span>
 <span class="c1"># =====================================================================================================</span>
 
+<div class="viewcode-block" id="_plot_geometry">
+<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization._plot_geometry">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_plot_geometry</span><span class="p">(</span><span class="n">geo</span><span class="p">:</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot a :class:`Geometry`, :class:`SurfaceGeometry`, :class:`PointGeometry`,</span>
@@ -450,8 +453,11 @@
     <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="n">spine</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">ax</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
 
+
+<div class="viewcode-block" id="_plot_polygon">
+<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization._plot_polygon">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_plot_polygon</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgrey&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fill and outline a Shapely :class:`~shapely.Polygon`, including interior</span>
@@ -477,7 +483,8 @@
     <span class="c1"># --- Fill holes (white) ---</span>
     <span class="k">for</span> <span class="n">hole</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">interiors</span><span class="p">:</span>
         <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span> <span class="o">=</span> <span class="n">hole</span><span class="o">.</span><span class="n">xy</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span></div>
+
 
 <span class="c1"># =====================================================================================================</span>
 <span class="c1"># Strain Profile</span>
@@ -1339,7 +1346,7 @@
 <span class="sd">    n : int, optional</span>
 <span class="sd">        Number of sample points per branch [-]. Default is ``100``.</span>
 <span class="sd">    debug : bool, optional</span>
-<span class="sd">        If ``True``, prints the strain and stress arrays to stdout.</span>
+<span class="sd">        If ``True``, prints the strain and stress arrays to console.</span>
 <span class="sd">        Default is ``False``.</span>
 <span class="sd">    show_markers : bool, optional</span>
 <span class="sd">        If ``True``, adds circle markers at each sample point.</span>

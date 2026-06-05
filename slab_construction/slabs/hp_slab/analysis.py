@@ -134,7 +134,7 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
         :func:`load_materials_registry`.
     debug : bool, optional
         If ``True``, prints detailed constraint values, penalty values,
-        and penalty product to stdout. Default is ``False``.
+        and penalty product to console. Default is ``False``.
 
     Returns
     -------

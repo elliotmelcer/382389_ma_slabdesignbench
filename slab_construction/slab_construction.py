@@ -1,3 +1,8 @@
+"""
+SlabConstruction class combining a load-bearing slab with floor finishing layers.
+
+Author: Elliot Melcer
+"""
 from core.unit_core import mm2_to_m2, mm3_to_m3
 from slab_construction.floor import Floor, InfillMaterial, InsulationMaterial
 from slab_construction.slabs.hp_slab.hp_model.hp_slab import HPSlab
@@ -6,17 +11,47 @@ from slab_construction.slabs.slab import Slab
 
 class SlabConstruction:
     """
-    Author: Elliot Melcer
-    Class to model a complete slab construction including load bearing structure and floor finishing
+    Complete slab construction consisting of a load-bearing slab and floor
+    finishing layers.
+
+    Validates that the infill material used by the slab and the infill layer
+    in the floor reference the same object on instantiation.
+
+    Attributes
+    ----------
+    slab : Slab
+        Load-bearing slab (e.g. :class:`HPSlab`).
+    floor : Floor
+        Floor finishing layer stack.
     """
+
     def __init__(self, slab: Slab, floor: Floor):
+        """
+        Parameters
+        ----------
+        slab : Slab
+            Load-bearing slab object.
+        floor : Floor
+            Floor finishing layer stack.
+
+        Raises
+        ------
+        ValueError
+            If the floor contains an infill layer whose material is not the
+            same object as the slab's infill material (identity check).
+        """
         self.slab = slab
         self.floor = floor
         self.assert_infill_compatibility()
 
     def structural_dead_load_kN_m2(self) -> float:
         """
-        Total structural dead load of the slab construction [kN/m²].
+        Compute the structural dead load of the slab.
+
+        Returns
+        -------
+        float
+            Structural dead load [kN/m²].
         """
         return (
             self.slab.self_load()
@@ -24,7 +59,12 @@ class SlabConstruction:
 
     def non_structural_dead_load_kN_m2(self) -> float:
         """
-        Total non-structural dead load of the slab construction [kN/m²].
+        Compute the non-structural dead load (infill + floor finishing).
+
+        Returns
+        -------
+        float
+            Non-structural dead load [kN/m²].
         """
         return (
             self.slab.infill_load()
@@ -33,21 +73,26 @@ class SlabConstruction:
 
     def assert_infill_compatibility(self) -> None:
         """
-        Asserts that the slab's infill material is the same object as the floor's
-        infill layer material, if an infill layer is present in the floor.
+        Assert that the slab and floor share the same infill material object.
 
-        Note: This is only relevant if slab construction is instantiated manually.
-        One must make sure to use the same infill object for both the slab and the floor layer
+        Only relevant when :class:`SlabConstruction` is instantiated manually.
+        The same :class:`InfillMaterial` instance must be passed to both the
+        slab and the floor layer to avoid inconsistent density or name values.
 
-        Raises:
-            ValueError: If an infill layer exists in the floor but its material
-                        is not the same object as the slab's infill material.
+        Raises
+        ------
+        ValueError
+            If an infill layer exists in the floor but its material is not the
+            same object (``is`` check) as the slab's infill material.
         """
         floor_infill_layers = [
             layer for layer in self.floor.layers
             if isinstance(layer.material, InfillMaterial)
         ]
         if not floor_infill_layers:
+            return
+
+        if self.slab.infill_load() == 0:
             return
 
         floor_infill = floor_infill_layers[0].material
@@ -61,10 +106,19 @@ class SlabConstruction:
                 f"  Floor infill: '{floor_infill.name}'  (id={id(floor_infill)})"
             )
 
-    def infill_area_density_kg_m2(self):
+    def infill_area_density_kg_m2(self) -> float:
         """
-        Returns the area density of the infill in [kg/m²]
-        Handles HPShell special case with minimum infill to achieve flat top
+        Compute the total infill area density.
+
+        For :class:`HPSlab`, the area density includes the minimum infill
+        volume required to flatten the curved shell top surface plus any
+        additional floor infill layer thickness. For other slab types only
+        the floor layer contribution is used.
+
+        Returns
+        -------
+        float
+            Total infill area density [kg/m²].
         """
         infill_layer = self.floor.get_layer_by_type(InfillMaterial)
 
@@ -97,10 +151,40 @@ class SlabConstruction:
 
     def get_parameters(self) -> dict:
         """
-        Returns a dictionary containing all slab construction parameters
-        organized by category: Geometry, Concrete, and Reinforcement.
+        Return a dictionary of all slab construction parameters organized by
+        category.
 
-        Note: This method assumes the slab is an HPSlab with an HPShell.
+        Currently only implemented for :class:`HPSlab` with an
+        :class:`HPShell`. For other slab types the geometry, concrete, and
+        reinforcement sub-dicts will be empty.
+
+        Returns
+        -------
+        dict
+            Nested dictionary with the following structure:
+
+            - ``"geometry"`` — dict with keys:
+
+              - ``"span_L"`` — span length [mm].
+              - ``"width_B"`` — width [mm].
+              - ``"height"`` — total rise H_ges = H_x + H_y [mm].
+              - ``"Hx_Hges"`` — rise ratio H_x / H_ges [-].
+              - ``"thickness"`` — shell thickness t [mm].
+              - ``"nt"`` — number of tendons per group [-].
+              - ``"dy"`` — edge-tendon offset [mm].
+              - ``"thickness_infill"`` — infill layer thickness [mm].
+              - ``"thickness_screed"`` — screed layer thickness [mm].
+              - ``"thickness_insulation"`` — insulation layer thickness [mm].
+
+            - ``"concrete"`` — dict with keys:
+
+              - ``"fck"`` — characteristic cylinder strength [N/mm²].
+
+            - ``"reinforcement"`` — dict with keys:
+
+              - ``"name"`` — reinforcement material name.
+              - ``"initial_strain_percentage"`` — prestress level [%].
+              - ``"cross_sectional_area"`` — bar area [mm²].
         """
         from slab_construction.slabs.hp_slab.hp_model.hp_slab import HPSlab
 
@@ -180,6 +264,12 @@ class SlabConstruction:
         return params
 
     def print_parameters(self) -> None:
+        """
+        Print all slab construction parameters to console.
+
+        Calls :meth:`get_parameters` and formats the result by category
+        (geometry, concrete, reinforcement).
+        """
         parameters = self.get_parameters()
 
         # Print results

@@ -299,28 +299,62 @@
         <article role="main" id="furo-main-content">
           <section id="module-slab_construction.floor">
 <span id="floor-py"></span><h1>floor.py<a class="headerlink" href="#module-slab_construction.floor" title="Link to this heading">¶</a></h1>
+<p>Floor layer and floor construction classes for slab construction modeling.</p>
+<p>All thicknesses are in [mm] to remain consistent with the structuralcodes
+unit system (N, mm).</p>
+<p>Author: Elliot Melcer</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="slab_construction.floor.FloorLayer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FloorLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/floor.html#FloorLayer"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.FloorLayer" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Author: Elliot Melcer
-Basic Class to model floor layers
-Note: Thickness in [mm] to keep in line with all other dimensions in structuralcodes</p>
+<p>A single floor layer defined by its material and thickness.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slab_construction.floor.FloorLayer.material">
-<span class="sig-name descname"><span class="pre">material</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Material</span></span><a class="headerlink" href="#slab_construction.floor.FloorLayer.material" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">material</span></span><a class="headerlink" href="#slab_construction.floor.FloorLayer.material" title="Link to this definition">¶</a></dt>
+<dd><p>Material object for this layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slab_construction.floor.FloorLayer.thickness">
-<span class="sig-name descname"><span class="pre">thickness</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#slab_construction.floor.FloorLayer.thickness" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">thickness</span></span><a class="headerlink" href="#slab_construction.floor.FloorLayer.thickness" title="Link to this definition">¶</a></dt>
+<dd><p>Layer thickness [mm].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">material</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Material</span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">thickness</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.floor.FloorLayer.area_density_kg_m2">
-<span class="sig-name descname"><span class="pre">area_density_kg_m2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/floor.html#FloorLayer.area_density_kg_m2"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.FloorLayer.area_density_kg_m2" title="Link to this definition">¶</a></dt>
-<dd><p>Author: Elliot Melcer
-Returns area density for a FloorLayer of uniform thickness</p>
+<span class="sig-name descname"><span class="pre">area_density_kg_m2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/floor.html#FloorLayer.area_density_kg_m2"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.FloorLayer.area_density_kg_m2" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the area density of the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>None</strong></p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Area density [kg/m²].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -329,8 +363,15 @@ Returns area density for a FloorLayer of uniform thickness</p>
 <dt class="sig sig-object py" id="slab_construction.floor.FloorMaterial">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FloorMaterial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FloorMaterial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/floor.html#FloorMaterial"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.FloorMaterial" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></p>
-<p>Author: Elliot Melcer
-Instantiable Simple Material for generic floor layers.</p>
+<p>Generic floor layer material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Material density [kg/m³].</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – Material name. Default is <code class="docutils literal notranslate"><span class="pre">&quot;FloorMaterial&quot;</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slab_construction.floor.FloorMaterial._abc_impl">
 <span class="sig-name descname"><span class="pre">_abc_impl</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#slab_construction.floor.FloorMaterial._abc_impl" title="Link to this definition">¶</a></dt>
@@ -342,8 +383,15 @@ Instantiable Simple Material for generic floor layers.</p>
 <dt class="sig sig-object py" id="slab_construction.floor.ScreedMaterial">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ScreedMaterial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ScreedMaterial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/floor.html#ScreedMaterial"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.ScreedMaterial" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></p>
-<p>Author: Elliot Melcer
-Instantiable Material for screed layers.</p>
+<p>Screed layer material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Material density [kg/m³].</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – Material name. Default is <code class="docutils literal notranslate"><span class="pre">&quot;ScreedMaterial&quot;</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slab_construction.floor.ScreedMaterial._abc_impl">
 <span class="sig-name descname"><span class="pre">_abc_impl</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#slab_construction.floor.ScreedMaterial._abc_impl" title="Link to this definition">¶</a></dt>
@@ -355,8 +403,15 @@ Instantiable Material for screed layers.</p>
 <dt class="sig sig-object py" id="slab_construction.floor.InfillMaterial">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InfillMaterial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'InfillMaterial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/floor.html#InfillMaterial"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.InfillMaterial" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></p>
-<p>Author: Elliot Melcer
-Instantiable Material for infill layers.</p>
+<p>Infill layer material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Material density [kg/m³].</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – Material name. Default is <code class="docutils literal notranslate"><span class="pre">&quot;InfillMaterial&quot;</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slab_construction.floor.InfillMaterial._abc_impl">
 <span class="sig-name descname"><span class="pre">_abc_impl</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#slab_construction.floor.InfillMaterial._abc_impl" title="Link to this definition">¶</a></dt>
@@ -368,9 +423,28 @@ Instantiable Material for infill layers.</p>
 <dt class="sig sig-object py" id="slab_construction.floor.InsulationMaterial">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">InsulationMaterial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_dyn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'InsulationMaterial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/floor.html#InsulationMaterial"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.InsulationMaterial" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></p>
-<p>Author: Elliot Melcer
-Instantiable Simple Material for insulation layers.
-Note: E_dyn in MN/m³</p>
+<p>Sound insulation layer material.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.floor.InsulationMaterial.E_dyn">
+<span class="sig-name descname"><span class="pre">E_dyn</span></span><a class="headerlink" href="#slab_construction.floor.InsulationMaterial.E_dyn" title="Link to this definition">¶</a></dt>
+<dd><p>Dynamic modulus of elasticity used for resonant frequency
+calculations [MN/m³].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Material density [kg/m³].</p></li>
+<li><p><strong>E_dyn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Dynamic stiffness [MN/m³].</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – Material name. Default is <code class="docutils literal notranslate"><span class="pre">&quot;InsulationMaterial&quot;</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slab_construction.floor.InsulationMaterial._abc_impl">
 <span class="sig-name descname"><span class="pre">_abc_impl</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#slab_construction.floor.InsulationMaterial._abc_impl" title="Link to this definition">¶</a></dt>
@@ -382,42 +456,76 @@ Note: E_dyn in MN/m³</p>
 <dt class="sig sig-object py" id="slab_construction.floor.Floor">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Floor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#slab_construction.floor.FloorLayer" title="slab_construction.floor.FloorLayer"><span class="pre">FloorLayer</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/floor.html#Floor"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.Floor" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Author: Elliot Melcer
-Class to model a floor construction made up of floor layers</p>
+<p>Floor construction composed of ordered <a class="reference internal" href="#slab_construction.floor.FloorLayer" title="slab_construction.floor.FloorLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">FloorLayer</span></code></a> objects.</p>
+<p>Layers are stored in the order they are added. At most one layer per
+material type is permitted.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slab_construction.floor.Floor.layers">
-<span class="sig-name descname"><span class="pre">layers</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#slab_construction.floor.FloorLayer" title="slab_construction.floor.FloorLayer"><span class="pre">FloorLayer</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#slab_construction.floor.Floor.layers" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">layers</span></span><a class="headerlink" href="#slab_construction.floor.Floor.layers" title="Link to this definition">¶</a></dt>
+<dd><p>Ordered list of floor layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list[FloorLayer]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">layers</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#slab_construction.floor.FloorLayer" title="slab_construction.floor.FloorLayer"><span class="pre">FloorLayer</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.floor.Floor.add_layer">
 <span class="sig-name descname"><span class="pre">add_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/floor.html#Floor.add_layer"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.Floor.add_layer" title="Link to this definition">¶</a></dt>
-<dd><p>Adds a layer to the floor construction.
-Note: Thickness in [mm] to keep in line with all other dimensions in structuralcodes
-Raises:</p>
-<blockquote>
-<div><p>ValueError: If thickness is not positive.
-ValueError: If a layer with the same material type already exists in the floor.</p>
-</div></blockquote>
+<dd><p>Add a layer to the floor construction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code>) – Material for the new layer.</p></li>
+<li><p><strong>thickness</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Layer thickness [mm]. Must be positive.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">thickness</span></code> is not positive, or if a layer with the same
+    material type already exists in the floor.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.floor.Floor.dead_load">
 <span class="sig-name descname"><span class="pre">dead_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/floor.html#Floor.dead_load"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.Floor.dead_load" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates the total dead load of the floor layers [kN/m²].</p>
+<dd><p>Compute the total dead load of all floor layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Total floor dead load [kN/m²].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.floor.Floor.get_layer_by_type">
 <span class="sig-name descname"><span class="pre">get_layer_by_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><span class="pre">type</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#slab_construction.floor.FloorLayer" title="slab_construction.floor.FloorLayer"><span class="pre">FloorLayer</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/floor.html#Floor.get_layer_by_type"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.floor.Floor.get_layer_by_type" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the FloorLayer whose material is an instance of <em>material_type</em>.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>material_type: A Material subclass, e.g. InsulationMaterial,</dt><dd><p>ScreedMaterial, InfillMaterial, FloorMaterial.</p>
+<dd><p>Return the floor layer whose material is an instance of
+<code class="docutils literal notranslate"><span class="pre">material_type</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>material_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></a>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code> subclass, e.g. <a class="reference internal" href="#slab_construction.floor.InsulationMaterial" title="slab_construction.floor.InsulationMaterial"><code class="xref py py-class docutils literal notranslate"><span class="pre">InsulationMaterial</span></code></a>,
+<a class="reference internal" href="#slab_construction.floor.ScreedMaterial" title="slab_construction.floor.ScreedMaterial"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScreedMaterial</span></code></a>, <a class="reference internal" href="#slab_construction.floor.InfillMaterial" title="slab_construction.floor.InfillMaterial"><code class="xref py py-class docutils literal notranslate"><span class="pre">InfillMaterial</span></code></a>,
+<a class="reference internal" href="#slab_construction.floor.FloorMaterial" title="slab_construction.floor.FloorMaterial"><code class="xref py py-class docutils literal notranslate"><span class="pre">FloorMaterial</span></code></a>.</p>
 </dd>
-</dl>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>The matching floor layer.</p>
 </dd>
-<dt>Raises:</dt><dd><p>KeyError: If no layer with the requested material type exists.</p>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#slab_construction.floor.FloorLayer" title="slab_construction.floor.FloorLayer"><code class="xref py py-class docutils literal notranslate"><span class="pre">FloorLayer</span></code></a></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If no layer with the requested material type exists.</p>
 </dd>
 </dl>
 </dd></dl>

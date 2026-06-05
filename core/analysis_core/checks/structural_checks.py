@@ -107,7 +107,7 @@ class UltimateMomentCheckEC2004DE(StructuralCheck):
             ``0.0``.
         debug_print : bool, optional
             If ``True``, prints intermediate values (system, moment type,
-            x-position, M_Rd, M_Ed, utilization) to stdout.
+            x-position, M_Rd, M_Ed, utilization) to console.
             Default is ``False``.
 
         Returns
@@ -206,7 +206,7 @@ class DeflectionLimitByDeflectionCheckEC2004DE(StructuralCheck):
             w_limit = L / limit_factor [-]. Default is ``250.0``.
         debug : bool, optional
             If ``True``, passes debug flag to the deflection calculator
-            and prints raw utilization, w_max, and L to stdout.
+            and prints raw utilization, w_max, and L to console.
             Default is ``False``.
 
         Returns
@@ -297,7 +297,7 @@ class DeflectionLimitByMcrCheckEC2004DE(StructuralCheck):
             ``0.0``.
         debug : bool, optional
             If ``True``, prints M_qp, M_cr validity, M_cr, and
-            utilization to stdout. Default is ``False``.
+            utilization to console. Default is ``False``.
 
         Returns
         -------
@@ -394,7 +394,7 @@ class FailureAnnouncementByDeflectionCheckEC2004DE(StructuralCheck):
             w_min = L / min_factor [-]. Default is ``250.0``.
         debug : bool, optional
             If ``True``, passes debug flag to the deflection calculator
-            and prints w_max, w_min, and utilization to stdout.
+            and prints w_max, w_min, and utilization to console.
             Default is ``False``.
 
         Returns
@@ -487,7 +487,7 @@ class FailureAnnouncementByMcrCheckEC2004DE(StructuralCheck):
             ``0.0``.
         debug : bool, optional
             If ``True``, prints M_fund, M_cr validity, M_cr, and
-            utilization to stdout. Default is ``False``.
+            utilization to console. Default is ``False``.
 
         Returns
         -------

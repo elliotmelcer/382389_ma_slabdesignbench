@@ -299,59 +299,153 @@
         <article role="main" id="furo-main-content">
           <section id="module-slab_construction.slab_construction">
 <span id="slab-construction-py"></span><h1>slab_construction.py<a class="headerlink" href="#module-slab_construction.slab_construction" title="Link to this heading">¶</a></h1>
+<p>SlabConstruction class combining a load-bearing slab with floor finishing layers.</p>
+<p>Author: Elliot Melcer</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SlabConstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.slabs.slab.html#slab_construction.slabs.slab.Slab" title="slab_construction.slabs.slab.Slab"><span class="pre">Slab</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="slab_construction.floor.html#slab_construction.floor.Floor" title="slab_construction.floor.Floor"><span class="pre">Floor</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/slab_construction.html#SlabConstruction"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Author: Elliot Melcer
-Class to model a complete slab construction including load bearing structure and floor finishing</p>
+<p>Complete slab construction consisting of a load-bearing slab and floor
+finishing layers.</p>
+<p>Validates that the infill material used by the slab and the infill layer
+in the floor reference the same object on instantiation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction.slab">
+<span class="sig-name descname"><span class="pre">slab</span></span><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.slab" title="Link to this definition">¶</a></dt>
+<dd><p>Load-bearing slab (e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">HPSlab</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Slab</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction.floor">
+<span class="sig-name descname"><span class="pre">floor</span></span><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.floor" title="Link to this definition">¶</a></dt>
+<dd><p>Floor finishing layer stack.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Floor</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction.structural_dead_load_kN_m2">
 <span class="sig-name descname"><span class="pre">structural_dead_load_kN_m2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slab_construction.html#SlabConstruction.structural_dead_load_kN_m2"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.structural_dead_load_kN_m2" title="Link to this definition">¶</a></dt>
-<dd><p>Total structural dead load of the slab construction [kN/m²].</p>
+<dd><p>Compute the structural dead load of the slab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Structural dead load [kN/m²].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction.non_structural_dead_load_kN_m2">
 <span class="sig-name descname"><span class="pre">non_structural_dead_load_kN_m2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slab_construction.html#SlabConstruction.non_structural_dead_load_kN_m2"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.non_structural_dead_load_kN_m2" title="Link to this definition">¶</a></dt>
-<dd><p>Total non-structural dead load of the slab construction [kN/m²].</p>
+<dd><p>Compute the non-structural dead load (infill + floor finishing).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Non-structural dead load [kN/m²].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction.assert_infill_compatibility">
 <span class="sig-name descname"><span class="pre">assert_infill_compatibility</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slab_construction.html#SlabConstruction.assert_infill_compatibility"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.assert_infill_compatibility" title="Link to this definition">¶</a></dt>
-<dd><p>Asserts that the slab’s infill material is the same object as the floor’s
-infill layer material, if an infill layer is present in the floor.</p>
-<p>Note: This is only relevant if slab construction is instantiated manually.
-One must make sure to use the same infill object for both the slab and the floor layer</p>
-<dl class="simple">
-<dt>Raises:</dt><dd><dl class="simple">
-<dt>ValueError: If an infill layer exists in the floor but its material</dt><dd><p>is not the same object as the slab’s infill material.</p>
-</dd>
-</dl>
+<dd><p>Assert that the slab and floor share the same infill material object.</p>
+<p>Only relevant when <a class="reference internal" href="#slab_construction.slab_construction.SlabConstruction" title="slab_construction.slab_construction.SlabConstruction"><code class="xref py py-class docutils literal notranslate"><span class="pre">SlabConstruction</span></code></a> is instantiated manually.
+The same <code class="xref py py-class docutils literal notranslate"><span class="pre">InfillMaterial</span></code> instance must be passed to both the
+slab and the floor layer to avoid inconsistent density or name values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Verursacht<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If an infill layer exists in the floor but its material is not the
+    same object (<code class="docutils literal notranslate"><span class="pre">is</span></code> check) as the slab’s infill material.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction.infill_area_density_kg_m2">
-<span class="sig-name descname"><span class="pre">infill_area_density_kg_m2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slab_construction/slab_construction.html#SlabConstruction.infill_area_density_kg_m2"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.infill_area_density_kg_m2" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the area density of the infill in [kg/m²]
-Handles HPShell special case with minimum infill to achieve flat top</p>
+<span class="sig-name descname"><span class="pre">infill_area_density_kg_m2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slab_construction.html#SlabConstruction.infill_area_density_kg_m2"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.infill_area_density_kg_m2" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the total infill area density.</p>
+<p>For <code class="xref py py-class docutils literal notranslate"><span class="pre">HPSlab</span></code>, the area density includes the minimum infill
+volume required to flatten the curved shell top surface plus any
+additional floor infill layer thickness. For other slab types only
+the floor layer contribution is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Total infill area density [kg/m²].</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction.get_parameters">
 <span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slab_construction.html#SlabConstruction.get_parameters"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.get_parameters" title="Link to this definition">¶</a></dt>
-<dd><p>Returns a dictionary containing all slab construction parameters
-organized by category: Geometry, Concrete, and Reinforcement.</p>
-<p>Note: This method assumes the slab is an HPSlab with an HPShell.</p>
+<dd><p>Return a dictionary of all slab construction parameters organized by
+category.</p>
+<p>Currently only implemented for <code class="xref py py-class docutils literal notranslate"><span class="pre">HPSlab</span></code> with an
+<code class="xref py py-class docutils literal notranslate"><span class="pre">HPShell</span></code>. For other slab types the geometry, concrete, and
+reinforcement sub-dicts will be empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>Nested dictionary with the following structure:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;geometry&quot;</span></code> — dict with keys:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;span_L&quot;</span></code> — span length [mm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;width_B&quot;</span></code> — width [mm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;height&quot;</span></code> — total rise H_ges = H_x + H_y [mm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;Hx_Hges&quot;</span></code> — rise ratio H_x / H_ges [-].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;thickness&quot;</span></code> — shell thickness t [mm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;nt&quot;</span></code> — number of tendons per group [-].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;dy&quot;</span></code> — edge-tendon offset [mm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;thickness_infill&quot;</span></code> — infill layer thickness [mm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;thickness_screed&quot;</span></code> — screed layer thickness [mm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;thickness_insulation&quot;</span></code> — insulation layer thickness [mm].</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;concrete&quot;</span></code> — dict with keys:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;fck&quot;</span></code> — characteristic cylinder strength [N/mm²].</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;reinforcement&quot;</span></code> — dict with keys:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;name&quot;</span></code> — reinforcement material name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;initial_strain_percentage&quot;</span></code> — prestress level [%].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cross_sectional_area&quot;</span></code> — bar area [mm²].</p></li>
+</ul>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slab_construction.SlabConstruction.print_parameters">
 <span class="sig-name descname"><span class="pre">print_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slab_construction.html#SlabConstruction.print_parameters"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slab_construction.SlabConstruction.print_parameters" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Print all slab construction parameters to console.</p>
+<p>Calls <a class="reference internal" href="#slab_construction.slab_construction.SlabConstruction.get_parameters" title="slab_construction.slab_construction.SlabConstruction.get_parameters"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_parameters()</span></code></a> and formats the result by category
+(geometry, concrete, reinforcement).</p>
+</dd></dl>
 
 </dd></dl>
 
