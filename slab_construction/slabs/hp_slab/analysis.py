@@ -1,5 +1,17 @@
 """
-Perform all Checks here
+HP-slab analysis function for SlabDesignBench.
+
+Builds the full slab construction object from a decoded parameter
+dictionary, evaluates all structural, construction, acoustic, and
+modeling checks, computes the weighted objective function, and returns
+a result dictionary compatible with the IOH benchmarking framework.
+
+Framework adapted from: Max Dombrowski
+
+Scope of checks and penalized penalty function formulation adapted
+from Jamila Loutfi :cite:`loutfi_2023`
+
+Author: Elliot Melcer
 """
 from structuralcodes import set_design_code
 from structuralcodes.materials.concrete import create_concrete
@@ -24,10 +36,37 @@ from slab_construction.slabs.hp_slab.hp_model.hp_geometry import HPGeometry
 from slab_construction.slabs.hp_slab.hp_model.hp_shell import HPShell
 from slab_construction.slabs.hp_slab.hp_model.hp_slab import HPSlab
 
+
 def resolve_active_constraints(params: dict, constraints: dict) -> dict:
     """
-    Filter `constraints` based on params before IOH registration.
-    Called once per problem build with the FIXED params of that problem.
+    Filter the constraint dictionary based on the fixed SLS deflection case.
+
+    Called once per problem build (before IOH registration) with the
+    fixed parameters of that problem. Removes the checks that are
+    mutually exclusive with the chosen deflection case so that the IOH
+    logger only tracks the relevant constraints.
+
+    Parameters
+    ----------
+    params : dict
+        Fixed parameter dictionary for the problem being built. Must
+        contain the key ``"defl_sls_case"`` with value ``"a"`` or
+        ``"b"`` (case-insensitive).
+    constraints : dict
+        Full constraint configuration dict as returned by
+        :func:`load_problems_combined`.
+
+    Returns
+    -------
+    dict
+        Filtered copy of ``constraints`` with mutually exclusive checks
+        removed:
+
+        - Case ``"a"``: removes ``B1b_deflection_by_mcr_capacity`` and
+          ``B2b_failure_announcement_by_mcr_capacity``.
+        - Case ``"b"``: removes ``B1a_deflection_by_wmax_capacity`` and
+          ``B2a_failure_announcement_by_wmin_capacity``.
+        - Any other value: returns ``constraints`` unchanged.
     """
     out = dict(constraints)
     case = (params.get("defl_sls_case") or "").strip().lower()
@@ -39,16 +78,115 @@ def resolve_active_constraints(params: dict, constraints: dict) -> dict:
         out.pop("B2a_failure_announcement_by_wmin_capacity", None)
     return out
 
+
 def analysis(params: dict, constraints: dict, materials: dict, debug: bool = False) -> dict:
     """
-    Return all results -> unpenalized-objective + penalized-objective + all constraints (weight = exponent = 1)so we compute it ONCE.
+    Run the full HP-slab analysis for a single candidate design.
+
+    Builds the HP-slab construction object from decoded parameters,
+    evaluates all structural (A), serviceability (B), construction (C),
+    acoustic (D), and modeling (Z) checks, computes the weighted
+    objective function, applies the multiplicative penalty per Loutfi :cite:`loutfi_2023`.
+    Finally, it returns all results in a format compatible with the
+    :class:`EvalContext` cache.
+
+    All parameters in params : dict must be defined inside the
+    .csv-files within the hp_slab package
+
+    Parameters
+    ----------
+    params : dict
+        Decoded parameter dictionary as returned by ``decode(x_idx)``.
+        Required keys (extracted via :func:`_req_param`):
+
+        *Geometry:* ``geom_span_mm``, ``geom_b_mm``, ``geom_h_ges_mm``,
+        ``geom_t_mm``, ``geom_nt``, ``geom_dy_mm``,
+        ``geom_hx_hges_ratio``,
+        ``geom_t_infill_mm``, ``geom_t_insulation_mm``,
+        ``geom_t_screed_mm``.
+
+        *Materials:* ``mat_conc_fck``, ``mat_reinf_id``,
+        ``reinf_a_tex_mm2``, ``reinf_kap_t_percent``,
+        ``mat_infill_id``, ``mat_insu_id``, ``mat_screed_id``,
+        ``mat_conc_cost_eur_m3``, ``mat_conc_gwp_kgco2e_m3``,
+         ``mat_conc_cost_c30_ref_eur_m3``, ``mat_conc_gwp_c30_ref_kgco2e_m3``,
+        ``mat_reinf_cost_crfp/conc``, ``mat_reinf_gwp_crfp/conc``.
+
+        *Loads:* ``loads_N_kN``, ``loads_category``.
+
+        *Deflection:* ``defl_max_defl_limit``,
+        ``defl_max_announce_failure``, ``defl_sls_case``.
+
+        *Acoustics:* ``insu_mod_damp``, ``insu_rw_req_db``,
+        ``insu_lnw_max_db``.
+
+        *Beam theory:* ``f_beam_theory``.
+
+        *Objective weights:* ``weight_omega_1_gwp``, ``weight_omega_2_cost``.
+
+    constraints : dict
+        Active constraint configuration dict for this problem, as
+        returned by :func:`resolve_active_constraints`. Each entry maps
+        a constraint name to its config dict (must contain
+        ``"active"``).
+    materials : dict
+        Materials registry dict as returned by
+        :func:`load_materials_registry`.
+    debug : bool, optional
+        If ``True``, prints detailed constraint values, penalty values,
+        and penalty product to stdout. Default is ``False``.
+
+    Returns
+    -------
+    dict
+        Result dictionary with the following keys:
+
+        - ``"y"`` — unpenalized objective value (weighted cost + GWP) [€ or kg CO₂-eq or combined, depending on weights].
+        - ``"y_p"`` — penalized objective value [€ or kg CO₂-eq or combined, depending on weights]..
+        - ``"constraint_values"`` — dict of all computed utilization ratios [-].
+        - ``"penalties_"`` — dict of active penalty factors (1.0 if
+          satisfied, utilization value if > 1.0) [-].
+        - ``"params"`` — copy of the input ``params`` dict.
+        - ``"feasible"`` — ``True`` (always set; feasibility is implied
+          by ``y_p == y``).
+        - ``"analysis_error"`` — ``None`` (or error info if material
+          creation fails; in that case ``"y"`` and ``"y_p"`` are
+          ``float("inf")``).
+
+    Notes
+    -----
+    **Objective function:**
+
+    .. math::
+
+        y = \\Omega_2 \\cdot y_{\\text{cost}} + \\Omega_1 \\cdot y_{\\text{gwp}}
+
+    where :math:`y_{\\text{cost}}` and :math:`y_{\\text{gwp}}` are the
+    material cost and global warming potential of the concrete shell and
+    CFRP reinforcement, respectively. Reinforcement cost and GWP are
+    expressed as factors relative to C30/37 reference concrete.
+
+    **Penalty formulation:**
+
+    All constraint utilization ratios u_i ≥ 0 are collected. For active
+    constraints the penalty factor is 1.0 if u_i ≤ 1.0 and u_i otherwise.
+    The penalized objective is:
+
+    .. math::
+
+        y_p = y \\cdot \\prod_{i} p_i^2
+
+    **SLS deflection case:**
+
+    Checks B.1 and B.2 exist in two variants (a: deflection-based,
+    b: M_{cr}-based); the active pair is selected by ``defl_sls_case``
+    and the inactive pair is excluded from the penalty product.
+
+    **Acoustic buffers:**
+
+    A safety buffer of 2 dB is applied to the airborne sound check (D.1)
+    and 3 dB to the impact sound check (D.2).
     """
-    #  analysis(params)(slab - specific) computes everything:
-    # - unpenalized objective y,
-    # - penalized objective y_p (apply weights / exponents / logic internally)
-    # - raw violations per constraint in result["violations"][ < name >]
-    # - default we set enforcement=HIDDEN, weight=1, exponent=1 (users can still override in csv, but it’s not needed).
-    # - the IOH-problem can get all these infos from the cache
 
     # ======================================================
     # EXTRACT PARAMETERS
@@ -416,9 +554,6 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
             print(f"  {k}: {v} (type: {type(v).__name__})")
 
         print(f"\nDEBUG penalty_product_: {penalty_product_} (type: {type(penalty_product_).__name__})")
-    # ======================================================================================================================
-    # PLOT CROSS-SECTION
-    # ======================================================================================================================
 
 
     # ======================================================================================================================
@@ -434,4 +569,3 @@ def analysis(params: dict, constraints: dict, materials: dict, debug: bool = Fal
         "feasible": True,
         "analysis_error": None,
     }
-

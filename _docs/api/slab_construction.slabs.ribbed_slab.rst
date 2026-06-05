@@ -1,6 +1,6 @@
 ribbed\_slab
 ============
-
+Placeholder for future slab type
 .. include:: ../_descriptions/slab_construction.slabs.ribbed_slab.rst
 
 .. |pkg_icon| raw:: html
@@ -12,7 +12,7 @@ ribbed\_slab
    <img src="../_static/module_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;">
 
 .. rubric:: Package Contents
-
+Empty
 
 
 

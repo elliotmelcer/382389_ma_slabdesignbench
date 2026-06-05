@@ -291,7 +291,19 @@
         <article role="main" id="furo-main-content">
           <h1>Quellcode für slab_construction.slabs.hp_slab.analysis</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Perform all Checks here</span>
+<span class="sd">HP-slab analysis function for SlabDesignBench.</span>
+
+<span class="sd">Builds the full slab construction object from a decoded parameter</span>
+<span class="sd">dictionary, evaluates all structural, construction, acoustic, and</span>
+<span class="sd">modeling checks, computes the weighted objective function, and returns</span>
+<span class="sd">a result dictionary compatible with the IOH benchmarking framework.</span>
+
+<span class="sd">Framework adapted from: Max Dombrowski</span>
+
+<span class="sd">Scope of checks and penalized penalty function formulation adapted</span>
+<span class="sd">from Jamila Loutfi :cite:`loutfi_2023`</span>
+
+<span class="sd">Author: Elliot Melcer</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_design_code</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.materials.concrete</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_concrete</span>
@@ -316,12 +328,39 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.slabs.hp_slab.hp_model.hp_shell</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPShell</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slab_construction.slabs.hp_slab.hp_model.hp_slab</span><span class="w"> </span><span class="kn">import</span> <span class="n">HPSlab</span>
 
+
 <div class="viewcode-block" id="resolve_active_constraints">
 <a class="viewcode-back" href="../../../../api/slab_construction.slabs.hp_slab.analysis.html#slab_construction.slabs.hp_slab.analysis.resolve_active_constraints">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_active_constraints</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">constraints</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Filter `constraints` based on params before IOH registration.</span>
-<span class="sd">    Called once per problem build with the FIXED params of that problem.</span>
+<span class="sd">    Filter the constraint dictionary based on the fixed SLS deflection case.</span>
+
+<span class="sd">    Called once per problem build (before IOH registration) with the</span>
+<span class="sd">    fixed parameters of that problem. Removes the checks that are</span>
+<span class="sd">    mutually exclusive with the chosen deflection case so that the IOH</span>
+<span class="sd">    logger only tracks the relevant constraints.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : dict</span>
+<span class="sd">        Fixed parameter dictionary for the problem being built. Must</span>
+<span class="sd">        contain the key ``&quot;defl_sls_case&quot;`` with value ``&quot;a&quot;`` or</span>
+<span class="sd">        ``&quot;b&quot;`` (case-insensitive).</span>
+<span class="sd">    constraints : dict</span>
+<span class="sd">        Full constraint configuration dict as returned by</span>
+<span class="sd">        :func:`load_problems_combined`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Filtered copy of ``constraints`` with mutually exclusive checks</span>
+<span class="sd">        removed:</span>
+
+<span class="sd">        - Case ``&quot;a&quot;``: removes ``B1b_deflection_by_mcr_capacity`` and</span>
+<span class="sd">          ``B2b_failure_announcement_by_mcr_capacity``.</span>
+<span class="sd">        - Case ``&quot;b&quot;``: removes ``B1a_deflection_by_wmax_capacity`` and</span>
+<span class="sd">          ``B2a_failure_announcement_by_wmin_capacity``.</span>
+<span class="sd">        - Any other value: returns ``constraints`` unchanged.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
     <span class="n">case</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;defl_sls_case&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -334,18 +373,117 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
+
 <div class="viewcode-block" id="analysis">
 <a class="viewcode-back" href="../../../../api/slab_construction.slabs.hp_slab.analysis.html#slab_construction.slabs.hp_slab.analysis.analysis">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">constraints</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">materials</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return all results -&gt; unpenalized-objective + penalized-objective + all constraints (weight = exponent = 1)so we compute it ONCE.</span>
+<span class="sd">    Run the full HP-slab analysis for a single candidate design.</span>
+
+<span class="sd">    Builds the HP-slab construction object from decoded parameters,</span>
+<span class="sd">    evaluates all structural (A), serviceability (B), construction (C),</span>
+<span class="sd">    acoustic (D), and modeling (Z) checks, computes the weighted</span>
+<span class="sd">    objective function, applies the multiplicative penalty per Loutfi :cite:`loutfi_2023`.</span>
+<span class="sd">    Finally, it returns all results in a format compatible with the</span>
+<span class="sd">    :class:`EvalContext` cache.</span>
+
+<span class="sd">    All parameters in params : dict must be defined inside the</span>
+<span class="sd">    .csv-files within the hp_slab package</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params : dict</span>
+<span class="sd">        Decoded parameter dictionary as returned by ``decode(x_idx)``.</span>
+<span class="sd">        Required keys (extracted via :func:`_req_param`):</span>
+
+<span class="sd">        *Geometry:* ``geom_span_mm``, ``geom_b_mm``, ``geom_h_ges_mm``,</span>
+<span class="sd">        ``geom_t_mm``, ``geom_nt``, ``geom_dy_mm``,</span>
+<span class="sd">        ``geom_hx_hges_ratio``,</span>
+<span class="sd">        ``geom_t_infill_mm``, ``geom_t_insulation_mm``,</span>
+<span class="sd">        ``geom_t_screed_mm``.</span>
+
+<span class="sd">        *Materials:* ``mat_conc_fck``, ``mat_reinf_id``,</span>
+<span class="sd">        ``reinf_a_tex_mm2``, ``reinf_kap_t_percent``,</span>
+<span class="sd">        ``mat_infill_id``, ``mat_insu_id``, ``mat_screed_id``,</span>
+<span class="sd">        ``mat_conc_cost_eur_m3``, ``mat_conc_gwp_kgco2e_m3``,</span>
+<span class="sd">         ``mat_conc_cost_c30_ref_eur_m3``, ``mat_conc_gwp_c30_ref_kgco2e_m3``,</span>
+<span class="sd">        ``mat_reinf_cost_crfp/conc``, ``mat_reinf_gwp_crfp/conc``.</span>
+
+<span class="sd">        *Loads:* ``loads_N_kN``, ``loads_category``.</span>
+
+<span class="sd">        *Deflection:* ``defl_max_defl_limit``,</span>
+<span class="sd">        ``defl_max_announce_failure``, ``defl_sls_case``.</span>
+
+<span class="sd">        *Acoustics:* ``insu_mod_damp``, ``insu_rw_req_db``,</span>
+<span class="sd">        ``insu_lnw_max_db``.</span>
+
+<span class="sd">        *Beam theory:* ``f_beam_theory``.</span>
+
+<span class="sd">        *Objective weights:* ``weight_omega_1_gwp``, ``weight_omega_2_cost``.</span>
+
+<span class="sd">    constraints : dict</span>
+<span class="sd">        Active constraint configuration dict for this problem, as</span>
+<span class="sd">        returned by :func:`resolve_active_constraints`. Each entry maps</span>
+<span class="sd">        a constraint name to its config dict (must contain</span>
+<span class="sd">        ``&quot;active&quot;``).</span>
+<span class="sd">    materials : dict</span>
+<span class="sd">        Materials registry dict as returned by</span>
+<span class="sd">        :func:`load_materials_registry`.</span>
+<span class="sd">    debug : bool, optional</span>
+<span class="sd">        If ``True``, prints detailed constraint values, penalty values,</span>
+<span class="sd">        and penalty product to stdout. Default is ``False``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Result dictionary with the following keys:</span>
+
+<span class="sd">        - ``&quot;y&quot;`` — unpenalized objective value (weighted cost + GWP) [€ or kg CO₂-eq or combined, depending on weights].</span>
+<span class="sd">        - ``&quot;y_p&quot;`` — penalized objective value [€ or kg CO₂-eq or combined, depending on weights]..</span>
+<span class="sd">        - ``&quot;constraint_values&quot;`` — dict of all computed utilization ratios [-].</span>
+<span class="sd">        - ``&quot;penalties_&quot;`` — dict of active penalty factors (1.0 if</span>
+<span class="sd">          satisfied, utilization value if &gt; 1.0) [-].</span>
+<span class="sd">        - ``&quot;params&quot;`` — copy of the input ``params`` dict.</span>
+<span class="sd">        - ``&quot;feasible&quot;`` — ``True`` (always set; feasibility is implied</span>
+<span class="sd">          by ``y_p == y``).</span>
+<span class="sd">        - ``&quot;analysis_error&quot;`` — ``None`` (or error info if material</span>
+<span class="sd">          creation fails; in that case ``&quot;y&quot;`` and ``&quot;y_p&quot;`` are</span>
+<span class="sd">          ``float(&quot;inf&quot;)``).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    **Objective function:**</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        y = \\Omega_2 \\cdot y_{\\text{cost}} + \\Omega_1 \\cdot y_{\\text{gwp}}</span>
+
+<span class="sd">    where :math:`y_{\\text{cost}}` and :math:`y_{\\text{gwp}}` are the</span>
+<span class="sd">    material cost and global warming potential of the concrete shell and</span>
+<span class="sd">    CFRP reinforcement, respectively. Reinforcement cost and GWP are</span>
+<span class="sd">    expressed as factors relative to C30/37 reference concrete.</span>
+
+<span class="sd">    **Penalty formulation:**</span>
+
+<span class="sd">    All constraint utilization ratios u_i ≥ 0 are collected. For active</span>
+<span class="sd">    constraints the penalty factor is 1.0 if u_i ≤ 1.0 and u_i otherwise.</span>
+<span class="sd">    The penalized objective is:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        y_p = y \\cdot \\prod_{i} p_i^2</span>
+
+<span class="sd">    **SLS deflection case:**</span>
+
+<span class="sd">    Checks B.1 and B.2 exist in two variants (a: deflection-based,</span>
+<span class="sd">    b: M_{cr}-based); the active pair is selected by ``defl_sls_case``</span>
+<span class="sd">    and the inactive pair is excluded from the penalty product.</span>
+
+<span class="sd">    **Acoustic buffers:**</span>
+
+<span class="sd">    A safety buffer of 2 dB is applied to the airborne sound check (D.1)</span>
+<span class="sd">    and 3 dB to the impact sound check (D.2).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1">#  analysis(params)(slab - specific) computes everything:</span>
-    <span class="c1"># - unpenalized objective y,</span>
-    <span class="c1"># - penalized objective y_p (apply weights / exponents / logic internally)</span>
-    <span class="c1"># - raw violations per constraint in result[&quot;violations&quot;][ &lt; name &gt;]</span>
-    <span class="c1"># - default we set enforcement=HIDDEN, weight=1, exponent=1 (users can still override in csv, but it’s not needed).</span>
-    <span class="c1"># - the IOH-problem can get all these infos from the cache</span>
 
     <span class="c1"># ======================================================</span>
     <span class="c1"># EXTRACT PARAMETERS</span>
@@ -713,9 +851,6 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2"> (type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">DEBUG penalty_product_: </span><span class="si">{</span><span class="n">penalty_product_</span><span class="si">}</span><span class="s2"> (type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">penalty_product_</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-    <span class="c1"># ======================================================================================================================</span>
-    <span class="c1"># PLOT CROSS-SECTION</span>
-    <span class="c1"># ======================================================================================================================</span>
 
 
     <span class="c1"># ======================================================================================================================</span>
@@ -731,7 +866,6 @@
         <span class="s2">&quot;feasible&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;analysis_error&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span></div>
-
 
 </pre></div>
         </article>
