@@ -53,6 +53,7 @@ autodoc_default_options = {
     # So siehst du deinen Fortschritt — was noch keinen Docstring hat, taucht nicht auf.
     "undoc-members": False,
     "show-inheritance": True,
+    "private-members": True,
 }
 # Fallback: Wenn du NICHT aus der .venv baust, kannst du schwere Drittpakete mocken.
 # ACHTUNG: Klassen, die von structuralcodes erben (z.B. UserDefined, Material),

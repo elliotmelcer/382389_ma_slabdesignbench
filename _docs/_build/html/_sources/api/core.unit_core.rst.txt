@@ -15,8 +15,11 @@ unit\_core
 
 
 
+* |mod_icon| :doc:`unit_conversion.py <core.unit_core.unit_conversion>`
 
 .. toctree::
    :hidden:
 
 
+
+   core.unit_core.unit_conversion

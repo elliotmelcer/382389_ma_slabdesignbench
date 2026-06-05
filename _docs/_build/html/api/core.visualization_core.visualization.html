@@ -222,7 +222,8 @@
 <li class="toctree-l3"><a class="reference internal" href="core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current has-children"><a class="reference internal" href="core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
@@ -317,6 +318,44 @@ moment-curvature analysis results.</p>
 </dd>
 <dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[matplotlib.figure.Figure</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.axes.Axes]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.visualization_core.visualization._plot_geometry">
+<span class="sig-name descname"><span class="pre">_plot_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/visualization_core/visualization.html#_plot_geometry"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.visualization_core.visualization._plot_geometry" title="Link to this definition">¶</a></dt>
+<dd><p>Plot a <code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">SurfaceGeometry</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">PointGeometry</span></code>,
+or <code class="xref py py-class docutils literal notranslate"><span class="pre">CompoundGeometry</span></code> object recursively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geo</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code>) – Geometry object to plot.</p></li>
+<li><p><strong>ax</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code>, <em>optional</em>) – Existing axes. A new figure is created when <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Normalized longitudinal position, shown in the title [-].</p></li>
+<li><p><strong>**kwargs</strong> – Extra keyword arguments forwarded to the polygon plotter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.visualization_core.visualization._plot_polygon">
+<span class="sig-name descname"><span class="pre">_plot_polygon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Polygon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edgecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lightgrey'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/visualization_core/visualization.html#_plot_polygon"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.visualization_core.visualization._plot_polygon" title="Link to this definition">¶</a></dt>
+<dd><p>Fill and outline a Shapely <code class="xref py py-class docutils literal notranslate"><span class="pre">Polygon</span></code>, including interior
+holes (rendered in white).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poly</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">shapely.geometry.Polygon</span></code>) – Polygon to draw.</p></li>
+<li><p><strong>ax</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code>) – Axes to draw on.</p></li>
+<li><p><strong>edgecolor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Edge color. Default is <code class="docutils literal notranslate"><span class="pre">&quot;black&quot;</span></code>.</p></li>
+<li><p><strong>facecolor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Fill color for the exterior. Default is <code class="docutils literal notranslate"><span class="pre">&quot;lightgrey&quot;</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments (currently unused).</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

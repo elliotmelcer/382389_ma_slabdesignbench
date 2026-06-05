@@ -222,7 +222,8 @@
 <li class="toctree-l3"><a class="reference internal" href="core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -416,6 +417,27 @@ Adapted from: Jamila Loutfi</p>
 </dd>
 <dt class="field-even">Rückgabetyp<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry._z">
+<span class="sig-name descname"><span class="pre">_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/hp_slab/hp_model/hp_geometry.html#HPGeometry._z"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.hp_slab.hp_model.hp_geometry.HPGeometry._z" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the z-coordinate of the HP mid-surface at (x, y).
+Adapted from: Jamila Loutfi</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Longitudinal coordinate (centred at shell mid-point) [mm].</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Transverse coordinate (centred at shell mid-point) [mm].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mid-surface elevation z [mm].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>

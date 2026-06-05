@@ -1,38 +1,88 @@
 """
-Unit conversion utilities from structuralCodes (N, mm)
-to common engineering units (kN, m)
+Unit conversion utilities for structuralcodes output (N, mm) to common
+engineering units (kN, m).
 """
 
 def mm_to_m(x: float) -> float:
     """
-    Returns a length in [m] given a length in [mm]
+    Convert a length from millimetres to metres.
+
+    Parameters
+    ----------
+    x : float
+        Length [mm].
+
+    Returns
+    -------
+    float
+        Length [m].
     """
     return x * 1e-3
 
 
 def mm2_to_m2(x: float) -> float:
     """
-    Returns an area in [m²] given an area in [mm²]
+    Convert an area from square millimetres to square metres.
+
+    Parameters
+    ----------
+    x : float
+        Area [mm²].
+
+    Returns
+    -------
+    float
+        Area [m²].
     """
     return x * 1e-6
 
 
 def mm3_to_m3(x: float) -> float:
     """
-    Returns a volume in [m³] given a volume in [mm³]
+    Convert a volume from cubic millimetres to cubic metres.
+
+    Parameters
+    ----------
+    x : float
+        Volume [mm³].
+
+    Returns
+    -------
+    float
+        Volume [m³].
     """
     return x * 1e-9
 
 
 def Nmm_to_kNm(x: float) -> float:
     """
-    Returns a bending moment in [kNm] given a moment in [Nmm]
+    Convert a bending moment from Newton-millimetres to kilonewton-metres.
+
+    Parameters
+    ----------
+    x : float
+        Bending moment [Nmm].
+
+    Returns
+    -------
+    float
+        Bending moment [kNm].
     """
     return x * 1e-6
 
 
 def N_to_kN(x: float) -> float:
     """
-    Returns a force in [kN] given a force in [N]
+    Convert a force from Newtons to kilonewtons.
+
+    Parameters
+    ----------
+    x : float
+        Force [N].
+
+    Returns
+    -------
+    float
+        Force [kN].
     """
     return x * 1e-3

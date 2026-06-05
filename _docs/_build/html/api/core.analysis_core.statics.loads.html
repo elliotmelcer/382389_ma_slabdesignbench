@@ -222,7 +222,8 @@
 <li class="toctree-l3"><a class="reference internal" href="core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -380,6 +381,11 @@ underlying load model.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.Loads._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.Loads._abc_impl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -529,6 +535,28 @@ to their ψ-factors and Q_k values per EN 1990:2002/NA(DE) <span class="bibtex-c
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC._parse_category">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_parse_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC._parse_category"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC._parse_category" title="Link to this definition">¶</a></dt>
+<dd><p>Parse a usage category code and return its Q_k and ψ-factors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>_category</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Category code in the form <code class="docutils literal notranslate"><span class="pre">&quot;&lt;letter&gt;&lt;number&gt;&quot;</span></code>
+(e.g. <code class="docutils literal notranslate"><span class="pre">&quot;A1&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;C3&quot;</span></code>), case-insensitive.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(Q_k,</span> <span class="pre">psi_0,</span> <span class="pre">psi_1,</span> <span class="pre">psi_2)</span></code> for the given category [kN/m², -, -, -].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[float</span></code>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float]</span></code></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the letter or subcategory number is not in
+    <a class="reference internal" href="#id0" title="core.analysis_core.statics.loads.LoadsEC.PSI_TABLE_EC0_2004_DE"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PSI_TABLE_EC0_2004_DE</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC.from_categories_EC0_NA_DE">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_categories_EC0_NA_DE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma_q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC.from_categories_EC0_NA_DE"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC.from_categories_EC0_NA_DE" title="Link to this definition">¶</a></dt>
 <dd><p>Construct a <a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC" title="core.analysis_core.statics.loads.LoadsEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadsEC</span></code></a> instance from EN 1990 usage category codes
@@ -548,6 +576,17 @@ populated from the lookup table.</p>
 </dd>
 <dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC" title="core.analysis_core.statics.loads.LoadsEC"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadsEC</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC._check_dimensions">
+<span class="sig-name descname"><span class="pre">_check_dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/statics/loads.html#LoadsEC._check_dimensions"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC._check_dimensions" title="Link to this definition">¶</a></dt>
+<dd><p>Verify that all load and ψ-factor arrays have the same length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Verursacht<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If any ψ-factor array length differs from that of <a class="reference internal" href="#core.analysis_core.statics.loads.LoadsEC.Qk" title="core.analysis_core.statics.loads.LoadsEC.Qk"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Qk</span></code></a>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -643,6 +682,11 @@ by multiplying by the slab width.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.analysis_core.statics.loads.LoadsEC._abc_impl">
+<span class="sig-name descname"><span class="pre">_abc_impl</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;_abc._abc_data</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#core.analysis_core.statics.loads.LoadsEC._abc_impl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

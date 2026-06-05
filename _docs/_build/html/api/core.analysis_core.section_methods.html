@@ -222,7 +222,8 @@
 <li class="toctree-l3"><a class="reference internal" href="core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -449,7 +450,7 @@ increasing) result. For prestressed sections an initial state point
 <li><p><strong>constitutive_law</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Keyword for the concrete constitutive law. Default:
 <code class="docutils literal notranslate"><span class="pre">&quot;TENSTIFF_PARABOLIC&quot;</span></code>.</p></li>
 <li><p><strong>simplification</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Controls the simplified M-κ calculation in
-<code class="xref py py-func docutils literal notranslate"><span class="pre">_simplified_moment_curvature_method()</span></code>. <code class="docutils literal notranslate"><span class="pre">False</span></code> uses the full
+<a class="reference internal" href="#core.analysis_core.section_methods._simplified_moment_curvature_method" title="core.analysis_core.section_methods._simplified_moment_curvature_method"><code class="xref py py-func docutils literal notranslate"><span class="pre">_simplified_moment_curvature_method()</span></code></a>. <code class="docutils literal notranslate"><span class="pre">False</span></code> uses the full
 method; <code class="docutils literal notranslate"><span class="pre">True</span></code> or a positive number uses the simplified method.
 Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – Enables debug output. Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
@@ -469,6 +470,163 @@ Default: <code class="docutils literal notranslate"><span class="pre">False</spa
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="core.analysis_core.section_methods._ensure_force_controlled">
+<span class="sig-name descname"><span class="pre">_ensure_force_controlled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MomentCurvatureResults</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MomentCurvatureResults</span></span></span><a class="reference internal" href="../_modules/core/analysis_core/section_methods.html#_ensure_force_controlled"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.section_methods._ensure_force_controlled" title="Link to this definition">¶</a></dt>
+<dd><p>Enforce a force-controlled M-κ diagram with monotonic moment magnitude.</p>
+<p>Whenever <code class="docutils literal notranslate"><span class="pre">|m[i+1]|</span> <span class="pre">&lt;</span> <span class="pre">|m[i]|</span></code>, collects all dip indices until the first
+<code class="docutils literal notranslate"><span class="pre">j</span></code> where <code class="docutils literal notranslate"><span class="pre">|m[j]|</span> <span class="pre">&gt;</span> <span class="pre">|m[i]|</span></code>, inserts an interpolated point
+(κ_new, m[i]) at <code class="docutils literal notranslate"><span class="pre">i+1</span></code>, and removes the dip indices. If the moment
+never recovers, the tail is truncated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>results</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MomentCurvatureResults</span></code>) – Moment-curvature results (modified in place).</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>The same object with corrected <code class="docutils literal notranslate"><span class="pre">m_y</span></code> and <code class="docutils literal notranslate"><span class="pre">chi_y</span></code> arrays.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">MomentCurvatureResults</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.analysis_core.section_methods._full_moment_curvature_method">
+<span class="sig-name descname"><span class="pre">_full_moment_curvature_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GenericSection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MomentCurvatureResults</span></span></span><a class="reference internal" href="../_modules/core/analysis_core/section_methods.html#_full_moment_curvature_method"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.section_methods._full_moment_curvature_method" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the full moment-curvature diagram for a section and axial force.</p>
+<p>Moments are computed for a list of curvatures that includes the cracking
+curvature, using <code class="docutils literal notranslate"><span class="pre">calculate_moment_curvature()</span></code> from structuralcodes.
+The cracking point is inserted exactly to capture the cracking behavior
+correctly. If the section is prestressed, the prestress curvature point
+(κ₀, M=0) is added.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>section</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code>) – Section to analyze.</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Axial force [N]. Default: <code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – Enables debug output. Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>The full M-κ results.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">MomentCurvatureResults</span></code></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#core.analysis_core.section_methods.InvalidSectionForMKError" title="core.analysis_core.section_methods.InvalidSectionForMKError"><strong>InvalidSectionForMKError</strong></a> – If the cracking moment is invalid, so a full M-κ diagram cannot be
+    built.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.analysis_core.section_methods._simplified_moment_curvature_method">
+<span class="sig-name descname"><span class="pre">_simplified_moment_curvature_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GenericSection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simplification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MomentCurvatureResults</span></span></span><a class="reference internal" href="../_modules/core/analysis_core/section_methods.html#_simplified_moment_curvature_method"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.section_methods._simplified_moment_curvature_method" title="Link to this definition">¶</a></dt>
+<dd><p>Compute a simplified trilinear moment-curvature diagram.</p>
+<p>Builds a simplified version of <a class="reference internal" href="#core.analysis_core.section_methods.calculate_moment_curvature_sls_EC" title="core.analysis_core.section_methods.calculate_moment_curvature_sls_EC"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_moment_curvature_sls_EC()</span></code></a>
+from the prestress point, the cracking point, the end-of-cracking point
+(based on tension stiffening of the concrete), and the ultimate point.
+Optionally adds extra points between the cracking and end-of-cracking
+curvatures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>section</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code>) – Section to analyse.</p></li>
+<li><p><strong>simplification</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – <p>Controls extra points between <code class="docutils literal notranslate"><span class="pre">kappa_cr</span></code> and <code class="docutils literal notranslate"><span class="pre">kappa_eoc</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code> — this simplified method should not be called (handled
+higher up); raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if reached.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code> — simplified method without extra points.</p></li>
+<li><p>int <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&gt;=</span> <span class="pre">1</span></code> — <code class="docutils literal notranslate"><span class="pre">n</span></code> evenly distributed points between
+<code class="docutils literal notranslate"><span class="pre">kappa_cr</span></code> and <code class="docutils literal notranslate"><span class="pre">kappa_eoc</span></code>.</p></li>
+<li><p>float <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;</span> <span class="pre">n</span> <span class="pre">&lt;</span> <span class="pre">1</span></code> — one extra point at
+<code class="docutils literal notranslate"><span class="pre">kappa_cr</span> <span class="pre">+</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">(kappa_eoc</span> <span class="pre">-</span> <span class="pre">kappa_cr)</span></code>.</p></li>
+</ul>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Axial force [N]. Default: <code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – Enables debug output. Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>The simplified M-κ results.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">MomentCurvatureResults</span></code></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.14)"><strong>Exception</strong></a> – If the concrete constitutive law is not
+    <code class="docutils literal notranslate"><span class="pre">TensionStiffeningConcreteLawEC</span></code>.</p></li>
+<li><p><a class="reference internal" href="#core.analysis_core.section_methods.InvalidSectionForMKError" title="core.analysis_core.section_methods.InvalidSectionForMKError"><strong>InvalidSectionForMKError</strong></a> – If the cracking moment is invalid, so a simplified M-κ diagram
+    cannot be built.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">simplification</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code> (method must not be reached), or
+    an int <code class="docutils literal notranslate"><span class="pre">&lt;</span> <span class="pre">1</span></code>, or a float outside <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">1)</span></code>.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">simplification</span></code> is not one of <code class="docutils literal notranslate"><span class="pre">False</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code>, int <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code>
+    or float in <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">1)</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.analysis_core.section_methods._calculate_section_state_from_bottom_strain_sls">
+<span class="sig-name descname"><span class="pre">_calculate_section_state_from_bottom_strain_sls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_uls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_bot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constitutive_law</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'TENSTIFF_PARABOLIC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chi_scan_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_scan_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITMAX</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/section_methods.html#_calculate_section_state_from_bottom_strain_sls"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.section_methods._calculate_section_state_from_bottom_strain_sls" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the section state for a prescribed bottom-fiber strain.</p>
+<p>Fixes the bottom-fiber strain to <code class="docutils literal notranslate"><span class="pre">eps_bot</span></code> and finds <code class="docutils literal notranslate"><span class="pre">chi_y</span></code> via
+bisection such that the integrated axial force equals <code class="docutils literal notranslate"><span class="pre">n</span></code>. <code class="docutils literal notranslate"><span class="pre">My</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Mz</span></code> are outputs. Of all bracketed equilibria, the one with the
+largest <code class="docutils literal notranslate"><span class="pre">|My|</span></code> is returned.</p>
+<p>Strain profile convention (consistent with the rest of the codebase):
+<code class="docutils literal notranslate"><span class="pre">eps(z)</span> <span class="pre">=</span> <span class="pre">eps_0</span> <span class="pre">+</span> <span class="pre">chi_y</span> <span class="pre">*</span> <span class="pre">z</span></code> and
+<code class="docutils literal notranslate"><span class="pre">eps_bot</span> <span class="pre">=</span> <span class="pre">eps_0</span> <span class="pre">+</span> <span class="pre">chi_y</span> <span class="pre">*</span> <span class="pre">zmin</span></code>  →  <code class="docutils literal notranslate"><span class="pre">eps_0</span> <span class="pre">=</span> <span class="pre">eps_bot</span> <span class="pre">-</span> <span class="pre">chi_y</span> <span class="pre">*</span> <span class="pre">zmin</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>section_uls</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code>) – ULS section as input (an SLS section is built internally).</p></li>
+<li><p><strong>eps_bot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Prescribed bottom-fiber strain [-] (positive = tension).</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Applied axial force [N] (positive = tension, negative =
+compression). Default: <code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p></li>
+<li><p><strong>constitutive_law</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Constitutive law keyword (see <code class="docutils literal notranslate"><span class="pre">material_methods.py</span></code> for available
+laws). Default: <code class="docutils literal notranslate"><span class="pre">&quot;TENSTIFF_PARABOLIC&quot;</span></code>.</p></li>
+<li><p><strong>chi_scan_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Half-range for the initial curvature scan [1/mm]. Default: <code class="docutils literal notranslate"><span class="pre">1e-3</span></code>.</p></li>
+<li><p><strong>num_scan_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Number of scan points for bracketing. Default: <code class="docutils literal notranslate"><span class="pre">100</span></code>.</p></li>
+<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Force-imbalance tolerance [N] for the bisection. Default: <code class="docutils literal notranslate"><span class="pre">1e-2</span></code>.</p></li>
+<li><p><strong>ITMAX</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Maximum number of bisection iterations. Default: <code class="docutils literal notranslate"><span class="pre">100</span></code>.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, print intermediate values. Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><code class="docutils literal notranslate"><span class="pre">None</span></code> if no equilibrium is bracketed in the scan range.
+On the no-crossing branch, a dict with the keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">valid</span></code> : bool — <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reason</span></code> : str — explanation, suggesting a larger
+<code class="docutils literal notranslate"><span class="pre">chi_scan_range</span></code>.</p></li>
+</ul>
+<p>On success, a dict with the keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">valid</span></code> : bool — <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code> : float — integrated axial force [N].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m_y</span></code> : float — integrated bending moment My [Nmm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m_z</span></code> : float — integrated bending moment Mz [Nmm].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">strain_profile</span></code> : list — <code class="docutils literal notranslate"><span class="pre">[eps_0,</span> <span class="pre">chi_y,</span> <span class="pre">0.0]</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">section</span></code> : GenericSection — the SLS section used.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The debug branch reads <code class="docutils literal notranslate"><span class="pre">chi_y</span></code> and <code class="docutils literal notranslate"><span class="pre">eps_top</span></code> from the result, but
+the returned success dict does not currently populate those keys; the
+documented keys above reflect what the code actually returns.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="core.analysis_core.section_methods.calculate_prestress_forces_Nmm">
 <span class="sig-name descname"><span class="pre">calculate_prestress_forces_Nmm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GenericSection</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/core/analysis_core/section_methods.html#calculate_prestress_forces_Nmm"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.section_methods.calculate_prestress_forces_Nmm" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the prestressing moment and total prestress force.</p>
@@ -485,6 +643,39 @@ Default: <code class="docutils literal notranslate"><span class="pre">False</spa
 </dd>
 <dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="core.analysis_core.section_methods._calculate_kappa_0">
+<span class="sig-name descname"><span class="pre">_calculate_kappa_0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sls_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GenericSection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mk_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MomentCurvatureResults</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_cr_result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/core/analysis_core/section_methods.html#_calculate_kappa_0"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.analysis_core.section_methods._calculate_kappa_0" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the initial curvature κ₀ for prestressed sections.</p>
+<p>Used by both the full and simplified M-κ paths in
+<a class="reference internal" href="#core.analysis_core.section_methods.calculate_moment_curvature_sls_EC" title="core.analysis_core.section_methods.calculate_moment_curvature_sls_EC"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_moment_curvature_sls_EC()</span></code></a>. Computes
+<code class="docutils literal notranslate"><span class="pre">kappa_0</span> <span class="pre">=</span> <span class="pre">-intercept</span> <span class="pre">/</span> <span class="pre">slope</span></code> from a linear fit on the first two
+pre-yield points. If the section is not prestressed, returns <code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p>
+<p>Full path (<code class="docutils literal notranslate"><span class="pre">mk_results</span></code> provided): uses the first two points from the
+already-computed M-κ curve, so spacing is consistent with the full
+calculation. Simplified path (<code class="docutils literal notranslate"><span class="pre">mk_results=None</span></code>): replicates the first
+two of the 40 curvatures from the full path and evaluates them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sls_sec</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code>) – Section to analyse (assumed SLS section).</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <em>optional</em>) – Axial force [N]. Default: <code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p></li>
+<li><p><strong>mk_results</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">MomentCurvatureResults</span></code> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – Pre-computed M-κ results from the full path; <code class="docutils literal notranslate"><span class="pre">None</span></code> for the
+simplified path. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>m_cr_result</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, <em>optional</em>) – Cracking-moment result; currently unused in the body. Default:
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>debug</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – Print intermediate values. Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Initial curvature κ₀ [1/mm].</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
