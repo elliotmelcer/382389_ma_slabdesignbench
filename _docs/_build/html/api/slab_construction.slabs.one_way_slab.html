@@ -299,37 +299,51 @@
         <article role="main" id="furo-main-content">
           <section id="module-slab_construction.slabs.one_way_slab">
 <span id="one-way-slab-py"></span><h1>one_way_slab.py<a class="headerlink" href="#module-slab_construction.slabs.one_way_slab" title="Link to this heading">¶</a></h1>
+<p>Abstract base class for one-way slab elements.</p>
+<p>Author: Elliot Melcer</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="slab_construction.slabs.one_way_slab.OneWaySlab">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">OneWaySlab</span></span><a class="reference internal" href="../_modules/slab_construction/slabs/one_way_slab.html#OneWaySlab"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.one_way_slab.OneWaySlab" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="slab_construction.slabs.slab.html#slab_construction.slabs.slab.Slab" title="slab_construction.slabs.slab.Slab"><code class="xref py py-class docutils literal notranslate"><span class="pre">Slab</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
-<p>Author: Elliot Melcer
-Abstract Base Class that represents a one way slab
-Child Classes must implement L(), B() and section_at(x)</p>
+<p>Abstract base class for one-way slabs.</p>
+<p>Concrete subclasses must implement <a class="reference internal" href="#slab_construction.slabs.one_way_slab.OneWaySlab.L" title="slab_construction.slabs.one_way_slab.OneWaySlab.L"><code class="xref py py-attr docutils literal notranslate"><span class="pre">L</span></code></a>, <a class="reference internal" href="#slab_construction.slabs.one_way_slab.OneWaySlab.B" title="slab_construction.slabs.one_way_slab.OneWaySlab.B"><code class="xref py py-attr docutils literal notranslate"><span class="pre">B</span></code></a>, and
+<a class="reference internal" href="#slab_construction.slabs.one_way_slab.OneWaySlab.section_at" title="slab_construction.slabs.one_way_slab.OneWaySlab.section_at"><code class="xref py py-meth docutils literal notranslate"><span class="pre">section_at()</span></code></a>.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="slab_construction.slabs.one_way_slab.OneWaySlab.L">
 <span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">L</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#slab_construction.slabs.one_way_slab.OneWaySlab.L" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Span length [mm].</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slab_construction.slabs.one_way_slab.OneWaySlab.B">
 <span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">B</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#slab_construction.slabs.one_way_slab.OneWaySlab.B" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Width [mm].</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slab_construction.slabs.one_way_slab.OneWaySlab.section_at">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">section_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GenericSection</span></span></span><a class="reference internal" href="../_modules/slab_construction/slabs/one_way_slab.html#OneWaySlab.section_at"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#slab_construction.slabs.one_way_slab.OneWaySlab.section_at" title="Link to this definition">¶</a></dt>
-<dd><p>This method returns the section of a one-way-slab at x.
-Note: Input domain must be normalized to the following model:
-# x = 0 at first support, x = 1 at second support, etc.
-#
-#   <a href="#id1"><span class="problematic" id="id2">|-&gt; x
-#   0      0.5      1      1.5      2
-#
-#   ====================================|</span></a>…
-#  /_            /_            /_#
-:param x:
-:return:</p>
+<dd><p>Return the structural cross-section at a normalized position.</p>
+<p>The position convention is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="o">|-&gt;</span> <span class="n">x</span>
+ <span class="mi">0</span>      <span class="mf">0.5</span>      <span class="mi">1</span>      <span class="mf">1.5</span>      <span class="mi">2</span>
+
+ <span class="o">====================================|...</span>
+<span class="o">/</span><span class="n">_</span>\             <span class="o">/</span><span class="n">_</span>\             <span class="o">/</span><span class="n">_</span>\
+</pre></div>
+</div>
+<p>x = 0 at the first support, x = 1 at the second support, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Normalized longitudinal coordinate [-].</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cross-section at position x · L.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSection</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">

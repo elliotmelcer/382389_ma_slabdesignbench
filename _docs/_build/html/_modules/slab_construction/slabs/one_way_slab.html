@@ -221,7 +221,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -290,7 +291,12 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für slab_construction.slabs.one_way_slab</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Abstract base class for one-way slab elements.</span>
+
+<span class="sd">Author: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.sections</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericSection</span>
 
@@ -301,18 +307,22 @@
 <a class="viewcode-back" href="../../../api/slab_construction.slabs.one_way_slab.html#slab_construction.slabs.one_way_slab.OneWaySlab">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OneWaySlab</span><span class="p">(</span><span class="n">Slab</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Abstract Base Class that represents a one way slab</span>
-<span class="sd">    Child Classes must implement L(), B() and section_at(x)</span>
+<span class="sd">    Abstract base class for one-way slabs.</span>
+
+<span class="sd">    Concrete subclasses must implement :attr:`L`, :attr:`B`, and</span>
+<span class="sd">    :meth:`section_at`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">L</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Span length [mm].&quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">B</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Width [mm].&quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="OneWaySlab.section_at">
@@ -320,18 +330,27 @@
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">section_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenericSection</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This method returns the section of a one-way-slab at x.</span>
-<span class="sd">        Note: Input domain must be normalized to the following model:</span>
-<span class="sd">        # x = 0 at first support, x = 1 at second support, etc.</span>
-<span class="sd">        #</span>
-<span class="sd">        #   |-&gt; x</span>
-<span class="sd">        #   0      0.5      1      1.5      2</span>
-<span class="sd">        #</span>
-<span class="sd">        #   ====================================|...</span>
-<span class="sd">        #  /_\             /_\             /_\</span>
-<span class="sd">        #</span>
-<span class="sd">        :param x:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Return the structural cross-section at a normalized position.</span>
+
+<span class="sd">        The position convention is::</span>
+
+<span class="sd">              |-&gt; x</span>
+<span class="sd">              0      0.5      1      1.5      2</span>
+
+<span class="sd">              ====================================|...</span>
+<span class="sd">             /_\             /_\             /_\</span>
+
+<span class="sd">        x = 0 at the first support, x = 1 at the second support, etc.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : float</span>
+<span class="sd">            Normalized longitudinal coordinate [-].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        GenericSection</span>
+<span class="sd">            Cross-section at position x · L.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 </div>
