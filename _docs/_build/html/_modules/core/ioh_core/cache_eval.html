@@ -291,18 +291,72 @@
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.ioh_core.cache_eval</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cache-based evaluation context for IOHexperimenter optimization problems.</span>
+
+<span class="sd">Avoids redundant re-evaluation of the (expensive) structural analysis</span>
+<span class="sd">function by memorizing the last call in a single-entry cache. Also</span>
+<span class="sd">publishes decoded parameter values and constraint violations as watchable</span>
+<span class="sd">attributes for the IOH Analyzer logger.</span>
+
 <span class="sd">Author: Max Dombrowski</span>
+
 <span class="sd">Modifications by Elliot Melcer:</span>
-<span class="sd"> - changed search strings to match analysis.py in hp_slab</span>
+
+<span class="sd">* changed search strings to match analysis.py in hp_slab</span>
+<span class="sd">* docstrings</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
-<span class="c1"># Context-class to store analysis results in cache and distribute them to objective function and constraints</span>
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
+
 <div class="viewcode-block" id="EvalContext">
 <a class="viewcode-back" href="../../../api/core.ioh_core.cache_eval.html#core.ioh_core.cache_eval.EvalContext">[Doku]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">EvalContext</span><span class="p">:</span>  <span class="c1"># Define a &quot;helper&quot; class to run the analysis only once per function evaluation</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decode_func</span><span class="p">,</span> <span class="n">analysis_func</span><span class="p">):</span>  <span class="c1"># constructor to create context object</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EvalContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Single-entry memo cache that runs the structural analysis at most once</span>
+<span class="sd">    per unique candidate vector and distributes results to the IOH objective</span>
+<span class="sd">    and constraint callbacks.</span>
+
+<span class="sd">    The cache key is the integer index tuple of the candidate. On a cache</span>
+<span class="sd">    hit the stored result is returned immediately; on a miss the decode and</span>
+<span class="sd">    analysis functions are called and the result is stored.</span>
+
+<span class="sd">    Adapted from: Max Dombrowski</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decode : callable</span>
+<span class="sd">        ``decode(x_idx) -&gt; dict`` — maps an integer index vector to a</span>
+<span class="sd">        parameter dictionary.</span>
+<span class="sd">    results : callable</span>
+<span class="sd">        ``analysis(params) -&gt; dict`` — runs the structural analysis and</span>
+<span class="sd">        returns a result dictionary with at least ``&quot;y&quot;``, ``&quot;y_p&quot;``, and</span>
+<span class="sd">        ``&quot;penalties_&quot;`` keys.</span>
+<span class="sd">    last_key : tuple[int, ...] or None</span>
+<span class="sd">        Index tuple of the most recently evaluated candidate, or ``None``</span>
+<span class="sd">        if no evaluation has been performed yet.</span>
+<span class="sd">    last_data : dict or None</span>
+<span class="sd">        Cached result dict from the last analysis call, or ``None``.</span>
+<span class="sd">    hits : int</span>
+<span class="sd">        Number of times the cached result was reused [-].</span>
+<span class="sd">    misses : int</span>
+<span class="sd">        Number of times a fresh analysis was triggered [-].</span>
+<span class="sd">    y : float</span>
+<span class="sd">        Most recent unpenalized objective value (published for IOH logger).</span>
+<span class="sd">    y_p : float</span>
+<span class="sd">        Most recent penalized objective value (published for IOH logger).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decode_func</span><span class="p">,</span> <span class="n">analysis_func</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        decode_func : callable</span>
+<span class="sd">            ``decode(x_idx) -&gt; dict`` — decodes an integer index vector</span>
+<span class="sd">            to a named parameter dictionary.</span>
+<span class="sd">        analysis_func : callable</span>
+<span class="sd">            ``analysis(params) -&gt; dict`` — performs the structural analysis</span>
+<span class="sd">            and returns a result dict containing at least ``&quot;y&quot;``,</span>
+<span class="sd">            ``&quot;y_p&quot;``, and ``&quot;penalties_&quot;`` keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># stored callables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">decode</span> <span class="o">=</span> <span class="n">decode_func</span>       <span class="c1"># decode(x_idx) -&gt; params dict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">analysis_func</span>    <span class="c1"># heavy_analysis(params) -&gt; {&quot;y&quot;,&quot;y_p&quot;,&quot;violations&quot;,...}</span>
@@ -324,7 +378,17 @@
 <div class="viewcode-block" id="EvalContext.ensure_constraints">
 <a class="viewcode-back" href="../../../api/core.ioh_core.cache_eval.html#core.ioh_core.cache_eval.EvalContext.ensure_constraints">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">ensure_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Declare stable attributes for all active constraints so IOH can watch them.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Declare stable ``c__&lt;name&gt;`` attributes for all active constraints.</span>
+
+<span class="sd">        Must be called before attaching the problem to an IOH logger so</span>
+<span class="sd">        that the logger can bind watchers to stable attribute names.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names : list[str]</span>
+<span class="sd">            Ordered list of active constraint names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_c_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_c_names</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;c__</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
@@ -333,7 +397,18 @@
 <div class="viewcode-block" id="EvalContext.ensure_params">
 <a class="viewcode-back" href="../../../api/core.ioh_core.cache_eval.html#core.ioh_core.cache_eval.EvalContext.ensure_params">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">ensure_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Declare stable attributes for decoded parameter values and their indices.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Declare stable ``var__&lt;name&gt;`` and ``idx__&lt;name&gt;`` attributes for</span>
+<span class="sd">        all optimization variable parameters.</span>
+
+<span class="sd">        Must be called before attaching the problem to an IOH logger.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        var_names : list[str]</span>
+<span class="sd">            Ordered list of optimization variable names (matching the</span>
+<span class="sd">            decode function&#39;s output keys).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_var_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_var_names</span><span class="p">:</span>
             <span class="c1"># decoded value (float-like if possible)</span>
@@ -345,6 +420,25 @@
 <div class="viewcode-block" id="EvalContext.get">
 <a class="viewcode-back" href="../../../api/core.ioh_core.cache_eval.html#core.ioh_core.cache_eval.EvalContext.get">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the analysis result for a candidate, using the cache when possible.</span>
+
+<span class="sd">        On a cache miss, calls ``decode(x_idx)`` followed by</span>
+<span class="sd">        ``analysis(params)`` and stores the result. On a hit, returns the</span>
+<span class="sd">        stored result directly. After either path, updates all watchable</span>
+<span class="sd">        attributes (``y``, ``y_p``, ``c__*``, ``var__*``, ``idx__*``).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x_idx : sequence of int</span>
+<span class="sd">            Integer index vector identifying the candidate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Analysis result dictionary (same object as returned by</span>
+<span class="sd">            ``analysis_func``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">x_idx</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_key</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">hits</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -397,6 +491,11 @@
 <div class="viewcode-block" id="EvalContext.reset">
 <a class="viewcode-back" href="../../../api/core.ioh_core.cache_eval.html#core.ioh_core.cache_eval.EvalContext.reset">[Doku]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear the cache and reset hit/miss counters.</span>
+
+<span class="sd">        Call before each optimization run to ensure a clean state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_key</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_data</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">misses</span> <span class="o">=</span> <span class="mi">0</span></div>

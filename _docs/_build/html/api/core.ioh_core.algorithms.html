@@ -298,20 +298,135 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.ioh_core.algorithms">
 <span id="algorithms-py"></span><h1>algorithms.py<a class="headerlink" href="#module-core.ioh_core.algorithms" title="Link to this heading">¶</a></h1>
+<p>Optimization algorithm wrappers for IOHexperimenter problems.</p>
+<p>Provides <a class="reference internal" href="#core.ioh_core.algorithms.NloptDirectLocalSearch" title="core.ioh_core.algorithms.NloptDirectLocalSearch"><code class="xref py py-class docutils literal notranslate"><span class="pre">NloptDirectLocalSearch</span></code></a> (NLopt DIRECT-L) and
+<a class="reference internal" href="#core.ioh_core.algorithms.RandomSearch" title="core.ioh_core.algorithms.RandomSearch"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomSearch</span></code></a> as drop-in callables compatible with the IOH
+problem interface used in SlabDesignBench.</p>
+<p>Adapted from: Max Dombrowski</p>
+<p>Modifications by Elliot Melcer:</p>
+<ul class="simple">
+<li><p>added algorithm info</p></li>
+<li><p>removed extra evaluation of the best solution in NLopt</p></li>
+<li><p>docstrings</p></li>
+</ul>
 <dl class="py class">
 <dt class="sig sig-object py" id="core.ioh_core.algorithms.NloptDirectLocalSearch">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NloptDirectLocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_evaluations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/algorithms.html#NloptDirectLocalSearch"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.algorithms.NloptDirectLocalSearch" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Adapted from: Max Dombrowski (Changes denoted by „Added by: Elliot Melcer“)
-NLopt DIRECT wrapper around an IOHexperimenter problem.</p>
+<p>NLopt DIRECT-L wrapper around an IOHexperimenter problem.
+Adapted from: Max Dombrowski</p>
+<p>Uses the locally biased variant of the DIviding RECTangles (DIRECT)
+algorithm (<code class="docutils literal notranslate"><span class="pre">nlopt.GN_DIRECT_L</span></code>) for derivative-free global
+optimization over integer index bounds.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.NloptDirectLocalSearch.max_evaluations">
+<span class="sig-name descname"><span class="pre">max_evaluations</span></span><a class="headerlink" href="#core.ioh_core.algorithms.NloptDirectLocalSearch.max_evaluations" title="Link to this definition">¶</a></dt>
+<dd><p>Maximum number of objective function evaluations [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.NloptDirectLocalSearch.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#core.ioh_core.algorithms.NloptDirectLocalSearch.name" title="Link to this definition">¶</a></dt>
+<dd><p>Algorithm identifier string used by the IOH logger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.NloptDirectLocalSearch.info">
+<span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#core.ioh_core.algorithms.NloptDirectLocalSearch.info" title="Link to this definition">¶</a></dt>
+<dd><p>Human-readable algorithm description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="core.ioh_core.algorithms.RandomSearch">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">RandomSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_evaluations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/algorithms.html#RandomSearch"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.algorithms.RandomSearch" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Author: Max Dombrowski
-Very simple random search over integer index bounds.</p>
+<p>Simple random search over integer index bounds.
+Author: Max Dombrowski</p>
+<p>Samples uniformly from the integer index ranges defined by the IOH
+problem bounds and tracks the best objective value found.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.RandomSearch.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#core.ioh_core.algorithms.RandomSearch.name" title="Link to this definition">¶</a></dt>
+<dd><p>Algorithm identifier string used by the IOH logger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.RandomSearch.info">
+<span class="sig-name descname"><span class="pre">info</span></span><a class="headerlink" href="#core.ioh_core.algorithms.RandomSearch.info" title="Link to this definition">¶</a></dt>
+<dd><p>Human-readable algorithm description.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.RandomSearch.evaluations">
+<span class="sig-name descname"><span class="pre">evaluations</span></span><a class="headerlink" href="#core.ioh_core.algorithms.RandomSearch.evaluations" title="Link to this definition">¶</a></dt>
+<dd><p>Number of random samples to draw per call [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.RandomSearch.rng">
+<span class="sig-name descname"><span class="pre">rng</span></span><a class="headerlink" href="#core.ioh_core.algorithms.RandomSearch.rng" title="Link to this definition">¶</a></dt>
+<dd><p>Random number generator instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.random.Generator</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.RandomSearch.best_y_">
+<span class="sig-name descname"><span class="pre">best_y_</span></span><a class="headerlink" href="#core.ioh_core.algorithms.RandomSearch.best_y_" title="Link to this definition">¶</a></dt>
+<dd><p>Best objective value found in the last call (set after <code class="docutils literal notranslate"><span class="pre">__call__</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.algorithms.RandomSearch.best_x_">
+<span class="sig-name descname"><span class="pre">best_x_</span></span><a class="headerlink" href="#core.ioh_core.algorithms.RandomSearch.best_x_" title="Link to this definition">¶</a></dt>
+<dd><p>Integer index vector achieving <code class="docutils literal notranslate"><span class="pre">best_y_</span></code> (set after <code class="docutils literal notranslate"><span class="pre">__call__</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list[int]</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

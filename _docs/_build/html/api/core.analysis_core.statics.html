@@ -298,6 +298,13 @@
         <article role="main" id="furo-main-content">
           <section id="statics">
 <h1>statics<a class="headerlink" href="#statics" title="Link to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">statics</span></code> subpackage provides fundamental structural mechanics methods
+used throughout <code class="docutils literal notranslate"><span class="pre">analysis_core</span></code>. It covers load combinations for ULS and SLS
+according to Eurocode 1 (<code class="docutils literal notranslate"><span class="pre">loads.py</span></code>), bending moment calculation for continuous
+beams and cantilevers via tabulated coefficients (<code class="docutils literal notranslate"><span class="pre">internal_forces.py</span></code>), and
+deflection calculation for the serviceability limit state (<code class="docutils literal notranslate"><span class="pre">deflection.py</span></code>).
+Currently fully implemented for single-span beams under uniform distributed loads;
+frameworks for multi-span systems and cantilevers are in place for future extension.</p>
 <p class="rubric">Package Contents</p>
 <ul class="simple">
 <li><p><img src="../_static/module_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;"> <a class="reference internal" href="core.analysis_core.statics.constants.html"><span class="doc">constants.py</span></a></p></li>

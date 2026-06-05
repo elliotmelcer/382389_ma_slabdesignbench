@@ -291,10 +291,21 @@
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.ioh_core.problem_builder</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">IOH problem builder for SlabDesignBench optimization studies.</span>
+
+<span class="sd">Constructs IOHexperimenter problem instances from CSV-driven parameter and</span>
+<span class="sd">constraint specifications, wires up the slab-specific analysis function</span>
+<span class="sd">through an :class:`EvalContext` cache, and exposes the problems as a dict</span>
+<span class="sd">ready for :func:`run_experiment`.</span>
+
 <span class="sd">Author: Max Dombrowski</span>
-<span class="sd">Modified by Elliot Melcer (&quot;Addition by: Elliot Melcer&quot; used to mark code)</span>
-<span class="sd"> - pass materials to analysis</span>
-<span class="sd"> - Let the slab module drop constraints that don&#39;t apply (i.e. hp_slab: defl_case_sls a/b cuts out unwanted checks from logging)</span>
+
+<span class="sd">Modifications by Elliot Melcer:</span>
+
+<span class="sd">* Pass materials to analysis.</span>
+<span class="sd">* Let the slab module drop constraints that don&#39;t apply, e.g.</span>
+<span class="sd">   ``hp_slab: defl_case_sls a/b`` cuts out unwanted checks from logging.</span>
+<span class="sd">* Add docstrings.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -315,9 +326,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.cache_eval</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvalContext</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.io_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">_enf</span>
 
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
-<span class="c1"># Helper class to detect and process slab types and return error if slab type was not provided correctly</span>
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
 
 <span class="c1"># Fallback list in case dynamic discovery fails</span>
 <span class="n">_VALID_FALLBACK</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
@@ -328,11 +336,19 @@
     <span class="s2">&quot;solid_slab_two_way&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_discover_slab_types</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Discover slab types by scanning the package &#39;slab_construction.slabs&#39;</span>
-<span class="sd">    for subfolders that contain an &#39;analysis.py&#39;. If anything goes wrong,</span>
-<span class="sd">    fall back to the known list above.</span>
+<span class="sd">    Discover available slab types by scanning ``slab_construction.slabs``.</span>
+
+<span class="sd">    A slab type is recognized if its subfolder contains an ``analysis.py``</span>
+<span class="sd">    module. Falls back to :data:`_VALID_FALLBACK` if dynamic discovery</span>
+<span class="sd">    fails for any reason.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[str]</span>
+<span class="sd">        Sorted list of valid slab type names.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">root</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s2">&quot;slab_construction.slabs&quot;</span><span class="p">)</span>
@@ -346,7 +362,25 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_make_violation_reader</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">cname</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return g(x) that fetches the raw violation for constraint `cname` from cache.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a single-argument violation reader for an IOH constraint callback.</span>
+
+<span class="sd">    The returned callable fetches the raw (non-negative) violation value</span>
+<span class="sd">    for ``cname`` from the :class:`EvalContext` cache. Exceptions are</span>
+<span class="sd">    swallowed and ``0.0`` is returned to keep IOH alive.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ctx : EvalContext</span>
+<span class="sd">        Cache context for the current problem.</span>
+<span class="sd">    cname : str</span>
+<span class="sd">        Constraint name key into ``rec[&quot;penalties_&quot;]``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    callable</span>
+<span class="sd">        ``g(x) -&gt; float`` — non-negative raw violation for ``cname``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">g</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="c1"># Never raise from here: IOH calls this from C++.</span>
         <span class="k">try</span><span class="p">:</span>
@@ -361,21 +395,49 @@
             <span class="k">return</span> <span class="mf">0.0</span>
     <span class="k">return</span> <span class="n">g</span>
 
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
-<span class="c1"># Problem builder by path and slab module</span>
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
 
 <div class="viewcode-block" id="build_problems_for_slab">
 <a class="viewcode-back" href="../../../api/core.ioh_core.problem_builder.html#core.ioh_core.problem_builder.build_problems_for_slab">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_problems_for_slab</span><span class="p">(</span><span class="n">slab_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">slab_module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build all IOH problems for a slab type directory and its analysis module.</span>
+<span class="sd">    Build all IOH problems for a slab type from its CSV specifications and</span>
+<span class="sd">    analysis module.</span>
 
-<span class="sd">    - CSV-driven: parameter_defaults.csv, constraint_defaults.csv, problem_list.csv</span>
-<span class="sd">    - One EvalContext per problem (per-problem_ID), binding that problem&#39;s constraints into analysis()</span>
-<span class="sd">    - IOH constraints log *raw* violations from the cache (default: HIDDEN/1/1 unless overridden)</span>
+<span class="sd">    Reads ``parameter_defaults.csv``, ``constraint_defaults.csv``,</span>
+<span class="sd">    ``problem_list.csv``, and ``materials.csv`` from ``slab_dir``.</span>
+<span class="sd">    For each problem ID, creates an :class:`EvalContext` cache that binds</span>
+<span class="sd">    the slab-specific ``analysis()`` function with the decoded parameters</span>
+<span class="sd">    and materials, then wraps the whole thing in an IOH integer problem.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    slab_dir : Path</span>
+<span class="sd">        Path to the slab-type folder containing the four CSV files.</span>
+<span class="sd">    slab_module : module</span>
+<span class="sd">        Imported slab analysis module. Must expose an ``analysis(params,</span>
+<span class="sd">        constraints, materials)`` callable and optionally a</span>
+<span class="sd">        ``resolve_active_constraints(fixed_params, constraints_log)``</span>
+<span class="sd">        callable.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, dict]</span>
+<span class="sd">        Mapping ``{problem_id: bundle}`` where each bundle contains:</span>
+
+<span class="sd">        - ``&quot;problem&quot;`` — configured IOH integer problem instance.</span>
+<span class="sd">        - ``&quot;var_names&quot;`` — list of optimization variable names.</span>
+<span class="sd">        - ``&quot;constraints&quot;`` — full constraint config dict.</span>
+<span class="sd">        - ``&quot;decode&quot;`` — ``decode(x_idx) -&gt; dict`` callable.</span>
+<span class="sd">        - ``&quot;label&quot;`` — human-readable problem label string.</span>
+<span class="sd">        - ``&quot;ctx&quot;`` — :class:`EvalContext` instance for this problem.</span>
+<span class="sd">        - ``&quot;active_constraint_names&quot;`` — list of active constraint names.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``var_names``, ``lb_idx``, or ``ub_idx`` have mismatched</span>
+<span class="sd">        lengths, or if a problem has zero optimization variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">slab_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">slab_dir</span><span class="p">)</span>                           <span class="c1"># slab-specific folder that contains the three .csv files with all info for problem setup</span>
     <span class="n">params_csv</span> <span class="o">=</span> <span class="n">slab_dir</span> <span class="o">/</span> <span class="s2">&quot;parameter_defaults.csv&quot;</span>
     <span class="n">constr_csv</span> <span class="o">=</span> <span class="n">slab_dir</span> <span class="o">/</span> <span class="s2">&quot;constraint_defaults.csv&quot;</span>
@@ -519,20 +581,32 @@
     <span class="k">return</span> <span class="n">problems</span></div>
 
 
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
-<span class="c1"># Interface to call function build_problems_for_slab with slab type as the only input</span>
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
-<span class="c1"># the definition of optimization problems is still defined in the slab-specific .csv tables!</span>
 
 <div class="viewcode-block" id="build_problems_for_slab_type">
 <a class="viewcode-back" href="../../../api/core.ioh_core.problem_builder.html#core.ioh_core.problem_builder.build_problems_for_slab_type">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_problems_for_slab_type</span><span class="p">(</span><span class="n">slab_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build all problems for a given slab type string.</span>
+<span class="sd">    Build all IOH problems for a slab type identified by name.</span>
 
-<span class="sd">    Valid types are discovered dynamically by scanning</span>
-<span class="sd">    &#39;slab_benchmark.slabs&#39; for subfolders with an &#39;analysis.py&#39;.</span>
-<span class="sd">    If the provided slab_type is invalid, a clear error lists all valid options.</span>
+<span class="sd">    Valid types are discovered by scanning ``slab_construction.slabs``</span>
+<span class="sd">    for subfolders that contain an ``analysis.py`` module. Falls back to</span>
+<span class="sd">    a hardcoded list if dynamic discovery fails.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    slab_type : str</span>
+<span class="sd">        Name of the slab type (e.g. ``&quot;hp_slab&quot;``). Must match a</span>
+<span class="sd">        subfolder name in ``slab_construction.slabs``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, dict]</span>
+<span class="sd">        Problem bundle dict as returned by :func:`build_problems_for_slab`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``slab_type`` is not among the discovered valid types.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">valid</span> <span class="o">=</span> <span class="n">_discover_slab_types</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">slab_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">:</span>

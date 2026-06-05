@@ -298,38 +298,175 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.ioh_core.cache_eval">
 <span id="cache-eval-py"></span><h1>cache_eval.py<a class="headerlink" href="#module-core.ioh_core.cache_eval" title="Link to this heading">¶</a></h1>
-<p>Author: Max Dombrowski
-Modifications by Elliot Melcer:</p>
-<blockquote>
-<div><ul class="simple">
+<p>Cache-based evaluation context for IOHexperimenter optimization problems.</p>
+<p>Avoids redundant re-evaluation of the (expensive) structural analysis
+function by memorizing the last call in a single-entry cache. Also
+publishes decoded parameter values and constraint violations as watchable
+attributes for the IOH Analyzer logger.</p>
+<p>Author: Max Dombrowski</p>
+<p>Modifications by Elliot Melcer:</p>
+<ul class="simple">
 <li><p>changed search strings to match analysis.py in hp_slab</p></li>
+<li><p>docstrings</p></li>
 </ul>
-</div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">EvalContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decode_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis_func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/cache_eval.html#EvalContext"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Single-entry memo cache that runs the structural analysis at most once
+per unique candidate vector and distributes results to the IOH objective
+and constraint callbacks.</p>
+<p>The cache key is the integer index tuple of the candidate. On a cache
+hit the stored result is returned immediately; on a miss the decode and
+analysis functions are called and the result is stored.</p>
+<p>Adapted from: Max Dombrowski</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.decode">
+<span class="sig-name descname"><span class="pre">decode</span></span><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.decode" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">decode(x_idx)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code> — maps an integer index vector to a
+parameter dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.results">
+<span class="sig-name descname"><span class="pre">results</span></span><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.results" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">analysis(params)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code> — runs the structural analysis and
+returns a result dictionary with at least <code class="docutils literal notranslate"><span class="pre">&quot;y&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;y_p&quot;</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">&quot;penalties_&quot;</span></code> keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.last_key">
+<span class="sig-name descname"><span class="pre">last_key</span></span><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.last_key" title="Link to this definition">¶</a></dt>
+<dd><p>Index tuple of the most recently evaluated candidate, or <code class="docutils literal notranslate"><span class="pre">None</span></code>
+if no evaluation has been performed yet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">]</span></code> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.last_data">
+<span class="sig-name descname"><span class="pre">last_data</span></span><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.last_data" title="Link to this definition">¶</a></dt>
+<dd><p>Cached result dict from the last analysis call, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.hits">
+<span class="sig-name descname"><span class="pre">hits</span></span><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.hits" title="Link to this definition">¶</a></dt>
+<dd><p>Number of times the cached result was reused [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.misses">
+<span class="sig-name descname"><span class="pre">misses</span></span><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.misses" title="Link to this definition">¶</a></dt>
+<dd><p>Number of times a fresh analysis was triggered [-].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.y" title="Link to this definition">¶</a></dt>
+<dd><p>Most recent unpenalized objective value (published for IOH logger).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.y_p">
+<span class="sig-name descname"><span class="pre">y_p</span></span><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.y_p" title="Link to this definition">¶</a></dt>
+<dd><p>Most recent penalized objective value (published for IOH logger).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.ensure_constraints">
 <span class="sig-name descname"><span class="pre">ensure_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/cache_eval.html#EvalContext.ensure_constraints"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.ensure_constraints" title="Link to this definition">¶</a></dt>
-<dd><p>Declare stable attributes for all active constraints so IOH can watch them.</p>
+<dd><p>Declare stable <code class="docutils literal notranslate"><span class="pre">c__&lt;name&gt;</span></code> attributes for all active constraints.</p>
+<p>Must be called before attaching the problem to an IOH logger so
+that the logger can bind watchers to stable attribute names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code>) – Ordered list of active constraint names.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.ensure_params">
 <span class="sig-name descname"><span class="pre">ensure_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/cache_eval.html#EvalContext.ensure_params"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.ensure_params" title="Link to this definition">¶</a></dt>
-<dd><p>Declare stable attributes for decoded parameter values and their indices.</p>
+<dd><p>Declare stable <code class="docutils literal notranslate"><span class="pre">var__&lt;name&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">idx__&lt;name&gt;</span></code> attributes for
+all optimization variable parameters.</p>
+<p>Must be called before attaching the problem to an IOH logger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>var_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code>) – Ordered list of optimization variable names (matching the
+decode function’s output keys).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/cache_eval.html#EvalContext.get"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.get" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the analysis result for a candidate, using the cache when possible.</p>
+<p>On a cache miss, calls <code class="docutils literal notranslate"><span class="pre">decode(x_idx)</span></code> followed by
+<code class="docutils literal notranslate"><span class="pre">analysis(params)</span></code> and stores the result. On a hit, returns the
+stored result directly. After either path, updates all watchable
+attributes (<code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">y_p</span></code>, <code class="docutils literal notranslate"><span class="pre">c__*</span></code>, <code class="docutils literal notranslate"><span class="pre">var__*</span></code>, <code class="docutils literal notranslate"><span class="pre">idx__*</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x_idx</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sequence</span></code> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Integer index vector identifying the candidate.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Analysis result dictionary (same object as returned by
+<code class="docutils literal notranslate"><span class="pre">analysis_func</span></code>).</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="core.ioh_core.cache_eval.EvalContext.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/cache_eval.html#EvalContext.reset"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.cache_eval.EvalContext.reset" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Clear the cache and reset hit/miss counters.</p>
+<p>Call before each optimization run to ensure a clean state.</p>
+</dd></dl>
 
 </dd></dl>
 

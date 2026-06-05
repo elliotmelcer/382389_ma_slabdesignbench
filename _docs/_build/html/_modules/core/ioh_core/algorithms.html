@@ -290,7 +290,22 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.ioh_core.algorithms</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">nlopt</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Optimization algorithm wrappers for IOHexperimenter problems.</span>
+
+<span class="sd">Provides :class:`NloptDirectLocalSearch` (NLopt DIRECT-L) and</span>
+<span class="sd">:class:`RandomSearch` as drop-in callables compatible with the IOH</span>
+<span class="sd">problem interface used in SlabDesignBench.</span>
+
+<span class="sd">Adapted from: Max Dombrowski</span>
+
+<span class="sd">Modifications by Elliot Melcer:</span>
+
+<span class="sd">* added algorithm info</span>
+<span class="sd">* removed extra evaluation of the best solution in NLopt</span>
+<span class="sd">* docstrings</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">nlopt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
@@ -298,16 +313,52 @@
 <a class="viewcode-back" href="../../../api/core.ioh_core.algorithms.html#core.ioh_core.algorithms.NloptDirectLocalSearch">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NloptDirectLocalSearch</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adapted from: Max Dombrowski (Changes denoted by &quot;Added by: Elliot Melcer&quot;)</span>
-<span class="sd">    NLopt DIRECT wrapper around an IOHexperimenter problem.</span>
+<span class="sd">    NLopt DIRECT-L wrapper around an IOHexperimenter problem.</span>
+<span class="sd">    Adapted from: Max Dombrowski</span>
+
+<span class="sd">    Uses the locally biased variant of the DIviding RECTangles (DIRECT)</span>
+<span class="sd">    algorithm (``nlopt.GN_DIRECT_L``) for derivative-free global</span>
+<span class="sd">    optimization over integer index bounds.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    max_evaluations : int</span>
+<span class="sd">        Maximum number of objective function evaluations [-].</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Algorithm identifier string used by the IOH logger.</span>
+<span class="sd">    info : str</span>
+<span class="sd">        Human-readable algorithm description.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_evaluations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        max_evaluations : int, optional</span>
+<span class="sd">            Maximum number of objective function evaluations.</span>
+<span class="sd">            Default is ``50``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_evaluations</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_evaluations</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;NLOPT_DIRECT_L&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="s2">&quot;locally biased variant of DIviding RECTangles (DIRECT) algorithm for global optimization&quot;</span> <span class="c1">#(Added by: Elliot Melcer)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the DIRECT-L optimizer on an IOH problem.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        problem : ioh.Problem</span>
+<span class="sd">            An IOHexperimenter problem instance exposing</span>
+<span class="sd">            ``meta_data.n_variables``, ``bounds.lb``, ``bounds.ub``,</span>
+<span class="sd">            and callable evaluation via ``problem(x_int)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, list[int]]</span>
+<span class="sd">            ``(f_best, x_best_int)`` — the best objective value found and</span>
+<span class="sd">            the corresponding integer index vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Dimension &amp; bounds from IOH</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">meta_data</span><span class="o">.</span><span class="n">n_variables</span><span class="p">)</span>
         <span class="n">lb</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">lb</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
@@ -351,20 +402,66 @@
         <span class="k">return</span> <span class="n">f_best</span><span class="p">,</span> <span class="n">x_best_int</span></div>
 
 
+
 <div class="viewcode-block" id="RandomSearch">
 <a class="viewcode-back" href="../../../api/core.ioh_core.algorithms.html#core.ioh_core.algorithms.RandomSearch">[Doku]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RandomSearch</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple random search over integer index bounds.</span>
 <span class="sd">    Author: Max Dombrowski</span>
-<span class="sd">    Very simple random search over integer index bounds.</span>
+
+<span class="sd">    Samples uniformly from the integer index ranges defined by the IOH</span>
+<span class="sd">    problem bounds and tracks the best objective value found.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Algorithm identifier string used by the IOH logger.</span>
+<span class="sd">    info : str</span>
+<span class="sd">        Human-readable algorithm description.</span>
+<span class="sd">    evaluations : int</span>
+<span class="sd">        Number of random samples to draw per call [-].</span>
+<span class="sd">    rng : numpy.random.Generator</span>
+<span class="sd">        Random number generator instance.</span>
+<span class="sd">    best_y_ : float</span>
+<span class="sd">        Best objective value found in the last call (set after ``__call__``).</span>
+<span class="sd">    best_x_ : list[int]</span>
+<span class="sd">        Integer index vector achieving ``best_y_`` (set after ``__call__``).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_evaluations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        max_evaluations : int</span>
+<span class="sd">            Number of random samples to draw per optimization call.</span>
+<span class="sd">        seed : int or None, optional</span>
+<span class="sd">            Seed for the random number generator. ``None`` uses a</span>
+<span class="sd">            non-deterministic seed. Default is ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;RANDOM_SEARCH&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="s2">&quot;Very simple random search over integer index bounds&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">evaluations</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_evaluations</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the random search on an IOH problem.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        problem : ioh.Problem</span>
+<span class="sd">            An IOHexperimenter problem instance exposing</span>
+<span class="sd">            ``bounds.lb``, ``bounds.ub``, ``meta_data.n_variables``,</span>
+<span class="sd">            and callable evaluation via ``problem(x)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RandomSearch</span>
+<span class="sd">            Returns ``self`` with :attr:`best_y_` and :attr:`best_x_`</span>
+<span class="sd">            updated to the best solution found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">ub</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>

@@ -298,6 +298,15 @@
         <article role="main" id="furo-main-content">
           <section id="checks">
 <h1>checks<a class="headerlink" href="#checks" title="Link to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">checks</span></code> subpackage implements the structural, constructional, and acoustic
+verifications that form the constraints of the HP-shell optimization problem.
+Each check category is defined through an abstract base class prescribing a
+<code class="docutils literal notranslate"><span class="pre">calculate_utilization()</span></code> method, ensuring a uniform interface across all
+verification types: <code class="docutils literal notranslate"><span class="pre">StructuralCheck</span></code> (ULS/SLS bending), <code class="docutils literal notranslate"><span class="pre">ConstructionCheck</span></code>
+(geometric and detailing rules), <code class="docutils literal notranslate"><span class="pre">AcousticCheck</span></code> (sound insulation and impact
+noise), and <code class="docutils literal notranslate"><span class="pre">ModelingCheck</span></code> (numerical plausibility). Checks are organized
+across four modules corresponding to verification categories A–D and Z from
+the original Grasshopper implementation by Loutfi <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id48" title="Jamila Loutfi. Entwicklung eines parametrischen Bemessungsmodells für ein Deckensystem aus vorgespannten doppelt-gekrümmten Schalen aus Carbonbeton. Masterarbeit, Technische Universität Berlin, 2023.">3</a>]</span>.</p>
 <p class="rubric">Package Contents</p>
 <ul class="simple">
 <li><p><img src="../_static/module_icon.png" style="height:1.1em;vertical-align:middle;margin-right:5px;"> <a class="reference internal" href="core.analysis_core.checks.acoustic_checks.html"><span class="doc">acoustic_checks.py</span></a></p></li>

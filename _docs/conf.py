@@ -25,7 +25,7 @@ release = "0.1"
 # -- Allgemeine Konfiguration ------------------------------------------------
 extensions = [
     "sphinx.ext.autodoc",       # zieht Docstrings aus dem Code
-    "sphinx.ext.autosummary",   # generiert Übersichtstabellen
+    # "sphinx.ext.autosummary",   # generiert Übersichtstabellen
     "sphinx.ext.napoleon",      # versteht NumPy- (und Google-) Style
     "sphinx.ext.viewcode",      # Link "[source]" zum Quelltext
     "sphinx.ext.intersphinx",   # Querverweise zu Python/NumPy-Doku (braucht Internet beim Build)
@@ -37,11 +37,11 @@ bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "plain"
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_descriptions"]
 language = "de"
 
 # -- autodoc / autosummary ---------------------------------------------------
-autosummary_generate = True
+# autosummary_generate = True
 # "signature": Type-Hints bleiben in der Funktionssignatur. Alternativen:
 #   "description" -> Hints in die Parameterliste ziehen
 #   "none"        -> Hints ausblenden (Typen kommen dann nur aus dem Docstring)

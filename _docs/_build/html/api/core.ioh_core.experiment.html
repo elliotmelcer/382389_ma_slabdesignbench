@@ -298,10 +298,53 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.ioh_core.experiment">
 <span id="experiment-py"></span><h1>experiment.py<a class="headerlink" href="#module-core.ioh_core.experiment" title="Link to this heading">¶</a></h1>
+<p>Experiment runner for SlabDesignBench optimization studies.</p>
+<p>Applies an optimization algorithm to one or more IOH problem bundles,
+records per-evaluation data with an IOH Analyzer logger, patches the
+generated IOHprofiler metadata files to report the custom suite name
+<code class="docutils literal notranslate"><span class="pre">SlabDesignBench</span></code>, and optionally zips the result folders.</p>
+<p>Adapted from: Max Dombrowski</p>
+<p>Modifications by Elliot Melcer:</p>
+<ul class="simple">
+<li><p>one shared logger for all problems in a call</p></li>
+<li><p>docstrings</p></li>
+</ul>
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.experiment.run_experiment">
 <span class="sig-name descname"><span class="pre">run_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem_bundle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_runs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_after_zip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/experiment.html#run_experiment"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.experiment.run_experiment" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Run an optimization algorithm on a set of IOH problems and log results.</p>
+<p>For each problem in <code class="docutils literal notranslate"><span class="pre">problem_bundle</span></code> the algorithm is called
+<code class="docutils literal notranslate"><span class="pre">n_runs</span></code> times. All runs share a single IOH Analyzer logger.
+After all problems are processed, the IOHprofiler JSON metadata files
+are patched to report <code class="docutils literal notranslate"><span class="pre">SlabDesignBench</span></code> as the suite name, and the
+new result folders are optionally zipped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problem_bundle</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict]</span></code>) – <p>Mapping of problem IDs to problem bundle dicts as returned by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">build_problems_for_slab()</span></code>. Each bundle must contain:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;problem&quot;</span></code> — IOH problem instance.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;ctx&quot;</span></code> — <code class="xref py py-class docutils literal notranslate"><span class="pre">EvalContext</span></code> instance.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;var_names&quot;</span></code> — list of optimization variable names.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;active_constraint_names&quot;</span></code> — list of active constraint names.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;decode&quot;</span></code> — callable <code class="docutils literal notranslate"><span class="pre">decode(x_idx)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code>.</p></li>
+</ul>
+</p></li>
+<li><p><strong>algorithm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code>) – Optimization algorithm object with a <code class="docutils literal notranslate"><span class="pre">name</span></code> attribute (and
+optionally an <code class="docutils literal notranslate"><span class="pre">info</span></code> attribute). Called as <code class="docutils literal notranslate"><span class="pre">algorithm(problem)</span></code>
+for each run.</p></li>
+<li><p><strong>n_runs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of independent optimization runs per problem.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <em>optional</em>) – Label for the logger folder and zip file. Defaults to
+<code class="docutils literal notranslate"><span class="pre">&quot;my_benchmarking_study&quot;</span></code> if empty.</p></li>
+<li><p><strong>zip_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, zip all newly created result folders after the
+experiment. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>delete_after_zip</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>, <em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, remove the source folders after zipping. Only
+effective when <code class="docutils literal notranslate"><span class="pre">zip_results=True</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 

@@ -1,8 +1,19 @@
 """
+IOH problem builder for SlabDesignBench optimization studies.
+
+Constructs IOHexperimenter problem instances from CSV-driven parameter and
+constraint specifications, wires up the slab-specific analysis function
+through an :class:`EvalContext` cache, and exposes the problems as a dict
+ready for :func:`run_experiment`.
+
 Author: Max Dombrowski
-Modified by Elliot Melcer ("Addition by: Elliot Melcer" used to mark code)
- - pass materials to analysis
- - Let the slab module drop constraints that don't apply (i.e. hp_slab: defl_case_sls a/b cuts out unwanted checks from logging)
+
+Modifications by Elliot Melcer:
+
+* Pass materials to analysis.
+* Let the slab module drop constraints that don't apply, e.g.
+   ``hp_slab: defl_case_sls a/b`` cuts out unwanted checks from logging.
+* Add docstrings.
 """
 
 from pathlib import Path
@@ -23,9 +34,6 @@ from .import_specs import (
 from .cache_eval import EvalContext
 from .io_util import _enf
 
-#----------------------------------------------------------------------------------------------------------#
-# Helper class to detect and process slab types and return error if slab type was not provided correctly
-#----------------------------------------------------------------------------------------------------------#
 
 # Fallback list in case dynamic discovery fails
 _VALID_FALLBACK: tuple[str, ...] = (
@@ -36,11 +44,19 @@ _VALID_FALLBACK: tuple[str, ...] = (
     "solid_slab_two_way",
 )
 
+
 def _discover_slab_types() -> List[str]:
     """
-    Discover slab types by scanning the package 'slab_construction.slabs'
-    for subfolders that contain an 'analysis.py'. If anything goes wrong,
-    fall back to the known list above.
+    Discover available slab types by scanning ``slab_construction.slabs``.
+
+    A slab type is recognized if its subfolder contains an ``analysis.py``
+    module. Falls back to :data:`_VALID_FALLBACK` if dynamic discovery
+    fails for any reason.
+
+    Returns
+    -------
+    list[str]
+        Sorted list of valid slab type names.
     """
     try:
         root = files("slab_construction.slabs")
@@ -54,7 +70,25 @@ def _discover_slab_types() -> List[str]:
 
 
 def _make_violation_reader(ctx, cname: str):
-    """Return g(x) that fetches the raw violation for constraint `cname` from cache."""
+    """
+    Return a single-argument violation reader for an IOH constraint callback.
+
+    The returned callable fetches the raw (non-negative) violation value
+    for ``cname`` from the :class:`EvalContext` cache. Exceptions are
+    swallowed and ``0.0`` is returned to keep IOH alive.
+
+    Parameters
+    ----------
+    ctx : EvalContext
+        Cache context for the current problem.
+    cname : str
+        Constraint name key into ``rec["penalties_"]``.
+
+    Returns
+    -------
+    callable
+        ``g(x) -> float`` — non-negative raw violation for ``cname``.
+    """
     def g(x):
         # Never raise from here: IOH calls this from C++.
         try:
@@ -69,19 +103,47 @@ def _make_violation_reader(ctx, cname: str):
             return 0.0
     return g
 
-#----------------------------------------------------------------------------------------------------------#
-# Problem builder by path and slab module
-#----------------------------------------------------------------------------------------------------------#
 
 def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
     """
-    Build all IOH problems for a slab type directory and its analysis module.
+    Build all IOH problems for a slab type from its CSV specifications and
+    analysis module.
 
-    - CSV-driven: parameter_defaults.csv, constraint_defaults.csv, problem_list.csv
-    - One EvalContext per problem (per-problem_ID), binding that problem's constraints into analysis()
-    - IOH constraints log *raw* violations from the cache (default: HIDDEN/1/1 unless overridden)
+    Reads ``parameter_defaults.csv``, ``constraint_defaults.csv``,
+    ``problem_list.csv``, and ``materials.csv`` from ``slab_dir``.
+    For each problem ID, creates an :class:`EvalContext` cache that binds
+    the slab-specific ``analysis()`` function with the decoded parameters
+    and materials, then wraps the whole thing in an IOH integer problem.
+
+    Parameters
+    ----------
+    slab_dir : Path
+        Path to the slab-type folder containing the four CSV files.
+    slab_module : module
+        Imported slab analysis module. Must expose an ``analysis(params,
+        constraints, materials)`` callable and optionally a
+        ``resolve_active_constraints(fixed_params, constraints_log)``
+        callable.
+
+    Returns
+    -------
+    dict[str, dict]
+        Mapping ``{problem_id: bundle}`` where each bundle contains:
+
+        - ``"problem"`` — configured IOH integer problem instance.
+        - ``"var_names"`` — list of optimization variable names.
+        - ``"constraints"`` — full constraint config dict.
+        - ``"decode"`` — ``decode(x_idx) -> dict`` callable.
+        - ``"label"`` — human-readable problem label string.
+        - ``"ctx"`` — :class:`EvalContext` instance for this problem.
+        - ``"active_constraint_names"`` — list of active constraint names.
+
+    Raises
+    ------
+    ValueError
+        If ``var_names``, ``lb_idx``, or ``ub_idx`` have mismatched
+        lengths, or if a problem has zero optimization variables.
     """
-
     slab_dir = Path(slab_dir)                           # slab-specific folder that contains the three .csv files with all info for problem setup
     params_csv = slab_dir / "parameter_defaults.csv"
     constr_csv = slab_dir / "constraint_defaults.csv"
@@ -224,18 +286,30 @@ def build_problems_for_slab(slab_dir: Path, slab_module) -> dict[str, dict]:
 
     return problems
 
-#----------------------------------------------------------------------------------------------------------#
-# Interface to call function build_problems_for_slab with slab type as the only input
-#----------------------------------------------------------------------------------------------------------#
-# the definition of optimization problems is still defined in the slab-specific .csv tables!
 
 def build_problems_for_slab_type(slab_type: str) -> dict[str, dict]:
     """
-    Build all problems for a given slab type string.
+    Build all IOH problems for a slab type identified by name.
 
-    Valid types are discovered dynamically by scanning
-    'slab_benchmark.slabs' for subfolders with an 'analysis.py'.
-    If the provided slab_type is invalid, a clear error lists all valid options.
+    Valid types are discovered by scanning ``slab_construction.slabs``
+    for subfolders that contain an ``analysis.py`` module. Falls back to
+    a hardcoded list if dynamic discovery fails.
+
+    Parameters
+    ----------
+    slab_type : str
+        Name of the slab type (e.g. ``"hp_slab"``). Must match a
+        subfolder name in ``slab_construction.slabs``.
+
+    Returns
+    -------
+    dict[str, dict]
+        Problem bundle dict as returned by :func:`build_problems_for_slab`.
+
+    Raises
+    ------
+    ValueError
+        If ``slab_type`` is not among the discovered valid types.
     """
     valid = _discover_slab_types()
     if slab_type not in valid:

@@ -291,11 +291,17 @@
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.ioh_core.import_specs</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">CSV-driven specification loaders for optimization parameters, constraints,</span>
+<span class="sd">problems, and the materials registry.</span>
+
 <span class="sd">Author: Max Dombrowski</span>
-<span class="sd">Modified by: Elliot Melcer</span>
-<span class="sd"> - main modified to work with file structure</span>
-<span class="sd"> - load_param_defaults: added lookup role</span>
-<span class="sd"> - loads constraint defaults when they are omitted from problem_list.csv</span>
+
+<span class="sd">Modifications by Elliot Melcer:</span>
+
+<span class="sd">* main modified to work with file structure</span>
+<span class="sd">* load_param_defaults: added lookup role</span>
+<span class="sd">* loads constraint defaults when they are omitted from problem_list.csv</span>
+<span class="sd">* docstrings</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c1"># src/slab_benchmark/core/import_specs.py</span>
@@ -307,32 +313,67 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">core.ioh_core.io_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">_read_rows</span><span class="p">,</span> <span class="n">_enf</span><span class="p">,</span> <span class="n">_to_float</span><span class="p">,</span> <span class="n">_to_bool</span>
 
 
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
-<span class="c1"># Method to turn .csv-file parameter_defaults into python-readable Dict</span>
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
 <div class="viewcode-block" id="load_param_defaults">
 <a class="viewcode-back" href="../../../api/core.ioh_core.import_specs.html#core.ioh_core.import_specs.load_param_defaults">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_param_defaults</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read parameter_defaults.csv and return:</span>
-<span class="sd">      { name: {domain, values, lb, ub, fixed_idx, role, value_type} }</span>
-<span class="sd">      or, for role=&#39;lookup&#39;:</span>
-<span class="sd">      { name: {domain, values, role, value_type, lookup_key} }</span>
+<span class="sd">    Read ``parameter_defaults.csv`` and return a parameter specification dict.</span>
 
-<span class="sd">    Required columns:</span>
-<span class="sd">      name;domain;values;grid_start;grid_step;grid_count;</span>
-<span class="sd">      default_lb;default_ub;default_fixed;role;value_type;lookup_key</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str or Path</span>
+<span class="sd">        Path to ``parameter_defaults.csv``.</span>
 
-<span class="sd">    - domain: &#39;catalog&#39; uses &#39;values&#39; as a |-separated list.</span>
-<span class="sd">              &#39;grid&#39; uses start/step/count to generate values.</span>
-<span class="sd">    - role: &#39;var&#39;    — optimization variable (lb/ub active)</span>
-<span class="sd">            &#39;fixed&#39;  — constant per problem (fixed_idx active)</span>
-<span class="sd">            &#39;lookup&#39; — derived from another parameter via lookup_key;</span>
-<span class="sd">                       never appears in problem_list.csv, resolved in decode()</span>
-<span class="sd">    - lb/ub/fixed_idx are 0-based indices into &#39;values&#39;.</span>
-<span class="sd">    - value_type: &#39;float&#39;, &#39;int&#39;, or &#39;str&#39; (default: &#39;float&#39; if empty).</span>
-<span class="sd">    - lookup_key: only required for role=&#39;lookup&#39;; must name another parameter</span>
-<span class="sd">                  whose catalog/grid is positionally aligned with this one.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Mapping ``{name: spec}`` where each ``spec`` contains:</span>
+
+<span class="sd">        For roles ``&quot;var&quot;`` and ``&quot;fixed&quot;``:</span>
+
+<span class="sd">        - ``&quot;domain&quot;`` — ``&quot;catalog&quot;`` or ``&quot;grid&quot;``.</span>
+<span class="sd">        - ``&quot;values&quot;`` — list of admissible values.</span>
+<span class="sd">        - ``&quot;lb&quot;`` — lower bound index into ``&quot;values&quot;`` (0-based) [-].</span>
+<span class="sd">        - ``&quot;ub&quot;`` — upper bound index into ``&quot;values&quot;`` (0-based) [-].</span>
+<span class="sd">        - ``&quot;fixed_idx&quot;`` — index used when ``role=&quot;fixed&quot;`` (0-based) [-].</span>
+<span class="sd">        - ``&quot;role&quot;`` — ``&quot;var&quot;``, ``&quot;fixed&quot;``, or ``&quot;lookup&quot;``.</span>
+<span class="sd">        - ``&quot;value_type&quot;`` — ``&quot;float&quot;``, ``&quot;int&quot;``, or ``&quot;str&quot;``.</span>
+
+<span class="sd">        For role ``&quot;lookup&quot;``, additionally:</span>
+
+<span class="sd">        - ``&quot;lookup_key&quot;`` — name of the parameter this one mirrors.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If a parameter has an invalid role, unknown domain, empty value</span>
+<span class="sd">        list, non-positive grid count, or if a lookup parameter has no</span>
+<span class="sd">        ``lookup_key``, references an unknown key, references another</span>
+<span class="sd">        lookup (chained lookups are not supported), or has a value list</span>
+<span class="sd">        of different length than its key.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Required CSV columns:</span>
+<span class="sd">    ``name``, ``domain``, ``values``, ``grid_start``, ``grid_step``,</span>
+<span class="sd">    ``grid_count``, ``default_lb``, ``default_ub``, ``default_fixed``,</span>
+<span class="sd">    ``role``, ``value_type``, ``lookup_key``.</span>
+
+<span class="sd">    Domain rules:</span>
+
+<span class="sd">    - ``&quot;catalog&quot;`` — uses the ``values`` column as a ``|``-separated list.</span>
+<span class="sd">    - ``&quot;grid&quot;`` — generates values from ``grid_start``, ``grid_step``,</span>
+<span class="sd">      ``grid_count``; not allowed for ``role=&quot;lookup&quot;``.</span>
+
+<span class="sd">    Role rules:</span>
+
+<span class="sd">    - ``&quot;var&quot;`` — optimization variable; ``lb`` / ``ub`` are active.</span>
+<span class="sd">    - ``&quot;fixed&quot;`` — constant per problem; ``fixed_idx`` is active.</span>
+<span class="sd">    - ``&quot;lookup&quot;`` — derived from another parameter via ``lookup_key``;</span>
+<span class="sd">      never appears in ``problem_list.csv``; resolved in ``decode()``.</span>
+
+<span class="sd">    ``lb``, ``ub``, and ``fixed_idx`` are 0-based indices into ``values``.</span>
+<span class="sd">    ``value_type`` defaults to ``&quot;float&quot;`` if the column is empty.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">spec</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -488,15 +529,24 @@
 
 
 
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
-<span class="c1"># Build optimization space from parameter model</span>
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
 <div class="viewcode-block" id="build_space">
 <a class="viewcode-back" href="../../../api/core.ioh_core.import_specs.html#core.ioh_core.import_specs.build_space">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_space</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    From a full parameter model (with roles), extract the optimization space:</span>
-<span class="sd">    returns (var_names, lb_idx_list, ub_idx_list)</span>
+<span class="sd">    Extract the optimization variable space from a full parameter model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : dict</span>
+<span class="sd">        Parameter model dict as returned by :func:`load_param_defaults`</span>
+<span class="sd">        (possibly with per-problem overlays applied by</span>
+<span class="sd">        :func:`load_problems_combined`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[list[str], list[int], list[int]]</span>
+<span class="sd">        ``(var_names, lb_idx_list, ub_idx_list)`` — ordered lists of</span>
+<span class="sd">        variable names and their lower/upper bound indices.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">var_names</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -512,9 +562,43 @@
 <a class="viewcode-back" href="../../../api/core.ioh_core.import_specs.html#core.ioh_core.import_specs.make_decode">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_decode</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span> <span class="n">var_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build a decoder: decode(x_idx) -&gt; dict of parameters,</span>
-<span class="sd">    merging fixed parameters with variable indices (clamped to lb/ub).</span>
-<span class="sd">    No aliases/synonyms. Parameter names must match the CSVs exactly.</span>
+<span class="sd">    Build a ``decode(x_idx) -&gt; dict`` function for a given parameter model.</span>
+
+<span class="sd">    The returned decoder merges fixed parameters, variable parameters</span>
+<span class="sd">    (index-clamped to their ``lb``/``ub``), and lookup parameters</span>
+<span class="sd">    (resolved positionally from their key parameter). Additionally, injects</span>
+<span class="sd">    C30 reference cost and GWP values for reinforcement ratio calculations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : dict</span>
+<span class="sd">        Full parameter model dict (all roles included) as returned by</span>
+<span class="sd">        :func:`load_param_defaults` with per-problem overlays.</span>
+<span class="sd">    var_names : list[str]</span>
+<span class="sd">        Ordered list of optimization variable names (must match the</span>
+<span class="sd">        ``&quot;var&quot;``-role entries in ``model``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    callable</span>
+<span class="sd">        ``decode(x_idx: list[int]) -&gt; dict`` — maps an integer index</span>
+<span class="sd">        vector to a named parameter dictionary. The length of ``x_idx``</span>
+<span class="sd">        must equal ``len(var_names)``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``x_idx`` has the wrong length, or if the ``mat_conc_fck``</span>
+<span class="sd">        catalog does not contain ``30.0`` (required for C30 reference</span>
+<span class="sd">        injection).</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If a lookup parameter references a key not yet resolved in the</span>
+<span class="sd">        output dict.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Parameter names must match the CSV column names exactly; no aliases</span>
+<span class="sd">    or synonyms are supported.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_vars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_names</span><span class="p">)</span>
 
@@ -571,15 +655,29 @@
 
 
 
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
-<span class="c1"># Method to turn .csv-file constraint_defaults into python-readable Dict</span>
-<span class="c1">#----------------------------------------------------------------------------------------------------------#</span>
 <div class="viewcode-block" id="load_constraint_defaults">
 <a class="viewcode-back" href="../../../api/core.ioh_core.import_specs.html#core.ioh_core.import_specs.load_constraint_defaults">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_constraint_defaults</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read constraints_default.csv and return:</span>
-<span class="sd">      { name: {kind, enforced, weight, exponent, active} } # modified by: Elliot Melcer</span>
+<span class="sd">    Read ``constraint_defaults.csv`` and return a constraint specification dict.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str or Path</span>
+<span class="sd">        Path to ``constraint_defaults.csv``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Mapping ``{name: spec}`` where each ``spec`` contains:</span>
+
+<span class="sd">        - ``&quot;kind&quot;`` — constraint type string (e.g. ``&quot;real&quot;`` or</span>
+<span class="sd">          ``&quot;integer&quot;``).</span>
+<span class="sd">        - ``&quot;enforced&quot;`` — :class:`~ioh.iohcpp.ConstraintEnforcement`</span>
+<span class="sd">          enum value.</span>
+<span class="sd">        - ``&quot;weight&quot;`` — penalty weight [-].</span>
+<span class="sd">        - ``&quot;exponent&quot;`` — penalty exponent [-].</span>
+<span class="sd">        - ``&quot;active&quot;`` — whether the constraint is active by default [-].</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">spec</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -605,16 +703,38 @@
     <span class="n">problem_list_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read problem_list.csv and overlay per-problem configuration onto defaults.</span>
-<span class="sd">    Returns:</span>
-<span class="sd">      {</span>
-<span class="sd">        problem_id: {</span>
-<span class="sd">          &quot;model&quot;: merged parameter model (roles + lb/ub/fixed_idx adjusted),</span>
-<span class="sd">          &quot;constraints&quot;: { name: {kind, enforced, weight, exponent, active} },</span>
-<span class="sd">          &quot;label&quot;: str,</span>
-<span class="sd">        },</span>
-<span class="sd">        ...</span>
-<span class="sd">      }</span>
+<span class="sd">    Read ``problem_list.csv`` and overlay per-problem configuration onto defaults.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param_defaults : dict</span>
+<span class="sd">        Base parameter model as returned by :func:`load_param_defaults`.</span>
+<span class="sd">    constr_defaults : dict</span>
+<span class="sd">        Base constraint model as returned by :func:`load_constraint_defaults`.</span>
+<span class="sd">    problem_list_csv : str or Path</span>
+<span class="sd">        Path to ``problem_list.csv``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Mapping ``{problem_id: info}`` where each ``info`` dict contains:</span>
+
+<span class="sd">        - ``&quot;model&quot;`` — per-problem parameter model (deep copy of</span>
+<span class="sd">          ``param_defaults`` with roles, ``lb``, ``ub``, and</span>
+<span class="sd">          ``fixed_idx`` overlaid from the CSV).</span>
+<span class="sd">        - ``&quot;constraints&quot;`` — per-problem constraint config (deep copy of</span>
+<span class="sd">          ``constr_defaults`` with active/enforced/weight/exponent</span>
+<span class="sd">          overlaid from the CSV).</span>
+<span class="sd">        - ``&quot;label&quot;`` — human-readable problem label string.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If a row references an unknown parameter or constraint name.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If a row assigns an invalid role or references a ``&quot;lookup&quot;``</span>
+<span class="sd">        parameter (lookup parameters cannot be set in</span>
+<span class="sd">        ``problem_list.csv``).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">problem_list_csv</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">problem_list_csv</span><span class="p">)</span>
     <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span>
@@ -705,13 +825,39 @@
 <a class="viewcode-back" href="../../../api/core.ioh_core.import_specs.html#core.ioh_core.import_specs.load_materials_registry">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_materials_registry</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read materials.csv and return dictionary { name: {properties} }</span>
+<span class="sd">    Read ``materials.csv`` and return a materials registry dictionary.</span>
 
-<span class="sd">    Notes:</span>
-<span class="sd">      - &#39;name&#39; is the unique identifier (matches catalog values in parameter_defaults.csv)</span>
-<span class="sd">      - &#39;type&#39; indicates material category: reinforcement, infill, insulation, screed</span>
-<span class="sd">      - All numeric fields are converted to float (empty strings become None)</span>
-<span class="sd">      - Commas in numbers (European format) are converted to periods</span>
+<span class="sd">    If the file does not exist, an empty registry is returned (the</span>
+<span class="sd">    materials file is optional).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str or Path</span>
+<span class="sd">        Path to ``materials.csv``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Mapping ``{name: properties}`` where ``name`` is the unique</span>
+<span class="sd">        material identifier (must match catalog values in</span>
+<span class="sd">        ``parameter_defaults.csv``) and ``properties`` is a dict with</span>
+<span class="sd">        the following keys:</span>
+
+<span class="sd">        - ``&quot;type&quot;`` — material category: ``&quot;reinforcement&quot;``,</span>
+<span class="sd">          ``&quot;infill&quot;``, ``&quot;insulation&quot;``, or ``&quot;screed&quot;``.</span>
+<span class="sd">        - ``&quot;weight&quot;`` — density [kg/m³].</span>
+<span class="sd">        - ``&quot;gwp&quot;`` — global warming potential [kg CO₂-eq/unit].</span>
+<span class="sd">        - ``&quot;cost&quot;`` — unit cost [€/unit].</span>
+<span class="sd">        - ``&quot;f_yk&quot;`` — characteristic yield strength [N/mm²].</span>
+<span class="sd">        - ``&quot;f_tk&quot;`` — characteristic tensile strength [N/mm²].</span>
+<span class="sd">        - ``&quot;E_tex&quot;`` — Young&#39;s modulus [N/mm²].</span>
+<span class="sd">        - ``&quot;eps_y&quot;`` — yield strain [‰].</span>
+<span class="sd">        - ``&quot;eps_u&quot;`` — ultimate strain [‰].</span>
+<span class="sd">        - ``&quot;Edyn&quot;`` — dynamic modulus (insulation layers) [N/mm²].</span>
+
+<span class="sd">        Numeric fields are ``None`` if the CSV cell is empty. European</span>
+<span class="sd">        comma-format numbers (e.g. ``&quot;1,5&quot;``) are converted to</span>
+<span class="sd">        ``&quot;1.5&quot;`` before parsing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>

@@ -290,7 +290,22 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.ioh_core.experiment</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Experiment runner for SlabDesignBench optimization studies.</span>
+
+<span class="sd">Applies an optimization algorithm to one or more IOH problem bundles,</span>
+<span class="sd">records per-evaluation data with an IOH Analyzer logger, patches the</span>
+<span class="sd">generated IOHprofiler metadata files to report the custom suite name</span>
+<span class="sd">``SlabDesignBench``, and optionally zips the result folders.</span>
+
+<span class="sd">Adapted from: Max Dombrowski</span>
+
+<span class="sd">Modifications by Elliot Melcer:</span>
+
+<span class="sd">* one shared logger for all problems in a call</span>
+<span class="sd">* docstrings</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
@@ -299,21 +314,23 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">ioh</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Adapted from: Max Dombrowski</span>
-
-<span class="sd">This module provides a function run_experiment():</span>
-<span class="sd"> 1. applies an optimization algorithm to one or more problem bundles</span>
-<span class="sd"> 2. records per-evaluation data with an IOH Analyzer logger</span>
-<span class="sd"> 3. patches the generated IOHprofiler metadata files so they report the custom suite name SlabDesignBench.</span>
-<span class="sd"> 4. optionally zips the result folders created by this call.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">SUITE_NAME</span> <span class="o">=</span> <span class="s2">&quot;SlabDesignBench&quot;</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_zip_folders</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">zip_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Zip the given folders into zip_path, preserving paths relative to base_dir.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Zip a list of folders into a single archive.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    folders : list[Path]</span>
+<span class="sd">        Folders to include in the archive.</span>
+<span class="sd">    zip_path : Path</span>
+<span class="sd">        Destination path for the ``.zip`` file.</span>
+<span class="sd">    base_dir : Path</span>
+<span class="sd">        Root directory used to compute relative archive paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">folders</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">folder</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">):</span>
@@ -331,6 +348,43 @@
     <span class="n">zip_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">delete_after_zip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run an optimization algorithm on a set of IOH problems and log results.</span>
+
+<span class="sd">    For each problem in ``problem_bundle`` the algorithm is called</span>
+<span class="sd">    ``n_runs`` times. All runs share a single IOH Analyzer logger.</span>
+<span class="sd">    After all problems are processed, the IOHprofiler JSON metadata files</span>
+<span class="sd">    are patched to report ``SlabDesignBench`` as the suite name, and the</span>
+<span class="sd">    new result folders are optionally zipped.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problem_bundle : dict[str, dict]</span>
+<span class="sd">        Mapping of problem IDs to problem bundle dicts as returned by</span>
+<span class="sd">        :func:`build_problems_for_slab`. Each bundle must contain:</span>
+
+<span class="sd">        - ``&quot;problem&quot;`` — IOH problem instance.</span>
+<span class="sd">        - ``&quot;ctx&quot;`` — :class:`EvalContext` instance.</span>
+<span class="sd">        - ``&quot;var_names&quot;`` — list of optimization variable names.</span>
+<span class="sd">        - ``&quot;active_constraint_names&quot;`` — list of active constraint names.</span>
+<span class="sd">        - ``&quot;decode&quot;`` — callable ``decode(x_idx) -&gt; dict``.</span>
+
+<span class="sd">    algorithm : callable</span>
+<span class="sd">        Optimization algorithm object with a ``name`` attribute (and</span>
+<span class="sd">        optionally an ``info`` attribute). Called as ``algorithm(problem)``</span>
+<span class="sd">        for each run.</span>
+<span class="sd">    n_runs : int</span>
+<span class="sd">        Number of independent optimization runs per problem.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Label for the logger folder and zip file. Defaults to</span>
+<span class="sd">        ``&quot;my_benchmarking_study&quot;`` if empty.</span>
+<span class="sd">    zip_results : bool, optional</span>
+<span class="sd">        If ``True``, zip all newly created result folders after the</span>
+<span class="sd">        experiment. Default is ``True``.</span>
+<span class="sd">    delete_after_zip : bool, optional</span>
+<span class="sd">        If ``True``, remove the source folders after zipping. Only</span>
+<span class="sd">        effective when ``zip_results=True``. Default is ``False``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">out_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span> <span class="o">/</span> <span class="s2">&quot;logger_results&quot;</span>
     <span class="n">out_root</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 

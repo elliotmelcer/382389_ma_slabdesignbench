@@ -298,32 +298,87 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.ioh_core.problem_builder">
 <span id="problem-builder-py"></span><h1>problem_builder.py<a class="headerlink" href="#module-core.ioh_core.problem_builder" title="Link to this heading">¶</a></h1>
-<p>Author: Max Dombrowski
-Modified by Elliot Melcer („Addition by: Elliot Melcer“ used to mark code)</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>pass materials to analysis</p></li>
-<li><p>Let the slab module drop constraints that don’t apply (i.e. hp_slab: defl_case_sls a/b cuts out unwanted checks from logging)</p></li>
+<p>IOH problem builder for SlabDesignBench optimization studies.</p>
+<p>Constructs IOHexperimenter problem instances from CSV-driven parameter and
+constraint specifications, wires up the slab-specific analysis function
+through an <code class="xref py py-class docutils literal notranslate"><span class="pre">EvalContext</span></code> cache, and exposes the problems as a dict
+ready for <code class="xref py py-func docutils literal notranslate"><span class="pre">run_experiment()</span></code>.</p>
+<p>Author: Max Dombrowski</p>
+<p>Modifications by Elliot Melcer:</p>
+<ul class="simple">
+<li><p>Pass materials to analysis.</p></li>
+<li><dl class="simple">
+<dt>Let the slab module drop constraints that don’t apply, e.g.</dt><dd><p><code class="docutils literal notranslate"><span class="pre">hp_slab:</span> <span class="pre">defl_case_sls</span> <span class="pre">a/b</span></code> cuts out unwanted checks from logging.</p>
+</dd>
+</dl>
+</li>
+<li><p>Add docstrings.</p></li>
 </ul>
-</div></blockquote>
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.problem_builder.build_problems_for_slab">
 <span class="sig-name descname"><span class="pre">build_problems_for_slab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slab_module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/core/ioh_core/problem_builder.html#build_problems_for_slab"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.problem_builder.build_problems_for_slab" title="Link to this definition">¶</a></dt>
-<dd><p>Build all IOH problems for a slab type directory and its analysis module.</p>
-<ul class="simple">
-<li><p>CSV-driven: parameter_defaults.csv, constraint_defaults.csv, problem_list.csv</p></li>
-<li><p>One EvalContext per problem (per-problem_ID), binding that problem’s constraints into analysis()</p></li>
-<li><p>IOH constraints log <em>raw</em> violations from the cache (default: HIDDEN/1/1 unless overridden)</p></li>
+<dd><p>Build all IOH problems for a slab type from its CSV specifications and
+analysis module.</p>
+<p>Reads <code class="docutils literal notranslate"><span class="pre">parameter_defaults.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">constraint_defaults.csv</span></code>,
+<code class="docutils literal notranslate"><span class="pre">problem_list.csv</span></code>, and <code class="docutils literal notranslate"><span class="pre">materials.csv</span></code> from <code class="docutils literal notranslate"><span class="pre">slab_dir</span></code>.
+For each problem ID, creates an <code class="xref py py-class docutils literal notranslate"><span class="pre">EvalContext</span></code> cache that binds
+the slab-specific <code class="docutils literal notranslate"><span class="pre">analysis()</span></code> function with the decoded parameters
+and materials, then wraps the whole thing in an IOH integer problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slab_dir</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to the slab-type folder containing the four CSV files.</p></li>
+<li><p><strong>slab_module</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">module</span></code>) – Imported slab analysis module. Must expose an <code class="docutils literal notranslate"><span class="pre">analysis(params,</span>
+<span class="pre">constraints,</span> <span class="pre">materials)</span></code> callable and optionally a
+<code class="docutils literal notranslate"><span class="pre">resolve_active_constraints(fixed_params,</span> <span class="pre">constraints_log)</span></code>
+callable.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Mapping <code class="docutils literal notranslate"><span class="pre">{problem_id:</span> <span class="pre">bundle}</span></code> where each bundle contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;problem&quot;</span></code> — configured IOH integer problem instance.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;var_names&quot;</span></code> — list of optimization variable names.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;constraints&quot;</span></code> — full constraint config dict.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;decode&quot;</span></code> — <code class="docutils literal notranslate"><span class="pre">decode(x_idx)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code> callable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;label&quot;</span></code> — human-readable problem label string.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;ctx&quot;</span></code> — <code class="xref py py-class docutils literal notranslate"><span class="pre">EvalContext</span></code> instance for this problem.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;active_constraint_names&quot;</span></code> — list of active constraint names.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict]</span></code></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">var_names</span></code>, <code class="docutils literal notranslate"><span class="pre">lb_idx</span></code>, or <code class="docutils literal notranslate"><span class="pre">ub_idx</span></code> have mismatched
+    lengths, or if a problem has zero optimization variables.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.problem_builder.build_problems_for_slab_type">
 <span class="sig-name descname"><span class="pre">build_problems_for_slab_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/core/ioh_core/problem_builder.html#build_problems_for_slab_type"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.problem_builder.build_problems_for_slab_type" title="Link to this definition">¶</a></dt>
-<dd><p>Build all problems for a given slab type string.</p>
-<p>Valid types are discovered dynamically by scanning
-‚slab_benchmark.slabs‘ for subfolders with an ‚analysis.py‘.
-If the provided slab_type is invalid, a clear error lists all valid options.</p>
+<dd><p>Build all IOH problems for a slab type identified by name.</p>
+<p>Valid types are discovered by scanning <code class="docutils literal notranslate"><span class="pre">slab_construction.slabs</span></code>
+for subfolders that contain an <code class="docutils literal notranslate"><span class="pre">analysis.py</span></code> module. Falls back to
+a hardcoded list if dynamic discovery fails.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>slab_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Name of the slab type (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;hp_slab&quot;</span></code>). Must match a
+subfolder name in <code class="docutils literal notranslate"><span class="pre">slab_construction.slabs</span></code>.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p>Problem bundle dict as returned by <a class="reference internal" href="#core.ioh_core.problem_builder.build_problems_for_slab" title="core.ioh_core.problem_builder.build_problems_for_slab"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_problems_for_slab()</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict[str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict]</span></code></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">slab_type</span></code> is not among the discovered valid types.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

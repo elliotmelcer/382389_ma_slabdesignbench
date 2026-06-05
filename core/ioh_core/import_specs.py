@@ -1,9 +1,15 @@
 """
+CSV-driven specification loaders for optimization parameters, constraints,
+problems, and the materials registry.
+
 Author: Max Dombrowski
-Modified by: Elliot Melcer
- - main modified to work with file structure
- - load_param_defaults: added lookup role
- - loads constraint defaults when they are omitted from problem_list.csv
+
+Modifications by Elliot Melcer:
+
+* main modified to work with file structure
+* load_param_defaults: added lookup role
+* loads constraint defaults when they are omitted from problem_list.csv
+* docstrings
 """
 
 # src/slab_benchmark/core/import_specs.py
@@ -15,30 +21,65 @@ from typing import Dict, List, Any
 from core.ioh_core.io_util import _read_rows, _enf, _to_float, _to_bool
 
 
-#----------------------------------------------------------------------------------------------------------#
-# Method to turn .csv-file parameter_defaults into python-readable Dict
-#----------------------------------------------------------------------------------------------------------#
 def load_param_defaults(path: str | Path) -> Dict[str, dict]:
     """
-    Read parameter_defaults.csv and return:
-      { name: {domain, values, lb, ub, fixed_idx, role, value_type} }
-      or, for role='lookup':
-      { name: {domain, values, role, value_type, lookup_key} }
+    Read ``parameter_defaults.csv`` and return a parameter specification dict.
 
-    Required columns:
-      name;domain;values;grid_start;grid_step;grid_count;
-      default_lb;default_ub;default_fixed;role;value_type;lookup_key
+    Parameters
+    ----------
+    path : str or Path
+        Path to ``parameter_defaults.csv``.
 
-    - domain: 'catalog' uses 'values' as a |-separated list.
-              'grid' uses start/step/count to generate values.
-    - role: 'var'    — optimization variable (lb/ub active)
-            'fixed'  — constant per problem (fixed_idx active)
-            'lookup' — derived from another parameter via lookup_key;
-                       never appears in problem_list.csv, resolved in decode()
-    - lb/ub/fixed_idx are 0-based indices into 'values'.
-    - value_type: 'float', 'int', or 'str' (default: 'float' if empty).
-    - lookup_key: only required for role='lookup'; must name another parameter
-                  whose catalog/grid is positionally aligned with this one.
+    Returns
+    -------
+    dict
+        Mapping ``{name: spec}`` where each ``spec`` contains:
+
+        For roles ``"var"`` and ``"fixed"``:
+
+        - ``"domain"`` — ``"catalog"`` or ``"grid"``.
+        - ``"values"`` — list of admissible values.
+        - ``"lb"`` — lower bound index into ``"values"`` (0-based) [-].
+        - ``"ub"`` — upper bound index into ``"values"`` (0-based) [-].
+        - ``"fixed_idx"`` — index used when ``role="fixed"`` (0-based) [-].
+        - ``"role"`` — ``"var"``, ``"fixed"``, or ``"lookup"``.
+        - ``"value_type"`` — ``"float"``, ``"int"``, or ``"str"``.
+
+        For role ``"lookup"``, additionally:
+
+        - ``"lookup_key"`` — name of the parameter this one mirrors.
+
+    Raises
+    ------
+    ValueError
+        If a parameter has an invalid role, unknown domain, empty value
+        list, non-positive grid count, or if a lookup parameter has no
+        ``lookup_key``, references an unknown key, references another
+        lookup (chained lookups are not supported), or has a value list
+        of different length than its key.
+
+    Notes
+    -----
+    Required CSV columns:
+    ``name``, ``domain``, ``values``, ``grid_start``, ``grid_step``,
+    ``grid_count``, ``default_lb``, ``default_ub``, ``default_fixed``,
+    ``role``, ``value_type``, ``lookup_key``.
+
+    Domain rules:
+
+    - ``"catalog"`` — uses the ``values`` column as a ``|``-separated list.
+    - ``"grid"`` — generates values from ``grid_start``, ``grid_step``,
+      ``grid_count``; not allowed for ``role="lookup"``.
+
+    Role rules:
+
+    - ``"var"`` — optimization variable; ``lb`` / ``ub`` are active.
+    - ``"fixed"`` — constant per problem; ``fixed_idx`` is active.
+    - ``"lookup"`` — derived from another parameter via ``lookup_key``;
+      never appears in ``problem_list.csv``; resolved in ``decode()``.
+
+    ``lb``, ``ub``, and ``fixed_idx`` are 0-based indices into ``values``.
+    ``value_type`` defaults to ``"float"`` if the column is empty.
     """
     path = Path(path)
     spec: Dict[str, dict] = {}
@@ -193,13 +234,22 @@ def load_param_defaults(path: str | Path) -> Dict[str, dict]:
     return spec
 
 
-#----------------------------------------------------------------------------------------------------------#
-# Build optimization space from parameter model
-#----------------------------------------------------------------------------------------------------------#
 def build_space(model: Dict[str, dict]) -> tuple[list[str], list[int], list[int]]:
     """
-    From a full parameter model (with roles), extract the optimization space:
-    returns (var_names, lb_idx_list, ub_idx_list)
+    Extract the optimization variable space from a full parameter model.
+
+    Parameters
+    ----------
+    model : dict
+        Parameter model dict as returned by :func:`load_param_defaults`
+        (possibly with per-problem overlays applied by
+        :func:`load_problems_combined`).
+
+    Returns
+    -------
+    tuple[list[str], list[int], list[int]]
+        ``(var_names, lb_idx_list, ub_idx_list)`` — ordered lists of
+        variable names and their lower/upper bound indices.
     """
     var_names, lb, ub = [], [], []
     for n, m in model.items():
@@ -212,9 +262,43 @@ def build_space(model: Dict[str, dict]) -> tuple[list[str], list[int], list[int]
 
 def make_decode(model: Dict[str, dict], var_names: List[str]):
     """
-    Build a decoder: decode(x_idx) -> dict of parameters,
-    merging fixed parameters with variable indices (clamped to lb/ub).
-    No aliases/synonyms. Parameter names must match the CSVs exactly.
+    Build a ``decode(x_idx) -> dict`` function for a given parameter model.
+
+    The returned decoder merges fixed parameters, variable parameters
+    (index-clamped to their ``lb``/``ub``), and lookup parameters
+    (resolved positionally from their key parameter). Additionally, injects
+    C30 reference cost and GWP values for reinforcement ratio calculations.
+
+    Parameters
+    ----------
+    model : dict
+        Full parameter model dict (all roles included) as returned by
+        :func:`load_param_defaults` with per-problem overlays.
+    var_names : list[str]
+        Ordered list of optimization variable names (must match the
+        ``"var"``-role entries in ``model``).
+
+    Returns
+    -------
+    callable
+        ``decode(x_idx: list[int]) -> dict`` — maps an integer index
+        vector to a named parameter dictionary. The length of ``x_idx``
+        must equal ``len(var_names)``.
+
+    Raises
+    ------
+    ValueError
+        If ``x_idx`` has the wrong length, or if the ``mat_conc_fck``
+        catalog does not contain ``30.0`` (required for C30 reference
+        injection).
+    KeyError
+        If a lookup parameter references a key not yet resolved in the
+        output dict.
+
+    Notes
+    -----
+    Parameter names must match the CSV column names exactly; no aliases
+    or synonyms are supported.
     """
     n_vars = len(var_names)
 
@@ -270,13 +354,27 @@ def make_decode(model: Dict[str, dict], var_names: List[str]):
     return decode
 
 
-#----------------------------------------------------------------------------------------------------------#
-# Method to turn .csv-file constraint_defaults into python-readable Dict
-#----------------------------------------------------------------------------------------------------------#
 def load_constraint_defaults(path: str | Path) -> Dict[str, dict]:
     """
-    Read constraints_default.csv and return:
-      { name: {kind, enforced, weight, exponent, active} } # modified by: Elliot Melcer
+    Read ``constraint_defaults.csv`` and return a constraint specification dict.
+
+    Parameters
+    ----------
+    path : str or Path
+        Path to ``constraint_defaults.csv``.
+
+    Returns
+    -------
+    dict
+        Mapping ``{name: spec}`` where each ``spec`` contains:
+
+        - ``"kind"`` — constraint type string (e.g. ``"real"`` or
+          ``"integer"``).
+        - ``"enforced"`` — :class:`~ioh.iohcpp.ConstraintEnforcement`
+          enum value.
+        - ``"weight"`` — penalty weight [-].
+        - ``"exponent"`` — penalty exponent [-].
+        - ``"active"`` — whether the constraint is active by default [-].
     """
     path = Path(path)
     spec: Dict[str, dict] = {}
@@ -299,16 +397,38 @@ def load_problems_combined(
     problem_list_csv: str | Path,
 ) -> Dict[str, dict]:
     """
-    Read problem_list.csv and overlay per-problem configuration onto defaults.
-    Returns:
-      {
-        problem_id: {
-          "model": merged parameter model (roles + lb/ub/fixed_idx adjusted),
-          "constraints": { name: {kind, enforced, weight, exponent, active} },
-          "label": str,
-        },
-        ...
-      }
+    Read ``problem_list.csv`` and overlay per-problem configuration onto defaults.
+
+    Parameters
+    ----------
+    param_defaults : dict
+        Base parameter model as returned by :func:`load_param_defaults`.
+    constr_defaults : dict
+        Base constraint model as returned by :func:`load_constraint_defaults`.
+    problem_list_csv : str or Path
+        Path to ``problem_list.csv``.
+
+    Returns
+    -------
+    dict
+        Mapping ``{problem_id: info}`` where each ``info`` dict contains:
+
+        - ``"model"`` — per-problem parameter model (deep copy of
+          ``param_defaults`` with roles, ``lb``, ``ub``, and
+          ``fixed_idx`` overlaid from the CSV).
+        - ``"constraints"`` — per-problem constraint config (deep copy of
+          ``constr_defaults`` with active/enforced/weight/exponent
+          overlaid from the CSV).
+        - ``"label"`` — human-readable problem label string.
+
+    Raises
+    ------
+    KeyError
+        If a row references an unknown parameter or constraint name.
+    ValueError
+        If a row assigns an invalid role or references a ``"lookup"``
+        parameter (lookup parameters cannot be set in
+        ``problem_list.csv``).
     """
     problem_list_csv = Path(problem_list_csv)
     expected = [
@@ -396,13 +516,39 @@ def load_problems_combined(
 
 def load_materials_registry(path: str | Path) -> Dict[str, dict]:
     """
-    Read materials.csv and return dictionary { name: {properties} }
+    Read ``materials.csv`` and return a materials registry dictionary.
 
-    Notes:
-      - 'name' is the unique identifier (matches catalog values in parameter_defaults.csv)
-      - 'type' indicates material category: reinforcement, infill, insulation, screed
-      - All numeric fields are converted to float (empty strings become None)
-      - Commas in numbers (European format) are converted to periods
+    If the file does not exist, an empty registry is returned (the
+    materials file is optional).
+
+    Parameters
+    ----------
+    path : str or Path
+        Path to ``materials.csv``.
+
+    Returns
+    -------
+    dict
+        Mapping ``{name: properties}`` where ``name`` is the unique
+        material identifier (must match catalog values in
+        ``parameter_defaults.csv``) and ``properties`` is a dict with
+        the following keys:
+
+        - ``"type"`` — material category: ``"reinforcement"``,
+          ``"infill"``, ``"insulation"``, or ``"screed"``.
+        - ``"weight"`` — density [kg/m³].
+        - ``"gwp"`` — global warming potential [kg CO₂-eq/unit].
+        - ``"cost"`` — unit cost [€/unit].
+        - ``"f_yk"`` — characteristic yield strength [N/mm²].
+        - ``"f_tk"`` — characteristic tensile strength [N/mm²].
+        - ``"E_tex"`` — Young's modulus [N/mm²].
+        - ``"eps_y"`` — yield strain [‰].
+        - ``"eps_u"`` — ultimate strain [‰].
+        - ``"Edyn"`` — dynamic modulus (insulation layers) [N/mm²].
+
+        Numeric fields are ``None`` if the CSV cell is empty. European
+        comma-format numbers (e.g. ``"1,5"``) are converted to
+        ``"1.5"`` before parsing.
     """
     path = Path(path)
     if not path.exists():

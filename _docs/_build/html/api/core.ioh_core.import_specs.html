@@ -298,72 +298,158 @@
         <article role="main" id="furo-main-content">
           <section id="module-core.ioh_core.import_specs">
 <span id="import-specs-py"></span><h1>import_specs.py<a class="headerlink" href="#module-core.ioh_core.import_specs" title="Link to this heading">¶</a></h1>
-<p>Author: Max Dombrowski
-Modified by: Elliot Melcer</p>
-<blockquote>
-<div><ul class="simple">
+<p>CSV-driven specification loaders for optimization parameters, constraints,
+problems, and the materials registry.</p>
+<p>Author: Max Dombrowski</p>
+<p>Modifications by Elliot Melcer:</p>
+<ul class="simple">
 <li><p>main modified to work with file structure</p></li>
 <li><p>load_param_defaults: added lookup role</p></li>
 <li><p>loads constraint defaults when they are omitted from problem_list.csv</p></li>
+<li><p>docstrings</p></li>
 </ul>
-</div></blockquote>
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.import_specs.load_param_defaults">
 <span class="sig-name descname"><span class="pre">load_param_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/core/ioh_core/import_specs.html#load_param_defaults"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.import_specs.load_param_defaults" title="Link to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Read parameter_defaults.csv and return:</dt><dd><p>{ name: {domain, values, lb, ub, fixed_idx, role, value_type} }
-or, for role=‘lookup‘:
-{ name: {domain, values, role, value_type, lookup_key} }</p>
+<dd><p>Read <code class="docutils literal notranslate"><span class="pre">parameter_defaults.csv</span></code> and return a parameter specification dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to <code class="docutils literal notranslate"><span class="pre">parameter_defaults.csv</span></code>.</p>
 </dd>
-<dt>Required columns:</dt><dd><p>name;domain;values;grid_start;grid_step;grid_count;
-default_lb;default_ub;default_fixed;role;value_type;lookup_key</p>
-</dd>
-</dl>
-<ul>
-<li><dl class="simple">
-<dt>domain: ‚catalog‘ uses ‚values‘ as a <a href="#id1"><span class="problematic" id="id2">|</span></a>-separated list.</dt><dd><p>‚grid‘ uses start/step/count to generate values.</p>
-</dd>
-</dl>
-</li>
-<li><dl>
-<dt>role: ‚var‘    — optimization variable (lb/ub active)</dt><dd><p>‚fixed‘  — constant per problem (fixed_idx active)
-‚lookup‘ — derived from another parameter via lookup_key;</p>
-<blockquote>
-<div><p>never appears in problem_list.csv, resolved in decode()</p>
-</div></blockquote>
-</dd>
-</dl>
-</li>
-<li><p>lb/ub/fixed_idx are 0-based indices into ‚values‘.</p></li>
-<li><p>value_type: ‚float‘, ‚int‘, or ‚str‘ (default: ‚float‘ if empty).</p></li>
-<li><dl class="simple">
-<dt>lookup_key: only required for role=‘lookup‘; must name another parameter</dt><dd><p>whose catalog/grid is positionally aligned with this one.</p>
-</dd>
-</dl>
-</li>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Mapping <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">spec}</span></code> where each <code class="docutils literal notranslate"><span class="pre">spec</span></code> contains:</p>
+<p>For roles <code class="docutils literal notranslate"><span class="pre">&quot;var&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;fixed&quot;</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;domain&quot;</span></code> — <code class="docutils literal notranslate"><span class="pre">&quot;catalog&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;grid&quot;</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;values&quot;</span></code> — list of admissible values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;lb&quot;</span></code> — lower bound index into <code class="docutils literal notranslate"><span class="pre">&quot;values&quot;</span></code> (0-based) [-].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;ub&quot;</span></code> — upper bound index into <code class="docutils literal notranslate"><span class="pre">&quot;values&quot;</span></code> (0-based) [-].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;fixed_idx&quot;</span></code> — index used when <code class="docutils literal notranslate"><span class="pre">role=&quot;fixed&quot;</span></code> (0-based) [-].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;role&quot;</span></code> — <code class="docutils literal notranslate"><span class="pre">&quot;var&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;fixed&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;lookup&quot;</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;value_type&quot;</span></code> — <code class="docutils literal notranslate"><span class="pre">&quot;float&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;int&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;str&quot;</span></code>.</p></li>
 </ul>
+<p>For role <code class="docutils literal notranslate"><span class="pre">&quot;lookup&quot;</span></code>, additionally:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;lookup_key&quot;</span></code> — name of the parameter this one mirrors.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a parameter has an invalid role, unknown domain, empty value
+    list, non-positive grid count, or if a lookup parameter has no
+    <code class="docutils literal notranslate"><span class="pre">lookup_key</span></code>, references an unknown key, references another
+    lookup (chained lookups are not supported), or has a value list
+    of different length than its key.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Required CSV columns:
+<code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">domain</span></code>, <code class="docutils literal notranslate"><span class="pre">values</span></code>, <code class="docutils literal notranslate"><span class="pre">grid_start</span></code>, <code class="docutils literal notranslate"><span class="pre">grid_step</span></code>,
+<code class="docutils literal notranslate"><span class="pre">grid_count</span></code>, <code class="docutils literal notranslate"><span class="pre">default_lb</span></code>, <code class="docutils literal notranslate"><span class="pre">default_ub</span></code>, <code class="docutils literal notranslate"><span class="pre">default_fixed</span></code>,
+<code class="docutils literal notranslate"><span class="pre">role</span></code>, <code class="docutils literal notranslate"><span class="pre">value_type</span></code>, <code class="docutils literal notranslate"><span class="pre">lookup_key</span></code>.</p>
+<p>Domain rules:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;catalog&quot;</span></code> — uses the <code class="docutils literal notranslate"><span class="pre">values</span></code> column as a <code class="docutils literal notranslate"><span class="pre">|</span></code>-separated list.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;grid&quot;</span></code> — generates values from <code class="docutils literal notranslate"><span class="pre">grid_start</span></code>, <code class="docutils literal notranslate"><span class="pre">grid_step</span></code>,
+<code class="docutils literal notranslate"><span class="pre">grid_count</span></code>; not allowed for <code class="docutils literal notranslate"><span class="pre">role=&quot;lookup&quot;</span></code>.</p></li>
+</ul>
+<p>Role rules:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;var&quot;</span></code> — optimization variable; <code class="docutils literal notranslate"><span class="pre">lb</span></code> / <code class="docutils literal notranslate"><span class="pre">ub</span></code> are active.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;fixed&quot;</span></code> — constant per problem; <code class="docutils literal notranslate"><span class="pre">fixed_idx</span></code> is active.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;lookup&quot;</span></code> — derived from another parameter via <code class="docutils literal notranslate"><span class="pre">lookup_key</span></code>;
+never appears in <code class="docutils literal notranslate"><span class="pre">problem_list.csv</span></code>; resolved in <code class="docutils literal notranslate"><span class="pre">decode()</span></code>.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">lb</span></code>, <code class="docutils literal notranslate"><span class="pre">ub</span></code>, and <code class="docutils literal notranslate"><span class="pre">fixed_idx</span></code> are 0-based indices into <code class="docutils literal notranslate"><span class="pre">values</span></code>.
+<code class="docutils literal notranslate"><span class="pre">value_type</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">&quot;float&quot;</span></code> if the column is empty.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.import_specs.build_space">
 <span class="sig-name descname"><span class="pre">build_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/core/ioh_core/import_specs.html#build_space"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.import_specs.build_space" title="Link to this definition">¶</a></dt>
-<dd><p>From a full parameter model (with roles), extract the optimization space:
-returns (var_names, lb_idx_list, ub_idx_list)</p>
+<dd><p>Extract the optimization variable space from a full parameter model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Parameter model dict as returned by <a class="reference internal" href="#core.ioh_core.import_specs.load_param_defaults" title="core.ioh_core.import_specs.load_param_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_param_defaults()</span></code></a>
+(possibly with per-problem overlays applied by
+<a class="reference internal" href="#core.ioh_core.import_specs.load_problems_combined" title="core.ioh_core.import_specs.load_problems_combined"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_problems_combined()</span></code></a>).</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(var_names,</span> <span class="pre">lb_idx_list,</span> <span class="pre">ub_idx_list)</span></code> — ordered lists of
+variable names and their lower/upper bound indices.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple[list[str]</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list[int]</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list[int]]</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.import_specs.make_decode">
 <span class="sig-name descname"><span class="pre">make_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/core/ioh_core/import_specs.html#make_decode"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.import_specs.make_decode" title="Link to this definition">¶</a></dt>
-<dd><p>Build a decoder: decode(x_idx) -&gt; dict of parameters,
-merging fixed parameters with variable indices (clamped to lb/ub).
-No aliases/synonyms. Parameter names must match the CSVs exactly.</p>
+<dd><p>Build a <code class="docutils literal notranslate"><span class="pre">decode(x_idx)</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code> function for a given parameter model.</p>
+<p>The returned decoder merges fixed parameters, variable parameters
+(index-clamped to their <code class="docutils literal notranslate"><span class="pre">lb</span></code>/<code class="docutils literal notranslate"><span class="pre">ub</span></code>), and lookup parameters
+(resolved positionally from their key parameter). Additionally, injects
+C30 reference cost and GWP values for reinforcement ratio calculations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Full parameter model dict (all roles included) as returned by
+<a class="reference internal" href="#core.ioh_core.import_specs.load_param_defaults" title="core.ioh_core.import_specs.load_param_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_param_defaults()</span></code></a> with per-problem overlays.</p></li>
+<li><p><strong>var_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list[str]</span></code>) – Ordered list of optimization variable names (must match the
+<code class="docutils literal notranslate"><span class="pre">&quot;var&quot;</span></code>-role entries in <code class="docutils literal notranslate"><span class="pre">model</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">decode(x_idx:</span> <span class="pre">list[int])</span> <span class="pre">-&gt;</span> <span class="pre">dict</span></code> — maps an integer index
+vector to a named parameter dictionary. The length of <code class="docutils literal notranslate"><span class="pre">x_idx</span></code>
+must equal <code class="docutils literal notranslate"><span class="pre">len(var_names)</span></code>.</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">x_idx</span></code> has the wrong length, or if the <code class="docutils literal notranslate"><span class="pre">mat_conc_fck</span></code>
+    catalog does not contain <code class="docutils literal notranslate"><span class="pre">30.0</span></code> (required for C30 reference
+    injection).</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If a lookup parameter references a key not yet resolved in the
+    output dict.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Parameter names must match the CSV column names exactly; no aliases
+or synonyms are supported.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.import_specs.load_constraint_defaults">
 <span class="sig-name descname"><span class="pre">load_constraint_defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/core/ioh_core/import_specs.html#load_constraint_defaults"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.import_specs.load_constraint_defaults" title="Link to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Read constraints_default.csv and return:</dt><dd><p>{ name: {kind, enforced, weight, exponent, active} } # modified by: Elliot Melcer</p>
+<dd><p>Read <code class="docutils literal notranslate"><span class="pre">constraint_defaults.csv</span></code> and return a constraint specification dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to <code class="docutils literal notranslate"><span class="pre">constraint_defaults.csv</span></code>.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Mapping <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">spec}</span></code> where each <code class="docutils literal notranslate"><span class="pre">spec</span></code> contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;kind&quot;</span></code> — constraint type string (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;real&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;integer&quot;</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;enforced&quot;</span></code> — <code class="xref py py-class docutils literal notranslate"><span class="pre">ConstraintEnforcement</span></code>
+enum value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code> — penalty weight [-].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exponent&quot;</span></code> — penalty exponent [-].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;active&quot;</span></code> — whether the constraint is active by default [-].</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -371,33 +457,77 @@ No aliases/synonyms. Parameter names must match the CSVs exactly.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.import_specs.load_problems_combined">
 <span class="sig-name descname"><span class="pre">load_problems_combined</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_defaults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constr_defaults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem_list_csv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/core/ioh_core/import_specs.html#load_problems_combined"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.import_specs.load_problems_combined" title="Link to this definition">¶</a></dt>
-<dd><p>Read problem_list.csv and overlay per-problem configuration onto defaults.
-Returns:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>{</dt><dd><dl class="simple">
-<dt>problem_id: {</dt><dd><p>„model“: merged parameter model (roles + lb/ub/fixed_idx adjusted),
-„constraints“: { name: {kind, enforced, weight, exponent, active} },
-„label“: str,</p>
+<dd><p>Read <code class="docutils literal notranslate"><span class="pre">problem_list.csv</span></code> and overlay per-problem configuration onto defaults.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_defaults</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Base parameter model as returned by <a class="reference internal" href="#core.ioh_core.import_specs.load_param_defaults" title="core.ioh_core.import_specs.load_param_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_param_defaults()</span></code></a>.</p></li>
+<li><p><strong>constr_defaults</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Base constraint model as returned by <a class="reference internal" href="#core.ioh_core.import_specs.load_constraint_defaults" title="core.ioh_core.import_specs.load_constraint_defaults"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_constraint_defaults()</span></code></a>.</p></li>
+<li><p><strong>problem_list_csv</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to <code class="docutils literal notranslate"><span class="pre">problem_list.csv</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Mapping <code class="docutils literal notranslate"><span class="pre">{problem_id:</span> <span class="pre">info}</span></code> where each <code class="docutils literal notranslate"><span class="pre">info</span></code> dict contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;model&quot;</span></code> — per-problem parameter model (deep copy of
+<code class="docutils literal notranslate"><span class="pre">param_defaults</span></code> with roles, <code class="docutils literal notranslate"><span class="pre">lb</span></code>, <code class="docutils literal notranslate"><span class="pre">ub</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">fixed_idx</span></code> overlaid from the CSV).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;constraints&quot;</span></code> — per-problem constraint config (deep copy of
+<code class="docutils literal notranslate"><span class="pre">constr_defaults</span></code> with active/enforced/weight/exponent
+overlaid from the CSV).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;label&quot;</span></code> — human-readable problem label string.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd>
+<dt class="field-even">Verursacht<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If a row references an unknown parameter or constraint name.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If a row assigns an invalid role or references a <code class="docutils literal notranslate"><span class="pre">&quot;lookup&quot;</span></code>
+    parameter (lookup parameters cannot be set in
+    <code class="docutils literal notranslate"><span class="pre">problem_list.csv</span></code>).</p></li>
+</ul>
 </dd>
 </dl>
-</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="core.ioh_core.import_specs.load_materials_registry">
 <span class="sig-name descname"><span class="pre">load_materials_registry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/core/ioh_core/import_specs.html#load_materials_registry"><span class="viewcode-link"><span class="pre">[Quellcode]</span></span></a><a class="headerlink" href="#core.ioh_core.import_specs.load_materials_registry" title="Link to this definition">¶</a></dt>
-<dd><p>Read materials.csv and return dictionary { name: {properties} }</p>
-<dl class="simple">
-<dt>Notes:</dt><dd><ul class="simple">
-<li><p>‚name‘ is the unique identifier (matches catalog values in parameter_defaults.csv)</p></li>
-<li><p>‚type‘ indicates material category: reinforcement, infill, insulation, screed</p></li>
-<li><p>All numeric fields are converted to float (empty strings become None)</p></li>
-<li><p>Commas in numbers (European format) are converted to periods</p></li>
+<dd><p>Read <code class="docutils literal notranslate"><span class="pre">materials.csv</span></code> and return a materials registry dictionary.</p>
+<p>If the file does not exist, an empty registry is returned (the
+materials file is optional).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameter<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to <code class="docutils literal notranslate"><span class="pre">materials.csv</span></code>.</p>
+</dd>
+<dt class="field-even">Rückgabe<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Mapping <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">properties}</span></code> where <code class="docutils literal notranslate"><span class="pre">name</span></code> is the unique
+material identifier (must match catalog values in
+<code class="docutils literal notranslate"><span class="pre">parameter_defaults.csv</span></code>) and <code class="docutils literal notranslate"><span class="pre">properties</span></code> is a dict with
+the following keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;type&quot;</span></code> — material category: <code class="docutils literal notranslate"><span class="pre">&quot;reinforcement&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;infill&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;insulation&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;screed&quot;</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code> — density [kg/m³].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;gwp&quot;</span></code> — global warming potential [kg CO₂-eq/unit].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cost&quot;</span></code> — unit cost [€/unit].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;f_yk&quot;</span></code> — characteristic yield strength [N/mm²].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;f_tk&quot;</span></code> — characteristic tensile strength [N/mm²].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;E_tex&quot;</span></code> — Young’s modulus [N/mm²].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;eps_y&quot;</span></code> — yield strain [‰].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;eps_u&quot;</span></code> — ultimate strain [‰].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;Edyn&quot;</span></code> — dynamic modulus (insulation layers) [N/mm²].</p></li>
 </ul>
+<p>Numeric fields are <code class="docutils literal notranslate"><span class="pre">None</span></code> if the CSV cell is empty. European
+comma-format numbers (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;1,5&quot;</span></code>) are converted to
+<code class="docutils literal notranslate"><span class="pre">&quot;1.5&quot;</span></code> before parsing.</p>
+</p>
+</dd>
+<dt class="field-odd">Rückgabetyp<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>

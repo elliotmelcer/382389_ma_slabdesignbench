@@ -1,3 +1,18 @@
+"""
+Experiment runner for SlabDesignBench optimization studies.
+
+Applies an optimization algorithm to one or more IOH problem bundles,
+records per-evaluation data with an IOH Analyzer logger, patches the
+generated IOHprofiler metadata files to report the custom suite name
+``SlabDesignBench``, and optionally zips the result folders.
+
+Adapted from: Max Dombrowski
+
+Modifications by Elliot Melcer:
+
+* one shared logger for all problems in a call
+* docstrings
+"""
 import os
 import shutil
 import zipfile
@@ -7,21 +22,23 @@ from ioh.iohcpp.logger import trigger as ltr
 import ioh
 import json
 
-"""
-Adapted from: Max Dombrowski
-
-This module provides a function run_experiment():
- 1. applies an optimization algorithm to one or more problem bundles
- 2. records per-evaluation data with an IOH Analyzer logger
- 3. patches the generated IOHprofiler metadata files so they report the custom suite name SlabDesignBench.
- 4. optionally zips the result folders created by this call.
-"""
 
 SUITE_NAME = "SlabDesignBench"
 
 
 def _zip_folders(folders: list[Path], zip_path: Path, base_dir: Path) -> None:
-    """Zip the given folders into zip_path, preserving paths relative to base_dir."""
+    """
+    Zip a list of folders into a single archive.
+
+    Parameters
+    ----------
+    folders : list[Path]
+        Folders to include in the archive.
+    zip_path : Path
+        Destination path for the ``.zip`` file.
+    base_dir : Path
+        Root directory used to compute relative archive paths.
+    """
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for folder in folders:
             for file in folder.rglob("*"):
@@ -37,6 +54,43 @@ def run_experiment(
     zip_results: bool = True,
     delete_after_zip: bool = False,
 ):
+    """
+    Run an optimization algorithm on a set of IOH problems and log results.
+
+    For each problem in ``problem_bundle`` the algorithm is called
+    ``n_runs`` times. All runs share a single IOH Analyzer logger.
+    After all problems are processed, the IOHprofiler JSON metadata files
+    are patched to report ``SlabDesignBench`` as the suite name, and the
+    new result folders are optionally zipped.
+
+    Parameters
+    ----------
+    problem_bundle : dict[str, dict]
+        Mapping of problem IDs to problem bundle dicts as returned by
+        :func:`build_problems_for_slab`. Each bundle must contain:
+
+        - ``"problem"`` — IOH problem instance.
+        - ``"ctx"`` — :class:`EvalContext` instance.
+        - ``"var_names"`` — list of optimization variable names.
+        - ``"active_constraint_names"`` — list of active constraint names.
+        - ``"decode"`` — callable ``decode(x_idx) -> dict``.
+
+    algorithm : callable
+        Optimization algorithm object with a ``name`` attribute (and
+        optionally an ``info`` attribute). Called as ``algorithm(problem)``
+        for each run.
+    n_runs : int
+        Number of independent optimization runs per problem.
+    name : str, optional
+        Label for the logger folder and zip file. Defaults to
+        ``"my_benchmarking_study"`` if empty.
+    zip_results : bool, optional
+        If ``True``, zip all newly created result folders after the
+        experiment. Default is ``True``.
+    delete_after_zip : bool, optional
+        If ``True``, remove the source folders after zipping. Only
+        effective when ``zip_results=True``. Default is ``False``.
+    """
     out_root = Path(os.getcwd()) / "logger_results"
     out_root.mkdir(parents=True, exist_ok=True)
 

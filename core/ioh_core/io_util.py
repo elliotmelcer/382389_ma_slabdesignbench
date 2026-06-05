@@ -1,7 +1,12 @@
 """
+Low-level CSV reading and type-parsing utilities for the IOH core.
+
 Author: Max Dombrowski
-Modified by: Elliot Melcer
- - main modified to work with file structure
+
+Modifications by Elliot Melcer:
+
+* main modified to work with file structure
+* docstrings
 """
 
 import csv
@@ -9,12 +14,30 @@ from typing import List
 from pathlib import Path
 from ioh.iohcpp import ConstraintEnforcement as CE
 
-#----------------------------------------------------------------------------------------------------------#
-# methods to read params from the params-dict in a problem object
-#----------------------------------------------------------------------------------------------------------#
-# Helper to obtain parameters from params and return error if it fails
+
 def _req_param(params: dict, name: str) -> float:
-    """Get a numeric parameter or fail loudly with a helpful message."""
+    """
+    Retrieve a required numeric parameter from a params dictionary.
+
+    Parameters
+    ----------
+    params : dict
+        Parameter dictionary to look up.
+    name : str
+        Key of the required parameter.
+
+    Returns
+    -------
+    float
+        Numeric value of the parameter.
+
+    Raises
+    ------
+    KeyError
+        If ``name`` is not present in ``params``.
+    ValueError
+        If the value cannot be converted to ``float``.
+    """
     try:
         val = params[name]
     except KeyError as e:
@@ -24,21 +47,38 @@ def _req_param(params: dict, name: str) -> float:
         return float(val)
     except (TypeError, ValueError) as e:
         raise ValueError(f"Parameter '{name}' must be numeric, got {val!r}") from e
-#----------------------------------------------------------------------------------------------------------#
-# .csv-reader + parsers string -> bool, float and ioh-constraint-attribute
-#----------------------------------------------------------------------------------------------------------#
-# .csv-reader
+
+
 def _read_rows(path: Path, expected_keys: List[str] | None = None):
     """
-    Read ;-delimited CSV, skip blank lines, trim whitespace.
-    More forgiving headers:
-      - UTF-8 with BOM supported
-      - header names matched case/space-insensitively
-      - extra columns allowed, but all expected_keys must be present
-    Raises:
-      - ValueError on empty/missing header
-      - ValueError if expected_keys are missing
-      - ValueError if no data rows
+    Read a semicolon-delimited CSV file and yield cleaned row dicts.
+
+    Header matching is case- and whitespace-insensitive; UTF-8 BOM is
+    handled transparently. Extra columns beyond ``expected_keys`` are
+    allowed. Fully blank lines are skipped silently.
+
+    Parameters
+    ----------
+    path : Path
+        Path to the ``.csv`` file.
+    expected_keys : list[str] or None, optional
+        Column names that must be present in the header (case-insensitive).
+        If ``None``, all normalized header names are returned. Default is
+        ``None``.
+
+    Yields
+    ------
+    dict
+        One dict per data row. Keys are the original ``expected_keys``
+        strings (if provided) or the normalized header names (lowercase,
+        stripped). Values are stripped strings (empty string for missing
+        cells).
+
+    Raises
+    ------
+    ValueError
+        If the file is empty or has no header, if any ``expected_keys``
+        are missing from the header, or if no data rows are found.
     """
     with open(path, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f, delimiter=";")
@@ -90,18 +130,72 @@ def _read_rows(path: Path, expected_keys: List[str] | None = None):
         if yielded == 0:
             raise ValueError(f"{path}: no data rows found (only header and/or blank lines).")
 
-# parse string -> bool
+
 def _to_bool(s: str, default=False) -> bool:
+    """
+    Parse a string to a boolean value.
+
+    Parameters
+    ----------
+    s : str
+        Input string. Recognized truthy values: ``"1"``, ``"true"``,
+        ``"yes"``, ``"y"`` (case-insensitive).
+    default : bool, optional
+        Value returned for empty strings. Default is ``False``.
+
+    Returns
+    -------
+    bool
+        Parsed boolean value.
+    """
     return default if s == "" else s.lower() in ("1","true","yes","y")   # if string in s is one of the given, return true
 
-# parse string -> float
+
 def _to_float(s: str, default=None):
+    """
+    Parse a string to a float value.
+
+    Parameters
+    ----------
+    s : str
+        Input string.
+    default : float or None, optional
+        Value returned for empty strings. Default is ``None``.
+
+    Returns
+    -------
+    float or None
+        Parsed float, or ``default`` if ``s`` is empty.
+    """
     return default if s == "" else float(s)
 
-# parse string -> ioh.iohcpp.ConstraintEnforcement
+
 def _enf(s: str, default="HIDDEN"):
+    """
+    Parse a string to an IOH :class:`~ioh.iohcpp.ConstraintEnforcement` enum value.
+
+    Parameters
+    ----------
+    s : str
+        Enforcement keyword. Accepted values (case-insensitive):
+        ``"NOT"``, ``"HIDDEN"``, ``"SOFT"``, ``"HARD"``, ``"OVERRIDE"``.
+    default : str, optional
+        Keyword used when ``s`` is empty or ``None``. Default is
+        ``"HIDDEN"``.
+
+    Returns
+    -------
+    ioh.iohcpp.ConstraintEnforcement
+        Corresponding enum member.
+
+    Raises
+    ------
+    KeyError
+        If the resolved keyword does not match any known enforcement level.
+    """
     k = (s or default).upper()
     return {"NOT": CE.NOT, "HIDDEN": CE.HIDDEN, "SOFT": CE.SOFT, "HARD": CE.HARD, "OVERRIDE": CE.OVERRIDE}[k]
+
 
 # ----------------------------------------------------------------------------------------------------------#
 # TEST RUN TO TEST THIS MODULE ONLY - REMOVE BEFORE WRAPPING WHOLE TOOL

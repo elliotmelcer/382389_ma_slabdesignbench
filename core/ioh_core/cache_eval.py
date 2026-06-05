@@ -1,14 +1,68 @@
 """
+Cache-based evaluation context for IOHexperimenter optimization problems.
+
+Avoids redundant re-evaluation of the (expensive) structural analysis
+function by memorizing the last call in a single-entry cache. Also
+publishes decoded parameter values and constraint violations as watchable
+attributes for the IOH Analyzer logger.
+
 Author: Max Dombrowski
+
 Modifications by Elliot Melcer:
- - changed search strings to match analysis.py in hp_slab
+
+* changed search strings to match analysis.py in hp_slab
+* docstrings
 """
 
-#----------------------------------------------------------------------------------------------------------#
-# Context-class to store analysis results in cache and distribute them to objective function and constraints
-#----------------------------------------------------------------------------------------------------------#
-class EvalContext:  # Define a "helper" class to run the analysis only once per function evaluation
-    def __init__(self, decode_func, analysis_func):  # constructor to create context object
+
+class EvalContext:
+    """
+    Single-entry memo cache that runs the structural analysis at most once
+    per unique candidate vector and distributes results to the IOH objective
+    and constraint callbacks.
+
+    The cache key is the integer index tuple of the candidate. On a cache
+    hit the stored result is returned immediately; on a miss the decode and
+    analysis functions are called and the result is stored.
+
+    Adapted from: Max Dombrowski
+
+    Attributes
+    ----------
+    decode : callable
+        ``decode(x_idx) -> dict`` — maps an integer index vector to a
+        parameter dictionary.
+    results : callable
+        ``analysis(params) -> dict`` — runs the structural analysis and
+        returns a result dictionary with at least ``"y"``, ``"y_p"``, and
+        ``"penalties_"`` keys.
+    last_key : tuple[int, ...] or None
+        Index tuple of the most recently evaluated candidate, or ``None``
+        if no evaluation has been performed yet.
+    last_data : dict or None
+        Cached result dict from the last analysis call, or ``None``.
+    hits : int
+        Number of times the cached result was reused [-].
+    misses : int
+        Number of times a fresh analysis was triggered [-].
+    y : float
+        Most recent unpenalized objective value (published for IOH logger).
+    y_p : float
+        Most recent penalized objective value (published for IOH logger).
+    """
+
+    def __init__(self, decode_func, analysis_func):
+        """
+        Parameters
+        ----------
+        decode_func : callable
+            ``decode(x_idx) -> dict`` — decodes an integer index vector
+            to a named parameter dictionary.
+        analysis_func : callable
+            ``analysis(params) -> dict`` — performs the structural analysis
+            and returns a result dict containing at least ``"y"``,
+            ``"y_p"``, and ``"penalties_"`` keys.
+        """
         # stored callables
         self.decode = decode_func       # decode(x_idx) -> params dict
         self.results = analysis_func    # heavy_analysis(params) -> {"y","y_p","violations",...}
@@ -28,13 +82,34 @@ class EvalContext:  # Define a "helper" class to run the analysis only once per 
 
     # --- declare stable attributes so IOH can bind watchers once and reuse them ---
     def ensure_constraints(self, names: list[str]):
-        """Declare stable attributes for all active constraints so IOH can watch them."""
+        """
+        Declare stable ``c__<name>`` attributes for all active constraints.
+
+        Must be called before attaching the problem to an IOH logger so
+        that the logger can bind watchers to stable attribute names.
+
+        Parameters
+        ----------
+        names : list[str]
+            Ordered list of active constraint names.
+        """
         self._c_names = list(names)
         for n in self._c_names:
             setattr(self, f"c__{n}", 0.0)
 
     def ensure_params(self, var_names: list[str]):
-        """Declare stable attributes for decoded parameter values and their indices."""
+        """
+        Declare stable ``var__<name>`` and ``idx__<name>`` attributes for
+        all optimization variable parameters.
+
+        Must be called before attaching the problem to an IOH logger.
+
+        Parameters
+        ----------
+        var_names : list[str]
+            Ordered list of optimization variable names (matching the
+            decode function's output keys).
+        """
         self._var_names = list(var_names)
         for n in self._var_names:
             # decoded value (float-like if possible)
@@ -43,6 +118,25 @@ class EvalContext:  # Define a "helper" class to run the analysis only once per 
             setattr(self, f"idx__{n}", 0)
 
     def get(self, x_idx):
+        """
+        Return the analysis result for a candidate, using the cache when possible.
+
+        On a cache miss, calls ``decode(x_idx)`` followed by
+        ``analysis(params)`` and stores the result. On a hit, returns the
+        stored result directly. After either path, updates all watchable
+        attributes (``y``, ``y_p``, ``c__*``, ``var__*``, ``idx__*``).
+
+        Parameters
+        ----------
+        x_idx : sequence of int
+            Integer index vector identifying the candidate.
+
+        Returns
+        -------
+        dict
+            Analysis result dictionary (same object as returned by
+            ``analysis_func``).
+        """
         key = tuple(int(k) for k in x_idx)
         if key == self.last_key:
             self.hits += 1
@@ -92,6 +186,11 @@ class EvalContext:  # Define a "helper" class to run the analysis only once per 
         return rec
 
     def reset(self):
+        """
+        Clear the cache and reset hit/miss counters.
+
+        Call before each optimization run to ensure a clean state.
+        """
         self.last_key = None
         self.last_data = None
         self.hits = self.misses = 0
