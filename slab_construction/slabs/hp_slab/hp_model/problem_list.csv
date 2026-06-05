@@ -1,6 +1,0 @@
-﻿problem_id;type;name;role;lb_idx;ub_idx;fixed_idx;active;enforced;weight;exponent;label
-1;param;geom_span_mm;fixed;;;4;;;;;1
-2;param;geom_span_mm;fixed;;;5;;;;;2
-3;param;geom_span_mm;fixed;;;6;;;;;3
-4;param;geom_span_mm;fixed;;;7;;;;;4
-5;param;geom_span_mm;fixed;;;8;;;;;5
