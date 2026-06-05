@@ -814,9 +814,9 @@ def _calculate_section_state_from_bottom_strain_sls(
         ITMAX: int = 100,
         debug: bool = False,
 ) -> dict:
-    """Compute the section state for a prescribed bottom-fibre strain.
+    """Compute the section state for a prescribed bottom-fiber strain.
 
-    Fixes the bottom-fibre strain to ``eps_bot`` and finds ``chi_y`` via
+    Fixes the bottom-fiber strain to ``eps_bot`` and finds ``chi_y`` via
     bisection such that the integrated axial force equals ``n``. ``My`` and
     ``Mz`` are outputs. Of all bracketed equilibria, the one with the
     largest ``|My|`` is returned.
@@ -830,7 +830,7 @@ def _calculate_section_state_from_bottom_strain_sls(
     section_uls : GenericSection
         ULS section as input (an SLS section is built internally).
     eps_bot : float
-        Prescribed bottom-fibre strain [-] (positive = tension).
+        Prescribed bottom-fiber strain [-] (positive = tension).
     n : float, optional
         Applied axial force [N] (positive = tension, negative =
         compression). Default: ``0.0``.

@@ -1121,9 +1121,9 @@
         <span class="n">ITMAX</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the section state for a prescribed bottom-fibre strain.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the section state for a prescribed bottom-fiber strain.</span>
 
-<span class="sd">    Fixes the bottom-fibre strain to ``eps_bot`` and finds ``chi_y`` via</span>
+<span class="sd">    Fixes the bottom-fiber strain to ``eps_bot`` and finds ``chi_y`` via</span>
 <span class="sd">    bisection such that the integrated axial force equals ``n``. ``My`` and</span>
 <span class="sd">    ``Mz`` are outputs. Of all bracketed equilibria, the one with the</span>
 <span class="sd">    largest ``|My|`` is returned.</span>
@@ -1137,7 +1137,7 @@
 <span class="sd">    section_uls : GenericSection</span>
 <span class="sd">        ULS section as input (an SLS section is built internally).</span>
 <span class="sd">    eps_bot : float</span>
-<span class="sd">        Prescribed bottom-fibre strain [-] (positive = tension).</span>
+<span class="sd">        Prescribed bottom-fiber strain [-] (positive = tension).</span>
 <span class="sd">    n : float, optional</span>
 <span class="sd">        Applied axial force [N] (positive = tension, negative =</span>
 <span class="sd">        compression). Default: ``0.0``.</span>

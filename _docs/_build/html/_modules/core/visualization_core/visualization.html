@@ -290,7 +290,13 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Quellcode für core.visualization_core.visualization</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Matplotlib-based visualization utilities for structural section and</span>
+<span class="sd">moment-curvature analysis results.</span>
+
+<span class="sd">Author: Elliot Melcer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolyCollection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry.polygon</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">structuralcodes.core._section_results</span><span class="w"> </span><span class="kn">import</span> <span class="n">MomentCurvatureResults</span>
@@ -322,22 +328,387 @@
     <span class="s2">&quot;GREEN&quot;</span><span class="p">:</span>        <span class="s2">&quot;#47cb3f&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="c1"># =====================================================================================================</span>
+<span class="c1"># Cross Section</span>
+<span class="c1"># =====================================================================================================</span>
+
+<div class="viewcode-block" id="plot_cross_section">
+<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_cross_section">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_cross_section</span><span class="p">(</span><span class="n">gs</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the section geometry, centroid, and local coordinate axes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gs : GenericSection</span>
+<span class="sd">        Section geometry to plot.</span>
+<span class="sd">    ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">        Existing axes. A new figure is created when ``None``.</span>
+<span class="sd">    x : float, optional</span>
+<span class="sd">        Normalized longitudinal position, shown in the title [-].</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">        Additional title text. Default is ``&quot;&quot;``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Extra keyword arguments forwarded to the geometry plotter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Create axes if needed</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+
+    <span class="c1"># ---- 1. Plot the geometry using geometry method ----</span>
+    <span class="n">_plot_geometry</span><span class="p">(</span><span class="n">gs</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># ---- 2. Plot the section centroid ----</span>
+    <span class="n">cy</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">gross_properties</span><span class="o">.</span><span class="n">cy</span>
+    <span class="n">cz</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">gross_properties</span><span class="o">.</span><span class="n">cz</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot; C(</span><span class="si">{</span><span class="n">cy</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">cz</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ---- 3. Plot local coordinate system at (0,0) ----</span>
+    <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">calculate_extents</span><span class="p">()</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_max</span><span class="o">-</span><span class="n">y_min</span><span class="p">)</span>
+
+    <span class="c1"># y-axis → positive x direction</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="n">head_width</span><span class="o">=</span><span class="n">L</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">head_length</span><span class="o">=</span><span class="n">L</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span>
+             <span class="n">fc</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">L</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
+
+    <span class="c1"># z-axis → positive y direction</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span>
+             <span class="n">head_width</span><span class="o">=</span><span class="n">L</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">head_length</span><span class="o">=</span><span class="n">L</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span>
+             <span class="n">fc</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
+
+    <span class="c1"># ---- 4. Final formatting ----</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gs</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> at x = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> * L&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gs</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+<span class="c1"># =====================================================================================================</span>
+<span class="c1"># Geometry</span>
+<span class="c1"># =====================================================================================================</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_geometry</span><span class="p">(</span><span class="n">geo</span><span class="p">:</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a :class:`Geometry`, :class:`SurfaceGeometry`, :class:`PointGeometry`,</span>
+<span class="sd">    or :class:`CompoundGeometry` object recursively.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    geo : Geometry</span>
+<span class="sd">        Geometry object to plot.</span>
+<span class="sd">    ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">        Existing axes. A new figure is created when ``None``.</span>
+<span class="sd">    x : float, optional</span>
+<span class="sd">        Normalized longitudinal position, shown in the title [-].</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Extra keyword arguments forwarded to the polygon plotter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.axes.Axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="c1"># Surface geometry</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geo</span><span class="p">,</span> <span class="s2">&quot;polygon&quot;</span><span class="p">):</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">polygon</span>
+        <span class="n">_plot_polygon</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgrey&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Point geometry</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geo</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">):</span>
+        <span class="n">circ</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">point</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">geo</span><span class="o">.</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">_plot_polygon</span><span class="p">(</span><span class="n">circ</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Compound geometry</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geo</span><span class="p">,</span> <span class="s2">&quot;geometries&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geo</span><span class="o">.</span><span class="n">geometries</span><span class="p">:</span>
+            <span class="n">_plot_geometry</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">geo</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">:</span>
+            <span class="n">_plot_geometry</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ---- Add title here ----</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cross-Section at x = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> * L&quot;</span><span class="p">)</span>
+
+    <span class="c1"># remove frame</span>
+    <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">spine</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_polygon</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgrey&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fill and outline a Shapely :class:`~shapely.Polygon`, including interior</span>
+<span class="sd">    holes (rendered in white).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    poly : shapely.geometry.Polygon</span>
+<span class="sd">        Polygon to draw.</span>
+<span class="sd">    ax : matplotlib.axes.Axes</span>
+<span class="sd">        Axes to draw on.</span>
+<span class="sd">    edgecolor : str, optional</span>
+<span class="sd">        Edge color. Default is ``&quot;black&quot;``.</span>
+<span class="sd">    facecolor : str, optional</span>
+<span class="sd">        Fill color for the exterior. Default is ``&quot;lightgrey&quot;``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments (currently unused).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># --- Fill exterior ---</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">xy</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">)</span>
+
+    <span class="c1"># --- Fill holes (white) ---</span>
+    <span class="k">for</span> <span class="n">hole</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">interiors</span><span class="p">:</span>
+        <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span> <span class="o">=</span> <span class="n">hole</span><span class="o">.</span><span class="n">xy</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
+<span class="c1"># =====================================================================================================</span>
+<span class="c1"># Strain Profile</span>
+<span class="c1"># =====================================================================================================</span>
+
+<div class="viewcode-block" id="plot_strain_profile">
+<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_strain_profile">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_strain_profile</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the strain profile across the cross-section depth.</span>
+
+<span class="sd">    Failure locations (concrete crushing or reinforcement fracture) are</span>
+<span class="sd">    colored red. Fiber strains for all reinforcement bars are annotated.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    results : dict</span>
+<span class="sd">        Results dict containing:</span>
+
+<span class="sd">        - ``&quot;section&quot;`` — :class:`GenericSection`.</span>
+<span class="sd">        - ``&quot;strain_profile&quot;`` — strain field object compatible with</span>
+<span class="sd">          :func:`get_strain_at_point`.</span>
+
+<span class="sd">    title : str or None, optional</span>
+<span class="sd">        Plot title. Falls back to ``&quot;Strain Profile for {section.name}&quot;``</span>
+<span class="sd">        when ``None``. Default is ``None``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">section</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;section&#39;</span><span class="p">]</span>
+    <span class="n">strain_profile</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;strain_profile&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Section extents</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">zmin</span><span class="p">,</span> <span class="n">zmax</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">calculate_extents</span><span class="p">()</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">zmax</span> <span class="o">-</span> <span class="n">zmin</span>
+
+    <span class="c1"># Section centroid</span>
+    <span class="n">cz</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">gross_properties</span><span class="o">.</span><span class="n">cz</span>
+
+    <span class="c1"># Top &amp; bottom fiber strains</span>
+    <span class="n">eps_top</span> <span class="o">=</span> <span class="n">get_strain_at_point</span><span class="p">(</span><span class="n">strain_profile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">zmax</span><span class="p">)</span>
+    <span class="n">eps_bot</span> <span class="o">=</span> <span class="n">get_strain_at_point</span><span class="p">(</span><span class="n">strain_profile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">zmin</span><span class="p">)</span>
+
+    <span class="c1"># Reinforcement z-coordinates</span>
+    <span class="n">z_reinf</span> <span class="o">=</span> <span class="p">[</span><span class="n">pg</span><span class="o">.</span><span class="n">point</span><span class="o">.</span><span class="n">y</span> <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">]</span>
+
+    <span class="c1"># Reinforcement strains (from strain field, no prestress)</span>
+    <span class="n">eps_reinf</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">get_strain_at_point</span><span class="p">(</span><span class="n">strain_profile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_s</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">z_s</span> <span class="ow">in</span> <span class="n">z_reinf</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Check Failure</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.01e-3</span> <span class="c1"># account for rounding error</span>
+
+    <span class="n">concrete_fail</span> <span class="o">=</span> <span class="n">eps_top</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">3.5e-3</span> <span class="o">+</span> <span class="n">epsilon</span>
+    <span class="n">reinf_failures</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pg</span><span class="p">,</span> <span class="n">eps_s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">,</span> <span class="n">eps_reinf</span><span class="p">):</span>
+        <span class="n">eps_u_neg</span><span class="p">,</span> <span class="n">eps_u_pos</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">constitutive_law</span><span class="o">.</span><span class="n">get_ultimate_strain</span><span class="p">()</span>
+        <span class="n">reinf_failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eps_s</span> <span class="o">&gt;=</span> <span class="n">eps_u_pos</span><span class="o">-</span><span class="n">epsilon</span> <span class="ow">or</span> <span class="n">eps_s</span> <span class="o">&lt;=</span> <span class="n">eps_u_neg</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span>
+
+    <span class="c1"># --- X-axis strain limits (‰) with padding ------------------------</span>
+    <span class="n">eps_vals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">]</span>
+    <span class="n">eps_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">eps_vals</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
+    <span class="n">eps_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">eps_vals</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span>
+
+    <span class="c1"># --- Y-axis padding (5% of section depth) -------------------------</span>
+    <span class="n">z_pad</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">depth</span>
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Plot</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+    <span class="c1"># Thick vertical extent line</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="o">=</span><span class="n">zmin</span><span class="p">,</span>
+        <span class="n">ymax</span><span class="o">=</span><span class="n">zmax</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Concrete strain profile</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">zmax</span><span class="p">,</span> <span class="n">zmin</span><span class="p">],</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.25</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Top &amp; bottom strain lines (thick)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">zmax</span><span class="p">,</span>
+        <span class="n">xmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">),</span>
+        <span class="n">xmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">),</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span> <span class="k">if</span> <span class="n">concrete_fail</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.25</span>
+    <span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">zmin</span><span class="p">,</span>
+        <span class="n">xmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">),</span>
+        <span class="n">xmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">),</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.25</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Centroid line (dash-dot)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">cz</span><span class="p">,</span>
+        <span class="n">xmin</span><span class="o">=</span><span class="n">eps_min</span><span class="p">,</span>
+        <span class="n">xmax</span><span class="o">=</span><span class="n">eps_max</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+        <span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">eps_max</span><span class="p">,</span> <span class="n">cz</span><span class="p">),</span>
+        <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">fontfamily</span><span class="o">=</span><span class="s2">&quot;serif&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Reinforcement strains (colored by failure)</span>
+    <span class="k">for</span> <span class="n">z_s</span><span class="p">,</span> <span class="n">eps_s</span><span class="p">,</span> <span class="n">failed</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">z_reinf</span><span class="p">,</span> <span class="n">eps_reinf</span><span class="p">,</span> <span class="n">reinf_failures</span><span class="p">):</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span> <span class="k">if</span> <span class="n">failed</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">z_s</span><span class="p">,</span>
+            <span class="n">xmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">xmax</span><span class="o">=</span><span class="n">eps_s</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span>
+        <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eps_s</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">eps_s</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">z_s</span><span class="p">),</span>
+            <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Top strain label (red if concrete fails)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eps_top</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">zmax</span><span class="p">),</span>
+        <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span> <span class="k">if</span> <span class="n">concrete_fail</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Bottom strain label (right)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eps_bot</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">zmin</span><span class="p">),</span>
+        <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Axes formatting</span>
+    <span class="c1"># ax.axvline(0.0, color=&quot;black&quot;, linewidth=1)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Strain ε [‰]&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;z [mm]&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Strain Profile for </span><span class="si">{</span><span class="n">section</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+    <span class="c1"># Apply padded limits</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">eps_min</span><span class="p">,</span> <span class="n">eps_max</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">zmin</span> <span class="o">-</span> <span class="n">z_pad</span><span class="p">,</span> <span class="n">zmax</span> <span class="o">+</span> <span class="n">z_pad</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+<span class="c1"># =====================================================================================================</span>
+<span class="c1"># Moment-Curvature Diagram</span>
+<span class="c1"># =====================================================================================================</span>
+
 <div class="viewcode-block" id="plot_moment_curvature">
 <a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_moment_curvature">[Doku]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_moment_curvature</span><span class="p">(</span><span class="n">m_c_res</span><span class="p">:</span> <span class="n">MomentCurvatureResults</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">show_points</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">show_ultimate_point</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_moment_curvature</span><span class="p">(</span>
+        <span class="n">m_c_res</span><span class="p">:</span> <span class="n">MomentCurvatureResults</span><span class="p">,</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">show_points</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">show_ultimate_point</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plot moment–curvature (M–K) diagram with My and Mu annotations.</span>
+<span class="sd">    Plot a moment–curvature (M–K) diagram with optional point and ultimate</span>
+<span class="sd">    point annotations.</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    m_c_res : MomentCurvatureResults</span>
+<span class="sd">        Results object from the structuralcodes library.</span>
+<span class="sd">    x : float, optional</span>
+<span class="sd">        Normalized position along the beam x ∈ [0, 1], shown in the</span>
+<span class="sd">        title [-].</span>
+<span class="sd">    ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">        Existing axes to plot on. A new figure is created if ``None``.</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">        Plot title prefix. Default is ``&quot;&quot;``.</span>
+<span class="sd">    show_points : bool, optional</span>
+<span class="sd">        If ``True``, each M–K point is shown as a dot. Default is ``False``.</span>
+<span class="sd">    show_ultimate_point : bool, optional</span>
+<span class="sd">        If ``True``, the last point (M_u, K_u) is highlighted in red.</span>
+<span class="sd">        Default is ``False``.</span>
 
-<span class="sd">    :param m_c_res:             MomentCurvatureResults object from structuralcodes library</span>
-<span class="sd">    :param x:                   Relative position along the Beam x∈[0,1]</span>
-<span class="sd">    :param ax:                  The axes with the plot.</span>
-<span class="sd">    :param title:               Optional title</span>
-<span class="sd">    :param show_points:         Optional flag to show each point</span>
-<span class="sd">    :param show_ultimate_point: Optional flag to highlight the last point</span>
-
-<span class="sd">    :return:</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -407,31 +778,34 @@
     <span class="n">ref_label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plot moment–curvature (M–K) diagram from m_c_res and superimpose</span>
-<span class="sd">    a second M–K dataset given as curvature and moment lists.</span>
+<span class="sd">    Plot an M–K diagram from ``m_c_res`` and superimpose a reference</span>
+<span class="sd">    dataset given as curvature and moment arrays.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    m_c_res : MomentCurvatureResults</span>
-<span class="sd">        Object containing chi_y and m_y arrays.</span>
-<span class="sd">    ref_curvatures : list or array</span>
-<span class="sd">        Reference curvature values.</span>
-<span class="sd">    ref_moments : list or array</span>
-<span class="sd">        Reference moment values.</span>
+<span class="sd">        Primary results object with ``chi_y`` and ``m_y`` arrays.</span>
+<span class="sd">    ref_curvatures : array-like</span>
+<span class="sd">        Reference curvature values [1/1000m].</span>
+<span class="sd">    ref_moments : array-like</span>
+<span class="sd">        Reference moment values [kNm].</span>
 <span class="sd">    x : float, optional</span>
-<span class="sd">        Position factor for title.</span>
+<span class="sd">        Normalized position shown in the title [-].</span>
 <span class="sd">    ax : matplotlib.axes.Axes, optional</span>
-<span class="sd">        Existing axes to plot on.</span>
+<span class="sd">        Existing axes to plot on. A new figure is created if ``None``.</span>
 <span class="sd">    title : str, optional</span>
-<span class="sd">        Plot title prefix.</span>
+<span class="sd">        Plot title prefix. Default is ``&quot;&quot;``.</span>
 <span class="sd">    ref_label : str, optional</span>
-<span class="sd">        Label for reference dataset.</span>
+<span class="sd">        Legend label for the reference dataset. Default is ``&quot;&quot;``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    ax : matplotlib.axes.Axes</span>
-<span class="sd">        The axes with the plot.</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``ref_curvatures`` and ``ref_moments`` have different lengths.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -529,28 +903,32 @@
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">PlotLine</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Container for a single moment–curvature dataset to be plotted.</span>
+<span class="sd">    Container for a single dataset to be plotted.</span>
+
+<span class="sd">    Used as the input type for the multi-line M–K plot functions and</span>
+<span class="sd">    :func:`mirror_plot`.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    moments : list or array</span>
-<span class="sd">        Moment values [kNm].</span>
-<span class="sd">    curvatures : list or array</span>
-<span class="sd">        Curvature values.</span>
+<span class="sd">    moments : np.ndarray</span>
+<span class="sd">        x-axis values (moment or any quantity mapped to x) [kNm].</span>
+<span class="sd">    curvatures : np.ndarray</span>
+<span class="sd">        y-axis values (curvature or any quantity mapped to y) [1/1000m].</span>
 <span class="sd">    name : str</span>
-<span class="sd">        Legend label for this line.</span>
+<span class="sd">        Legend label.</span>
 <span class="sd">    color : str</span>
-<span class="sd">        Matplotlib color string (e.g. &quot;black&quot;, &quot;#FF0000&quot;, &quot;tab:blue&quot;).</span>
+<span class="sd">        Matplotlib color string (e.g. ``&quot;black&quot;``, ``&quot;#FF0000&quot;``).</span>
+<span class="sd">        Default is ``&quot;black&quot;``.</span>
 <span class="sd">    linestyle : str</span>
-<span class="sd">        Matplotlib linestyle string (e.g. &quot;solid&quot;, &quot;dashed&quot;, &quot;dotted&quot;,</span>
-<span class="sd">        &quot;dashdot&quot;) or shorthand (&quot;-&quot;, &quot;--&quot;, &quot;:&quot;, &quot;-.&quot;).</span>
+<span class="sd">        Matplotlib linestyle (e.g. ``&quot;solid&quot;``, ``&quot;dashed&quot;``).</span>
+<span class="sd">        Default is ``&quot;solid&quot;``.</span>
 <span class="sd">    linewidth : float</span>
-<span class="sd">        Line width. Defaults to 1.0.</span>
+<span class="sd">        Line width [-]. Default is ``1.0``.</span>
 <span class="sd">    marker : str</span>
-<span class="sd">        Matplotlib marker string (e.g. &quot;x&quot;, &quot;o&quot;, &quot;&quot;). Defaults to &quot;&quot;.</span>
+<span class="sd">        Matplotlib marker (e.g. ``&quot;x&quot;``, ``&quot;o&quot;``, ``&quot;&quot;``).</span>
+<span class="sd">        Default is ``&quot;&quot;``.</span>
 <span class="sd">    markersize : float</span>
-<span class="sd">        Marker size. Defaults to 4.0.</span>
+<span class="sd">        Marker size [-]. Default is ``4.0``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">moments</span><span class="p">:</span> <span class="nb">list</span>
@@ -586,19 +964,25 @@
             <span class="n">markersize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PlotLine&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Construct a PlotLine from a MomentCurvatureResults object,</span>
-<span class="sd">        applying the standard unit conversions:</span>
-<span class="sd">            curvatures : chi_y  →  -chi_y * 1e6   [1/1000m]</span>
-<span class="sd">            moments    : m_y    →  -m_y   / 1e6   [kNm]</span>
+<span class="sd">        Construct a :class:`PlotLine` from a :class:`MomentCurvatureResults`</span>
+<span class="sd">        object, applying standard unit conversions.</span>
+
+<span class="sd">        Curvatures: ``−chi_y · 1e6`` [1/1000m].</span>
+<span class="sd">        Moments: ``−m_y / 1e6`` [kNm].</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        m_c_res : MomentCurvatureResults</span>
-<span class="sd">            Raw results object with chi_y [1/m] and m_y [Nm] arrays.</span>
+<span class="sd">            Raw results object with ``chi_y`` [1/mm] and ``m_y`` [Nmm]</span>
+<span class="sd">            arrays.</span>
 <span class="sd">        name : str</span>
 <span class="sd">            Legend label for this line.</span>
 <span class="sd">        color, linestyle, linewidth, marker, markersize</span>
-<span class="sd">            Forwarded directly to PlotLine.</span>
+<span class="sd">            Forwarded directly to :class:`PlotLine`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PlotLine</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">moments</span><span class="o">=-</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">m_y</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">,</span>
@@ -629,30 +1013,39 @@
     <span class="n">ymarker</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plot multiple moment–curvature (M–K) datasets on a single axes.</span>
+<span class="sd">    Plot multiple M–K datasets on a single axes.</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">        :param lines:   One or more M–K datasets to plot, drawn in list order.</span>
-<span class="sd">        :param ax:      Existing axes to plot on. A new figure/axes is created when omitted.</span>
-<span class="sd">        :param title:   Plot title prefix.</span>
-<span class="sd">        :param x:       Position factor appended to the title as ``&quot;M-K-Diagram at x = {x} * L&quot;``.</span>
-<span class="sd">        :param xlabel:  Label for the horizontal axis. Defaults to ``&quot;K [1/1000m]&quot;``.</span>
-<span class="sd">        :param ylabel:  Label for the vertical axis. Defaults to ``&quot;My [kNm]&quot;``.</span>
-<span class="sd">        :param xlim:    (x_min, x_max) axis limits. If omitted, matplotlib auto-scales.</span>
-<span class="sd">        :param ylim:    (y_min, y_max) axis limits. If omitted, matplotlib auto-scales.</span>
-<span class="sd">        :param ymarker: Marker spacing on x-axis</span>
-<span class="sd">        :param xmarker: Marker spacing on y-axis</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lines : list[PlotLine]</span>
+<span class="sd">        One or more datasets, drawn in list order.</span>
+<span class="sd">    ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">        Existing axes. A new figure is created when ``None``.</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">        Plot title prefix. Default is ``&quot;&quot;``.</span>
+<span class="sd">    x : float, optional</span>
+<span class="sd">        Normalized position appended to the title [-].</span>
+<span class="sd">    xlabel : str, optional</span>
+<span class="sd">        Horizontal axis label. Default is ``&quot;Krümmung κ [1/1000m]&quot;``.</span>
+<span class="sd">    ylabel : str, optional</span>
+<span class="sd">        Vertical axis label. Default is ``&quot;My [kNm]&quot;``.</span>
+<span class="sd">    xlim : tuple[float, float], optional</span>
+<span class="sd">        x-axis limits.</span>
+<span class="sd">    ylim : tuple[float, float], optional</span>
+<span class="sd">        y-axis limits.</span>
+<span class="sd">    xmarker : float, optional</span>
+<span class="sd">        Major tick spacing on the x-axis [-]. Default is ``5.0``.</span>
+<span class="sd">    ymarker : float, optional</span>
+<span class="sd">        Major tick spacing on the y-axis [-]. Default is ``5.0``.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    ax : matplotlib.axes.Axes</span>
-<span class="sd">        The axes with the finished plot.</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If *lines* is empty.</span>
-
+<span class="sd">        If ``lines`` is empty.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">:</span>
@@ -718,49 +1111,43 @@
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">Axes</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plot multiple moment–curvature (M–K) datasets on a primary axes, with one</span>
-<span class="sd">    dedicated difference panel beneath it per comparison line.</span>
+<span class="sd">    Plot multiple M–K datasets with one difference panel per comparison line.</span>
 
-<span class="sd">    Layout:</span>
-<span class="sd">        Row 0    : full M–K plot (all lines)</span>
-<span class="sd">        Row 1    : ΔMy  lines[0] − lines[-1]</span>
-<span class="sd">        Row 2    : ΔMy  lines[1] − lines[-1]</span>
-<span class="sd">        …</span>
-
-<span class="sd">    lines[-1] is the reference. All panels share the x-axis. Differences are</span>
-<span class="sd">    computed by linearly interpolating each comparison line onto lines[-1]&#39;s</span>
-<span class="sd">    curvature grid; points outside a comparison line&#39;s range are masked as NaN.</span>
-<span class="sd">    A single annotation is placed to the right of the difference panels,</span>
-<span class="sd">    vertically centred across all of them.</span>
+<span class="sd">    Layout: row 0 is the full M–K plot; rows 1…n each show</span>
+<span class="sd">    ΔM_y = M_{y,i} − M_{y,ref} for one comparison line. All panels share</span>
+<span class="sd">    the x-axis. ``lines[-1]`` is the reference. Differences are computed</span>
+<span class="sd">    by linearly interpolating each comparison line onto the reference</span>
+<span class="sd">    curvature grid; points outside a line&#39;s range are masked as NaN.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    lines : list[PlotLine]</span>
-<span class="sd">        At least two M–K datasets. lines[-1] is the reference.</span>
+<span class="sd">        At least two datasets. ``lines[-1]`` is the reference.</span>
 <span class="sd">    title : str, optional</span>
-<span class="sd">        Plot title prefix.</span>
+<span class="sd">        Plot title prefix. Default is ``&quot;&quot;``.</span>
 <span class="sd">    x : float, optional</span>
-<span class="sd">        Position factor appended to the title.</span>
+<span class="sd">        Normalized position appended to the title [-].</span>
 <span class="sd">    xlabel : str, optional</span>
 <span class="sd">        Label for the shared horizontal axis (bottom panel only).</span>
+<span class="sd">        Default is ``&quot;Krümmung κ [1/1000m]&quot;``.</span>
 <span class="sd">    ylabel : str, optional</span>
-<span class="sd">        Label for the primary (moment) axis.</span>
+<span class="sd">        Vertical axis label for the primary panel. Default is</span>
+<span class="sd">        ``&quot;My [kNm]&quot;``.</span>
 <span class="sd">    ylabel_diff : str, optional</span>
-<span class="sd">        y-axis label for every difference panel.</span>
+<span class="sd">        Vertical axis label for every difference panel. Default is</span>
+<span class="sd">        ``ΔM_y [kNm]`` (LaTeX).</span>
 <span class="sd">    xlim : tuple[float, float], optional</span>
 <span class="sd">        x-axis limits shared across all panels.</span>
 <span class="sd">    ylim : tuple[float, float], optional</span>
 <span class="sd">        y-axis limits for the primary panel.</span>
 <span class="sd">    ylim_diff : tuple[float, float], optional</span>
-<span class="sd">        y-axis limits applied to every difference panel.</span>
+<span class="sd">        y-axis limits for every difference panel.</span>
 <span class="sd">    main_height : float, optional</span>
-<span class="sd">        Relative height of the primary panel. Default 3.0.</span>
+<span class="sd">        Relative height of the primary panel [-]. Default is ``3.0``.</span>
 <span class="sd">    diff_height : float, optional</span>
-<span class="sd">        Relative height of each difference panel. Default 0.6.</span>
+<span class="sd">        Relative height of each difference panel [-]. Default is ``0.6``.</span>
 <span class="sd">    figsize : tuple[float, float], optional</span>
-<span class="sd">        Figure size (width, height) in inches. Default (6.4, 7.776),</span>
-<span class="sd">        which is the matplotlib default width and 1.62x the default height.</span>
+<span class="sd">        Figure size (width, height) [inches]. Default is ``(6.4, 8.0)``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -768,12 +1155,13 @@
 <span class="sd">    ax_main : matplotlib.axes.Axes</span>
 <span class="sd">        The primary M–K axes (row 0).</span>
 <span class="sd">    ax_diffs : list[matplotlib.axes.Axes]</span>
-<span class="sd">        One axes per comparison line, in the same order as lines[:-1].</span>
+<span class="sd">        One axes per comparison line, in the same order as</span>
+<span class="sd">        ``lines[:-1]``.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If *lines* contains fewer than two entries.</span>
+<span class="sd">        If ``lines`` contains fewer than two entries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -894,42 +1282,77 @@
 <div class="viewcode-block" id="table_moment_curvature">
 <a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.table_moment_curvature">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">table_moment_curvature</span><span class="p">(</span><span class="n">m_c_res</span><span class="p">:</span> <span class="n">MomentCurvatureResults</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Author: Elliot Melcer</span>
-<span class="sd">        Return a tabulated string of moment–curvature results_c1_1.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Convert to numpy arrays for safety</span>
-        <span class="n">chi_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">chi_y</span><span class="p">)</span>
-        <span class="n">chi_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">chi_z</span><span class="p">)</span> <span class="k">if</span> <span class="n">m_c_res</span><span class="o">.</span><span class="n">chi_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">eps_axial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">eps_axial</span><span class="p">)</span>
-        <span class="n">m_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">m_y</span><span class="p">)</span>
-        <span class="n">m_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">m_z</span><span class="p">)</span> <span class="k">if</span> <span class="n">m_c_res</span><span class="o">.</span><span class="n">m_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a tabulated string of moment–curvature results.</span>
 
-        <span class="c1"># Build table rows</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chi_y</span><span class="p">)):</span>
-            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
-                <span class="n">i</span><span class="p">,</span>
-                <span class="n">chi_y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="n">chi_z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">chi_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">eps_axial</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="n">m_y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="n">m_z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">m_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">])</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Table formatted with ``fancy_grid`` style via tabulate. Columns</span>
+<span class="sd">        are ``i``, ``chi_y``, ``chi_z``, ``eps_axial``, ``m_y``,</span>
+<span class="sd">        ``m_z``; values in scientific notation with 3 decimal places.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert to numpy arrays for safety</span>
+    <span class="n">chi_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">chi_y</span><span class="p">)</span>
+    <span class="n">chi_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">chi_z</span><span class="p">)</span> <span class="k">if</span> <span class="n">m_c_res</span><span class="o">.</span><span class="n">chi_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">eps_axial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">eps_axial</span><span class="p">)</span>
+    <span class="n">m_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">m_y</span><span class="p">)</span>
+    <span class="n">m_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m_c_res</span><span class="o">.</span><span class="n">m_z</span><span class="p">)</span> <span class="k">if</span> <span class="n">m_c_res</span><span class="o">.</span><span class="n">m_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
-        <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;chi_y&quot;</span><span class="p">,</span> <span class="s2">&quot;chi_z&quot;</span><span class="p">,</span> <span class="s2">&quot;eps_axial&quot;</span><span class="p">,</span> <span class="s2">&quot;m_y&quot;</span><span class="p">,</span> <span class="s2">&quot;m_z&quot;</span><span class="p">]</span>
+    <span class="c1"># Build table rows</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chi_y</span><span class="p">)):</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+            <span class="n">i</span><span class="p">,</span>
+            <span class="n">chi_y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">chi_z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">chi_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">eps_axial</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">m_y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">m_z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">m_z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">floatfmt</span><span class="o">=</span><span class="s2">&quot;.3e&quot;</span><span class="p">,</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s2">&quot;fancy_grid&quot;</span><span class="p">)</span></div>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="s2">&quot;chi_y&quot;</span><span class="p">,</span> <span class="s2">&quot;chi_z&quot;</span><span class="p">,</span> <span class="s2">&quot;eps_axial&quot;</span><span class="p">,</span> <span class="s2">&quot;m_y&quot;</span><span class="p">,</span> <span class="s2">&quot;m_z&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">tabulate</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">floatfmt</span><span class="o">=</span><span class="s2">&quot;.3e&quot;</span><span class="p">,</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s2">&quot;fancy_grid&quot;</span><span class="p">)</span></div>
 
 
-<span class="c1"># --- Concrete ---</span>
+<span class="c1"># =====================================================================================================</span>
+<span class="c1"># Concrete Constitutive Law</span>
+<span class="c1"># =====================================================================================================</span>
 
 <div class="viewcode-block" id="plot_constitutive_law_concrete">
 <a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_constitutive_law_concrete">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_constitutive_law_concrete</span><span class="p">(</span><span class="n">concrete</span><span class="p">:</span> <span class="n">Concrete</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">show_markers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plot the constitutive law (stress–strain curve) for this concrete material</span>
+<span class="sd">    Plot the stress–strain constitutive law for a concrete material.</span>
+
+<span class="sd">    The compression branch is sampled from ``eps_cu`` to 0; the tension</span>
+<span class="sd">    branch adapts to the attached law type</span>
+<span class="sd">    (:class:`TensionStiffeningConcreteLawEC`, :class:`CrackingConcreteLawEC`,</span>
+<span class="sd">    or :class:`Elastic`). Both axes are sign-negated so compression is</span>
+<span class="sd">    plotted in the positive quadrant.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    concrete : Concrete</span>
+<span class="sd">        Concrete material instance with an attached constitutive law.</span>
+<span class="sd">    n : int, optional</span>
+<span class="sd">        Number of sample points per branch [-]. Default is ``100``.</span>
+<span class="sd">    debug : bool, optional</span>
+<span class="sd">        If ``True``, prints the strain and stress arrays to stdout.</span>
+<span class="sd">        Default is ``False``.</span>
+<span class="sd">    show_markers : bool, optional</span>
+<span class="sd">        If ``True``, adds circle markers at each sample point.</span>
+<span class="sd">        Default is ``False``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If no constitutive law is attached to ``concrete``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">concrete</span><span class="o">.</span><span class="n">constitutive_law</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -985,8 +1408,6 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#b0b0b0&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#b0b0b0&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-
-
     <span class="c1"># Reverse the sign of tick labels on both axes</span>
     <span class="n">negate</span> <span class="o">=</span> <span class="n">FuncFormatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">val</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="o">-</span><span class="n">val</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">negate</span><span class="p">)</span>
@@ -1001,15 +1422,35 @@
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
 
 
-<span class="c1"># --- Reinforcement ---</span>
+<span class="c1"># =====================================================================================================</span>
+<span class="c1"># Reinforcement Constitutive Law</span>
+<span class="c1"># =====================================================================================================</span>
 
 <div class="viewcode-block" id="plot_constitutive_law_reinforcement">
 <a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_constitutive_law_reinforcement">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_constitutive_law_reinforcement</span><span class="p">(</span><span class="n">reinforcement</span><span class="p">:</span> <span class="n">Reinforcement</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">     Author: Elliot Melcer</span>
-<span class="sd">     Plot the reinforcement stress–strain constitutive law.</span>
-<span class="sd">     &quot;&quot;&quot;</span>
+<span class="sd">    Plot the stress–strain constitutive law for a reinforcement material.</span>
+
+<span class="sd">    The strain domain covers [−ε_u, ε_u] sampled in three branches:</span>
+<span class="sd">    post-negative, yield plateau, and post-positive.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reinforcement : Reinforcement</span>
+<span class="sd">        Reinforcement material instance with an attached constitutive law.</span>
+<span class="sd">    n : int, optional</span>
+<span class="sd">        Number of sample points per branch [-]. Default is ``100``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If no constitutive law is attached to ``reinforcement``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -1067,380 +1508,9 @@
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
 
 
-<span class="c1"># --- Cross Section ---</span>
-
-<div class="viewcode-block" id="plot_cross_section">
-<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_cross_section">[Doku]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_cross_section</span><span class="p">(</span><span class="n">gs</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plot the section geometry, its centroid, and the local coordinate system.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">     ax : matplotlib.axes.Axes, optional</span>
-<span class="sd">         Axis to draw on. If None, a new figure is created.</span>
-<span class="sd">     x : float, optional longitudinal coordinate for title.</span>
-<span class="sd">     kwargs : dict</span>
-<span class="sd">         Extra args passed to geometry.plot().</span>
-<span class="sd">     gs: GenericSection</span>
-<span class="sd">         Generic section geometry.</span>
-<span class="sd">     title: str, optional</span>
-<span class="sd">         Additional title of the plot.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># Create axes if needed</span>
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
-
-    <span class="c1"># ---- 1. Plot the geometry using geometry method ----</span>
-    <span class="n">_plot_geometry</span><span class="p">(</span><span class="n">gs</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="c1"># ---- 2. Plot the section centroid ----</span>
-    <span class="n">cy</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">gross_properties</span><span class="o">.</span><span class="n">cy</span>
-    <span class="n">cz</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">gross_properties</span><span class="o">.</span><span class="n">cz</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot; C(</span><span class="si">{</span><span class="n">cy</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">cz</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
-
-    <span class="c1"># ---- 3. Plot local coordinate system at (0,0) ----</span>
-    <span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">calculate_extents</span><span class="p">()</span>
-    <span class="n">L</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_max</span><span class="o">-</span><span class="n">y_min</span><span class="p">)</span>
-
-    <span class="c1"># y-axis → positive x direction</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
-             <span class="n">head_width</span><span class="o">=</span><span class="n">L</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">head_length</span><span class="o">=</span><span class="n">L</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span>
-             <span class="n">fc</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">L</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
-
-    <span class="c1"># z-axis → positive y direction</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span>
-             <span class="n">head_width</span><span class="o">=</span><span class="n">L</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">head_length</span><span class="o">=</span><span class="n">L</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">,</span>
-             <span class="n">fc</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
-
-    <span class="c1"># ---- 4. Final formatting ----</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gs</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> at x = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> * L&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gs</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
-
-
-<span class="c1"># --- Geometry ---</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_plot_geometry</span><span class="p">(</span><span class="n">geo</span><span class="p">:</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plot any Geometry, SurfaceGeometry, PointGeometry, or CompoundGeometry object.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    geo : Geometry</span>
-<span class="sd">        The geometry object to plot.</span>
-<span class="sd">    ax : matplotlib.axes.Axes, optional</span>
-<span class="sd">        Existing axis to draw on. If None, a new figure is created.</span>
-<span class="sd">    kwargs : dict</span>
-<span class="sd">        Extra keyword arguments for styling (e.g. color=&quot;blue&quot;, linewidth=2).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-
-    <span class="c1"># Surface geometry</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geo</span><span class="p">,</span> <span class="s2">&quot;polygon&quot;</span><span class="p">):</span>
-        <span class="n">poly</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">polygon</span>
-        <span class="n">_plot_polygon</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgrey&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Point geometry</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geo</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">):</span>
-        <span class="n">circ</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">point</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">geo</span><span class="o">.</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">_plot_polygon</span><span class="p">(</span><span class="n">circ</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Compound geometry</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geo</span><span class="p">,</span> <span class="s2">&quot;geometries&quot;</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geo</span><span class="o">.</span><span class="n">geometries</span><span class="p">:</span>
-            <span class="n">_plot_geometry</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">geo</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">:</span>
-            <span class="n">_plot_geometry</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
-
-    <span class="c1"># ---- Add title here ----</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cross-Section at x = </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> * L&quot;</span><span class="p">)</span>
-
-    <span class="c1"># remove frame</span>
-    <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">spine</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">ax</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_plot_polygon</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightgrey&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plot and fill a Shapely polygon (supports holes).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># --- Fill exterior ---</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">xy</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">)</span>
-
-    <span class="c1"># --- Fill holes (white) ---</span>
-    <span class="k">for</span> <span class="n">hole</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">interiors</span><span class="p">:</span>
-        <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span> <span class="o">=</span> <span class="n">hole</span><span class="o">.</span><span class="n">xy</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="plot_triangulated_mesh">
-<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_triangulated_mesh">[Doku]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_triangulated_mesh</span><span class="p">(</span><span class="n">triangulated_data</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConstitutiveLaw</span><span class="p">]],</span> <span class="n">show_centroids</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Visualize triangulated fibers returned by FiberIntegrator.triangulate().</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    triangulated_data : list of tuples</span>
-<span class="sd">        (x, y, area, constitutive_law)</span>
-<span class="sd">    show_centroids : bool</span>
-<span class="sd">        If True, draw centroid dots.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-
-    <span class="c1"># Map each material to a color index</span>
-    <span class="n">materials</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;tab10&#39;</span><span class="p">)</span>
-    <span class="n">color_index</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">triangulated_data</span><span class="p">:</span>
-
-        <span class="c1"># each &quot;set&quot; (x,y,area) contains multiple fibers but they all</span>
-        <span class="c1"># come from one triangulated surface with one material</span>
-        <span class="k">if</span> <span class="n">material</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">:</span>
-            <span class="n">materials</span><span class="p">[</span><span class="n">material</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmap</span><span class="p">(</span><span class="n">color_index</span><span class="p">)</span>
-            <span class="n">color_index</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="n">col</span> <span class="o">=</span> <span class="n">materials</span><span class="p">[</span><span class="n">material</span><span class="p">]</span>
-
-        <span class="c1"># draw small scatter markers for centroids</span>
-        <span class="k">if</span> <span class="n">show_centroids</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">)</span>
-
-    <span class="c1"># legend by material name</span>
-    <span class="n">legend_elements</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
-                   <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">materials</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elements</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Materials&quot;</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Triangulated Fibers (centroids)&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
-
-
-<div class="viewcode-block" id="plot_mesh_with_triangles">
-<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_mesh_with_triangles">[Doku]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_mesh_with_triangles</span><span class="p">(</span><span class="n">triangulated_data</span><span class="p">):</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">mesh</span><span class="p">)</span> <span class="ow">in</span> <span class="n">triangulated_data</span><span class="p">:</span>
-        <span class="n">verts</span> <span class="o">=</span> <span class="n">mesh</span><span class="p">[</span><span class="s1">&#39;vertices&#39;</span><span class="p">]</span>
-        <span class="n">tris</span> <span class="o">=</span> <span class="n">mesh</span><span class="p">[</span><span class="s1">&#39;triangles&#39;</span><span class="p">]</span>
-
-        <span class="c1"># create polygon array for PolyCollection</span>
-        <span class="n">polys</span> <span class="o">=</span> <span class="p">[</span><span class="n">verts</span><span class="p">[</span><span class="n">tri</span><span class="p">]</span> <span class="k">for</span> <span class="n">tri</span> <span class="ow">in</span> <span class="n">tris</span><span class="p">]</span>
-
-        <span class="n">pc</span> <span class="o">=</span> <span class="n">PolyCollection</span><span class="p">(</span><span class="n">polys</span><span class="p">,</span>
-                            <span class="n">facecolors</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
-                            <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
-                            <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>
-
-        <span class="c1"># optional – show centroids</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Triangulated mesh&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
-
-
-
-<div class="viewcode-block" id="plot_strain_profile">
-<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_strain_profile">[Doku]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_strain_profile</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Author: Elliot Melcer</span>
-<span class="sd">    Plots Strain Profile for Moment Calculation Results</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">section</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;section&#39;</span><span class="p">]</span>
-    <span class="n">strain_profile</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;strain_profile&quot;</span><span class="p">]</span>
-
-    <span class="c1"># Section extents</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">zmin</span><span class="p">,</span> <span class="n">zmax</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">calculate_extents</span><span class="p">()</span>
-    <span class="n">depth</span> <span class="o">=</span> <span class="n">zmax</span> <span class="o">-</span> <span class="n">zmin</span>
-
-    <span class="c1"># Section centroid</span>
-    <span class="n">cz</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">gross_properties</span><span class="o">.</span><span class="n">cz</span>
-
-    <span class="c1"># Top &amp; bottom fiber strains</span>
-    <span class="n">eps_top</span> <span class="o">=</span> <span class="n">get_strain_at_point</span><span class="p">(</span><span class="n">strain_profile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">zmax</span><span class="p">)</span>
-    <span class="n">eps_bot</span> <span class="o">=</span> <span class="n">get_strain_at_point</span><span class="p">(</span><span class="n">strain_profile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">zmin</span><span class="p">)</span>
-
-    <span class="c1"># Reinforcement z-coordinates</span>
-    <span class="n">z_reinf</span> <span class="o">=</span> <span class="p">[</span><span class="n">pg</span><span class="o">.</span><span class="n">point</span><span class="o">.</span><span class="n">y</span> <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">]</span>
-
-    <span class="c1"># Reinforcement strains (from strain field, no prestress)</span>
-    <span class="n">eps_reinf</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">get_strain_at_point</span><span class="p">(</span><span class="n">strain_profile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_s</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">z_s</span> <span class="ow">in</span> <span class="n">z_reinf</span>
-    <span class="p">]</span>
-
-    <span class="c1"># Check Failure</span>
-    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.01e-3</span> <span class="c1"># account for rounding error</span>
-
-    <span class="n">concrete_fail</span> <span class="o">=</span> <span class="n">eps_top</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">3.5e-3</span> <span class="o">+</span> <span class="n">epsilon</span>
-    <span class="n">reinf_failures</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">pg</span><span class="p">,</span> <span class="n">eps_s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">point_geometries</span><span class="p">,</span> <span class="n">eps_reinf</span><span class="p">):</span>
-        <span class="n">eps_u_neg</span><span class="p">,</span> <span class="n">eps_u_pos</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">constitutive_law</span><span class="o">.</span><span class="n">get_ultimate_strain</span><span class="p">()</span>
-        <span class="n">reinf_failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eps_s</span> <span class="o">&gt;=</span> <span class="n">eps_u_pos</span><span class="o">-</span><span class="n">epsilon</span> <span class="ow">or</span> <span class="n">eps_s</span> <span class="o">&lt;=</span> <span class="n">eps_u_neg</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span>
-
-    <span class="c1"># --- X-axis strain limits (‰) with padding ------------------------</span>
-    <span class="n">eps_vals</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">]</span>
-    <span class="n">eps_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">eps_vals</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
-    <span class="n">eps_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">eps_vals</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span>
-
-    <span class="c1"># --- Y-axis padding (5% of section depth) -------------------------</span>
-    <span class="n">z_pad</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">depth</span>
-
-    <span class="c1"># ------------------------------------------------------------------</span>
-    <span class="c1"># Plot</span>
-    <span class="c1"># ------------------------------------------------------------------</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
-
-    <span class="c1"># Thick vertical extent line</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">ymin</span><span class="o">=</span><span class="n">zmin</span><span class="p">,</span>
-        <span class="n">ymax</span><span class="o">=</span><span class="n">zmax</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
-        <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Concrete strain profile</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">],</span>
-        <span class="p">[</span><span class="n">zmax</span><span class="p">,</span> <span class="n">zmin</span><span class="p">],</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
-        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.25</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Top &amp; bottom strain lines (thick)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
-        <span class="n">y</span><span class="o">=</span><span class="n">zmax</span><span class="p">,</span>
-        <span class="n">xmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">),</span>
-        <span class="n">xmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">),</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span> <span class="k">if</span> <span class="n">concrete_fail</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
-        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.25</span>
-    <span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
-        <span class="n">y</span><span class="o">=</span><span class="n">zmin</span><span class="p">,</span>
-        <span class="n">xmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">),</span>
-        <span class="n">xmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">),</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
-        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.25</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Centroid line (dash-dot)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
-        <span class="n">y</span><span class="o">=</span><span class="n">cz</span><span class="p">,</span>
-        <span class="n">xmin</span><span class="o">=</span><span class="n">eps_min</span><span class="p">,</span>
-        <span class="n">xmax</span><span class="o">=</span><span class="n">eps_max</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
-        <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-.&quot;</span>
-    <span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
-        <span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">eps_max</span><span class="p">,</span> <span class="n">cz</span><span class="p">),</span>
-        <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
-        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
-        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
-        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
-        <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
-        <span class="n">fontfamily</span><span class="o">=</span><span class="s2">&quot;serif&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Reinforcement strains (coloured by failure)</span>
-    <span class="k">for</span> <span class="n">z_s</span><span class="p">,</span> <span class="n">eps_s</span><span class="p">,</span> <span class="n">failed</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">z_reinf</span><span class="p">,</span> <span class="n">eps_reinf</span><span class="p">,</span> <span class="n">reinf_failures</span><span class="p">):</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span> <span class="k">if</span> <span class="n">failed</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span>
-
-        <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">z_s</span><span class="p">,</span>
-            <span class="n">xmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-            <span class="n">xmax</span><span class="o">=</span><span class="n">eps_s</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
-            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span>
-        <span class="p">)</span>
-
-        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eps_s</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">eps_s</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">z_s</span><span class="p">),</span>
-            <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
-            <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="n">color</span>
-        <span class="p">)</span>
-
-    <span class="c1"># Top strain label (red if concrete fails)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eps_top</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">eps_top</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">zmax</span><span class="p">),</span>
-        <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
-        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
-        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span> <span class="k">if</span> <span class="n">concrete_fail</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Bottom strain label (right)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eps_bot</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">eps_bot</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">zmin</span><span class="p">),</span>
-        <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
-        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Axes formatting</span>
-    <span class="c1"># ax.axvline(0.0, color=&quot;black&quot;, linewidth=1)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Strain ε [‰]&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;z [mm]&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Strain Profile for </span><span class="si">{</span><span class="n">section</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
-
-    <span class="c1"># Apply padded limits</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">eps_min</span><span class="p">,</span> <span class="n">eps_max</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">zmin</span> <span class="o">-</span> <span class="n">z_pad</span><span class="p">,</span> <span class="n">zmax</span> <span class="o">+</span> <span class="n">z_pad</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
-
+<span class="c1"># =====================================================================================================</span>
+<span class="c1"># Mirrored Plot used for moment, curvature, stiffness and deflection plots</span>
+<span class="c1"># =====================================================================================================</span>
 
 <div class="viewcode-block" id="mirror_plot">
 <a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.mirror_plot">[Doku]</a>
@@ -1457,10 +1527,10 @@
     <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
     <span class="n">flip_y_axis</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">coordinate_axes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">show_x_numbers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>       <span class="c1"># show/hide x-axis tick labels</span>
-    <span class="n">show_x_ticks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>         <span class="c1"># show/hide x-axis tick marks (independent of labels)</span>
-    <span class="n">x_number_position</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="c1"># &quot;bottom&quot; or &quot;top&quot;</span>
-    <span class="n">show_x_axis_label</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>    <span class="c1"># show/hide the &quot;x&quot; text at the arrow end</span>
+    <span class="n">show_x_numbers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_x_ticks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">x_number_position</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+    <span class="n">show_x_axis_label</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">show_legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">x_number_pad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">,</span>
     <span class="n">axis_arrows</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1470,6 +1540,86 @@
     <span class="n">x_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">y_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot each :class:`PlotLine` together with its x-axis mirror image.</span>
+
+<span class="sd">    Draws each dataset and its mirror (reflected about the last x-value)</span>
+<span class="sd">    on a single axes. Primarily used for moment, curvature, stiffness, and</span>
+<span class="sd">    deflection diagrams of symmetric beams where only the half-span is</span>
+<span class="sd">    stored but the full-span plot is desired.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lines : list[PlotLine]</span>
+<span class="sd">        One or more datasets to plot.</span>
+<span class="sd">    ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">        Existing axes. A new figure is created when ``None``.</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">        Title text, placed left-aligned below the plot area. Default is</span>
+<span class="sd">        ``&quot;&quot;``.</span>
+<span class="sd">    xlabel : str, optional</span>
+<span class="sd">        Horizontal axis label. Default is ``&quot;&quot;``.</span>
+<span class="sd">    ylabel : str, optional</span>
+<span class="sd">        Vertical axis label. Default is ``&quot;&quot;``.</span>
+<span class="sd">    xlim : tuple[float, float], optional</span>
+<span class="sd">        x-axis limits.</span>
+<span class="sd">    ylim : tuple[float, float], optional</span>
+<span class="sd">        y-axis limits.</span>
+<span class="sd">    xmarker : float, optional</span>
+<span class="sd">        Major tick spacing on the x-axis [-]. Default is ``5.0``.</span>
+<span class="sd">    ymarker : float, optional</span>
+<span class="sd">        Major tick spacing on the y-axis [-]. Default is ``5.0``.</span>
+<span class="sd">    figsize : tuple[float, float], optional</span>
+<span class="sd">        Figure size (width, height) [inches]. Default is ``(12, 5)``.</span>
+<span class="sd">    flip_y_axis : bool, optional</span>
+<span class="sd">        If ``True``, invert the y-axis (useful for deflection diagrams).</span>
+<span class="sd">        Default is ``False``.</span>
+<span class="sd">    coordinate_axes : bool, optional</span>
+<span class="sd">        If ``True``, use coordinate-axis spine style (top/right spines</span>
+<span class="sd">        hidden). Default is ``True``.</span>
+<span class="sd">    show_x_numbers : bool, optional</span>
+<span class="sd">        Show or hide x-axis tick labels. Default is ``True``.</span>
+<span class="sd">    show_x_ticks : bool, optional</span>
+<span class="sd">        Show or hide x-axis tick marks (independent of labels).</span>
+<span class="sd">        Default is ``True``.</span>
+<span class="sd">    x_number_position : str, optional</span>
+<span class="sd">        Position of x-axis tick labels: ``&quot;bottom&quot;`` or ``&quot;top&quot;``.</span>
+<span class="sd">        Default is ``&quot;bottom&quot;``.</span>
+<span class="sd">    show_x_axis_label : bool, optional</span>
+<span class="sd">        Show the ``&quot;x_norm&quot;`` text label at the arrow end of the x-axis.</span>
+<span class="sd">        Default is ``True``.</span>
+<span class="sd">    show_legend : bool, optional</span>
+<span class="sd">        Show the legend. Default is ``True``.</span>
+<span class="sd">    x_number_pad : float, optional</span>
+<span class="sd">        Padding between x-axis tick marks and labels [points].</span>
+<span class="sd">        Default is ``8.0``.</span>
+<span class="sd">    axis_arrows : bool, optional</span>
+<span class="sd">        Draw arrow heads on the coordinate axes. Only effective when</span>
+<span class="sd">        ``coordinate_axes=True``. Default is ``True``.</span>
+<span class="sd">    show_vertical_grid : bool, optional</span>
+<span class="sd">        Draw vertical grid lines. Default is ``True``.</span>
+<span class="sd">    show_horizontal_grid : bool, optional</span>
+<span class="sd">        Draw horizontal grid lines. Default is ``True``.</span>
+<span class="sd">    limit_grid_to_xlim : bool, optional</span>
+<span class="sd">        If ``True`` and ``xlim`` is set, clip grid lines to ``xlim``.</span>
+<span class="sd">        Default is ``True``.</span>
+<span class="sd">    x_scale : float, optional</span>
+<span class="sd">        Multiplicative scale applied to all x-values (``line.moments``)</span>
+<span class="sd">        before plotting [-]. Default is ``1.0``.</span>
+<span class="sd">    y_scale : float, optional</span>
+<span class="sd">        Multiplicative scale applied to all y-values (``line.curvatures``)</span>
+<span class="sd">        before plotting [-]. Default is ``1.0``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``lines`` is empty, or if any line has mismatched or empty</span>
+<span class="sd">        data arrays.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;lines&#39; must contain at least one PlotLine.&quot;</span><span class="p">)</span>
@@ -1701,6 +1851,112 @@
             <span class="n">va</span><span class="o">=</span><span class="n">x_label_va</span><span class="p">,</span>
             <span class="n">clip_on</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+<span class="c1"># =====================================================================================================</span>
+<span class="c1"># Triangulated Cross Section for Fiber Integrator (currently not used in SlabDesignBench)</span>
+<span class="c1"># =====================================================================================================</span>
+
+<div class="viewcode-block" id="plot_triangulated_mesh">
+<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_triangulated_mesh">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_triangulated_mesh</span><span class="p">(</span><span class="n">triangulated_data</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConstitutiveLaw</span><span class="p">]],</span> <span class="n">show_centroids</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualize triangulated fibers returned by ``FiberIntegrator.triangulate()``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    triangulated_data : list[tuple[np.ndarray, np.ndarray, np.ndarray, ConstitutiveLaw]]</span>
+<span class="sd">        List of ``(x, y, area, constitutive_law)`` tuples, one per</span>
+<span class="sd">        triangulated surface.</span>
+<span class="sd">    show_centroids : bool, optional</span>
+<span class="sd">        If ``True``, draw a dot at each fiber centroid. Default is</span>
+<span class="sd">        ``True``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="c1"># Map each material to a color index</span>
+    <span class="n">materials</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;tab10&#39;</span><span class="p">)</span>
+    <span class="n">color_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">material</span> <span class="ow">in</span> <span class="n">triangulated_data</span><span class="p">:</span>
+
+        <span class="c1"># each &quot;set&quot; (x,y,area) contains multiple fibers but they all</span>
+        <span class="c1"># come from one triangulated surface with one material</span>
+        <span class="k">if</span> <span class="n">material</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">materials</span><span class="p">:</span>
+            <span class="n">materials</span><span class="p">[</span><span class="n">material</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmap</span><span class="p">(</span><span class="n">color_index</span><span class="p">)</span>
+            <span class="n">color_index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">col</span> <span class="o">=</span> <span class="n">materials</span><span class="p">[</span><span class="n">material</span><span class="p">]</span>
+
+        <span class="c1"># draw small scatter markers for centroids</span>
+        <span class="k">if</span> <span class="n">show_centroids</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">)</span>
+
+    <span class="c1"># legend by material name</span>
+    <span class="n">legend_elements</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                   <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">materials</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elements</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Materials&quot;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Triangulated Fibers (centroids)&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="plot_mesh_with_triangles">
+<a class="viewcode-back" href="../../../api/core.visualization_core.visualization.html#core.visualization_core.visualization.plot_mesh_with_triangles">[Doku]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_mesh_with_triangles</span><span class="p">(</span><span class="n">triangulated_data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visualize the triangle mesh from ``FiberIntegrator.triangulate()``.</span>
+
+<span class="sd">    Draws each triangle as an outlined polygon and optionally marks the</span>
+<span class="sd">    fiber centroids.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    triangulated_data : list[tuple]</span>
+<span class="sd">        List of ``(x, y, area, material, mesh)`` tuples where ``mesh``</span>
+<span class="sd">        is a dict with ``&quot;vertices&quot;`` and ``&quot;triangles&quot;`` arrays.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">mesh</span><span class="p">)</span> <span class="ow">in</span> <span class="n">triangulated_data</span><span class="p">:</span>
+        <span class="n">verts</span> <span class="o">=</span> <span class="n">mesh</span><span class="p">[</span><span class="s1">&#39;vertices&#39;</span><span class="p">]</span>
+        <span class="n">tris</span> <span class="o">=</span> <span class="n">mesh</span><span class="p">[</span><span class="s1">&#39;triangles&#39;</span><span class="p">]</span>
+
+        <span class="c1"># create polygon array for PolyCollection</span>
+        <span class="n">polys</span> <span class="o">=</span> <span class="p">[</span><span class="n">verts</span><span class="p">[</span><span class="n">tri</span><span class="p">]</span> <span class="k">for</span> <span class="n">tri</span> <span class="ow">in</span> <span class="n">tris</span><span class="p">]</span>
+
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">PolyCollection</span><span class="p">(</span><span class="n">polys</span><span class="p">,</span>
+                            <span class="n">facecolors</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+                            <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+                            <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>
+
+        <span class="c1"># optional – show centroids</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="s1">&#39;box&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Triangulated mesh&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
 
