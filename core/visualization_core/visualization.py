@@ -714,7 +714,7 @@ def plot_moment_curvature_multiple(
     x : float, optional
         Normalized position appended to the title [-].
     xlabel : str, optional
-        Horizontal axis label. Default is ``"Krümmung κ [1/1000m]"``.
+        Horizontal axis label. Default is ``"Krümmung κ [mm/m]"``.
     ylabel : str, optional
         Vertical axis label. Default is ``"My [kNm]"``.
     xlim : tuple[float, float], optional
