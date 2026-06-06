@@ -693,7 +693,7 @@ def plot_moment_curvature_multiple(
     ax: Optional[matplotlib.axes.Axes] = None,
     title: str = "",
     x: Optional[float] = None,
-    xlabel: str = "Krümmung κ [1/1000m]",
+    xlabel: str = "Krümmung κ [mm/m]",
     ylabel: str = "My [kNm]",
     xlim: Optional[tuple[float, float]] = None,
     ylim: Optional[tuple[float, float]] = None,
