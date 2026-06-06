@@ -103,7 +103,7 @@ for LOCATION in [0.00, 0.10, 0.20, 0.30, 0.40, 0.50]:
         mk_np_results,
         name="Python_NONE-PARA",
         color=TU_COLORS["ORANGE"],
-        linestyle="solid"
+        linestyle=(0, (5, 5))
     )
 
     lines_inca_python_comparison.append(mk_line_inca_np)
