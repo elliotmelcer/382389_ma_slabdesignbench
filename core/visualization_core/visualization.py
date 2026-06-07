@@ -699,6 +699,7 @@ def plot_moment_curvature_multiple(
     ylim: Optional[tuple[float, float]] = None,
     xmarker: float = 5.0,
     ymarker: float = 5.0,
+    figsize: Optional[tuple[float, float]] = None,
 ) -> tuple[plt.Figure, matplotlib.axes.Axes]:
     """
     Plot multiple M–K datasets on a single axes.
@@ -740,7 +741,7 @@ def plot_moment_curvature_multiple(
         raise ValueError("'lines' must contain at least one PlotLine.")
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.get_figure()
 
