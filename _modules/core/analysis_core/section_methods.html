@@ -221,7 +221,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/core.ioh_core.problem_builder.html">problem_builder.py</a></li>
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.unit_core.html">unit_core</a><input aria-label="Toggle navigation of unit_core" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/core.unit_core.unit_conversion.html">unit_conversion.py</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/core.visualization_core.html">visualization_core</a><input aria-label="Toggle navigation of visualization_core" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -750,6 +751,8 @@
 
 
 
+<div class="viewcode-block" id="_ensure_force_controlled">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods._ensure_force_controlled">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_force_controlled</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="n">MomentCurvatureResults</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MomentCurvatureResults</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enforce a force-controlled M-κ diagram with monotonic moment magnitude.</span>
 
@@ -820,9 +823,12 @@
     <span class="n">results</span><span class="o">.</span><span class="n">m_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">moments</span><span class="p">)</span>
     <span class="n">results</span><span class="o">.</span><span class="n">chi_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">curvatures</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">results</span>
+    <span class="k">return</span> <span class="n">results</span></div>
 
 
+
+<div class="viewcode-block" id="_full_moment_curvature_method">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods._full_moment_curvature_method">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_full_moment_curvature_method</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
                                    <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
                                    <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MomentCurvatureResults</span><span class="p">:</span>
@@ -929,8 +935,11 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Library starts at: (κ=</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">chi_y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.9f</span><span class="si">}</span><span class="s2"> 1/mm, M=</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">m_y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kNm)&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Total points: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moments_combined</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">results</span>
+    <span class="k">return</span> <span class="n">results</span></div>
 
+
+<div class="viewcode-block" id="_simplified_moment_curvature_method">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods._simplified_moment_curvature_method">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_simplified_moment_curvature_method</span><span class="p">(</span><span class="n">section</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
                                         <span class="n">simplification</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                                         <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -1108,8 +1117,11 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">M</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">&gt;15.2f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">kappa</span><span class="si">:</span><span class="s2">&gt;18.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">mk_results</span>
+    <span class="k">return</span> <span class="n">mk_results</span></div>
 
+
+<div class="viewcode-block" id="_calculate_section_state_from_bottom_strain_sls">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods._calculate_section_state_from_bottom_strain_sls">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_section_state_from_bottom_strain_sls</span><span class="p">(</span>
         <span class="n">section_uls</span><span class="p">,</span>
         <span class="n">eps_bot</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1270,7 +1282,8 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  → My = </span><span class="si">{</span><span class="n">best_result</span><span class="p">[</span><span class="s1">&#39;m_y&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e6</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kNm&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  → N residual = </span><span class="si">{</span><span class="n">best_result</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> N&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">best_result</span>
+    <span class="k">return</span> <span class="n">best_result</span></div>
+
 
 <div class="viewcode-block" id="calculate_prestress_forces_Nmm">
 <a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.calculate_prestress_forces_Nmm">[Doku]</a>
@@ -1333,6 +1346,8 @@
     <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">M_p</span><span class="p">),</span> <span class="n">N_p</span></div>
 
 
+<div class="viewcode-block" id="_calculate_kappa_0">
+<a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods._calculate_kappa_0">[Doku]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_kappa_0</span><span class="p">(</span>
     <span class="n">sls_sec</span><span class="p">:</span> <span class="n">GenericSection</span><span class="p">,</span>
     <span class="n">n</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -1428,7 +1443,8 @@
               <span class="sa">f</span><span class="s2">&quot;  intercept=</span><span class="si">{</span><span class="n">intercept</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span>
               <span class="sa">f</span><span class="s2">&quot;  → κ₀=</span><span class="si">{</span><span class="n">kappa_0</span><span class="o">*</span><span class="mi">1000</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> 1/m&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">kappa_0</span>
+    <span class="k">return</span> <span class="n">kappa_0</span></div>
+
 
 <div class="viewcode-block" id="get_strain_at_point">
 <a class="viewcode-back" href="../../../api/core.analysis_core.section_methods.html#core.analysis_core.section_methods.get_strain_at_point">[Doku]</a>

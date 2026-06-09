@@ -3,7 +3,7 @@ SlabDesignBench
 
 API Documentation of SlabDesignBench, developed by Elliot Melcer as part of his
 Master's Thesis *"Erstellung einer Benchmarking-Suite für die Strukturoptimierung
-von HP-Schalen in Python"* at the Technische Universität Berlin.
+von HP-Schalen in Python"* at the Technische Universität Berlin in June 2026.
 
 .. |pkg_icon| raw:: html
 
@@ -23,8 +23,7 @@ von HP-Schalen in Python"* at the Technische Universität Berlin.
    api/slab_construction
    references
 
-Indizes
-=======
+.. rubric:: Indices
 
 * :ref:`genindex`
 * :ref:`modindex`
