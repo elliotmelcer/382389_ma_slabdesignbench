@@ -17,7 +17,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.abspath(".."))
 
 # -- Projektinformationen ----------------------------------------------------
-project = "SlabDesignBench"
+project = "SlabDesignBench Documentation"
 author = "Elliot Melcer"
 copyright = f"{datetime.now():%Y}, Elliot Melcer"
 release = "0.1"
@@ -39,6 +39,8 @@ bibtex_default_style = "plain"
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_descriptions"]
 language = "de"
+# Logo
+html_logo = "_static/logo.png"
 
 # -- autodoc / autosummary ---------------------------------------------------
 # autosummary_generate = True
