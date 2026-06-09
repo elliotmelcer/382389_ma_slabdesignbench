@@ -15,11 +15,20 @@ Developed as part of a Master's Thesis at the Technische Universität Berlin.
 
 **Requirements:** Python 3.12+
 
-Clone the repository and install dependencies into a virtual environment:
+**Option A: Clone the repository**
 
 ```bash
 git clone https://github.com/elliotmelcer/382389_ma_slabdesignbench.git
 cd 382389_ma_slabdesignbench
+```
+
+**Option B: Extract the ZIP archive**
+
+Extract the ZIP and navigate into the folder. The `.venv` is not included and must be created manually (same as Option A).
+
+**Create a virtual environment and install dependencies:**
+
+```bash
 python -m venv .venv
 
 # Windows
