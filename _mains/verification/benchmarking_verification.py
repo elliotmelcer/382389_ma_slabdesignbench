@@ -1,7 +1,7 @@
 import time
 from contextlib import contextmanager
 
-from core.ioh_core.algorithms import NloptDirectLocalSearch, RandomSearch
+from core.ioh_core.algorithms import NLoptDirectLocalSearch, RandomSearch
 from core.ioh_core.experiment import run_experiment
 from core.ioh_core.problem_builder import build_problems_for_slab_type
 
@@ -35,7 +35,7 @@ def run_single_alg():
     """Run one algorithm on the HP-slab problem."""
     print("Running single algorithm on HP-slab problem...")
     bundles = build_problems_for_slab_type("hp_slab")
-    algo = NloptDirectLocalSearch(max_evaluations=100)
+    algo = NLoptDirectLocalSearch(max_evaluations=100)
     run_experiment(
         bundles,
         algorithm = algo,
@@ -50,7 +50,7 @@ def run_multi_instance():
     bundles = build_problems_for_slab_type("hp_slab")
     run_experiment(
         bundles,
-        algorithm = NloptDirectLocalSearch(max_evaluations=5),
+        algorithm = NLoptDirectLocalSearch(max_evaluations=5),
         n_runs=1,
         name="sdb_benchmarking_multi_instance",
         delete_after_zip = True
@@ -72,7 +72,7 @@ def run_multi_alg():
     """Run several algorithms on the HP-slab problem; each gets its own output folder."""
     print("Running several algorithms on HP-slab problem...")
     algos = [
-        NloptDirectLocalSearch(max_evaluations=50),
+        NLoptDirectLocalSearch(max_evaluations=50),
         RandomSearch(max_evaluations=50, seed=0),
     ]
 

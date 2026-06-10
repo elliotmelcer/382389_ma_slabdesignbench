@@ -1,7 +1,7 @@
 """
 Optimization algorithm wrappers for IOHexperimenter problems.
 
-Provides :class:`NloptDirectLocalSearch` (NLopt DIRECT-L) and
+Provides :class:`NLoptDirectLocalSearch` (NLopt DIRECT-L) and
 :class:`RandomSearch` as drop-in callables compatible with the IOH
 problem interface used in SlabDesignBench.
 
@@ -17,7 +17,7 @@ import nlopt
 import numpy as np
 
 
-class NloptDirectLocalSearch:
+class NLoptDirectLocalSearch:
     """
     NLopt DIRECT-L wrapper around an IOHexperimenter problem.
     Adapted from: Max Dombrowski
