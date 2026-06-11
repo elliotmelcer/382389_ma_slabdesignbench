@@ -1,0 +1,1 @@
+``unit_core`` provides unit conversion utilities for structuralcodes output (N, mm) to more common engineering units (kN, m).

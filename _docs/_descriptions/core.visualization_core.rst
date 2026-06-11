@@ -1,0 +1,1 @@
+``visualization_core`` provides Matplotlib-based visualization utilities for constitutive laws, structural sections, strain profile and moment-curvature analysis results.
